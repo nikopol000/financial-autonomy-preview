@@ -1,0 +1,19 @@
+Financial Autonomy v007 — 2026-09-27
+
+Modificări:
+- Mai multe -> Bugete.
+- overview per buget: limita configurata, cheltuit, ramas, reper pana azi si suma/zi.
+- Editarea unui buget foloseste editorul existent din Finante.
+- bugetele existente raman Primary lunar implicit.
+- doar tranzactiile cu rol Bugetata si buget explicit consuma limita.
+- ferestrele Additional nu sunt calculate inca; regulile neconfirmate nu au fost inventate.
+
+Testare:
+1. Deschide aplicatia si verifica marcajul v007 in antet.
+2. Intra la Mai multe -> Bugete.
+3. Verifica valorile si butonul de editare.
+4. Reincarcarea paginii sterge starea web curenta.
+
+Backup sintetic:
+fisier: Exemplu-v007.backup.json
+parola: Exemplu-sintetic-2026
