@@ -1,0 +1,19 @@
+Financial Autonomy v013 — 2026-09-28
+
+Dashboard personalization:
+- cercul decorativ din Autonomie a fost eliminat;
+- toate modulele normale de pe Dashboard pot fi mutate prin drag & drop;
+- modul Aranjează afișează handle-uri și fallback cu săgeți sus/jos;
+- ordinea aleasă se păstrează local în starea aplicației;
+- Reset la default readuce ordinea standard: Autonomie, Spațiu, Buget primele;
+- resetul readuce și ferestrele Additional la Primary-only pe Home;
+- ferestrele Additional pot fi tracked fără să fie afișate;
+- ferestrele pinned rămân grupate lângă Primary-ul bugetului lor;
+- ferestrele pinned pot fi reordonate prin drag & drop în modul Aranjează;
+- ferestrele pinned pot fi ascunse rapid din Home;
+- pin/unpin complet rămâne în editorul unic din Finanțe.
+
+Default Dashboard:
+Autonomie → Spațiu → Buget → Acțiuni rapide → Ritm sigur → Banii mei → Bugete urmărite → Obligații → Atenție.
+
+Logica financiară nu este modificată.
