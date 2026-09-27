@@ -1,0 +1,14 @@
+Financial Autonomy v010 — 2026-09-27
+
+Modificări:
+- Space rezervă numai obligațiile și Primary rămas; Additional nu dublează bani;
+- Coverage cronologic până în ziua anterioară următorului venit;
+- Safe Spending Pace folosește doar banii existenți și scadențele;
+- data venitului definește orizontul, suma venitului viitor nu intră în sold;
+- deficitul arată prima zi neacoperită;
+- Autonomy urmează ciclurile Primary reale, fără venituri viitoare;
+- inflația rămâne selectivă pentru costuri expuse; ratele contractuale nu sunt indexate.
+
+Backup sintetic: Exemplu-v010.backup.json
+Parola: Exemplu-sintetic-2026
+Web preview-ul nu păstrează datele după reload.
