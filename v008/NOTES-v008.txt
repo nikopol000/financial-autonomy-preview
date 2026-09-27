@@ -1,15 +1,18 @@
 Financial Autonomy v008 — 2026-09-27
 
 Modificări:
-- motor determinist pentru Primary + Additional tracking windows;
-- ferestre: Paycheck, Weekly, Biweekly, Monthly, Quarterly, Annual, Custom;
-- limite Additional Auto derivate exclusiv din ciclurile Primary reale,
-  ponderate cu overlapDays/cycleDays și rotunjite o singură dată la final;
-- limite Custom independente de modificarea Primary;
-- aceeași tranzacție Budgeted este evaluată în mai multe ferestre fără
-  dublare financiară;
-- lipsa cadenței reale produce explicit indisponibil, nu o estimare inventată;
-- consumul de buget este bazat pe Financial Role = Budgeted.
+- motor modular pentru ferestre de buget suprapuse;
+- Primary: monthly, quarterly, annual, weekly, biweekly, paycheck, custom;
+- Additional: Auto sau Custom;
+- Auto derivă numai din Primary folosind ciclurile reale și overlapDays/cycleDays;
+- rotunjire numai la final;
+- Paycheck folosește venitul selectat și poate traversa două luni;
+- doar tranzacțiile Budgeted atribuite explicit consumă ferestrele;
+- prima perioadă păstrează proratizarea de onboarding;
+- Track/Show și UI de configurare vor fi livrate în versiunea următoare.
 
-Această versiune livrează motorul și modelul de date. Configurarea UI
-completă pentru ferestre urmează în v009.
+Limită:
+v008 livrează motorul și modelul de date; configurarea completă în UI nu este încă expusă.
+
+Persistență web:
+sesiune în memorie; reîncărcarea paginii pierde starea curentă.
