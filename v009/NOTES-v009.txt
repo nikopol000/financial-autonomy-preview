@@ -1,0 +1,17 @@
+Financial Autonomy v009 — 2026-09-27
+
+Modificări:
+- editor unic în Finanțe pentru Primary + Additional windows;
+- Primary: Paycheck, Weekly, Biweekly, Monthly, Quarterly, Annual, Custom;
+- Additional: Track separat de Show on Dashboard;
+- Additional limită Auto din Primary sau Custom independentă;
+- Budget Hub: După buget / După fereastră;
+- Dashboard: Primary implicit + ferestre Additional pin-uite;
+- Budget Pace zilnic agregă numai Primary windows unde ritmul zilnic are sens;
+- editarea contextuală revine în ecranul din care ai pornit.
+
+Backup sintetic:
+fisier: Exemplu-v009.backup.json
+parola: Exemplu-sintetic-2026
+
+Web preview-ul nu păstrează datele după reload.
