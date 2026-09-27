@@ -1,14 +1,24 @@
 Financial Autonomy v010 — 2026-09-27
 
 Modificări:
-- Space rezervă numai obligațiile și Primary rămas; Additional nu dublează bani;
-- Coverage cronologic până în ziua anterioară următorului venit;
-- Safe Spending Pace folosește doar banii existenți și scadențele;
-- data venitului definește orizontul, suma venitului viitor nu intră în sold;
-- deficitul arată prima zi neacoperită;
-- Autonomy urmează ciclurile Primary reale, fără venituri viitoare;
-- inflația rămâne selectivă pentru costuri expuse; ratele contractuale nu sunt indexate.
+- Dashboard Autonomy reprezintă numai situația financiară curentă;
+- scenariul de stingere imediată a datoriilor a fost mutat în Planuri;
+- Coverage / Safe Spending Pace este separat de Budget Pace;
+- următorul venit definește doar orizontul, nu este adăugat la bani înainte de încasare;
+- Coverage verifică obligațiile cronologic până în ziua dinaintea următorului venit;
+- dacă apare o obligație neacoperită, este afișată explicit data și deficitul, fără un ritm zilnic fals;
+- scadențele necunoscute blochează calculul în loc să inventeze precizie.
 
-Backup sintetic: Exemplu-v010.backup.json
-Parola: Exemplu-sintetic-2026
-Web preview-ul nu păstrează datele după reload.
+Testare:
+1. verifică marcajul v010;
+2. Acasă: Autonomie nu mai afișează scenariul payoff;
+3. Acasă: verifică secțiunea Coverage;
+4. Planuri: compară situația actuală cu scenariul de stingere;
+5. Finanțe: ipotezele scenariului trimit acum către Planuri.
+
+Backup sintetic:
+Exemplu-v010.backup.json
+parola: Exemplu-sintetic-2026
+
+Persistență web:
+sesiune în memorie; reîncărcarea paginii pierde starea curentă.
