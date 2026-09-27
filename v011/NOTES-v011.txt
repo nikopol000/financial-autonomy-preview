@@ -1,0 +1,22 @@
+Financial Autonomy v011 — 2026-09-27
+
+Home redesign:
+- Home devine "Situația mea", nu o succesiune generică de secțiuni.
+- Autonomy este hero-ul principal: "Cât mă țin banii dacă veniturile se opresc?"
+- Space și Coverage apar imediat sub autonomie, ca răspunsuri diferite.
+- Budget Pace este separat vizual de Coverage: plan vs realitatea susținută de bani.
+- Harta banilor arată Bani proprii / Economii / Datorez / Credit disponibil.
+- Creditul disponibil este etichetat explicit ca capacitate de împrumut, nu bani proprii.
+- Bugetele urmărite devin carduri compacte și colorate.
+- Home arată doar următoarele 3 obligații.
+- Secțiunile duplicate pentru Space, Economii și Coverage au fost eliminate.
+- Border-ele cardurilor principale folosesc culori semantice/accent, nu gri generic.
+
+Logica financiară nu a fost modificată în această versiune.
+
+Persistență web:
+sesiune în memorie; reîncărcarea paginii pierde starea curentă.
+
+Backup sintetic:
+Exemplu-v011.backup.json
+parola: Exemplu-sintetic-2026
