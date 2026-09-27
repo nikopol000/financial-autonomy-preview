@@ -1,0 +1,10 @@
+Financial Autonomy v014 — 2026-09-28
+
+Preview persistence:
+- datele introduse în preview se salvează automat în browser;
+- refresh/reopen păstrează starea;
+- aceeași stocare este folosită de versiunile viitoare de preview de pe același domeniu;
+- payload-ul este criptat local cu o cheie generată în browser;
+- nimic nu este trimis către backend;
+- ștergerea datelor site-ului/browserului sau schimbarea browserului/dispozitivului pierde această copie locală;
+- protecția web nu este echivalentă cu SecureStore-ul nativ.
