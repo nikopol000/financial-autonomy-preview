@@ -1,0 +1,14 @@
+Financial Autonomy v012 — 2026-09-27
+
+Home redesign:
+- primele trei răspunsuri sunt separate: Autonomie, Spațiu, Buget;
+- Autonomie rămâne hero independent;
+- Spațiu are propriul card și nu este amestecat cu autonomia;
+- Bugetul este separat și exprimat vizual prin bară de progres;
+- Coverage / Ritm sigur rămâne separat și secundar;
+- acțiunile rapide vin după cele trei răspunsuri principale;
+- mai puține borduri și mai puțin chrome vizual;
+- bugetele urmărite și obligațiile rămân compacte;
+- logica financiară nu este schimbată.
+
+Inspirație UX: ierarhie clară, valori dominante și progres vizual, nu grilă de carduri egale.
