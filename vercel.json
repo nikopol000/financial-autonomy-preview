@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/financial-autonomy-preview/:path*",
+      "destination": "/:path*"
+    }
+  ]
+}
