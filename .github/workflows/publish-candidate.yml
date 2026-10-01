@@ -17,11 +17,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: preview
-      - uses: actions/checkout@v4
+      - name: Checkout application source
+        uses: actions/checkout@v4
         with:
           repository: nikopol000/financial-autonomy-app
           ref: feat/v018-calculation-explanations-review
           path: app
+          token: ${{ secrets.APP_REPO_TOKEN }}
       - uses: actions/setup-node@v4
         with:
           node-version: 24
