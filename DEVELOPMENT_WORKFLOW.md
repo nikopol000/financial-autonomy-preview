@@ -70,3 +70,8 @@ A change is done only when:
 - active preview deployment succeeds;
 - active preview references the new bundle;
 - the user has a concrete version ready to test.
+
+## Chat execution rule
+For a change that is being prepared for immediate user testing, stay in the same execution while CI/publish/deploy is progressing. Poll the deployment to a terminal state and verify the active preview before sending the final response. Do **not** end with “I’ll come back when it is ready”: a normal chat response cannot resume itself after the conversation becomes idle.
+
+Only stop before a terminal result when genuine user intervention is required (for example a missing credential or permission that cannot be repaired with the available tooling). In that case, state the exact required intervention.
