@@ -75,3 +75,24 @@ A change is done only when:
 For a change that is being prepared for immediate user testing, stay in the same execution while CI/publish/deploy is progressing. Poll the deployment to a terminal state and verify the active preview before sending the final response. Do **not** end with “I’ll come back when it is ready”: a normal chat response cannot resume itself after the conversation becomes idle.
 
 Only stop before a terminal result when genuine user intervention is required (for example a missing credential or permission that cannot be repaired with the available tooling). In that case, state the exact required intervention.
+
+
+## Product checkpoint — 2026-10-02 voice session
+
+Confirmed next Dashboard change:
+- consolidate **Ritmul de azi**, **Ritm sigur** and **Bugete urmărite** into one Budget card;
+- keep the card visually simple;
+- show the planned daily budget pace separately from the safe daily pace;
+- safe pace is based on real owned money and must not present available credit as income/money;
+- show each Budget Primary position and pinned windows as compact progress bars;
+- calculation/formula detail stays behind expand/details;
+- keep the existing budget-window engine unless an agreed formula correction requires changing it.
+
+Formula review checkpoint:
+- Quarterly and Annual are distinct calendar windows, but the current engine clips their tracked start to `State.started`;
+- for a recently started ledger this can make Quarterly and Annual appear almost identical;
+- this is a known product/formula issue, not a UI-only issue;
+- do not invent a replacement rule: preserve visible calculation details until the intended historical/onboarding treatment is explicitly accepted.
+
+Current implementation branch remains `feat/v018-calculation-explanations-review`.
+Do not merge to `main` without explicit acceptance.
