@@ -43,3 +43,5 @@ If continuity files conflict with main commit history or the active preview, ins
 - Available credit is not owned money/income.
 - Privacy presentation must not alter accounting truth.
 - Do not change financial formulas without preserving/exposing the agreed calculation behavior and verification.
+
+<!-- rollback redeploy trigger 2026-10-06 -->
