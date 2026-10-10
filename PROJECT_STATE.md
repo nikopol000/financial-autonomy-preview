@@ -79,3 +79,8 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Published bundle `_expo/static/js/web/index-v01787-spending-row-20261011.js` commit `f9d29de8a2fd44cf71b51b0cbba938a855b0b844`; activated index commit `d7af61fdab3fd8417dd83604c1dfe0fa0cdbb118`.
 - ReorderableStack renders adjacent spending and nextIncome modules in a horizontal equal-width row outside arrangement mode, with top alignment; independent component states retained. Arrangement mode unchanged.
 - Deployment/runtime/device testing not yet independently verified. Next: test v17.87 on iPhone and reconcile preview changes into source.
+
+## v17.89 — 2026-10-11
+- Bundle `_expo/static/js/web/index-v01789-spacing-20261011.js`, published commit `6dd765673b24abaddfb9b8cd8a952f758dcc0b77`; index activated commit `fe3549f10551208effbf01190d10052c6184de0a`.
+- Dashboard vertical stack gap 14→10; spending/income row gap 10→12; small-card padding 10→horizontal 14/vertical 12; Autonomie/Spațiu vertical padding 8→7.
+- Deployment and device behavior pending verification. No formula changes.
