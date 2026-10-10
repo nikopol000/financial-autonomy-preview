@@ -10,7 +10,7 @@ Last updated: 2026-10-10
 - BLOCKED — cannot continue without a named dependency.
 
 ## Current item — Compact first-screen Dashboard (2026-10-10)
-Status: IN PROGRESS
+Status: READY FOR USER TEST (deployment/browser behavior not independently verified)
 
 Approved requirement:
 - Preserve the existing visual theme and all existing lower Dashboard sections.
@@ -24,11 +24,12 @@ Approved requirement:
 Completed:
 1. Confirmed currently active preview HTML references v01783, newer than the v01767 continuity checkpoint.
 2. Read repository AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md.
+3. Published v17.84 bundle commit 7d16c6b87792411c3a7cef11badd0a2e05af16fb and activated index.html commit 8c43fdb04e15bc78f32e3f2fbd851599c57c9039. Syntax/runtime and Vercel deployment not independently verified.
 
 Exact next unchecked step:
-1. Inspect current v01783 bundle and reconcile source/preview differences, particularly Dashboard layout and the source of unbudgeted spending.
-2. Implement only the approved layout changes in a small verifiable patch.
-3. Validate the bundle, publish, activate and verify the live preview, then update continuity files to READY FOR USER TEST.
+1. User tests v17.84 on iPhone: card heights, order, amount for Cheltuit nebugetat, and actions.
+2. Verify deployment status and browser runtime; no end-to-end browser verification was possible in this session.
+3. Reconcile changes from the v17.84 preview bundle into private source before any source rebuild.
 
 ## Previous item — Dashboard design polish v017.67
 Status: READY FOR USER TEST
