@@ -10,7 +10,7 @@ Last updated: 2026-10-10
 - BLOCKED — cannot continue without a named dependency.
 
 ## Current item — Compact first-screen Dashboard (2026-10-10)
-Status: READY FOR USER TEST — v17.85 activated, syntax verified, device layout verification pending
+Status: READY FOR USER TEST — v17.86 activated; device/deployment verification pending
 
 Approved requirement:
 - Preserve the existing visual theme and all existing lower Dashboard sections.
@@ -27,7 +27,7 @@ Completed:
 3. Published v17.84 bundle commit 7d16c6b87792411c3a7cef11badd0a2e05af16fb and activated index.html commit 8c43fdb04e15bc78f32e3f2fbd851599c57c9039. Initial v17.84 had syntax error and was rolled back. Fixed and syntax-validated using JavaScript compilation (new Function), commit 9a4f32c765793a49d3a1ca4023194e52d1040f56; reactivated by commit 65cbfca0a6a7babc180eaf9140910ace82941916. User screen recording showed v17.84 loads but cards are too tall and displayed header still says v17.83. v17.85 further compresses Autonomie, Spațiu, Buget, quick actions, and updates header. v17.85 bundle commit 23a81705686d7224703ad36e5b932ad2f63a0a48; activation commit bb466d4d02f1d677be9fb95b823af91ae3c2ead6. JavaScript syntax compilation passed. Runtime/Vercel deployment not independently verified.
 
 Exact next unchecked step:
-1. User tests v17.85 on iPhone, especially whether Cheltuială and Venit fit on the first screen.
+1. User tests v17.86 on iPhone: Cheltuit/Următorul venit before Buget, independent expansion, Cheltuit budgeted/unbudgeted details, and card heights.
 2. Confirm Vercel deployment and browser runtime, which were not independently verifiable here.
 3. Reconcile preview-only changes into source before a source rebuild.
 
@@ -76,3 +76,11 @@ Next step:
 ## Queue discipline
 Do not implement an item merely because it is mentioned in historical chat. Only implement items marked READY FOR IMPLEMENTATION or continue the exact unchecked step of an IN PROGRESS item.
 After publishing/activating a change, immediately update PROJECT_STATE.md and this file before declaring the iteration complete.
+
+
+### 2026-10-11 — v17.86 checkpoint
+
+- User approved size of top cards but requested Cheltuit and Următorul venit restored before Buget, separate Cheltuit nebugetat removed, and budgeted/unbudgeted amounts shown when Cheltuit expands.
+- Bundle created and syntax-checked: `_expo/static/js/web/index-v01786-spending-pair-20261011.js`, commit `3b1709d6924aaca1ddf5371d9095a585e118fa8c`.
+- Activated in index.html commit `1495a263b1d4b93ed8aec0bea60e70994810ecd7`.
+- No browser-level verification yet; preserve existing formulas and user data.
