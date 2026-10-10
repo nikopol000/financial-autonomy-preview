@@ -10,7 +10,7 @@ Last updated: 2026-10-10
 - BLOCKED — cannot continue without a named dependency.
 
 ## Current item — Compact first-screen Dashboard (2026-10-10)
-Status: BLOCKED — v17.84 caused white screen; rolled back to v17.83
+Status: READY FOR USER TEST — corrected v17.84 reactivated; browser/deployment verification pending
 
 Approved requirement:
 - Preserve the existing visual theme and all existing lower Dashboard sections.
@@ -24,12 +24,12 @@ Approved requirement:
 Completed:
 1. Confirmed currently active preview HTML references v01783, newer than the v01767 continuity checkpoint.
 2. Read repository AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md.
-3. Published v17.84 bundle commit 7d16c6b87792411c3a7cef11badd0a2e05af16fb and activated index.html commit 8c43fdb04e15bc78f32e3f2fbd851599c57c9039. Syntax/runtime and Vercel deployment not independently verified.
+3. Published v17.84 bundle commit 7d16c6b87792411c3a7cef11badd0a2e05af16fb and activated index.html commit 8c43fdb04e15bc78f32e3f2fbd851599c57c9039. Initial v17.84 had syntax error and was rolled back. Fixed and syntax-validated using JavaScript compilation (new Function), commit 9a4f32c765793a49d3a1ca4023194e52d1040f56; reactivated by commit 65cbfca0a6a7babc180eaf9140910ace82941916. Runtime/Vercel deployment not independently verified.
 
 Exact next unchecked step:
-1. Confirm Vercel deploy of rollback commit e3c0d7eea13a95f8b7b7fb0c77412fd05e0a1492 and that v17.83 loads on iPhone.
-2. Diagnose v17.84 JavaScript syntax/runtime failure with actual syntax checking and browser test before another activation.
-3. Implement corrected compact Dashboard, verify before promoting, and reconcile changes into source.
+1. User tests corrected v17.84 on iPhone, especially that it loads and the first-screen layout fits.
+2. Confirm Vercel deployment and browser runtime, which were not independently verifiable here.
+3. Reconcile preview-only changes into source before a source rebuild.
 
 ## Previous item — Dashboard design polish v017.67
 Status: READY FOR USER TEST
