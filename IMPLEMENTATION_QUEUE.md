@@ -10,7 +10,7 @@ Last updated: 2026-10-10
 - BLOCKED — cannot continue without a named dependency.
 
 ## Current item — Compact first-screen Dashboard (2026-10-10)
-Status: READY FOR USER TEST (deployment/browser behavior not independently verified)
+Status: BLOCKED — v17.84 caused white screen; rolled back to v17.83
 
 Approved requirement:
 - Preserve the existing visual theme and all existing lower Dashboard sections.
@@ -27,9 +27,9 @@ Completed:
 3. Published v17.84 bundle commit 7d16c6b87792411c3a7cef11badd0a2e05af16fb and activated index.html commit 8c43fdb04e15bc78f32e3f2fbd851599c57c9039. Syntax/runtime and Vercel deployment not independently verified.
 
 Exact next unchecked step:
-1. User tests v17.84 on iPhone: card heights, order, amount for Cheltuit nebugetat, and actions.
-2. Verify deployment status and browser runtime; no end-to-end browser verification was possible in this session.
-3. Reconcile changes from the v17.84 preview bundle into private source before any source rebuild.
+1. Confirm Vercel deploy of rollback commit e3c0d7eea13a95f8b7b7fb0c77412fd05e0a1492 and that v17.83 loads on iPhone.
+2. Diagnose v17.84 JavaScript syntax/runtime failure with actual syntax checking and browser test before another activation.
+3. Implement corrected compact Dashboard, verify before promoting, and reconcile changes into source.
 
 ## Previous item — Dashboard design polish v017.67
 Status: READY FOR USER TEST
