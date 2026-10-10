@@ -9,7 +9,28 @@ Last updated: 2026-10-10
 - DONE — user-confirmed or otherwise explicitly accepted.
 - BLOCKED — cannot continue without a named dependency.
 
-## Current item — Dashboard design polish v017.67
+## Current item — Compact first-screen Dashboard (2026-10-10)
+Status: IN PROGRESS
+
+Approved requirement:
+- Preserve the existing visual theme and all existing lower Dashboard sections.
+- First-screen order: Autonomie; Spațiu; Cheltuit nebugetat; Buget; quick actions Cheltuială and Venit.
+- Autonomie and Spațiu are two separate compact, independently expandable cards, label left and prominent value right; collapsed by default.
+- Cheltuit nebugetat displays actual computed unbudgeted spending, not a fabricated progress percentage.
+- Keep existing Budget azi / Sigur azi / primary budget bar and expand controls; preserve all financial formulas, storage and other features.
+- Fit the five blocks and actions on an iPhone initial viewport without scrolling in collapsed state; avoid covering the bottom navigation.
+- Publish an actual new version to the active Vercel preview and verify it before claiming ready.
+
+Completed:
+1. Confirmed currently active preview HTML references v01783, newer than the v01767 continuity checkpoint.
+2. Read repository AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md.
+
+Exact next unchecked step:
+1. Inspect current v01783 bundle and reconcile source/preview differences, particularly Dashboard layout and the source of unbudgeted spending.
+2. Implement only the approved layout changes in a small verifiable patch.
+3. Validate the bundle, publish, activate and verify the live preview, then update continuity files to READY FOR USER TEST.
+
+## Previous item — Dashboard design polish v017.67
 Status: READY FOR USER TEST
 
 Requirement:
