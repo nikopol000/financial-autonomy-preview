@@ -91,3 +91,9 @@ Status: READY FOR IMPLEMENTATION
 - Expansion remains independent; expanding one must not expand the other or force both card backgrounds to equal expanded height.
 - Keep compact card sizes and Cheltuit budgeted/unbudgeted breakdown. Do not alter formulas or local data.
 - Next unchecked step: inspect active v17.86 bundle layout, implement horizontal two-column row, syntax-check, publish/activate and verify preview; update PROJECT_STATE.md and queue after verified checkpoint.
+
+### 2026-10-11 — v17.87 horizontal pair
+Status: READY FOR USER TEST (deployment/runtime unverified)
+- Published bundle commit `f9d29de8a2fd44cf71b51b0cbba938a855b0b844` and activated index commit `d7af61fdab3fd8417dd83604c1dfe0fa0cdbb118`.
+- Cheltuit and nextIncome now render side by side when adjacent and not in reorder mode; independent expansion preserved.
+- Next: verify live deployment and iPhone behavior, especially text fitting and unequal expanded heights; reconcile source before rebuild.
