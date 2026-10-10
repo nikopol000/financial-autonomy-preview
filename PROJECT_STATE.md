@@ -13,7 +13,18 @@ At the start of a new chat/session, read in this order:
 
 Do not infer the current task only from chat memory. Repository state wins when there is a conflict.
 
-## Current checkpoint — v017.67 (2026-10-10)
+## Latest checkpoint — v17.84 (2026-10-10)
+
+- Preview bundle: `_expo/static/js/web/index-v01784-compact-dashboard-20261010.js`.
+- Bundle commit: `7d16c6b87792411c3a7cef11badd0a2e05af16fb`.
+- Active index reference changed by commit `8c43fdb04e15bc78f32e3f2fbd851599c57c9039`.
+- Changes: compact Autonomie and Spațiu, insert monthly Cheltuit nebugetat amount after Spațiu, reorder Buget and quick actions ahead of snapshots, retain snapshots further down.
+- Existing custom Dashboard order is temporarily overridden for the four primary sections to satisfy the first-screen requirement.
+- No intended change to existing finance formulas or local storage; unbudgeted total is derived from existing transaction amounts/roles.
+- **Verification limitation:** bundle was patched and activated via GitHub; automated syntax, deployed Vercel status and interactive iPhone browser behavior were not verified in this session. Do not claim deployment success until checked.
+- Next: user tests on iPhone, inspect any issues; reconcile the bundle changes into source before rebuilding.
+
+## Prior checkpoint — v017.67 (2026-10-10)
 
 Active web preview: https://financial-autonomy-preview.vercel.app/
 - Active preview repository main: `nikopol000/financial-autonomy-preview`.
