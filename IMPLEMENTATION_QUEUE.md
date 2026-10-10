@@ -97,3 +97,8 @@ Status: READY FOR USER TEST (deployment/runtime unverified)
 - Published bundle commit `f9d29de8a2fd44cf71b51b0cbba938a855b0b844` and activated index commit `d7af61fdab3fd8417dd83604c1dfe0fa0cdbb118`.
 - Cheltuit and nextIncome now render side by side when adjacent and not in reorder mode; independent expansion preserved.
 - Next: verify live deployment and iPhone behavior, especially text fitting and unequal expanded heights; reconcile source before rebuild.
+
+### v17.89 spacing correction — 2026-10-11
+Status: READY FOR USER TEST (live deployment not independently verified)
+- Published `6dd765673b24abaddfb9b8cd8a952f758dcc0b77`; activated `fe3549f10551208effbf01190d10052c6184de0a`.
+- Check card spacing, right-side padding, visibility of Cheltuială/Venit, and independent expansion on phone.
