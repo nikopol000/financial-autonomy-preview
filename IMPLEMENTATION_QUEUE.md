@@ -84,3 +84,10 @@ After publishing/activating a change, immediately update PROJECT_STATE.md and th
 - Bundle created and syntax-checked: `_expo/static/js/web/index-v01786-spending-pair-20261011.js`, commit `3b1709d6924aaca1ddf5371d9095a585e118fa8c`.
 - Activated in index.html commit `1495a263b1d4b93ed8aec0bea60e70994810ecd7`.
 - No browser-level verification yet; preserve existing formulas and user data.
+
+### 2026-10-11 — Layout correction requested
+Status: READY FOR IMPLEMENTATION
+- Cheltuit and Următorul salariu must appear side by side in one horizontal row, each approximately half width, before Buget.
+- Expansion remains independent; expanding one must not expand the other or force both card backgrounds to equal expanded height.
+- Keep compact card sizes and Cheltuit budgeted/unbudgeted breakdown. Do not alter formulas or local data.
+- Next unchecked step: inspect active v17.86 bundle layout, implement horizontal two-column row, syntax-check, publish/activate and verify preview; update PROJECT_STATE.md and queue after verified checkpoint.
