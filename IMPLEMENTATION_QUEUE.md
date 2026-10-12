@@ -102,3 +102,9 @@ Status: READY FOR USER TEST (deployment/runtime unverified)
 Status: READY FOR USER TEST (live deployment not independently verified)
 - Published `6dd765673b24abaddfb9b8cd8a952f758dcc0b77`; activated `fe3549f10551208effbf01190d10052c6184de0a`.
 - Check card spacing, right-side padding, visibility of Cheltuială/Venit, and independent expansion on phone.
+
+### 2026-10-12 — Refinanced debt obligations v18.01
+Status: READY FOR USER TEST (live deployment/runtime unverified)
+- Bundle commit `19c159065211fe681c570e9aaff57e2155b1b113`, index activation `e299083ce9abb04dd4b28168a7efd7c4963b9a62`.
+- Future obligations exclude fully refinanced loans with a confirmed zero balance; historical plans and financial data unchanged.
+- Next unchecked step: verify active preview and test old Salt versus new Salt due dates; check whether other refinanced products have recorded principal payments and zero balances; reconcile preview bundle into source.
