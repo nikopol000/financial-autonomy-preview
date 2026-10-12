@@ -117,3 +117,9 @@ Status: READY FOR USER TEST (live deployment/runtime unverified)
 - Bundle commit `19c159065211fe681c570e9aaff57e2155b1b113`, index activation `e299083ce9abb04dd4b28168a7efd7c4963b9a62`.
 - Future obligations exclude fully refinanced loans with a confirmed zero balance; historical plans and financial data unchanged.
 - Next unchecked step: verify active preview and test old Salt versus new Salt due dates; check whether other refinanced products have recorded principal payments and zero balances; reconcile preview bundle into source.
+
+## v18.05 refinance diagnostic — 2026-10-13
+Status: READY FOR USER TEST (deployment not yet independently confirmed)
+- Corrected diagnostic plannedPayments to distinguish configuredAmount from effectiveAmount, with exclusion flag for refinanced debt with observed zero balance.
+- Active preview index now points to v18.05. Existing app projection already has refinance exclusion logic; do not misinterpret raw monthPlans as actual future obligation.
+- Next: confirm live deployment, export v18.05 diagnostic, inspect whether effectiveAmount for old SALT is zero and verify actual Dashboard obligation; if Dashboard remains wrong, fix its calculation separately.
