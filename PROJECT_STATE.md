@@ -1,6 +1,6 @@
 # Financial Autonomy — Project State
 
-Last updated: 2026-10-10
+Last updated: 2026-10-13
 Source of truth: this file plus IMPLEMENTATION_QUEUE.md and the current main commit history.
 
 ## Resume protocol
@@ -12,6 +12,18 @@ At the start of a new chat/session, read in this order:
 5. latest commits on main
 
 Do not infer the current task only from chat memory. Repository state wins when there is a conflict.
+
+## Latest checkpoint — v18.02 (2026-10-13)
+
+- Active index.html references `_expo/static/js/web/index-v01802-unified-diagnostics-20261013.js` and `diagnostic-v18-02-unified.js`.
+- Diagnostic complete export version was corrected to 18.02 in the active bundle (commit 31eeaf2).
+- Supplemental diagnostic was corrected back from 18.03 to 18.02 (commit dd89ecafc10f5eb5e11d8c30379e6c079a4a571d), preserving a single version for the entire application, including exported diagnostic filenames and payloads.
+- User reports v18.02 visible in the application. Deployment of the latest diagnostic-script correction has NOT been independently verified.
+- IMPORTANT: a GitHub commit is not proof of deployed preview. Do not claim DONE until deployed assets and exported version have been checked.
+- Financial reconciliation/SALT unexplained amount is NOT fixed; no financial data should be silently changed. User wants version consistency completed first.
+- Exact next unfinished step: verify live Vercel index and loaded diagnostic script; verify complete and supplemental exports report 18.02. If mismatch, repair, redeploy and recheck. Then diagnose SALT without modifying other unexplained balances.
+- Version invariant: ONE app version for all changes; main UI, bundle, diagnostic export metadata, diagnostic button and filename must match. No separate diagnostic version progression.
+- Workflow invariant: continue implementation -> verification -> deployment -> live check -> continuity checkpoint in same execution when tools allow. If blocked, record exact blocker, not 'done'.
 
 ## Latest checkpoint — v17.84 (2026-10-10)
 
