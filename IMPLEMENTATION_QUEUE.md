@@ -1,6 +1,6 @@
 # Financial Autonomy — Implementation Queue
 
-Last updated: 2026-10-10
+Last updated: 2026-10-13
 
 ## Status vocabulary
 - READY FOR IMPLEMENTATION — explicitly approved and not started.
@@ -8,6 +8,15 @@ Last updated: 2026-10-10
 - READY FOR USER TEST — implemented and active in preview, awaiting user confirmation.
 - DONE — user-confirmed or otherwise explicitly accepted.
 - BLOCKED — cannot continue without a named dependency.
+
+## Current item — Unified v18.02 version and deployment verification (2026-10-13)
+Status: IN PROGRESS — latest GitHub code aligned, live deployment and exported file not yet verified
+
+Requirement: one version across app UI, active bundle, complete diagnostic, supplemental diagnostic and exported filenames. If app displays v18.02, all diagnostics must identify v18.02; do not advance diagnostics independently.
+
+Completed: active index.html references v18.02 main bundle and diagnostic-v18-02-unified.js. Main complete diagnostic metadata corrected to 18.02 (commit 31eeaf2). Supplemental script aligned to 18.02 (commit dd89ecafc10f5eb5e11d8c30379e6c079a4a571d).
+
+Exact next unchecked step: verify the live Vercel deployment contains the latest diagnostic script and that both exports report v18.02. Repair and republish if needed; do not mark DONE merely from GitHub commits. After verification, proceed to SALT refinancing reconciliation issue, preserving unrelated unexplained entries and local data.
 
 ## Current item — Compact first-screen Dashboard (2026-10-10)
 Status: READY FOR USER TEST — v17.86 activated; device/deployment verification pending
