@@ -102,3 +102,8 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Obligations calculation now explicitly excludes a fully refinanced debt when its refinancing principal was applied and the debt balance reached zero as of the refinance transaction.
 - No stored data migration or deletion; historical month plans remain intact. Other still-active debt obligations are not automatically suppressed.
 - Runtime and Vercel deployment unverified; next: confirm live v18.01, test old Salt disappears from future due dates and new Salt remains, inspect other refinanced debts and reconcile source.
+
+## v18.05 — 2026-10-13
+- Diagnostic distinguishes configured month-plan debt payment from effective future payment for fully refinanced debts with a zero observed balance. Existing planning/scheduling code already excludes refinanced zero-balance debts; do not assume raw monthPlans indicates live obligations.
+- Bundle commit 99251033e0ee9fc71aaf51a9e562e2076243efb4; index activation 840ff151fae3619375aeac12dfcc48ceaa022a5b.
+- No user financial data modified. Pending live deployment and user diagnostic confirmation.
