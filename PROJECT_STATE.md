@@ -84,3 +84,9 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Bundle `_expo/static/js/web/index-v01789-spacing-20261011.js`, published commit `6dd765673b24abaddfb9b8cd8a952f758dcc0b77`; index activated commit `fe3549f10551208effbf01190d10052c6184de0a`.
 - Dashboard vertical stack gap 14→10; spending/income row gap 10→12; small-card padding 10→horizontal 14/vertical 12; Autonomie/Spațiu vertical padding 8→7.
 - Deployment and device behavior pending verification. No formula changes.
+
+## v18.01 — 2026-10-12
+- Published `_expo/static/js/web/index-v01801-refinanced-obligations-20261012.js` in commit `19c159065211fe681c570e9aaff57e2155b1b113`; activated via `index.html` commit `e299083ce9abb04dd4b28168a7efd7c4963b9a62`.
+- Obligations calculation now explicitly excludes a fully refinanced debt when its refinancing principal was applied and the debt balance reached zero as of the refinance transaction.
+- No stored data migration or deletion; historical month plans remain intact. Other still-active debt obligations are not automatically suppressed.
+- Runtime and Vercel deployment unverified; next: confirm live v18.01, test old Salt disappears from future due dates and new Salt remains, inspect other refinanced debts and reconcile source.
