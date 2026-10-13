@@ -1,0 +1,19 @@
+name: Validate Financial Autonomy release
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify version and bundle consistency
+        run: python3 scripts/check_release.py
+      - name: Validate JavaScript syntax
+        run: |
+          BUNDLE=$(python3 -c "import re,pathlib; print(re.search(r'<script src=\"/financial-autonomy-preview/([^\"?]+)',pathlib.Path('index.html').read_text()).group(1))")
+          node --check "$BUNDLE"
