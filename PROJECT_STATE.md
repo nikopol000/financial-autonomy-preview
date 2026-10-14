@@ -176,3 +176,8 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Attempt to commit passphrase-encrypted portable backup code was blocked; only backup-format requirements document `a5b193a` was committed. Portable backup/import not implemented.
 - No Xcode compilation or simulator run; preview financial and UI parity NOT established. Remaining: native complete budgets, debt/refinancing, audit/history edit, backup, preview migration, verification and deployment. Source main unchanged.
 - First unfinished step: test native build on Mac/Xcode and correct compiler issues; then implement portable backup and full preview feature parity.
+
+## Native iOS CI checkpoint — 2026-10-14
+- Committed `.github/workflows/native-ios-ci.yml` on isolated source feature branch at `c76c7d3`: macOS-15, Xcode 16.4, XcodeGen, simulator build without signing. Adjusted XcodeGen iPhone target and scene manifest `7448c82`.
+- CI is configured in source but **build success not confirmed**. Connector check for commit-associated pull-request runs returned none; this does not establish whether a push-triggered run exists. Verify Actions run and logs directly; fix compiler errors, then add tests. No native build/device install or parity claim. Source main unchanged.
+- Next: verify CI workflow execution and build result; then full preview parity and native backup/import.
