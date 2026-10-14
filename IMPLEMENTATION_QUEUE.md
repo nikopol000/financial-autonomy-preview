@@ -181,3 +181,7 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - Native Swift files under `financial-autonomy-app/NativeiOS/` on feature branch: entry point, models, initial ledger calculations, basic local JSON store, Accounts/History SwiftUI views and README. Commits `04f6dc1`, `a98b0e8`, `b60c4d5`, `30ce959`, `332424f`, `ec40317`.
 - CRITICAL: persistence is unencrypted prototype only; no real financial data until encrypted storage and migration are implemented. No iOS build yet.
 - Next: Xcode project, tests, secure persistence, complete preview feature inventory and parity implementation. Do not promote source main.
+
+## Native iOS implementation batch — 2026-10-14
+- Source feature branch: encrypted local storage code `1cb4327` and `a49701b`; XCTest source fixtures `b19bc11`; README `a99e445`.
+- Pending: Xcode project, actual compilation and test execution, portable passphrase-encrypted backups, preview data import, all preview screens/formulas, parity and iPhone build. Not production ready.
