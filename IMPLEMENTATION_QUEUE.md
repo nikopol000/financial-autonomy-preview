@@ -190,3 +190,8 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - DONE: BUILDING.md (`93bbfe8`) and full parity checklist (`24f5b2a`) on isolated source feature branch.
 - BLOCKED: XcodeGen project specification and History native update; no commits for these attempted changes. Still no Xcode build.
 - NEXT: Xcode project, build/tests, secure portable backup and full native preview parity.
+
+## iOS progress — XcodeGen project spec and native History search (2026-10-14)
+- DONE: `NativeiOS/xcodegen.yml` XcodeGen app + XCTest targets (`7283577`); History search/sorting (`662b6b9`); updated BUILDING.md (`ee35348`).
+- No generated Xcode project or iOS build tested; environment is Linux, no xcodebuild.
+- NEXT: Mac Xcode build/tests, fix compile issues, encrypted portable backup and preview migration, all missing native features and screen-by-screen parity. Stable main untouched.
