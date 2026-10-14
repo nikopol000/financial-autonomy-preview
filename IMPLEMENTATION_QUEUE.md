@@ -210,3 +210,7 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - Added macOS GitHub Actions workflow `c76c7d3` and updated iPhone target settings `7448c82` on source feature branch.
 - Status: CI YAML committed, build execution/result NOT VERIFIED; no simulator/device run. The available commit-run lookup only checks PR-associated runs and returned none.
 - Next: inspect GitHub Actions run and logs, fix build issues, run XCTest; continue complete preview 1:1 implementation and secure portable backup/import. Stable main unchanged.
+
+## Native CI test gate — 2026-10-14
+- Added XCTest step (`374b0b0`), XcodeGen scheme (`631da20`), signed currency formatting fixes (`f68c50c`, `ea985a9`).
+- No verified GitHub Actions run, compilation or tests yet. Next: inspect CI logs, repair failures; continue 1:1 native migration and portable encrypted backup. Source main untouched.
