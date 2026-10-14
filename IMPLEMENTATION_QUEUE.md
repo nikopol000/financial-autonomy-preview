@@ -214,3 +214,8 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 ## Native CI test gate — 2026-10-14
 - Added XCTest step (`374b0b0`), XcodeGen scheme (`631da20`), signed currency formatting fixes (`f68c50c`, `ea985a9`).
 - No verified GitHub Actions run, compilation or tests yet. Next: inspect CI logs, repair failures; continue 1:1 native migration and portable encrypted backup. Source main untouched.
+
+## CI robustness checkpoint — 2026-10-14
+- DONE: build-before-test ordering `eb23b67`, simulator discovery `4e4238d` on source feature branch.
+- UNVERIFIED: Actions run/build/tests; commit workflow lookup does not cover push runs.
+- NEXT: obtain actual CI logs, correct errors, complete native preview parity and backup. Stable main unchanged.
