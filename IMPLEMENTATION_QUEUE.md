@@ -152,3 +152,9 @@ Status: IN PROGRESS — feature branch created; code reconciliation not yet star
 - Preserve source `main` as user-approved stable baseline; user approved starting work, **not merging**.
 - Next unchecked: inventory source and preview differences; identify all web-only features, migrate them into Expo TypeScript, validate web parity and tests, then build an iOS test candidate.
 - Preview v18.20 device/deployment verification remains a separate open item.
+
+## iOS parity migration progress — 2026-10-14
+Status: IN PROGRESS, PARTIAL SOURCE CHANGES ONLY. Supersedes old 'code reconciliation not yet started' checkpoint.
+- DONE in source feature branch: History return-to-history navigation (`71f3abc8`), 10/20/50 pagination (`40d240c`), text search and account/debt filters (`d4d710d`).
+- TODO: Operations/Corrections tabs; full audit, UI and financial reconciliation parity; compare source to active preview screen-by-screen; compile/test and produce iOS candidate.
+- Every future development batch MUST automatically read continuity files first and update status/queue afterward. Do not require user reminder. Do not merge source `main` without approval.
