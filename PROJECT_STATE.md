@@ -187,3 +187,8 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Replaced provisional currency formatting with Foundation NumberFormatter `f68c50c` and corrected signed negative balances `ea985a9`.
 - Actual macOS Actions run/build/test results remain **unverified**; no run ID or logs obtained. No full preview parity. Source stable main unchanged.
 - Next: inspect GitHub Actions run, fix actual build/test errors, continue complete native financial/UI parity and encrypted portable backup.
+
+## iOS CI robustness — 2026-10-14
+- Source feature branch: CI now compiles before running tests (`eb23b67`) and dynamically selects an available iPhone simulator (`4e4238d`) rather than assuming iPhone 16 is installed.
+- Commit-associated workflow lookup returned no PR-triggered runs; it cannot verify push-triggered Actions status. Build and XCTest outcomes remain UNVERIFIED. Stable source main unchanged.
+- Next: inspect actual GitHub Actions run/logs, fix compiler errors, then continue preview parity and portable backup.
