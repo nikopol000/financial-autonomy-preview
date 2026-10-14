@@ -185,3 +185,8 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 ## Native iOS implementation batch — 2026-10-14
 - Source feature branch: encrypted local storage code `1cb4327` and `a49701b`; XCTest source fixtures `b19bc11`; README `a99e445`.
 - Pending: Xcode project, actual compilation and test execution, portable passphrase-encrypted backups, preview data import, all preview screens/formulas, parity and iPhone build. Not production ready.
+
+## Native iOS latest work — 2026-10-14
+- DONE: BUILDING.md (`93bbfe8`) and full parity checklist (`24f5b2a`) on isolated source feature branch.
+- BLOCKED: XcodeGen project specification and History native update; no commits for these attempted changes. Still no Xcode build.
+- NEXT: Xcode project, build/tests, secure portable backup and full native preview parity.
