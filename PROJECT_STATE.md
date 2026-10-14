@@ -192,3 +192,8 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Source feature branch: CI now compiles before running tests (`eb23b67`) and dynamically selects an available iPhone simulator (`4e4238d`) rather than assuming iPhone 16 is installed.
 - Commit-associated workflow lookup returned no PR-triggered runs; it cannot verify push-triggered Actions status. Build and XCTest outcomes remain UNVERIFIED. Stable source main unchanged.
 - Next: inspect actual GitHub Actions run/logs, fix compiler errors, then continue preview parity and portable backup.
+
+## Native history checkpoint 2026-10-14
+- Native feature branch commits: 84a5c22 protects observed balances against retroactive voiding; f3f2a79 adds history cancellation with confirmation and error display.
+- No Xcode build or XCTest verification yet. Full 1:1 parity unfinished. Source main unchanged.
+- Next: inspect macOS CI build logs; implement historical corrections, atomic persistence and remaining preview features.
