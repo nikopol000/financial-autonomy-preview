@@ -118,3 +118,10 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Diagnostic distinguishes configured month-plan debt payment from effective future payment for fully refinanced debts with a zero observed balance. Existing planning/scheduling code already excludes refinanced zero-balance debts; do not assume raw monthPlans indicates live obligations.
 - Bundle commit 99251033e0ee9fc71aaf51a9e562e2076243efb4; index activation 840ff151fae3619375aeac12dfcc48ceaa022a5b.
 - No user financial data modified. Pending live deployment and user diagnostic confirmation.
+
+## Source/iOS synchronization checkpoint — 2026-10-14
+
+- User approved starting reconciliation of preview v18.20 into Expo source for eventual native iPhone builds; this is **not approval to promote v18.20 to stable source main**.
+- Created source branch `nikopol000/financial-autonomy-app:feat/sync-preview-v18-20-ios` from source `main`.
+- No application code has been ported yet. Preview v18.20 is a web bundle and cannot directly serve as a native iOS build.
+- Next: inventory source modules and preview-only features; port incrementally on source feature branch, add tests and compare web behavior; produce iOS candidate only after source reconciliation. Do not touch source main without explicit build approval.
