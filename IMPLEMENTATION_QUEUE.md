@@ -158,3 +158,8 @@ Status: IN PROGRESS, PARTIAL SOURCE CHANGES ONLY. Supersedes old 'code reconcili
 - DONE in source feature branch: History return-to-history navigation (`71f3abc8`), 10/20/50 pagination (`40d240c`), text search and account/debt filters (`d4d710d`).
 - TODO: Operations/Corrections tabs; full audit, UI and financial reconciliation parity; compare source to active preview screen-by-screen; compile/test and produce iOS candidate.
 - Every future development batch MUST automatically read continuity files first and update status/queue afterward. Do not require user reminder. Do not merge source `main` without approval.
+
+## Continuous migration instruction — 2026-10-14
+- Proceed without per-step user approval on feature branch; request explicit approval only before promoting stable source main.
+- Operations/Corrections tabs attempted but tool blocked; remain TODO, not implemented.
+- Next: implement in smaller changes, test source, reconcile all preview screens and financial logic, produce iOS candidate and document validation.
