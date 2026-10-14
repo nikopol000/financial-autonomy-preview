@@ -148,3 +148,8 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Added new `NativeiOS/` Swift files on isolated source feature branch: `Models.swift` (`04f6dc1`), `LedgerEngine.swift` (`a98b0e8`), `LedgerStore.swift` (`b60c4d5`), `FinancialAutonomyApp.swift` (`30ce959`), `RootView.swift` (`332424f`), `README.md` (`ec40317`).
 - This is a basic native SwiftUI scaffold and initial accounting types, not parity with preview. Local JSON storage is NOT encrypted and must not be used with real data. No Xcode project/build, iPhone run, backup import, or parity tests yet.
 - Next: create Xcode project and Swift tests; implement secure storage and preview-compatible import; inventory/port complete financial engine and all screens. Source main unchanged.
+
+## Native iOS security and tests checkpoint — 2026-10-14
+- Added `NativeiOS/EncryptedLocalStore.swift` CryptoKit AES-GCM with Keychain device-only key (`1cb4327`), switched `LedgerStore.swift` from plaintext to encrypted persistence (`a49701b`), added ledger XCTest fixtures (`b19bc11`), and updated native README (`a99e445`) on source feature branch.
+- Encryption and tests are **source code only**: no Xcode project, no compile/run, no audit. Device-only key is not portable backup; export/import still TODO. Old plaintext prototype file is not migrated. No real financial data until verified.
+- Next: Xcode project and actual tests; portable encrypted backup and preview import; complete parity rebuild. Source main unchanged.
