@@ -143,3 +143,8 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Existing Expo feature-branch History changes are exploratory and do not count toward native SwiftUI implementation.
 - Native plan committed to `financial-autonomy-app:feat/sync-preview-v18-20-ios/IOS_NATIVE_REBUILD_PLAN.md` at `77ed138d`. SwiftUI project/build not yet created or tested. Source main unchanged.
 - Next: inventory all preview behavior and backup format; create isolated native SwiftUI project and financial model; port/test screen-by-screen. Maintain automatic continuity updates.
+
+## Native SwiftUI first source checkpoint — 2026-10-14
+- Added new `NativeiOS/` Swift files on isolated source feature branch: `Models.swift` (`04f6dc1`), `LedgerEngine.swift` (`a98b0e8`), `LedgerStore.swift` (`b60c4d5`), `FinancialAutonomyApp.swift` (`30ce959`), `RootView.swift` (`332424f`), `README.md` (`ec40317`).
+- This is a basic native SwiftUI scaffold and initial accounting types, not parity with preview. Local JSON storage is NOT encrypted and must not be used with real data. No Xcode project/build, iPhone run, backup import, or parity tests yet.
+- Next: create Xcode project and Swift tests; implement secure storage and preview-compatible import; inventory/port complete financial engine and all screens. Source main unchanged.
