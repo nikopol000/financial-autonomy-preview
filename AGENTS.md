@@ -45,3 +45,11 @@ If continuity files conflict with main commit history or the active preview, ins
 - Do not change financial formulas without preserving/exposing the agreed calculation behavior and verification.
 
 <!-- rollback redeploy trigger 2026-10-06 -->
+
+## Stable source main promotion gate (user decision, 2026-10-14)
+
+Two repositories have distinct roles:
+- `nikopol000/financial-autonomy-preview`: iterative preview/test builds; its `main` is a deployment branch and may contain unapproved candidates.
+- `nikopol000/financial-autonomy-app`: canonical application source. Its `main` is the **stable, user-approved baseline only**.
+
+**Never merge or push a preview iteration to `financial-autonomy-app/main` without the user's explicit approval of that specific build.** Seeing a version, reporting that it loads, or asking for a fix is not approval. Keep work on feature/candidate branches or the preview repository until approved. On approval, reconcile all changes into source, test and promote the exact approved build. Record the approved version and source commit in PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md. Do not conflate the two repositories' `main` branches.
