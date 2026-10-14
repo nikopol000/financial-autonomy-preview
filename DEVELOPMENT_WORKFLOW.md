@@ -96,3 +96,9 @@ Formula review checkpoint:
 
 Current implementation branch remains `feat/v018-calculation-explanations-review`.
 Do not merge to `main` without explicit acceptance.
+
+## Promotion to stable source main — explicit user approval required
+
+The preview repository's `main` is used for frequent test deployments. It is **not** the stable release branch.
+
+The source repository `nikopol000/financial-autonomy-app` has a stable `main`: only builds explicitly confirmed/approved by the user may be merged there. A candidate may be tested and revised in preview or on a source feature branch, but **must not be automatically promoted to source main**. User acknowledgement of a visible version is not approval. After explicit approval, reconcile preview changes into source, verify the exact approved revision and then merge/promote. Checkpoint the approval and commit identifiers.
