@@ -181,3 +181,9 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Committed `.github/workflows/native-ios-ci.yml` on isolated source feature branch at `c76c7d3`: macOS-15, Xcode 16.4, XcodeGen, simulator build without signing. Adjusted XcodeGen iPhone target and scene manifest `7448c82`.
 - CI is configured in source but **build success not confirmed**. Connector check for commit-associated pull-request runs returned none; this does not establish whether a push-triggered run exists. Verify Actions run and logs directly; fix compiler errors, then add tests. No native build/device install or parity claim. Source main unchanged.
 - Next: verify CI workflow execution and build result; then full preview parity and native backup/import.
+
+## Native iOS CI test coverage and format fix — 2026-10-14
+- On source feature branch added simulator XCTest execution to `.github/workflows/native-ios-ci.yml` commit `374b0b0`; added XcodeGen shared scheme and unit test target `631da20`.
+- Replaced provisional currency formatting with Foundation NumberFormatter `f68c50c` and corrected signed negative balances `ea985a9`.
+- Actual macOS Actions run/build/test results remain **unverified**; no run ID or logs obtained. No full preview parity. Source stable main unchanged.
+- Next: inspect GitHub Actions run, fix actual build/test errors, continue complete native financial/UI parity and encrypted portable backup.
