@@ -1,7 +1,18 @@
 # Financial Autonomy — Project State
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
 Source of truth: this file plus IMPLEMENTATION_QUEUE.md and the current main commit history.
+
+## Latest checkpoint — v18.20 (2026-10-14)
+
+- Current GitHub `index.html` references `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js` (activation commit `ee99934f2e039b4f3abb186d4a83c25b1d217889`).
+- v18.15: history search, account filtering and correction audit; initial syntax error caused a white screen.
+- v18.16: repaired syntax. v18.17: compact account/type filters. v18.18: Operations/Corrections tabs and 10/20/50 pagination. v18.19: corrections displayed in transaction-like list rows. v18.20: Back to History when editing from History, and return to History after save.
+- v18.20 bundle syntax compiled successfully via `new Function`; **interactive browser test and successful Vercel deployment have NOT been independently verified**. User has confirmed that history UX is improved in earlier iteration, but v18.20 navigation needs user verification.
+- Financial reconciliation work from v18.13–v18.14 remains subject to verification; do not assume calculations are correct. In v18.14 `difference` was changed to initial-history basis, but `expected` may use a different basis. Protect real balances and audit history.
+- Exact next unchecked step: verify deployed v18.20 and test back-navigation / save-return on device; investigate any regression. Verify diagnostic-version consistency, financial reconciliation and live data behavior separately.
+- Source repository `nikopol000/financial-autonomy-app` may lag preview; **do not rebuild from stale source**.
+- The continuity procedure in `AGENTS.md` is mandatory. The previous v18.02 checkpoint below is historical, not current. The supplemental `Financial_Autonomy_CONTINUITATE.md` is NOT a replacement for the four mandatory documents.
 
 ## Resume protocol
 At the start of a new chat/session, read in this order:
