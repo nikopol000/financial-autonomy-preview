@@ -144,3 +144,11 @@ Status: READY FOR USER TEST (deployment not yet independently confirmed)
 - Corrected diagnostic plannedPayments to distinguish configuredAmount from effectiveAmount, with exclusion flag for refinanced debt with observed zero balance.
 - Active preview index now points to v18.05. Existing app projection already has refinance exclusion logic; do not misinterpret raw monthPlans as actual future obligation.
 - Next: confirm live deployment, export v18.05 diagnostic, inspect whether effectiveAmount for old SALT is zero and verify actual Dashboard obligation; if Dashboard remains wrong, fix its calculation separately.
+
+## New workstream — preview v18.20 → Expo source / iOS candidate (2026-10-14)
+Status: IN PROGRESS — feature branch created; code reconciliation not yet started.
+
+- Source feature branch: `feat/sync-preview-v18-20-ios` in `nikopol000/financial-autonomy-app`.
+- Preserve source `main` as user-approved stable baseline; user approved starting work, **not merging**.
+- Next unchecked: inventory source and preview differences; identify all web-only features, migrate them into Expo TypeScript, validate web parity and tests, then build an iOS test candidate.
+- Preview v18.20 device/deployment verification remains a separate open item.
