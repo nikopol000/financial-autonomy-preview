@@ -195,3 +195,7 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - DONE: `NativeiOS/xcodegen.yml` XcodeGen app + XCTest targets (`7283577`); History search/sorting (`662b6b9`); updated BUILDING.md (`ee35348`).
 - No generated Xcode project or iOS build tested; environment is Linux, no xcodebuild.
 - NEXT: Mac Xcode build/tests, fix compile issues, encrypted portable backup and preview migration, all missing native features and screen-by-screen parity. Stable main untouched.
+
+## Native budget checkpoint — 2026-10-14
+- Swift BudgetEngine added at `67ba2f8`; synthetic unrun XCTest fixtures `77985a8`; native README `b8bcc07`.
+- Preview parity and iOS compilation remain unverified. Next: reconcile formulas with preview, run Xcode tests, implement native budget screens and portable encrypted backup.
