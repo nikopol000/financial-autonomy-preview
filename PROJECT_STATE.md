@@ -125,3 +125,10 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Created source branch `nikopol000/financial-autonomy-app:feat/sync-preview-v18-20-ios` from source `main`.
 - No application code has been ported yet. Preview v18.20 is a web bundle and cannot directly serve as a native iOS build.
 - Next: inventory source modules and preview-only features; port incrementally on source feature branch, add tests and compare web behavior; produce iOS candidate only after source reconciliation. Do not touch source main without explicit build approval.
+
+## Source/iOS synchronization update — 2026-10-14
+- Previous checkpoint saying 'no application code ported' is superseded by this update.
+- Source branch `financial-autonomy-app:feat/sync-preview-v18-20-ios`: `App.tsx` History return navigation commit `71f3abc8`; `src/Reports.tsx` History 10/20/50 pagination commit `40d240c`; text search and account/debt filter commit `d4d710d`.
+- Source continuity inventory document `PREVIEW_V18_20_IOS_RECONCILIATION.md` exists. These are partial code migrations, **not** feature parity, tested iOS app, or approved release. Source `main` unchanged.
+- User instructed automatic review/update of all continuity files every development cycle; rule added to AGENTS.md and DEVELOPMENT_WORKFLOW.md.
+- Next: migrate History Operations/Corrections tabs and audit pagination; reconcile remaining preview features, financial model and visuals; run TypeScript/test/web/iOS checks. No runtime verification yet.
