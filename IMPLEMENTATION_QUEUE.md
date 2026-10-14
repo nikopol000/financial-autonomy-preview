@@ -169,3 +169,9 @@ Status: HIGH PRIORITY — NOT LIMITED TO HISTORY.
 - The Expo source `financial-autonomy-app/main` is older than preview v18.20; do not infer parity from a few History ports. The preview has accumulated many releases with changes to Dashboard, budgets, accounts, credit, balance reconciliation, refinancing, audit, settings, local backup, appearance and navigation.
 - Before declaring migration done, create a complete feature/financial-model/data-storage/design matrix from current preview against source; port every missing behavior, including native-compatible data import/export and local-only persistence. Verify all screens and financial invariants with tests and native iOS candidate.
 - Existing branch commits are only partial History work. Source `main` must remain unchanged until explicit approval.
+
+## Architecture change: NEW NATIVE SWIFTUI iPhone app — 2026-10-14
+Status: PLANNED, NOT IMPLEMENTED.
+- Stop treating Expo-source migration as the delivery approach. Build a fresh Swift/SwiftUI native app with current preview as the full functional, visual and financial specification.
+- Expo History ports are not SwiftUI implementation. Native architecture plan: source feature branch `IOS_NATIVE_REBUILD_PLAN.md` commit `77ed138d`.
+- Next: full preview inventory, backup compatibility assessment, SwiftUI project setup, deterministic ledger tests, native screens, iOS build and parity verification. Preserve local-only/no backend and stable main gate.
