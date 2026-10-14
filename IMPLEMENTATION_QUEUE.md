@@ -1,6 +1,27 @@
 # Financial Autonomy — Implementation Queue
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
+
+## Current item — v18.20 History navigation and audit UI (2026-10-14)
+Status: IN PROGRESS — GitHub activated, browser deployment/device verification pending.
+
+Implemented in preview repository:
+- v18.15 search and correction audit; v18.16 syntax fix; v18.17 compact account/type filters.
+- v18.18 Operations/Corrections switch and paginated list (10/20/50).
+- v18.19 correction rows aligned visually with operation rows.
+- v18.20 explicit `‹ Înapoi la Istoric` when editing a transaction opened from History; after save, return to History.
+- Active GitHub bundle: `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js`.
+- Index activation commit: `ee99934f2e039b4f3abb186d4a83c25b1d217889`.
+- JS syntax check passed; Vercel deployment and runtime behavior not independently confirmed.
+
+Exact next unchecked step:
+1. Confirm live Vercel index/bundle and displayed version v18.20.
+2. Test open operation → Back to History without saving, and open operation → Save → History.
+3. Check correction list expansion and pagination on phone.
+4. Repair issues and checkpoint in the same cycle.
+5. Reconcile changes to source repository before any full rebuild; do not overwrite newer preview with stale source.
+
+Previous queue entries below are historical and may be superseded by this checkpoint. Do not treat the v18.02 task as the latest active release.
 
 ## Status vocabulary
 - READY FOR IMPLEMENTATION — explicitly approved and not started.
