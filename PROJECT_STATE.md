@@ -208,3 +208,8 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Source feature branch `9db1f8c` adds Buget navigation tab; `6ba9579` creates SwiftUI BudgetView for weekly/biweekly/monthly/quarterly/annual/paycheck periods and daily pace; `89db91c` adds provisional credit-excluding safe pace with explicit limitations.
 - Screen inputs are not yet persisted and not validated 1:1 against preview. Native Xcode compilation/tests remain unverified. Source main unchanged.
 - Next: verify Actions build and XCTest, persist budget configuration, connect categorized spending and obligations, implement dashboard parity.
+
+## Native budget formula disclosure — 2026-10-14
+- Source feature commit `e49dbba` adds an expandable calculation explanation to BudgetView, explicitly excluding credit from safe pace.
+- Budget persistence model and detailed period UI attempts were blocked and not committed. Xcode build/tests and preview parity remain unverified. Stable main unchanged.
+- Next: implement persisted budget settings, reconcile preview formulas and verify actual Actions build.
