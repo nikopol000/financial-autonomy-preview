@@ -197,3 +197,9 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Native feature branch commits: 84a5c22 protects observed balances against retroactive voiding; f3f2a79 adds history cancellation with confirmation and error display.
 - No Xcode build or XCTest verification yet. Full 1:1 parity unfinished. Source main unchanged.
 - Next: inspect macOS CI build logs; implement historical corrections, atomic persistence and remaining preview features.
+
+## Native budget date edge case — 2026-10-14
+- Source feature branch `ff4c06b` fixes biweekly window division for dates before the 2024-01-01 anchor; `446c9ba` adds regression test for 2023-12-31.
+- Attempts to commit larger ledger atomicity refactor and native budget UI were blocked by tool safety checks; neither was committed. Do not treat them as implemented.
+- Xcode compilation/tests and preview parity remain unverified. Stable source main unchanged.
+- Next: inspect CI build results, implement budget UI and atomic ledger persistence in smaller verified commits, continue 1:1 migration.
