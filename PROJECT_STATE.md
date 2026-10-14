@@ -158,3 +158,8 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Added `NativeiOS/BUILDING.md` commit `93bbfe8` with manual Xcode target instructions and `NativeiOS/PARITY_CHECKLIST.md` commit `24f5b2a` listing all required preview modules.
 - Attempts to commit XcodeGen `project.yml` and native History UI update were blocked by tooling safety checks; these changes were **not** committed. No Xcode project or verified build yet.
 - Next: unblock project generation, compile/test native Swift, implement full financial model and backup, compare to preview. Source stable main unchanged.
+
+## Native iOS project configuration — 2026-10-14
+- Successfully committed `NativeiOS/xcodegen.yml` to source feature branch: scaffold `b730da9`, full app and XCTest targets `7283577`. This supersedes previous tool-blocked project-spec attempt; **generated .xcodeproj and Xcode build are still unverified**.
+- Added native History text search and descending date order in `RootView.swift` (`662b6b9`), updated build instructions (`ee35348`).
+- Runtime available in this session is Linux, with Swift but no Apple Xcode/xcodebuild; cannot claim iOS compilation or simulator tests. Next: actual Mac/Xcode build, fix issues, full preview parity, backup import/export. Source main unchanged.
