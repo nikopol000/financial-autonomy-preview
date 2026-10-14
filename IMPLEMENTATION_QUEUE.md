@@ -199,3 +199,9 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 ## Native budget checkpoint — 2026-10-14
 - Swift BudgetEngine added at `67ba2f8`; synthetic unrun XCTest fixtures `77985a8`; native README `b8bcc07`.
 - Preview parity and iOS compilation remain unverified. Next: reconcile formulas with preview, run Xcode tests, implement native budget screens and portable encrypted backup.
+
+## Native SwiftUI functional batch — 2026-10-14
+- Implemented provisional Dashboard, transaction entry, account creation, observed balance updates and explanation UI; commits `c445eed`, `aa74c82`, `193d0d0`, `b63ca1b`, `d452fb6`.
+- Fixed ledger operation posting and account validation `5adfbef`, `685d3a7`; explanation model/engine/store `ff8d389`, `d0a581b`, `f27f7a9`; added synthetic tests `2984433`, `158f4c4`.
+- Portable encrypted backup implementation attempt blocked; requirements-only `a5b193a`. No backup or preview migration. No iOS build/tests; no full parity. Do not use real data or promote main.
+- NEXT: Mac Xcode build/test and fixes, backup implementation, native full feature inventory and screen-by-screen parity.
