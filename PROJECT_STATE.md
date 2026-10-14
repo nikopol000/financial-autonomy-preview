@@ -169,3 +169,10 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Added synthetic XCTest fixtures `NativeiOS/Tests/BudgetEngineTests.swift` commit `77985a8`, README caveats commit `b8bcc07`.
 - These are provisional formulas and **not verified against preview**, nor compiled/run in Xcode. Important parity questions: daily spending subtraction, payday inclusion, calendar boundaries/timezones, and owned money eligibility. Source main untouched.
 - Next: compare preview calculations with fixtures, run iOS tests on Mac, build native budget dashboard and implement portable encrypted backups.
+
+## Native SwiftUI implementation batch — 2026-10-14
+- On `financial-autonomy-app:feat/sync-preview-v18-20-ios` added native Dashboard and transaction input `c445eed`, wired Dashboard `aa74c82`, account entry `193d0d0`, account detail/balance observations and explanation UI `b63ca1b`/`d452fb6`.
+- LedgerStore now posts transactions to balances and reverses voided entries `5adfbef`; income/expense account validation `685d3a7`. Reconciliation explanation model `ff8d389`, pure engine `d0a581b`, persistence method `f27f7a9`, synthetic 3700+6.90 tests `158f4c4`, decimal input tests `2984433`. Native README `ce260b0`.
+- Attempt to commit passphrase-encrypted portable backup code was blocked; only backup-format requirements document `a5b193a` was committed. Portable backup/import not implemented.
+- No Xcode compilation or simulator run; preview financial and UI parity NOT established. Remaining: native complete budgets, debt/refinancing, audit/history edit, backup, preview migration, verification and deployment. Source main unchanged.
+- First unfinished step: test native build on Mac/Xcode and correct compiler issues; then implement portable backup and full preview feature parity.
