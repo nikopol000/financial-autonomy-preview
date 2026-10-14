@@ -102,3 +102,6 @@ Do not merge to `main` without explicit acceptance.
 The preview repository's `main` is used for frequent test deployments. It is **not** the stable release branch.
 
 The source repository `nikopol000/financial-autonomy-app` has a stable `main`: only builds explicitly confirmed/approved by the user may be merged there. A candidate may be tested and revised in preview or on a source feature branch, but **must not be automatically promoted to source main**. User acknowledgement of a visible version is not approval. After explicit approval, reconcile preview changes into source, verify the exact approved revision and then merge/promote. Checkpoint the approval and commit identifiers.
+
+## Automatic continuity gate and native parity — user instruction 2026-10-14
+Every work session: FIRST read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md`, plus recent commits; reconcile conflicting status with code. DURING implementation keep source feature branch and preview branch roles separate. AFTER every batch update PROJECT_STATE and IMPLEMENTATION_QUEUE with exact commits, verified checks, blockers and next step, without waiting for user to ask. Preview is the behavioral/visual reference for iPhone; confirm screen-by-screen and calculation parity before claiming completion. This requirement persists across new chats.
