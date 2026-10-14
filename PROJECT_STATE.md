@@ -137,3 +137,9 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - User requested continuation to completion without per-step confirmations. Continue autonomously during active sessions, persist checkpoint after every batch; no background execution implied.
 - Attempt to add Operations/Corrections tabs to `src/Reports.tsx` was blocked by tool safety checks, so **no commit or implementation for tabs is claimed**. Last confirmed source change remains `d4d710d` (History search/account filters). Source main untouched.
 - Next: retry smaller source edits; verify TypeScript and full preview parity, including financial calculations and local data migration, before native iOS build.
+
+## Native iPhone architecture decision — 2026-10-14
+- User explicitly requested a **new native iPhone application**, not modernization of stale Expo source. Decision: Swift/SwiftUI clean rebuild using current preview as complete behavior/visual/financial specification.
+- Existing Expo feature-branch History changes are exploratory and do not count toward native SwiftUI implementation.
+- Native plan committed to `financial-autonomy-app:feat/sync-preview-v18-20-ios/IOS_NATIVE_REBUILD_PLAN.md` at `77ed138d`. SwiftUI project/build not yet created or tested. Source main unchanged.
+- Next: inventory all preview behavior and backup format; create isolated native SwiftUI project and financial model; port/test screen-by-screen. Maintain automatic continuity updates.
