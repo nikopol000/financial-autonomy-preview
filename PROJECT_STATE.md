@@ -163,3 +163,9 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Successfully committed `NativeiOS/xcodegen.yml` to source feature branch: scaffold `b730da9`, full app and XCTest targets `7283577`. This supersedes previous tool-blocked project-spec attempt; **generated .xcodeproj and Xcode build are still unverified**.
 - Added native History text search and descending date order in `RootView.swift` (`662b6b9`), updated build instructions (`ee35348`).
 - Runtime available in this session is Linux, with Swift but no Apple Xcode/xcodebuild; cannot claim iOS compilation or simulator tests. Next: actual Mac/Xcode build, fix issues, full preview parity, backup import/export. Source main unchanged.
+
+## Native iOS budget foundation — 2026-10-14
+- Source feature branch added `NativeiOS/BudgetEngine.swift` commit `67ba2f8`: pure period windows (weekly Mon-Sun, anchored biweekly, monthly, quarterly, annual, paycheck) and daily budget/safe pace primitives.
+- Added synthetic XCTest fixtures `NativeiOS/Tests/BudgetEngineTests.swift` commit `77985a8`, README caveats commit `b8bcc07`.
+- These are provisional formulas and **not verified against preview**, nor compiled/run in Xcode. Important parity questions: daily spending subtraction, payday inclusion, calendar boundaries/timezones, and owned money eligibility. Source main untouched.
+- Next: compare preview calculations with fixtures, run iOS tests on Mac, build native budget dashboard and implement portable encrypted backups.
