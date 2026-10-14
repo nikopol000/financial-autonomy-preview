@@ -219,3 +219,7 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - DONE: build-before-test ordering `eb23b67`, simulator discovery `4e4238d` on source feature branch.
 - UNVERIFIED: Actions run/build/tests; commit workflow lookup does not cover push runs.
 - NEXT: obtain actual CI logs, correct errors, complete native preview parity and backup. Stable main unchanged.
+
+## Native history update 2026-10-14
+- Source feature commits 84a5c22 (observation-aware cancellation guard) and f3f2a79 (history swipe cancellation with confirmation and error UI).
+- Xcode build and tests remain unverified. Next: inspect CI logs, implement auditable corrections and preview parity. Stable main unchanged.
