@@ -249,3 +249,11 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - Attempted atomic/fail-closed `NativeiOS/LedgerStore.swift` update, checked-totals Dashboard UI, and safe-totals XCTest creation; all rejected by GitHub tool safety checks. No source commit made in this run.
 - Local-only candidate v8: `financial_autonomy_ios_candidate_20261015_v8.zip`; adds three failure-injection XCTest cases (failed void, balance observation, explanation). Swift syntax parse passed; Linux pure-core SwiftPM **21/21** passed. v8 has NOT been compiled by Xcode or pushed.
 - Critical next step: integrate atomic LedgerStore when writes permitted, add XCTest and run exact-HEAD CI; then guarded forms, persistent BudgetSettings, checked UI arithmetic, backup/import, and full preview v18.20 functional/financial/visual parity. Do not declare completed.
+
+
+## Native iOS atomic ledger checkpoint — 2026-10-15
+- Source feature branch `feat/sync-preview-v18-20-ios` only; source stable main not modified.
+- New source commits `f0ebd47` injectable persistence/readability flag, `a9af79a` fail-closed unreadable encrypted store, `c8419dc` atomic commit primitive, `38a5232` routes account creation, operations, voids, observed balances and explanations through persist-before-publish mutation.
+- The intermediate commit `c8419dc` temporarily lacked the old save method; `38a5232` completes the migration. CI for exact `38a5232` is NOT YET VERIFIED. Earlier `086dbb0` passed Xcode simulator and 21/21 XCTest (run 38691358232).
+- Next: inspect exact HEAD CI; add failure-injection XCTest for each mutation and confirm rollback on failed write, then BudgetSettings persistence and screen-by-screen preview v18.20 parity. Existing UI may dismiss forms on failed save; fix after tests.
+- Do not claim parity or stable promotion.
