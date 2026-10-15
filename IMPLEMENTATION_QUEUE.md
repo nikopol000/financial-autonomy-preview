@@ -293,3 +293,10 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - Exact-head CI `fe33d58`, run `38757118898`, failed XCTest compilation in `LedgerStoreTests.swift` lines 53/75: missing `destinationAccountID` due to new Operation initializer without optional default arguments. App build passed.
 - Commit `80a3b8ea4877cdf613ed426664aec24d7bd5b862` restores default `nil` for `sourceAccountID` and `destinationAccountID` in initializer. CI run `38760070064` was QUEUED at observation, not yet verified.
 - Next: verify exact-head CI for `80a3b8e`; fix any failures, then integrate v16 budget ID/role adapter incrementally. Source main untouched. Full native preview parity not achieved.
+
+
+## Native iOS checkpoint 2026-10-15 ~18:xx EEST
+- Verified Native iOS CI SUCCESS for `80a3b8e`, run `38760070064`.
+- Source feature branch commits: `86f6125` adds `budgetID` and `financialRole` to Operation with backward-compatible Codable; `25495ac` adds `BudgetAllocationEngine` (checked arithmetic, independent windows, daily pace); `14f3706` adds `BudgetOperationAdapter` (legacy budgeted expenses require explicit assignment; no category-based guessing). Source `main` untouched.
+- At observation CI `25495ac` run `38760518305` was QUEUED and `86f6125` run `38760491443` in progress; exact-head `14f3706` CI NOT YET VERIFIED. No Xcode success claim for new HEAD.
+- NEXT: check exact-head CI and fix any failures; add budget adapter/engine XCTest, wire to UI with explicit budget selection, then history/audit, encrypted backup, obligations/refinancing, diagnostic, screen-by-screen visual parity.
