@@ -229,3 +229,9 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - The intermediate commit `c8419dc` temporarily lacked the old save method; `38a5232` completes the migration. CI for exact `38a5232` is NOT YET VERIFIED. Earlier `086dbb0` passed Xcode simulator and 21/21 XCTest (run 38691358232).
 - Next: inspect exact HEAD CI; add failure-injection XCTest for each mutation and confirm rollback on failed write, then BudgetSettings persistence and screen-by-screen preview v18.20 parity. Existing UI may dismiss forms on failed save; fix after tests.
 - Do not claim parity or stable promotion.
+
+## Native persistence regression tests — 2026-10-15
+- Source feature commit `77e1894` added injectable write-failure XCTest cases for account creation, expense and balance observation.
+- Source feature commit `0c79800` added write-failure cases for void and reconciliation explanation; total five new cases.
+- Earlier run 38691358232 passed 21/21 tests on older source commit `086dbb0`. Exact latest HEAD Xcode build/tests are NOT VERIFIED; tests just added have not been executed.
+- Stable source main unchanged. Next: inspect CI for current feature HEAD, fix any test/compiler errors, then persist BudgetSettings and complete preview 1:1 parity.
