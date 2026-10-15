@@ -273,3 +273,9 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - Source feature commits `9b6c630` derives today's recorded non-void expense total in BudgetView and deducts it from safe daily pace; `9be6651` updates labels and calculation disclosure to reflect spending deduction.
 - Current formula remains provisional: future obligations and budgeted/unbudgeted expense allocation not yet included. No Xcode CI verification for these commits; source stable main untouched.
 - Next: compare preview v18.20 formulas, implement budget categorization, validate simulator build and tests.
+
+## Native expense budget allocation — 2026-10-15
+- Source feature commits `03f77d3` optional expense category and budgeted fields; `6eb5f0f` expense entry controls; `ee2c7ad` daily budgeted spending display; `7fdffee` overflow-safe aggregation.
+- IMPORTANT: newly added non-optional Codable field `budgeted` currently requires custom decoding/default for backward compatibility; old encrypted snapshots may fail to decode. Address this before claiming safe migration.
+- Xcode build/tests of exact HEAD unverified; full preview parity incomplete; stable main unchanged.
+- Next: add backward-compatible Operation decoding and tests, verify CI, then implement true budget allocation formulas.
