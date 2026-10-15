@@ -242,3 +242,10 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - Previous HEAD `5853d91` had Native iOS CI success run `38690845850`, 18/18 XCTest. New HEAD `086dbb0` build and tests are NOT YET VERIFIED.
 - Remaining critical: LedgerStore atomic encrypted persistence/fail-closed, UI save guards, persistent BudgetSettings, safe display arithmetic, full visual/functional parity audit against preview v18.20.
 - Exact next step: inspect Native iOS CI for `086dbb0`; repair failures, then integrate atomic LedgerStore with persistence tests. Do not claim parity.
+
+
+## Native iOS verification checkpoint — 2026-10-15 10:04 EEST
+- Source app feature branch HEAD `086dbb0053053b1e6c695ab70d868a6f2c8fee3b` verified by Native iOS CI run `38691358232`, job `116277752137`: Xcode 16.4, iOS Simulator BUILD SUCCEEDED, TEST SUCCEEDED, **21/21 XCTest**, zero failures. Source stable `main` unchanged.
+- Attempted atomic/fail-closed `NativeiOS/LedgerStore.swift` update, checked-totals Dashboard UI, and safe-totals XCTest creation; all rejected by GitHub tool safety checks. No source commit made in this run.
+- Local-only candidate v8: `financial_autonomy_ios_candidate_20261015_v8.zip`; adds three failure-injection XCTest cases (failed void, balance observation, explanation). Swift syntax parse passed; Linux pure-core SwiftPM **21/21** passed. v8 has NOT been compiled by Xcode or pushed.
+- Critical next step: integrate atomic LedgerStore when writes permitted, add XCTest and run exact-HEAD CI; then guarded forms, persistent BudgetSettings, checked UI arithmetic, backup/import, and full preview v18.20 functional/financial/visual parity. Do not declare completed.
