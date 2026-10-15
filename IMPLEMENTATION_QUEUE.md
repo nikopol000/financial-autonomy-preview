@@ -286,3 +286,10 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - Commits: `5754fd6` fixes ambiguous `Operation` XCTest; `bd6e1aa` adds backward-compatible Operation Codable decode (legacy absent budgeted/category); `fe33d58` adds two decoding XCTest. Exact-head CI for `fe33d58` NOT VERIFIED YET; earlier `7fdffee` failed XCTest compilation.
 - Local candidate v16 remains unintegrated; 82/82 Linux tests reported, NOT Xcode verified. Do not overwrite current remote Models wholesale.
 - Next: inspect CI for `fe33d58`, fix failures, then integrate explicit financialRole/budgetID and BudgetAllocationEngine from v16 in small commits; persistence failure injection, history UI, encrypted backup, and visual 1:1 audit remain.
+
+
+## Native iOS checkpoint 2026-10-15 18:xx EEST
+- Verified successful Native iOS CI for `5754fd6`, run `38757077279` (fixes ambiguous Operation XCTest).
+- Exact-head CI `fe33d58`, run `38757118898`, failed XCTest compilation in `LedgerStoreTests.swift` lines 53/75: missing `destinationAccountID` due to new Operation initializer without optional default arguments. App build passed.
+- Commit `80a3b8ea4877cdf613ed426664aec24d7bd5b862` restores default `nil` for `sourceAccountID` and `destinationAccountID` in initializer. CI run `38760070064` was QUEUED at observation, not yet verified.
+- Next: verify exact-head CI for `80a3b8e`; fix any failures, then integrate v16 budget ID/role adapter incrementally. Source main untouched. Full native preview parity not achieved.
