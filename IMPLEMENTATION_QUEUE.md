@@ -1,5 +1,20 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT native checkpoint — 2026-10-16 Bucharest — build11, IN PROGRESS / CI STARTUP BLOCKED
+
+Supersedes older current entries.
+- Native feature HEAD `f079ff8641cfda16e257dd83c68697ff89ff3e43` (docs); product `6036a9d7001e7ff308c8abfc4374aca354716363` (legacy cash compatibility fix), preceding product `a65181f7f7d05d94a66a11a9d8e49eec03884192` (ordering). Version18.20 build11, feat/sync-preview-v18-20-ios ONLY. Stable main startup a9b30be147abecea45a63bf7dd8d0a3eb3370366, no promotion.
+- Added optional Operation.eventOrder and LoanPrincipalObservation.eventOrder. New loan timeline allocates explicit order by civil day; same-day payment/check/payment/check works; balance uses latest eligible confirmation as anchor and principal after it. Same-day corrections preserve original point; write failures consume no sequence. Duplicate explicit points rejected during loan/snapshot validation.
+- Existing nil operation orders derive stable array-position×1000 within date; nil loan checks retain legacy EOD meaning without data rewrite. New same-day loan additions after a legacy EOD check remain conservatively blocked. Unrelated cash operations ignore legacy loan EOD barriers to preserve existing cash behavior. Account cash balance observations were not migrated to ordered points.
+- Fixed source omission found at startup: voidOperation lacked the confirmed-loan observation guard, although add/correct paths had it. Pre-check void/correction now locked by date+order, later same-day unconfirmed loan payment can be voided. UI shows confirmation date/order and new policy.
+- EXECUTED: all eight local Node reference generators exit0. Five NEW actual preview Metro207 same-day balance outputs: at orders1000/2000/3000/4000/EOD principal9300/9000/8500/8400/8400. Source generator/JSON committed. Cumulative web reference outputs72. These do NOT execute Swift or verify UI.
+- Five new XCTest source methods: ordered balance fixtures, pre-check void protection/post-check void, failed save/retry/correction point, legacy decode/duplicate points, unrelated cash after legacy loan check. Two old EOD-policy method bodies adjusted to ordered behavior. Expected native unit total148, NOT RUN; build/UI also NOT RUN.
+- Exact final product CI `38963809019`, job `117185184091`: completed failure, runner_id0, steps[]. Previous ordering CI38963676331 same startup failure. No unchanged reruns. No local Swift/swiftc/xcodebuild. Annotation endpoint unavailable through connector per prior attempt. Last ACTUAL native green remains e82e6c7 / 38792158205, Simulator build +62 unit +one UI. All newer native functionality remains unverified by execution.
+- Source LOAN_EVENT_ORDER_PARITY.md/README/PARITY_CHECKLIST updated. No global1:1 or percentage claim; native backup still NOT web-compatible; live preview still Vercel-login blocked.
+- EXACT FIRST UNFINISHED ACTION: inspect/resolve hosted startup for 38963809019; run exact feature HEAD and repair compilation/tests. Verify expected148 unit+UI and populated full-portrait light/dark screenshots, including repeated same-day confirmations, payment correction and legacy cash flow.
+- Next independent implementation: cumulative per-check discrepancy and linked explanatory transfer/refinance transactions; observation edit/void audit; account and revolving credit event adapters/closure; initial-principal audit/edit; historical budget/debt plans, complete Autonomie/Spațiu/Buget/safe pace, web backup/state import and all screen/interactions. Legacy EOD migration remains explicit, not guessed. Preview JS/index unchanged.
+
+
 ## CURRENT native checkpoint — 2026-10-16 22:xx Bucharest — build10, IN PROGRESS / CI STARTUP BLOCKED
 
 Supersedes prior current entries. Native feature HEAD `fe390667506300c63efd60850881c1ba8b45c39d` (docs); product `d220e89aeb9e3de26f027df31c238a583393c50a`; v18.20 build10 on feat/sync-preview-v18-20-ios ONLY. Stable main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366.
