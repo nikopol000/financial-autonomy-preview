@@ -1,5 +1,17 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build12, IN PROGRESS / CI STARTUP BLOCKED
+
+Supersedes older current entries.
+- Native feature HEAD `39d7d08185caccae39f7ddf7643617489cb2dc85` (docs); build-version product `38a0ae7f111f7f190b64860f0539c2d76246a960`; feature branch `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, untouched.
+- Implemented cumulative loan-check discrepancy and cumulative unexplained amount with overflow guards. The existing actual preview v18.20 Metro207 fixture is now asserted natively as cumulative `-300` then `-400`, while immutable observations retain their incremental differences.
+- Added optional backward-compatible `linkedOperationID` to loan explanations. New transfer/refinancing explanations in SwiftUI select an eligible active operation no later than the confirmation. Validation enforces kind/loan/amount, one explanation per linked operation and no second financial effect.
+- Added three XCTest source methods for cumulative retention, unique transfer linking and matching refinance linking; extended the existing Metro207 fixture assertion. Expected native unit total151, NOT RUN.
+- Exact build12 CI `39171340843`, job `117804866151`: completed failure, `runner_id=0`, `steps=[]`. No compiler, XCTest or UI result. No unchanged rerun. Last actual native green remains `e82e6c7` / run `38792158205`.
+- Updated `LOAN_OBSERVATION_PARITY.md`, `PARITY_CHECKLIST.md`, `README.md`. No 1:1 claim; observation/explanation edit/void, account/card-line ordered adapters, web-state import and populated visual comparison remain.
+- EXACT FIRST UNFINISHED ACTION: inspect/resolve hosted startup for `39171340843`; compile exact feature HEAD and run expected151 unit + UI tests, then repair any failures.
+- Next independent implementation if runner remains unavailable: audited edit/void for loan observations and explanations, preserving later anchors or rejecting unsafe history changes; then account/revolving-credit ordered reconciliation and initial-principal audit/edit.
+
 ## CURRENT native checkpoint — 2026-10-16 Bucharest — build11, IN PROGRESS / CI STARTUP BLOCKED
 
 Supersedes older current entries.
