@@ -1,5 +1,18 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build13, IN PROGRESS / CI STARTUP BLOCKED
+
+Supersedes older current entries.
+- Native feature HEAD `1ea352eec87dc487f9bf1f0534668e5804dfe119` (docs); exact product `bd277ef4fa7775ccf606ff9d79b628843601d258`; build13 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, untouched.
+- Added optional backward-compatible audit arrays for principal observations and explanations. The latest confirmation can be corrected without changing ID/date/order or cash. Earlier anchors with a later confirmation are protected. A confirmation can be voided only after its explanations and while the loan is open.
+- Explanation correction/void revalidates sign, remaining discrepancy and linked transfer/refinance operation. All four mutations persist before publish; failed writes leave live data and audit unchanged.
+- SwiftUI adds correction sheets, destructive confirmations and visible reconciliation audit. Legacy LoanBook decoding asserts absent audit arrays remain nil.
+- Added five XCTest source methods: latest correction/cash isolation, later-anchor protection, explanation-before-observation void order, explanation correction/void, persistence rollback. Expected native unit total156, NOT RUN.
+- Exact product CI `39175635131`, job `117817597542`: completed failure, `runner_id=0`, `steps=[]`. No compiler, XCTest or UI result. No unchanged rerun. Last actual native green remains `e82e6c7` / `38792158205`.
+- Updated `LOAN_OBSERVATION_PARITY.md`, `PARITY_CHECKLIST.md`, `README.md`. Preview supports broader dynamic earlier-check recomputation; native blocks it until a verified migration policy exists. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: resolve hosted startup for `39175635131`; compile exact feature HEAD and run expected156 unit + UI tests, then repair any failures.
+- Next independent implementation if runner remains unavailable: ordered reconciliation and closure adapters for account, credit card and credit line; then initial-principal audit/edit, web-state import, historical plans and populated visual comparison.
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build12, IN PROGRESS / CI STARTUP BLOCKED
 
 Supersedes older current entries.
