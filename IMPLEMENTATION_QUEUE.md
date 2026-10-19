@@ -1,6 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
 
+## CURRENT first unfinished item — build23
+
+1. **Execution gate:** obtain a native macOS run for exact product `b198c0a52fa7a6c04ef6547d3669830c0944a2f9`; compile and run expected 212 unit methods plus UI tests, then fix actual failures. Exact CI `39251968721` / job `118057713576` failed before runner execution with an empty step list and no logs. Do not report native success and do not repeat the unchanged infrastructure failure.
+2. **Independent next batch while blocked:** resolve the v18.20 transaction-audit correction combined with active balance checks without losing the web distinction among observed, expected and audit-adjusted difference. Preserve exact IDs/history or keep that combination fail-closed with fixture evidence; do not invent replacement IDs.
+3. **Then:** recurring/templates and historical budget/debt/contribution plans; remaining Autonomie/Spațiu/Buget/safe-pace formulas; populated full-frame light/dark interaction and visual comparison.
+4. **Build23 completed source stage:** feature/product HEAD `b198c0a52fa7a6c04ef6547d3669830c0944a2f9`, version 18.20 build23. Eligible card/overdraft transaction legs, principal-only debt reduction, loan-to-loan refinance and unified account/revolving/loan checks follow active Metro207 signs and one-time reconciliation absorption. Three new XCTest methods bring the expected native total to 212, NOT RUN. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+
+
+
 ## CURRENT first unfinished item — build22
 
 1. **Execution gate:** obtain a native macOS run for exact product `58fdc4cb177274e27fabc1f325fca15271e3a339`; compile and run expected 209 unit methods plus UI tests, then fix actual failures. Exact CI `39243412981` / job `118029409873` failed before execution with no steps or logs. Do not report native success and do not repeat the unchanged infrastructure failure.

@@ -1,6 +1,23 @@
 # Financial Autonomy — Project State
 
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build23, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `b198c0a52fa7a6c04ef6547d3669830c0944a2f9`; version 18.20 build23 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Extended the lossless v18.20 importer with eligible debt activity: credit-sourced expenses, transfers from/to card or overdraft, debt payments with separate cash amount and principal, installment flag, and loan-to-loan refinance linked to an active same-day principal check. Original `creditId`, `destinationCreditId`, `debtId`, `principal` and `installment` are retained in backward-compatible optional operation fields.
+- Web Metro207 debt values stay positive inside import reconciliation. Native card/overdraft balances stay inverse-signed: credit spending increases debt, transfer/payment to revolving credit reduces it, and only principal reduces debt while the complete payment leaves cash. Owned-money totals still exclude revolving credit; available credit remains separate.
+- Unified web balance checks now map current/savings/cash entities to native account observations, cards/overdrafts to inverse-signed native observations, and loans to principal observations. Expected values use one global day/order namespace, prior observed anchors and one-time `reconciliationCheckId` absorption. Live balances continue from the final observed anchor.
+- Native backup validation cross-checks active web checks against both native observation collections while allowing later native-only observations; it validates retained web debt legs and no longer mistakes a post-transaction live credit balance for the imported opening balance. Unknown or structurally unmappable combinations still reject the whole import before replacement.
+- Added three XCTest source methods for revolving-credit legs/signs and owned-money isolation, card payment principal plus positive-web/negative-native check conversion, and loan refinance/principal check ordering. Repository inventory is **212** unit methods. They were NOT RUN.
+- EXECUTED reference comparison: active bundle `index-v01820-history-back-navigation-20261014.js?build=18.20.1`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. Inspected Metro207 account/debt effects, linked-check absorption and positive debt check convention. This was exact source inspection, not native execution or UI validation.
+- Exact CI run `39251968721`, job `118057713576`, completed failure before runner execution with an empty step list and no logs. Local environment has no Swift/Xcode/xcodegen. Build, 212 XCTest methods and UI tests were NOT executed; no unchanged rerun.
+- Remaining: compile/test build23; web transaction-audit behavior combined with active checks; recurring/templates and historical plans/budgets/goals; remaining formulas and populated visual interaction comparison. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: restore/observe hosted macOS execution; compile exact HEAD `b198c0a52fa7a6c04ef6547d3669830c0944a2f9`, run expected 212 unit methods plus UI tests, and fix actual compiler/test failures.
+- Next independent implementation if runner remains unavailable: represent the web transaction-audit correction that overlaps active checks without changing displayed expected/difference truth, or keep the combination fail-closed with exact fixture evidence before moving to recurring/templates.
+
+
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build22, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
