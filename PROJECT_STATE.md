@@ -1,6 +1,21 @@
 # Financial Autonomy — Project State
 
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build20, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `ca17df0218b2d13f7489170e1315a208d71d478e`; version18.20 build20 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Extended the fail-closed v18.20 web-backup importer from account-only state to simple account transactions: income, unbudgeted expense and account-to-account transfer/savings. Debt/card/check/template/category/budget fields are still rejected before replacement.
+- Mapping preserves UUIDs, civil day, positive minor-unit amount, explicit intraday order or legacy missing order, void flag, optional v4 financial role, web name-catalog ID and expense detail rows. The importer validates name-catalog normalization/references, account opening dates, transfer endpoints, detail totals and role/kind compatibility.
+- Imported account live balances are recomputed with checked arithmetic from the separately retained web opening value and active imported operations. Income adds only to its destination; expense subtracts only from its source; transfer subtracts/adds exactly once. Available credit is not introduced as owned money.
+- Web in-place operation audit cannot be inserted into native replacement-chain audit without inventing successor IDs. It is therefore preserved structurally and losslessly in optional web import metadata (recorded day, action and complete pre-change operation), while native `operationAudit` remains empty. Native backup roundtrip includes this metadata; unknown/unmappable transaction or audit fields reject the entire import.
+- Backup UI describes the expanded safe scope; build number is20. Added four XCTest source methods for multi-operation balance effects/name/details/roles, explicit-versus-legacy order, separate web audit retention and unsupported budget-field rejection. Existing nonempty unsupported test now uses debts. Expected native unit total **202**, NOT RUN.
+- EXECUTED active-reference inspection: `index.html` still selects `index-v01820-history-back-navigation-20261014.js?build=18.20.1`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. Inspected v4 transaction validation, `roleOf`, name validation and account effect code; native import scope/mappings above follow those exact contracts. This was source inspection, not native execution or UI comparison.
+- Exact product CI lookup for `ca17df0218b2d13f7489170e1315a208d71d478e` returned `workflow_runs=[]`; combined statuses returned `[]`. Local environment remains Linux without Swift/Xcode/xcodegen, so build, 202 XCTest methods and UI tests were NOT executed. Last directly visible job remains run `39193821212`, job `117872136608`, failed before runner allocation with no steps; no unchanged rerun.
+- Remaining: import unified account/loan balance checks and reconciliation links; debt/card/overdraft/loan state; templates/recurring and historical plans/budgets/goals; complete formulas and populated visual interaction comparison. Preserved web audit is not yet presented as native correction history. No1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: restore/observe hosted macOS execution; compile exact HEAD `ca17df0218b2d13f7489170e1315a208d71d478e`, run expected202 unit methods plus UI tests and fix actual compiler/test failures.
+- Next independent implementation if runner remains unavailable: import the account-only subset of v18.20 `balanceChecks` / `checkAudit` with exact day/order/observed values and transaction reconciliation links, rejecting loan/debt checks until their entities are losslessly mapped.
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build19, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.

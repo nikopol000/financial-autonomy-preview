@@ -1,6 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
 
+## CURRENT first unfinished item — build20
+
+1. **Execution gate:** obtain a native macOS run for exact product `ca17df0218b2d13f7489170e1315a208d71d478e`; compile and run expected202 unit methods plus UI tests, then fix actual failures. Exact connector checks returned no commit workflow run/status; last observable job `39193821212` / `117872136608` failed before runner allocation. Do not report native success and do not repeat an unchanged failed run.
+2. **Independent next batch while blocked:** import the account-only subset of v18.20 `balanceChecks` and `checkAudit`, including exact day/order/observed values and eligible `reconciliationCheckId` links. Reject debt/loan checks and every field that lacks an exact native representation.
+3. **Then:** debt/card/overdraft/loan import; recurring/templates and historical budget/debt/contribution plans; remaining Autonomie/Spațiu/Buget/safe-pace formulas; populated full-frame light/dark interaction/visual comparison.
+4. **Build20 completed source stage:** feature/product HEAD `ca17df0218b2d13f7489170e1315a208d71d478e`, version18.20 build20. Simple account income/expense/transfer import preserves UUID/day/order/void/name catalog/role/details; live balances replay exactly from retained opening values. Web in-place audit is retained separately without inventing native replacement IDs. Four new XCTest methods bring the expected native total to202, NOT RUN. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+
 ## CURRENT first unfinished item — build19
 
 1. **Execution gate:** obtain a native macOS run for exact product `a3250f8d1a95e63d4e5f42dadca8f4c58897a5ce`; compile and run expected 198 unit methods plus UI tests, then fix actual failures. Exact connector checks returned no commit workflow run/status; last observable job `39193821212` / `117872136608` failed before runner allocation. Do not report native success and do not repeat an unchanged failed run.
