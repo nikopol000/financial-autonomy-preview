@@ -1,5 +1,14 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-20 build29 exact budget-window engine
+- Feature HEAD `a1de1d206619749fabb7b55fe6b7851b6804b6eb` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
+- Completed the pure calculation/presentation contract for Primary and additional Auto/Custom windows using retained historical plans and income anchors. Calendar cadence, start-date clamp, carry-forward plan, strict budgeted-role spend, expected/remaining/daily/pace values and unavailable reasons follow active v18.20 module 219.
+- Four XCTest source methods added; expected inventory 225. Swift/Xcode/xcodegen unavailable locally, so native compilation/tests/UI are NOT RUN. Executed Node parity fixtures for biweekly, paycheck and cross-plan Auto matched the active bundle.
+- Exact CI `39325651651`, job `118310680540`, failed before runner allocation with no steps/logs and was not rerun.
+- NEXT: restore macOS execution and test exact HEAD. Independently wire current-plan Primary/additional snapshots into Budget/Dashboard presentation, then contribution-aware financial summaries. Preserve owned-money/available-credit separation. No 1:1 claim.
+
+# Financial Autonomy — Implementation Queue
+
 ## Native iOS checkpoint — 2026-10-19 build28 budget-plan contract
 - Feature HEAD `8351011600e880c12061e346bd75e06bc0a49243` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
 - Preserves historical budget definitions, all Primary/additional window configuration and nonzero contribution losslessly. Optional fields retain absent-versus-present semantics.

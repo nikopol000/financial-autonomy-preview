@@ -1,5 +1,18 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build29, V18.20 BUDGET-WINDOW ENGINE / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `a1de1d206619749fabb7b55fe6b7851b6804b6eb`; version 18.20 build29 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Added a pure native v18.20 budget-window engine over the lossless build28 metadata: carry-forward `planAt`, monthly/quarterly/annual/Monday-week/1970-01-05 biweekly/paycheck/custom periods, started-day clamping, Primary proration, Auto aggregation across historical Primary plans, positive Custom limits, elapsed expected spend, 5% pace bands, supported daily allowance, Dashboard pin metadata and explicit unavailable reasons.
+- Spending is counted only for active `Budgeted Expense` operations attributed to the exact budget and within the tracked window through as-of. Fixed, debt, savings, transfer and unbudgeted spending never consume a budget. The engine has no account/credit input, so available credit cannot become owned money.
+- Four focused XCTest source methods cover tracked-month proration and strict role filtering, historical Auto aggregation without intermediate rounding, paycheck month-end clamping/missing-income failure, and biweekly epoch/custom-range behavior. Expected native unit inventory: 225 methods.
+- EXECUTED source verification: compared the implementation against active bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`, module 219; Node fixtures reproduced exact biweekly `2026-10-12...2026-10-25`, paycheck `2026-02-28...2026-03-30` and Auto `230012` results. Targeted structural checks passed. Swift/Xcode/xcodegen are unavailable locally, therefore compilation and all 225 XCTest/UI methods are NOT RUN.
+- Exact Native iOS CI: run `39325651651`, job `118310680540`, completed `failure` before runner allocation; `steps=null`, logs unavailable. It was not rerun.
+- NEXT: restore/observe hosted macOS execution, compile exact HEAD `a1de1d206619749fabb7b55fe6b7851b6804b6eb`, run all 225 unit methods plus UI tests and fix actual failures. Independent next parity slice: present current-plan Primary/additional window snapshots in native Budget/Dashboard UI, then port contribution-aware summaries while keeping owned money separate from available credit. No 1:1 claim.
+
+# Financial Autonomy — Project State
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build28, LOSSLESS BUDGET-PLAN CONTRACT / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
