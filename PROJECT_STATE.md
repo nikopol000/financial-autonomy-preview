@@ -1,6 +1,23 @@
 # Financial Autonomy — Project State
 
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build18, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature HEAD `7116f0750d92a121ddc8d17f65568328d4815676` (documentation); exact product HEAD `d1e81cdd06a461cb6579cf4d62446b3d780df69e`. Core commits: `a60a62a0ce2b3b3a28af9b1b855d566dd38d7028` unified check namespace, `f14c804a2c2bd54724378d1124161b0234d171bf` loan-side absorption, `bb429a5a5cfc9a248c48a866a40c68b9b1044d1e` atomic store integration, `c4ded50424ce0d4dee9c4b7e313c539d30775549` later-anchor preservation, `460a541720477fe7c30d8aa5c2775548e2f664a3` regression tests, `5a1fca480e8041c876c5e44a19edef34f819e013` SwiftUI/build18, `3635764ed93f71ddd175a969be9532d0350977b3` test compile correction, `d1e81cdd06a461cb6579cf4d62446b3d780df69e` legacy-nil preservation. Version 18.20 build18 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, untouched.
+- `Operation.reconciliationCheckID` now targets either account/card/line or loan-principal confirmations. A linked debt payment/refinance must affect the checked loan, use the same civil day and is ordered immediately before the selected confirmation.
+- Its principal changes only that confirmation's expected amount. The real observed amount remains the anchor, so later confirmations stay unchanged and debt is not reduced twice after the target.
+- The cash leg applies normally unless a following account balance confirmation absorbs it; then the existing build16 rule adjusts that account check instead of changing live cash twice. Correction and void reverse/reapply both sides atomically. Failed persistence changes neither balances, checks nor audit.
+- SwiftUI offers “Înregistrează plata lipsă pentru confirmare”, opening the normal payment/refinance flow with confirmation and date preselected. Optional legacy loan observations remain nil for unrelated account links rather than being rewritten to an empty array.
+- Added six XCTest source methods: debt/check/cash isolation, later-anchor preservation, following-account-check absorption, wrong-loan rejection, correction+void and failed-write rollback. Expected native unit total **193**, NOT RUN.
+- EXECUTED active-reference inspection: `index.html` still points to `index-v01820-history-back-navigation-20261014.js?build=18.20.1`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. Its validation accepts a same-date `debtPayment` when the check entity equals `debtId`, and its interval engine uses the same `reconciliationCheckId` field for accounts and debts. Native build18 now matches this behavioral link contract.
+- CI verification for exact product `d1e81cdd06a461cb6579cf4d62446b3d780df69e`: connected commit-run lookup returned `workflow_runs=[]`; combined statuses returned `[]`. The workflow is push-triggered for NativeiOS paths, but this connector exposes only PR-associated commit runs. No native result can be claimed. Local environment is Linux with neither Swift nor Xcode. Last directly observable Native iOS job remains build17 run `39193821212`, job `117872136608`, failed before runner allocation with no steps. No unchanged rerun was requested.
+- Remaining: lossless import/mapping of web unified `balanceChecks`, historical budget/debt/contribution plans, remaining Autonomie/Spațiu/Buget formulas, and populated full-frame light/dark interaction/visual comparison. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: restore/observe the hosted macOS runner; compile exact product `d1e81cdd06a461cb6579cf4d62446b3d780df69e`, run expected 193 unit methods plus UI tests, and fix actual compiler/test failures.
+- Next independent implementation if runner remains unavailable: begin the lossless web-state import adapter with explicit schema fixtures and no guessed mappings; then historical plans/formulas and populated visual validation.
+
+
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build17, IN PROGRESS / CI STARTUP BLOCKED
 
 Supersedes older current entries.

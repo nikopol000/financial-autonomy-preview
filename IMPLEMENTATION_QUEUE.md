@@ -1,6 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
 
+## CURRENT first unfinished item — build18
+
+1. **Execution gate:** obtain a native macOS run for exact product `d1e81cdd06a461cb6579cf4d62446b3d780df69e`; compile and run expected 193 unit methods plus UI tests, then fix actual failures. Exact connector checks returned no commit workflow run/status; last observable job 39193821212 / 117872136608 failed before runner allocation. Do not report native success and do not repeat an unchanged failed run.
+2. **Independent next batch while blocked:** implement the first lossless web-state import slice using explicit v18.20 schema fixtures. Preserve unknown/legacy fields or reject with a precise error; never guess account, loan, check or transaction links.
+3. **Then:** historical budget/debt/contribution plans, remaining Autonomie/Spațiu/Buget/safe-pace formulas, and populated full-frame light/dark interaction/visual comparison.
+4. **Build18 completed source stage:** feature HEAD `7116f0750d92a121ddc8d17f65568328d4815676`, product `d1e81cdd06a461cb6579cf4d62446b3d780df69e`, version 18.20 build18. Unified account/loan `reconciliationCheckId` behavior, same-day pre-check ordering, one-time principal absorption, following-account-check cash absorption, atomic correction/void/rollback, legacy-nil preservation and SwiftUI prelinked payment/refinance flow. Six new XCTest methods exist but were NOT RUN. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+
+
+
 ## CURRENT first unfinished item — build17
 
 1. **Execution gate:** restore Native iOS hosted runner startup for exact product `61ca047860e9640bd49a583ef2438f3a8b9aa691`. Run Xcode build, expected 187 unit methods and UI tests; fix actual compiler/test failures. Evidence now: run `39193821212`, job `117872136608`, failed before allocation with `runner_id=0` and no steps. Do not rerun the unchanged infrastructure failure.
