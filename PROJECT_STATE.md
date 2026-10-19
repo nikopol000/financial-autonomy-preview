@@ -1,5 +1,21 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build26, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `21d34c1d3b46c3e085f5a5849e1560efb2a82ff3`; version 18.20 build26 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Added lossless v18.20 income and fixed-expense template catalogs. Exact UUID, name, minor-unit amount, due day and optional day-known flag are retained in backward-compatible web metadata; duplicate/non-UUID IDs, unknown keys, invalid values and default-plan drift reject the entire import.
+- Transaction `templateId` is accepted only when the referenced imported catalog item exists and its kind matches: income templates require income operations; fixed-expense or recurring commitments require expense operations. The exact link is retained in optional `Operation.webTemplateID`, including audit-before operations.
+- No native schedule anchor is invented for day-of-month-only templates. They remain lossless metadata until historical month plans can establish safe semantics. Recurring commitments with exact next-payment dates continue to populate the native schedule book.
+- The default start-month plan must contain exactly the imported fixed-expense catalog values and all debt payments. Budgets/contribution and historical/nondefault plans remain fail-closed for the next stage.
+- Added two XCTest source methods for exact catalog/link retention and kind/default-plan rejection. Expected repository inventory is **217** unit methods. They were NOT RUN.
+- EXECUTED reference comparison: active bundle `index-v01820-history-back-navigation-20261014.js?build=18.20.1`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. Inspected Metro205 global ID, template catalog, default-plan expense and transaction `templateId` validation. Structural delimiter checks passed for all four changed files. This is source inspection, not native execution or UI validation.
+- Exact CI run `39300272690`, job `118223339473`, completed failure before runner allocation with `steps=null` and no logs. Local environment has no Swift/Xcode/xcodegen. Build, 217 XCTest methods and UI tests were NOT executed; no rerun was requested.
+- Remaining: compile/test build26; historical month plans/budgets/goals; remaining formulas and populated visual interaction comparison. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: restore/observe hosted macOS execution; compile exact HEAD `21d34c1d3b46c3e085f5a5849e1560efb2a82ff3`, run expected 217 unit methods plus UI tests, and fix actual failures.
+- Next independent implementation if runner remains unavailable: import historical month plans in a bounded lossless stage, beginning with fixed expenses/debt payments and rejecting budget-window fields until every field maps exactly.
+
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build25, IN PROGRESS / NATIVE EXECUTION QUEUED
 
 Supersedes older current entries.

@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-19 build26 template catalogs
+- Feature HEAD `21d34c1d3b46c3e085f5a5849e1560efb2a82ff3` on `feat/sync-preview-v18-20-ios` only; app stable main unchanged.
+- Income/fixed-expense catalogs retain exact IDs, values, due-day/day-known metadata. Eligible transaction/audit `templateId` links are preserved as `webTemplateID` with exact kind/reference validation; no schedule anchor is invented.
+- Default start-month expenses must match the fixed-expense catalog exactly. Two XCTest source methods added; expected inventory 217, NOT RUN.
+- Exact CI `39300272690`, job `118223339473`, failed before runner allocation with no steps/logs and was not rerun.
+- NEXT: restore macOS execution and test exact HEAD. Independently, import historical month plans losslessly, starting with fixed expenses/debt payments and keeping budget-window fields fail-closed until exact mapping. No 1:1 claim.
+
+
 ## Native iOS checkpoint — 2026-10-19 build25 recurring import
 - Feature HEAD `13c2a1f32ed822eabcc27655cb8f02bb953691df` on `feat/sync-preview-v18-20-ios` only; app stable main unchanged.
 - Recurring commitments now retain exact lifecycle/history/reminder fields in web metadata and map UUID/amount/frequency/next-payment/cancellation semantics into native schedules. Unknown/unmappable fields reject before replacement. Two new XCTest source methods; expected inventory 215, NOT RUN.
