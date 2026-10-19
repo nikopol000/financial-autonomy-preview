@@ -1,6 +1,25 @@
 # Financial Autonomy — Project State
 
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build21, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `453fe9da1a3955d3f19bdeb9d821c4713ccdc65d`; version 18.20 build21 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Extended the fail-closed v18.20 importer to the account-only subset of `balanceChecks`, `checkAudit` and `reconciliationCheckId`. Current and savings/cash account checks retain UUID, account UUID, civil day, positive intraday order, signed observed minor-unit amount and void state.
+- Active nonvoided web checks map to native observations with the same ID/account/day/order/observed value. Voided checks and the complete web check audit remain losslessly in optional import metadata; native audit IDs are not invented.
+- Expected values and live balances follow active bundle Metro207: legacy transaction order is day-local index × 1,000; active transaction/check points are globally unique; intervals anchor on the preceding observed value; linked effects are excluded from ordinary intervals and absorbed once by the target check or the other transfer leg's first following check.
+- Transaction reconciliation links are accepted only for an active same-day check on an affected account. Debt/loan checks, unknown check fields, invalid links, duplicate points and arithmetic overflow reject the entire import.
+- Web transaction audit can add a historical income correction to a check difference while displaying a different expected value. The current native observation cannot preserve both values simultaneously; therefore a state combining active balance checks with nonempty transaction audit is rejected explicitly rather than changed silently. Check audit alone is supported.
+- Native backup validation now checks imported check metadata against active native observations. Backup UI describes the expanded scope. Build number is 21.
+- Added five XCTest source methods: sequential/voided checks, direct linked expense, cross-account transfer absorption, separate check-audit retention and invalid point/audit rejection. Repository inventory is **207** unit methods. They were NOT RUN.
+- EXECUTED reference comparison: active bundle `index-v01820-history-back-navigation-20261014.js?build=18.20.1`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`, Metro207 `validateChecks`, `checkRows`, `checkedBalance`, interval and linked-effect functions. Native source implements the bounded account-only rules above; this is source inspection, not native execution or UI validation.
+- Exact CI run `39236554027`, job `118006909006`, completed failure before runner execution with `steps=null` and no logs. Local environment has no Swift/Xcode/xcodegen. Build, 207 XCTest methods and UI tests were NOT executed; no unchanged rerun.
+- Remaining: compile/test build21; debt/card/overdraft/loan import; transaction-audit/check combination; recurring/templates and historical plans/budgets/goals; remaining formulas and populated visual interaction comparison. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: restore/observe hosted macOS execution; compile exact HEAD `453fe9da1a3955d3f19bdeb9d821c4713ccdc65d`, run expected 207 unit methods plus UI tests, and fix actual compiler/test failures.
+- Next independent implementation if runner remains unavailable: add lossless debt/card/overdraft/loan entity and transaction/check import in a bounded stage, preserving available credit as credit rather than owned money and rejecting unmappable fields.
+
+
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build20, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.

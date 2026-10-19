@@ -1,6 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
 
+## CURRENT first unfinished item — build21
+
+1. **Execution gate:** obtain a native macOS run for exact product `453fe9da1a3955d3f19bdeb9d821c4713ccdc65d`; compile and run expected 207 unit methods plus UI tests, then fix actual failures. Exact CI `39236554027` / job `118006909006` failed before execution with no steps or logs. Do not report native success and do not repeat the unchanged infrastructure failure.
+2. **Independent next batch while blocked:** add a bounded lossless importer for debt/card/overdraft/loan entities, their eligible transactions and unified checks. Keep available credit separate from owned money; reject every unmappable field and do not invent IDs, links or history.
+3. **Then:** represent the web transaction-audit correction that overlaps active balance checks without changing displayed expected/difference truth; recurring/templates and historical budget/debt/contribution plans; remaining Autonomie/Spațiu/Buget/safe-pace formulas; populated full-frame light/dark interaction and visual comparison.
+4. **Build21 completed source stage:** feature/product HEAD `453fe9da1a3955d3f19bdeb9d821c4713ccdc65d`, version 18.20 build21. Account-only balance checks, void retention, check audit, direct/cross-account reconciliation absorption, strict global event-point validation and native backup validation were added against active Metro207. States combining active checks with transaction audit remain fail-closed because the native observation shape cannot retain both web expected and audit-adjusted difference. Five new XCTest methods exist; repository inventory 207, NOT RUN. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+
+
+
 ## CURRENT first unfinished item — build20
 
 1. **Execution gate:** obtain a native macOS run for exact product `ca17df0218b2d13f7489170e1315a208d71d478e`; compile and run expected202 unit methods plus UI tests, then fix actual failures. Exact connector checks returned no commit workflow run/status; last observable job `39193821212` / `117872136608` failed before runner allocation. Do not report native success and do not repeat an unchanged failed run.
