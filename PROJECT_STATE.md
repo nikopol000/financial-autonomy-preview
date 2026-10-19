@@ -1,5 +1,17 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build27, HISTORICAL MONTH PLANS / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `3784f68dfe4c5692e8fa1b925ea794da1e32179f`; version 18.20 build27 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- The v18.20 importer now accepts unique historical `monthPlans` at or after the backup start month, preserving fixed-expense UUID/name/minor-unit amount/day/dayKnown rows and known-debt payment amounts in backward-compatible web metadata.
+- Historical fixed-expense rows become native `FixedExpenseMonthPlan` history with carry-forward semantics. Optional `ScheduledItem.webDueDay` retains the web day-of-month and projection resolves it per target month, so a day-31 import yields 31 March after February rather than drifting to day 28.
+- The latest imported plan must exactly equal the current fixed-expense template catalog and current debt payments. Unknown debt references, duplicate month/item IDs, malformed values, nonempty budgets, or nonzero contribution fail the entire import. Budget-window/contribution fields remain intentionally unsupported in this bounded stage.
+- Two XCTest source methods were added for multi-month carry-forward/month-end behavior and fail-closed budget/unknown-debt cases. Expected native unit inventory: 219 methods. Tests, compilation and UI execution were NOT RUN because this environment has no Swift/Xcode/xcodegen.
+- Source-level verification actually executed: exact active bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js` (blob `be453db2699273a194543de4532db6ea4b2e1cf2`) was inspected for `monthPlans` validation/latest-plan behavior; changed Swift delimiters were checked structurally; branch update used expected SHA `21d34c1d3b46c3e085f5a5849e1560efb2a82ff3`.
+- Exact Native iOS CI: run `39309053783`, job `118253605955`, completed `failure` before runner allocation; `steps=null`, logs unavailable. It was not rerun.
+- NEXT: restore/observe hosted macOS execution, compile exact HEAD `3784f68dfe4c5692e8fa1b925ea794da1e32179f`, run all 219 unit methods plus UI tests, and fix actual failures. Independent next parity slice: map historical month-plan budget windows and contribution only after deriving exact lossless native semantics; until then remain fail-closed. No 1:1 claim.
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build26, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.

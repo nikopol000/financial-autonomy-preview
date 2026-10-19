@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-19 build27 historical month plans
+- Feature HEAD `3784f68dfe4c5692e8fa1b925ea794da1e32179f` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
+- Imported unique historical month plans losslessly for fixed-expense rows and known-debt payments. Native fixed-expense plan history carries forward by month; preserved web due-day projection keeps true month-end semantics across short months.
+- Latest plan must match current expense templates/debt payments. Budget rows and contribution remain fail-closed, as do unknown debt references and malformed/duplicate rows.
+- Two XCTest source methods added; expected inventory 219, NOT RUN. No Swift/Xcode/xcodegen is available locally.
+- Exact CI `39309053783`, job `118253605955`, failed before runner allocation with no steps/logs and was not rerun.
+- NEXT: restore macOS execution and test exact HEAD. Independently derive and import historical budget-window/contribution fields without lossy approximation; keep unsupported fields fail-closed until exact mapping. No 1:1 claim.
+
 ## Native iOS checkpoint — 2026-10-19 build26 template catalogs
 - Feature HEAD `21d34c1d3b46c3e085f5a5849e1560efb2a82ff3` on `feat/sync-preview-v18-20-ios` only; app stable main unchanged.
 - Income/fixed-expense catalogs retain exact IDs, values, due-day/day-known metadata. Eligible transaction/audit `templateId` links are preserved as `webTemplateID` with exact kind/reference validation; no schedule anchor is invented.
