@@ -1,5 +1,18 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build14, IN PROGRESS / CI STARTUP BLOCKED
+
+Supersedes older current entries.
+- Native feature/product HEAD `691056f0ebf188089ea7f90fb39674976f3b4710`; core implementation `16614108aae316c6eb747aaf747c1411e8507cea`; version 18.20 build14 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, untouched.
+- Added optional backward-compatible `BalanceObservation.eventOrder` and a shared same-day allocator across cash/debt operations, loan confirmations and account/card/line confirmations. New checks receive an explicit point; legacy missing order remains conservative end-of-day. Operation correction/void now compares exact date+order anchors instead of a coarse timestamp-only barrier.
+- Added optional `MoneyAccount.closedAt`. Checking/savings/cash/card/credit-line accounts can close only at real balance zero, remain archived for history, and reject later operations, corrections, voids and balance confirmations. Failed persistence leaves the account open. Credit limits remain separate and never become owned money.
+- Snapshot validation rejects duplicate explicit event points, invalid closure timestamps, nonzero closed balances and activity after closure. SwiftUI separates active accounts from Archive, hides balance mutation on closed accounts and requires destructive confirmation.
+- Added seven XCTest source methods: zero close/mutation lock, nonzero revolving-credit rejection, failed-write rollback, legacy EOD order, shared next order, same-day post-check void and pre-check lock. Expected native unit total 163, NOT RUN.
+- Exact build14 CI `39180167142`, job `117831029908`: completed failure, `runner_id=0`, `steps=[]`. No compiler, XCTest or UI result. The immediately preceding core commit run `39180055471` failed identically. No unchanged rerun. Last actual native green remains `e82e6c7` / `38792158205` (62 unit + one UI).
+- EXECUTED source comparison against active preview `index-v01820-history-back-navigation-20261014.js`: Metro207 allocates `max(day event order)+1000` jointly for transactions/checks and computes interval-anchored check rows; native now matches the ordering/anchor safety direction. Remaining material difference: preview can correct/void balance checks and link reconciliation transactions, while native account checks are still append-only; preview also models account availability separately and cards/lines as debt records. Native archive/closure is therefore not claimed 1:1.
+- EXACT FIRST UNFINISHED ACTION: resolve hosted startup for `39180167142`; compile exact product HEAD and run expected 163 unit + UI tests, then repair any compiler/test failures.
+- Next independent implementation if runner remains unavailable: audited correct/void for account/card/line balance confirmations plus linked reconciliation operations; then initial-principal audit/edit, web-state import, historical plans and populated visual comparison. No 1:1 claim.
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build13, IN PROGRESS / CI STARTUP BLOCKED
 
 Supersedes older current entries.
