@@ -1,6 +1,14 @@
 # Financial Autonomy — Implementation Queue
 
 
+## CURRENT first unfinished item — build22
+
+1. **Execution gate:** obtain a native macOS run for exact product `58fdc4cb177274e27fabc1f325fca15271e3a339`; compile and run expected 209 unit methods plus UI tests, then fix actual failures. Exact CI `39243412981` / job `118029409873` failed before execution with no steps or logs. Do not report native success and do not repeat the unchanged infrastructure failure.
+2. **Independent next batch while blocked:** extend the importer from lossless debt definitions to eligible debt activity and unified checks: `creditId`, `destinationCreditId`, `debtId`, principal, installment and refinancing legs, preserving Metro207 positive web debt versus negative native revolving-credit signs and never counting available credit as owned money.
+3. **Then:** represent the web transaction-audit correction that overlaps active checks; recurring/templates and historical budget/debt/contribution plans; remaining Autonomie/Spațiu/Buget/safe-pace formulas; populated full-frame light/dark interaction and visual comparison.
+4. **Build22 completed source stage:** feature/product HEAD `58fdc4cb177274e27fabc1f325fca15271e3a339`, version 18.20 build22. Card/overdraft/loan definitions and exact default-plan payment rows are imported and cross-validated; original web fields remain in metadata, revolving credit remains non-owned, and debt activity/checks remain fail-closed. Two new XCTest methods bring the expected native total to 209, NOT RUN. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+
+
 ## CURRENT first unfinished item — build21
 
 1. **Execution gate:** obtain a native macOS run for exact product `453fe9da1a3955d3f19bdeb9d821c4713ccdc65d`; compile and run expected 207 unit methods plus UI tests, then fix actual failures. Exact CI `39236554027` / job `118006909006` failed before execution with no steps or logs. Do not report native success and do not repeat the unchanged infrastructure failure.

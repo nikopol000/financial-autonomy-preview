@@ -1,6 +1,22 @@
 # Financial Autonomy — Project State
 
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build22, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `58fdc4cb177274e27fabc1f325fca15271e3a339`; version 18.20 build22 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Added the first bounded debt-import slice for all three active v18.20 entity kinds: `card`, `overdraft` and `loan`. UUID, name, signed principal, monthly payment, limit, opening day, due day, optional day-known flag, installment count, APR and the absent-versus-empty custom schedule distinction are retained in optional web import metadata.
+- Card and overdraft entities map to native credit-card/credit-line accounts with the inverse signed balance and the exact credit limit. They are explicitly unavailable as spending cash; `LedgerEngine.ownedMoneyMinor` still excludes them and `availableCreditMinor` reports credit separately.
+- Loan entities map to `LoanBook` / `LoanAgreement` with exact opening principal, payment, due day, optional installments, APR and dated schedule rows. The default web month plan is accepted only when its debt-payment rows exactly match all imported entity IDs and configured payments.
+- Native backup validation cross-checks imported web debt metadata against the mapped credit accounts and loans. Unknown debt keys, duplicate IDs/dates, invalid ranges and mismatched plan rows reject the whole import. Debt-linked transactions and debt/loan balance checks remain deliberately fail-closed until the next bounded stage; no IDs, signs or histories are inferred.
+- Added two XCTest source methods covering all three mappings, signed overdraft, separate owned-money/available-credit totals, schedule/APR retention, native backup validation, unknown-field rejection and the debt-activity fail-closed boundary. Repository inventory is **209** unit methods. They were NOT RUN.
+- EXECUTED reference comparison: active bundle `index-v01820-history-back-navigation-20261014.js?build=18.20.1`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. Inspected Metro205 debt validation/editor fields and Metro207 positive-debt effect/check contract. This was exact source inspection, not native execution or UI validation.
+- Exact CI run `39243412981`, job `118029409873`, completed failure before runner execution with `steps=null` and no logs. Local environment has no Swift/Xcode/xcodegen. Build, 209 XCTest methods and UI tests were NOT executed; no unchanged rerun.
+- Remaining: compile/test build22; debt/card/overdraft/loan transactions and unified checks; transaction-audit/check combination; recurring/templates and historical plans/budgets/goals; remaining formulas and populated visual interaction comparison. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: restore/observe hosted macOS execution; compile exact HEAD `58fdc4cb177274e27fabc1f325fca15271e3a339`, run expected 209 unit methods plus UI tests, and fix actual compiler/test failures.
+- Next independent implementation if runner remains unavailable: import eligible `creditId`, `destinationCreditId`, `debtId`, `principal`, `installment` and `refinancingDebtId` transaction legs plus card/overdraft/loan checks with Metro207 signs and one-time reconciliation absorption.
+
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build21, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
