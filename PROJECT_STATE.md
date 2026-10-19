@@ -1,5 +1,21 @@
 # Financial Autonomy — Project State
 
+
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build17, IN PROGRESS / CI STARTUP BLOCKED
+
+Supersedes older current entries.
+- Native feature HEAD `79823ba34fee2d52f3a3a8c2ef7c0e43ca223e09` (documentation); exact product HEAD `61ca047860e9640bd49a583ef2438f3a8b9aa691`. Core commits: `a896529822d26fa2f335fb8a807ac8dcb94bd5cd` amount audit, `8793df0dddb0919c8a6b5e260d846053d547dcb5` observation-safe mutation, `f8e0250947a87487217ceeb8b92fefe91c7499db` opening-date correction, `61ca047860e9640bd49a583ef2438f3a8b9aa691` audit UI. Version 18.20 build17 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, untouched.
+- Added optional backward-compatible `LoanBook.loanAudit`. Existing snapshots with no field decode without rewrite.
+- Opening loan principal and opening date can now be corrected with an explanation. The correction creates no operation and no cash movement, changes debt only, adjusts the earliest dependent observation's expected principal by the delta, preserves later observation anchors, and records complete before/after audit state.
+- Invalid explanations, closed loans, dates after an existing observation and persistence failures reject atomically. SwiftUI exposes amount/date correction and the audit history.
+- Added eight XCTest source methods: legacy decoding, debt-only/cash isolation, first-observation recalculation with later-anchor preservation, invalid explanation, failed-write rollback, closed-loan protection, date correction and date-after-observation rejection. Expected native unit total **187**, NOT RUN.
+- EXECUTED active-bundle inspection: `index-v01820-history-back-navigation-20261014.js`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`, says “Corectează soldul inițial” edits opening amount/date and is not a transaction or unexplained money. Native build17 now matches this rule; its audit and first-dependent-row recalculation are safety additions.
+- Exact build17 product CI `39193821212`, job `117872136608`: completed failure, `runner_id=0`, `steps=[]`. No compiler, XCTest or UI result; no unchanged rerun. The docs-only feature HEAD has no workflow run/status. Last actual native green remains `e82e6c7` / `38792158205` (62 unit + one UI).
+- Remaining material differences: preview loan checks share the unified `balanceChecks` / `reconciliationCheckId` engine; native principal checks remain separate. Lossless web-state import, historical plans and populated light/dark interaction/visual comparison remain incomplete. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: restore hosted runner startup; compile exact product `61ca047860e9640bd49a583ef2438f3a8b9aa691` and run expected 187 unit + UI tests, then repair any compiler/test failures.
+- Next independent implementation if runner remains unavailable: converge loan linked-transaction/check semantics with the preview without changing cash; then web-state import, historical plans and populated visual comparison.
+
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build16, IN PROGRESS / CI STARTUP BLOCKED
 
 Supersedes older current entries.
