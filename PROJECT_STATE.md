@@ -1,5 +1,20 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build16, IN PROGRESS / CI STARTUP BLOCKED
+
+Supersedes older current entries.
+- Native feature/product HEAD `ae49ec2790d31a2c6a0bbaaa9ed812e5bd76e754`; core semantics `3cb363f0b38cd0e4d38582f282ed2be8548b2e49`; preview JSON-key fix `1ccf8070b4042f1049b6165db26428f756395c9a`; cross-account recomputation `e7ce391e9aa8037fe7f88ec92b08465f7dfc8efc` + test fix `fa8a41fae389433f36631261c823aa719476d21b`; SwiftUI flow `2bc5bb5626f8ab35b4086344de24b4b671af302c`. Version 18.20 build16 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, untouched.
+- Added optional backward-compatible `Operation.reconciliationCheckID`, encoded with the active preview key `reconciliationCheckId`. Legacy native operations decode with no link and are not rewritten.
+- A linked transaction must affect the checked account and use the same civil day as its active balance check. Same-day ordering allocates a unique point before the target check. Invalid/missing/unaffected links and arithmetic overflow fail atomically.
+- Linked effects are absorbed exactly once: the target account's live confirmed balance is not changed again, while its check expected value is recomputed. For the other leg of a transfer, native mirrors Metro206: if that account has a check on or after the transaction day, its first such check absorbs the effect; otherwise its current balance changes normally. Correction and void reverse/reapply both expected-row and live-balance effects while retaining operation audit.
+- SwiftUI reconciliation detail can open a prelinked operation form; the form pins the check day initially, explains no-double-application, and operation correction preserves the link.
+- Added nine XCTest source methods covering legacy decoding, linked expense, transfer isolation, void, correction, invalid account, prior check with later activity, cross-account next-check absorption and mismatched-day rejection. Expected native unit total 179, NOT RUN.
+- EXECUTED reference inspection of active `index-v01820-history-back-navigation-20261014.js` blob `be453db2699273a194543de4532db6ea4b2e1cf2`: Metro validation requires `reconciliationCheckId`, same check date and affected entity; its interval engine excludes linked effects and assigns the other leg to the first following check. The implemented native rules above now match that contract for account/card/credit-line observations.
+- Exact build16 CI `39188836759`, job `117856928815`: completed failure, `runner_id=0`, `steps=[]`. No compiler, XCTest or UI result; no unchanged rerun. Local environment has no Swift/Xcode. Last actual native green remains `e82e6c7` / `38792158205` (62 unit + one UI).
+- Remaining reconciliation difference: preview represents loan checks in the same transaction/check engine; native loan-principal observations remain a separate audited engine. Web-state import and populated screen comparison also remain incomplete. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: resolve hosted startup for `39188836759`; compile exact product HEAD `ae49ec2790d31a2c6a0bbaaa9ed812e5bd76e754` and run expected 179 unit + UI tests, then repair any compiler/test failures.
+- Next independent implementation if runner remains unavailable: initial-principal audit/edit and unify loan linked-transaction/check semantics without changing cash; then web-state import, historical plans and populated light/dark visual comparison.
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build15, IN PROGRESS / CI STARTUP BLOCKED
 
 Supersedes older current entries.

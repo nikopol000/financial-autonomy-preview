@@ -1,5 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
+## ACTIVE native build16 — reconciliationCheckId transaction semantics — IN PROGRESS / CI STARTUP BLOCKED
+
+- DONE on feature branch only: product HEAD `ae49ec2790d31a2c6a0bbaaa9ed812e5bd76e754`, version 18.20 build16. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- DONE source: backward-compatible `reconciliationCheckId` persistence; same-day/affected-account validation; target-check and cross-account next-check absorption; no double balance effect; audited correction/void recomputation; unique before-check ordering; SwiftUI linked-operation entry and correction preservation.
+- DONE reference comparison: active v18.20 bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2`, Metro206 interval/link functions and validation inspected directly.
+- TEST SOURCE: nine new XCTest methods; expected total 179. NOT EXECUTED.
+- BLOCKED: exact CI `39188836759`, job `117856928815`, failed before runner (`runner_id=0`, no steps). Do not rerun unchanged and do not claim compilation/test success.
+- EXACT FIRST UNFINISHED ACTION: restore runner startup; build exact `ae49ec2790d31a2c6a0bbaaa9ed812e5bd76e754`, run expected 179 unit tests plus UI tests, fix actual failures.
+- NEXT INDEPENDENT: initial-principal audit/edit and loan linked-check convergence; then lossless web-state import, historical plans and populated visual comparison. Full 1:1 remains unproven.
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build15, IN PROGRESS / CI STARTUP BLOCKED
 
 Supersedes older current entries.
