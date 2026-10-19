@@ -1,5 +1,20 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build25, IN PROGRESS / NATIVE EXECUTION QUEUED
+
+Supersedes older current entries.
+- Native feature/product HEAD `13c2a1f32ed822eabcc27655cb8f02bb953691df`; version 18.20 build25 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Added the bounded lossless v18.20 recurring-commitment import. Exact UUID, name, minor-unit amount, weekly/monthly/quarterly/yearly frequency, subscription/donation/expense kind, active/considering/planned/cancelled status, covered-by-budget flag, next-payment civil day, complete lifecycle history, optional effective end day and optional ISO reminder are retained in backward-compatible web metadata.
+- Imported commitments also populate native `ScheduleBook` with the same UUID, amount, frequency, next-payment anchor and cancellation boundary. Status/history/reminder remain separately preserved because the native due engine has no equivalent lifecycle fields. Unknown keys, invalid dates/enums, duplicate/non-UUID IDs and cancelled entries without an end day reject the entire import before replacement.
+- Income/fixed-expense template catalogs and transaction `templateId` links remain deliberately fail-closed; no first-due dates or historical links were invented. Historical month plans are still pending.
+- Added two XCTest source methods for exact recurring lifecycle retention/native mapping and fail-closed unknown/non-UUID input. Expected repository inventory is **215** unit methods. They were NOT RUN.
+- EXECUTED reference comparison: active bundle `index-v01820-history-back-navigation-20261014.js?build=18.20.1`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. Inspected its recurring validation, lifecycle transition, next-date and monthly conversion contracts. Structural delimiter checks passed for the four changed files. This is source inspection, not native execution or UI validation.
+- Build24 CI run `39283427502`, job `118162634574`, completed failure before runner allocation with empty steps and no logs; it was not rerun. Exact build25 CI run `39291591631` was queued at checkpoint time. Local environment has no Swift/Xcode/xcodegen.
+- Remaining: compile/test build25; import income/fixed-expense templates and exact transaction template links, then historical month plans/budgets/goals; remaining formulas and populated visual interaction comparison. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: observe Native iOS CI run `39291591631`; if runner execution becomes available, compile exact HEAD `13c2a1f32ed822eabcc27655cb8f02bb953691df`, run expected 215 unit methods plus UI tests, and fix actual failures.
+- Next independent implementation if runner remains unavailable: add lossless income/fixed-expense template catalogs and eligible `templateId` transaction links without inventing schedule anchors, then continue historical month plans.
+
+
 
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build24, IN PROGRESS / NATIVE EXECUTION QUEUED
 

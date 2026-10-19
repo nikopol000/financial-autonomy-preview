@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-19 build25 recurring import
+- Feature HEAD `13c2a1f32ed822eabcc27655cb8f02bb953691df` on `feat/sync-preview-v18-20-ios` only; app stable main unchanged.
+- Recurring commitments now retain exact lifecycle/history/reminder fields in web metadata and map UUID/amount/frequency/next-payment/cancellation semantics into native schedules. Unknown/unmappable fields reject before replacement. Two new XCTest source methods; expected inventory 215, NOT RUN.
+- Build24 run `39283427502` failed before runner allocation with no steps/logs and was not rerun. Exact build25 run `39291591631` queued at checkpoint.
+- NEXT: verify exact-head CI. If runner remains unavailable, import income/fixed-expense template catalogs and exact eligible transaction `templateId` links without guessed dates/history, then historical month plans. No 1:1 claim.
+
+
 
 ## CURRENT first unfinished item — build24
 
