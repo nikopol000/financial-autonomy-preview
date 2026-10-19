@@ -1,6 +1,22 @@
 # Financial Autonomy — Project State
 
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build24, IN PROGRESS / NATIVE EXECUTION QUEUED
+
+Supersedes older current entries.
+- Native feature/product HEAD `cfed8f91127a4b970310e2be0f9aaff0c22de6de`; version 18.20 build24 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Removed the former fail-closed boundary for v18.20 transaction audit combined with active balance checks. Imported account observations now retain an optional exact cumulative `webDifferenceMinor` while preserving interval `expectedMinor`, observed value, UUID and order. Legacy/native data decode with the optional field absent and keep the prior interval behavior.
+- Ported Metro207's exact audit rule: only a transaction whose current kind is income can contribute a historical correction; the pre-check audit version is selected by recorded day and original event point; check difference is `observed + auditEffect - (opening + effects from opening + linked effects)`. Live checked balance is `last observed + auditEffect(last) + later effects`.
+- Sequential checks preserve the web cumulative displayed difference even when the native interval expected value differs. Revolving-credit observations invert the imported difference together with observed/expected signs. Correcting an imported native observation and linked-operation expected adjustments update the retained difference atomically. Available credit remains excluded from owned money.
+- Added one XCTest source method for an income corrected from 100 to 200 after a 1,100 observed check: expected 1,200, audit-adjusted difference 0 and live balance 1,200. Existing sequential-check coverage now asserts cumulative web differences. Repository inventory is **213** unit methods. They were NOT RUN.
+- EXECUTED reference comparison: active bundle `index-v01820-history-back-navigation-20261014.js?build=18.20.1`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. Directly inspected Metro207 `checkRows`, audit predicate/effect and `checkedBalance`; an executable JavaScript fixture returned auditEffect 100, expected 1,200, difference 0 and live 1,200. Structural delimiter checks passed for all eight changed source files. This is source/fixture validation, not native execution or UI validation.
+- Exact CI run `39283427502`, job `118162634574`, was still queued without runner allocation or steps at checkpoint time. Local environment has no Swift/Xcode/xcodegen. Build, 213 XCTest methods and UI tests were NOT executed; no rerun was requested.
+- Remaining: compile/test build24; recurring/templates and historical plans/budgets/goals; remaining formulas and populated visual interaction comparison. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: observe Native iOS CI run `39283427502`; if runner execution becomes available, compile exact HEAD `cfed8f91127a4b970310e2be0f9aaff0c22de6de`, run expected 213 unit methods plus UI tests, and fix actual failures.
+- Next independent implementation if runner remains unavailable: begin the bounded lossless recurring/templates import against active v18.20 fields, then historical month plans, rejecting every unmappable field without inventing IDs or history.
+
+
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build23, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.

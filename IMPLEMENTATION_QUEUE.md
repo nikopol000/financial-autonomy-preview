@@ -1,6 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
 
+## CURRENT first unfinished item — build24
+
+1. **Execution gate:** observe Native iOS CI run `39283427502` / job `118162634574` for exact product `cfed8f91127a4b970310e2be0f9aaff0c22de6de`; it was queued with no runner and no steps at checkpoint time. If execution becomes available, compile and run expected 213 unit methods plus UI tests, then fix actual failures. Do not report native success and do not repeat an unchanged pre-runner infrastructure failure.
+2. **Independent next batch while blocked:** add a bounded lossless importer for v18.20 recurring/templates, preserving exact IDs, cadence, dates, roles and local-only behavior; reject unknown or unmappable fields atomically.
+3. **Then:** historical budget/debt/contribution month plans and goals; remaining Autonomie/Spațiu/Buget/safe-pace formulas; populated full-frame light/dark interaction and visual comparison.
+4. **Build24 completed source stage:** feature/product HEAD `cfed8f91127a4b970310e2be0f9aaff0c22de6de`, version 18.20 build24. Transaction-audit corrections can coexist with active checks while preserving interval expected, observed and the exact cumulative audit-adjusted web difference. One new XCTest method brings the expected native total to 213, NOT RUN. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+
+
+
 ## CURRENT first unfinished item — build23
 
 1. **Execution gate:** obtain a native macOS run for exact product `b198c0a52fa7a6c04ef6547d3669830c0944a2f9`; compile and run expected 212 unit methods plus UI tests, then fix actual failures. Exact CI `39251968721` / job `118057713576` failed before runner execution with an empty step list and no logs. Do not report native success and do not repeat the unchanged infrastructure failure.
