@@ -1,5 +1,14 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-19 build28 budget-plan contract
+- Feature HEAD `8351011600e880c12061e346bd75e06bc0a49243` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
+- Preserves historical budget definitions, all Primary/additional window configuration and nonzero contribution losslessly. Optional fields retain absent-versus-present semantics.
+- Imports web `categoryId` as explicit native budget attribution and validates it against the carry-forward plan active on the transaction date. Budgeted/fixed roles are mapped explicitly; fixed-template double allocation remains rejected.
+- Advanced Auto/Custom window calculations, budget Dashboard/Hub UI and contribution effects are still pending; no approximation was introduced.
+- Two XCTest source methods added; expected inventory 221, NOT RUN. No Swift/Xcode/xcodegen is available locally.
+- Exact CI `39317190579`, job `118281603405`, failed before runner allocation with no steps/logs and was not rerun.
+- NEXT: restore macOS execution and test exact HEAD. Independently port the exact web Primary/additional Auto/Custom engine and current-plan presentation, then contribution-aware summaries. No 1:1 claim.
+
 ## Native iOS checkpoint — 2026-10-19 build27 historical month plans
 - Feature HEAD `3784f68dfe4c5692e8fa1b925ea794da1e32179f` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
 - Imported unique historical month plans losslessly for fixed-expense rows and known-debt payments. Native fixed-expense plan history carries forward by month; preserved web due-day projection keeps true month-end semantics across short months.

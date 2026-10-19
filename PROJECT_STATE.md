@@ -1,5 +1,17 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build28, LOSSLESS BUDGET-PLAN CONTRACT / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `8351011600e880c12061e346bd75e06bc0a49243`; version 18.20 build28 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Historical month-plan budgets are now accepted and retained losslessly in backward-compatible web metadata: exact ID/name/amount, Primary kind, anchor/income/range, optional daily-pace flag, additional-window order, Auto/Custom mode, custom amount, anchor/income/range and optional Dashboard pin. Monthly contribution is retained in minor units, including nonzero values.
+- Web budgeted transactions now accept the exact `categoryId` field and `financialRole=budgeted`, map to native `Operation.budgetID` / `.budgetedExpense`, and are validated against the carry-forward `planAt` budget for the transaction month. Fixed-template expenses cannot also consume a variable budget. `financialRole=fixed` is mapped only with a valid fixed-expense template.
+- Advanced budget-window calculations and contribution effects are deliberately not claimed as native-functional yet. This stage preserves and validates the source truth and transaction attribution without inventing native Auto/Custom cadence semantics or UI.
+- Two XCTest source methods were added for exact advanced-window/contribution/link retention and fail-closed invalid Custom/inactive-budget references. Expected native unit inventory: 221 methods. Tests, compilation and UI execution were NOT RUN because this environment has no Swift/Xcode/xcodegen.
+- EXECUTED source verification: inspected the active v18.20 bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`, for month-plan validation, `planAt`, `categoryId`, fixed-expense double-allocation rejection, Primary/Auto/Custom fields and contribution behavior. Structural delimiter and targeted contract-presence checks passed for the changed Swift sources. This is source inspection, not native execution.
+- Exact Native iOS CI: run `39317190579`, job `118281603405`, completed `failure` before runner allocation; `steps=null`, logs unavailable. It was not rerun.
+- NEXT: restore/observe hosted macOS execution, compile exact HEAD `8351011600e880c12061e346bd75e06bc0a49243`, run all 221 unit methods plus UI tests, and fix actual failures. Independent next parity slice: port the exact Primary/additional Auto/Custom window calculation and current-plan presentation from the active bundle, then wire contribution into the matching financial summaries without changing owned-money truth. No 1:1 claim.
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build27, HISTORICAL MONTH PLANS / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
