@@ -1,5 +1,19 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build15, IN PROGRESS / CI STARTUP BLOCKED
+
+Supersedes older current entries.
+- Native feature/product HEAD `9ce0dd7510202b2dc7af418a2ef1157e3bafdde6`; core audit `3191d432b1c88c22a655eb4bc2e7edee1ebc8570`; reconciliation UI `4aa3a1c22f5b008feab68f74d88ddbf238412bfa` + fix `2636015aa05eae47f5b3e549094254b6c4f0c490`; version bump `f33727e0bf38c94c9ae9c040ebe0de03bc1b5167`. Version 18.20 build15 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, untouched.
+- Added optional backward-compatible observation/explanation audit journals. The latest account/card/credit-line confirmation can be corrected in place while preserving ID/date/order/expected amount; current real balance moves only by the correction delta. It can be voided only after its explanations, restoring the pre-confirmation expected delta while preserving later operations.
+- Earlier/ambiguous confirmations with a later or equal anchor are locked. Correction, void and audit writes are persist-before-publish; a failed write changes neither balance nor journal. Explanations support audited correction/void.
+- Added optional `ReconciliationExplanation.linkedOperationID`. New transfer/refinancing explanations require an explicit eligible active operation, reject duplicate reuse, validate date/order/type/sign/amount and never apply the operation a second time. Legacy explanations without links still decode.
+- SwiftUI reconciliation detail now shows expected/confirmed/remaining/order, existing explanations, explicit operation picker, explanation correction/void, balance-check correction/void confirmations and audit history.
+- Added seven XCTest source methods: latest-check delta/audit, earlier-anchor lock, void rollback, explanation correction/void audit, unique linked transfer/cash isolation, persistence rollback and legacy optional-field decoding. Expected native unit total 170, NOT RUN.
+- Exact build15 CI `39183977208`, job `117842412535`: completed failure, `runner_id=0`, `steps=[]`. No compiler, XCTest or UI result; no unchanged rerun. Last actual native green remains `e82e6c7` / `38792158205` (62 unit + one UI).
+- Compared against active preview `index-v01820-history-back-navigation-20261014.js`, Metro206/207: web `saveBalanceCheck` keeps check audit, global date/order and recomputes interval rows; linked transactions carry `reconciliationCheckId` and participate exactly once in `checkRows`/checked balance. Native now matches explicit audit, same-day order and no-double-application safety, but still locks earlier anchors and treats links descriptively; it does NOT yet dynamically recompute expected rows or transaction effects like web. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: resolve hosted startup for `39183977208`; compile exact product HEAD and run expected 170 unit + UI tests, then repair any compiler/test failures.
+- Next independent implementation if runner remains unavailable: native `reconciliationCheckId` transaction semantics and safe dynamic earlier-check recomputation, including account/card/line fixtures; then initial-principal audit/edit, web-state import, historical plans and populated visual comparison.
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build14, IN PROGRESS / CI STARTUP BLOCKED
 
 Supersedes older current entries.
