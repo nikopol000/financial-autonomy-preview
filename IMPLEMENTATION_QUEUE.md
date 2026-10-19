@@ -28,6 +28,21 @@
 - EXACT FIRST UNFINISHED ACTION: restore runner startup; build exact `ae49ec2790d31a2c6a0bbaaa9ed812e5bd76e754`, run expected 179 unit tests plus UI tests, fix actual failures.
 - NEXT INDEPENDENT: initial-principal audit/edit and loan linked-check convergence; then lossless web-state import, historical plans and populated visual comparison. Full 1:1 remains unproven.
 
+## CURRENT native checkpoint — 2026-10-19 Bucharest — build19, IN PROGRESS / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `a3250f8d1a95e63d4e5f42dadca8f4c58897a5ce`; version 18.20 build19 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Added the first fail-closed web-backup import slice. It reads the exact active v18.20 envelope: `FinancialAutonomy` format1, PBKDF2-SHA256 600000, 16-byte salt, 12-byte AES-GCM nonce and authenticated data `FinancialAutonomy/backup/1`. Password normalization follows NFKC.
+- The slice accepts only web state version4/RON with a single empty default month plan and no unsupported financial collections. It maps UUID-backed `current` / `savings` / `cash` accounts exactly, preserving signed minor-unit opening balance, opening day and optional availability. Source start/role-effective days are retained in optional backward-compatible metadata.
+- Loss prevention is explicit: envelope/state/account keys are checked; non-UUID legacy IDs, unknown account fields, nonempty transactions, debts, checks, templates, goals, audits, reviews or plan contents reject the complete import before a snapshot exists. LedgerStore replacement remains validate-then-persist; a failed import/write leaves current data intact. No guessed IDs, dates, categories or balances.
+- Backup SwiftUI now accepts JSON and native files, tries native v1 first, then the v18.20 reader, shows the concrete rejection reason, and still asks for destructive confirmation only after a full valid snapshot. Build number is19.
+- Added five XCTest source methods with a deterministic encrypted fixture generated from the active bundle contract: successful exact account mapping, wrong password/envelope drift, unknown account field, nonempty transaction collection and non-UUID rejection. Expected native unit total **198**, NOT RUN.
+- EXECUTED reference inspection: active `index.html` still selects `index-v01820-history-back-navigation-20261014.js?build=18.20.1`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. Bundle code confirms export envelope/AAD/KDF parameters, web state version4 keys and account validation. The synthetic fixture encryption was generated with Node crypto from that exact contract; this is not Swift execution.
+- Exact product CI lookup for `a3250f8d1a95e63d4e5f42dadca8f4c58897a5ce` returned `workflow_runs=[]`; combined statuses returned `[]`. Local environment is Linux with no Swift, xcodebuild or xcodegen, so build/XCTest/UI were NOT executed. Last directly visible job remains run `39193821212`, job `117872136608`, failed before runner allocation with no steps. No unchanged rerun was requested.
+- Remaining: lossless mappings for transactions/audit, unified checks, debts/loans/refinance, recurring/templates, historical plans/budgets/goals, plus full calculations and populated visual interaction comparison. No 1:1 claim.
+- EXACT FIRST UNFINISHED ACTION: restore/observe hosted macOS execution; compile exact HEAD `a3250f8d1a95e63d4e5f42dadca8f4c58897a5ce`, run expected198 unit methods plus UI tests and repair actual compiler/test failures.
+- Next independent implementation if runner remains unavailable: add the transaction/audit import slice only where IDs, dates, order, account legs, categories, budget roles and reconciliation links can all be represented exactly; reject all other cases, then continue checks/debts/plans.
+
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build15, IN PROGRESS / CI STARTUP BLOCKED
 
 Supersedes older current entries.
