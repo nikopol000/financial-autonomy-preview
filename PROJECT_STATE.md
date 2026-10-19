@@ -1,5 +1,19 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build30, CURRENT BUDGET-WINDOW PRESENTATION / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `679e529cfad3624da77fbb50ecf14bb4d5690727`; version 18.20 build30 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Budget and Dashboard now present the carry-forward v18.20 current plan from build29 snapshots. Each budget shows its Primary window, exact spent/limit progress and pace color; the Budget page shows all additional windows plus remaining/daily values and explicit incomplete reasons.
+- Dashboard matches active bundle module 218 visibility/order: Primary is always visible, pinned additional windows are collapsed initially and expand in paycheck, weekly, biweekly, monthly, quarterly, annual, custom order. Unpinned additional windows stay out of Dashboard but remain visible in Budget.
+- The presentation reads only retained plan metadata and explicit `Budgeted Expense` attribution. No credit value is an engine input; owned money and available credit remain separate.
+- One focused XCTest source method covers collapsed/expanded pin visibility, hidden-window exclusion and canonical ordering. Expected native unit inventory: 226 methods.
+- EXECUTED verification: inspected active v18.20 bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`, modules 218/219; a Node fixture reproduced collapsed `[primary]` and expanded `[primary, weekly, annual]` ordering. Targeted contract and delimiter checks passed. Swift/Xcode/xcodegen are unavailable locally, so compilation, all 226 XCTest methods, UI tests, screenshots and interactive visual comparison are NOT RUN.
+- Exact Native iOS CI: run `39332817183`, job `118334911754`, completed `failure` before runner allocation; `steps=null`, logs unavailable. It was not rerun.
+- NEXT: restore/observe hosted macOS execution, compile exact HEAD `679e529cfad3624da77fbb50ecf14bb4d5690727`, run all 226 unit methods plus UI tests and inspect screenshots. Independent next slice: port contribution-aware current-plan summaries and exact daily/safe pace inputs while preserving owned-money/available-credit separation. Visual and functional 1:1 is not yet claimed.
+
+# Financial Autonomy — Project State
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build29, V18.20 BUDGET-WINDOW ENGINE / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.

@@ -1,5 +1,14 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-20 build30 current budget-window presentation
+- Feature HEAD `679e529cfad3624da77fbb50ecf14bb4d5690727` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
+- Completed the current-plan presentation slice: exact build29 snapshots are shown in Budget and Dashboard with Primary, additional windows, spent/limit progress, remaining/daily values, incomplete reasons, canonical pin order and collapsed pinned-window control.
+- One XCTest source method added; expected inventory 226. Source/bundle contract and Node visibility-order fixture executed. Swift/Xcode/xcodegen unavailable locally; native build/tests/UI/screenshots are NOT RUN.
+- Exact CI `39332817183`, job `118334911754`, failed before runner allocation with no steps/logs and was not rerun.
+- NEXT: restore macOS execution and validate exact HEAD. Independently implement contribution-aware current-plan summaries and exact Budget today/Safe today inputs, retaining the rule that available credit is not owned money. No 1:1 claim.
+
+# Financial Autonomy — Implementation Queue
+
 ## Native iOS checkpoint — 2026-10-20 build29 exact budget-window engine
 - Feature HEAD `a1de1d206619749fabb7b55fe6b7851b6804b6eb` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
 - Completed the pure calculation/presentation contract for Primary and additional Auto/Custom windows using retained historical plans and income anchors. Calendar cadence, start-date clamp, carry-forward plan, strict budgeted-role spend, expected/remaining/daily/pace values and unavailable reasons follow active v18.20 module 219.
