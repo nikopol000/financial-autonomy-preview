@@ -1,5 +1,20 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build43
+
+1. On macOS compile exact app HEAD `44f105c95279db042db4f0011fb0a44aa719d0a1` and execute all expected 263 native unit methods plus available UI tests.
+2. With an imported non-empty v18.20 projection, verify that opening and saving Ipotezele autonomiei preserves retained exposure identifier spelling/order and payoff order, while invalid/failed saves do not publish partial state.
+3. Exercise Finanțe → Ipotezele autonomiei → Scenarii autonomie with populated data in light and dark mode; capture screenshots and compare spacing, typography, labels, toggles, money input, validation, and scenario results with the active bundle contract.
+4. Check Native iOS CI for the exact build43 SHA. Current evidence: two post-push checks exposed neither workflow runs nor commit statuses; do not rerun the known pre-runner failure repeatedly.
+5. Keep all data local, preserve existing snapshots, do not add backend/account/bank sync/telemetry, and never count available credit as owned money.
+
+### Build43 completed in the preceding stage
+
+- App commit: `44f105c95279db042db4f0011fb0a44aa719d0a1` on `feat/sync-preview-v18-20-ios`; `main` unchanged.
+- Added atomic local projection-assumptions editing, lossless retained ordering/spelling, bundle-contract validation, three expected tests, build number 43, route repair, and UTF-8 normalization.
+- Static checks ran; compilation/tests/UI did not run because the required Apple toolchain is unavailable.
+- Expected unit inventory: 263 methods, **NOT RUN**.
+
 ## CURRENT first unfinished action — build42
 
 1. On macOS compile exact app HEAD `e1c1d76b83cd2d82191847a86ed5cff020984e9f` and execute all 260 native unit methods; resolve compiler/test failures before any new feature batch.

@@ -1,5 +1,46 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build43, LOSSLESS AUTONOMY ASSUMPTIONS EDITOR / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes the build42 checkpoint below.
+
+### Exact repository state
+
+- Preview source read fresh at `8d35e7695de4ac3dd5be37519f7c9ea75371fe1e`; the finite lease was claimed with an expected-SHA update at `f0692da056462ec78377a08c1a97080af97efd0a`.
+- iOS feature branch advanced conditionally from build42 `e1c1d76b83cd2d82191847a86ed5cff020984e9f` to build43 `44f105c95279db042db4f0011fb0a44aa719d0a1`.
+- `financial-autonomy-app:main` remains unchanged and identical to `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Active preview bundle was re-read at blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+
+### Completed build43 stage
+
+- Added `WebProjectionAssumptionsView` under Finanțe → Ipotezele autonomiei.
+- The editor reads existing v18.20 projection data without mutating on entry, preserves the stored order and original identifier spelling for retained selections, and appends newly selected values deterministically.
+- It edits annual inflation, inflation-exposed budgets/fixed expenses/recurrences, and scenario-A debt payoff amounts.
+- It explicitly states that payoff values are simulation-only, do not change balances, and never treat available credit as owned money.
+- Added the same persisted-contract validation found in the active bundle: finite inflation in 0...100; unique allowed exposure IDs; unique existing debt IDs; payoff amounts in 1...1,000,000,000,000 minor units.
+- Added `LedgerStore.updateWebProjection` using the existing write-before-publish commit path. Invalid data and failed encrypted-local writes leave the published snapshot unchanged.
+- Added three unit methods for order/identifier preservation, invalid duplicate/value rejection, and failed-write rollback. Expected inventory is now 263 methods.
+- Corrected build42's literal `\\n` source token between the two Finanțe navigation links and normalized `AutonomyScenariosView.swift` to valid UTF-8 bytes.
+- Bumped `CURRENT_PROJECT_VERSION` from 42 to 43.
+
+### Verification actually executed
+
+- Fresh branch comparison confirms `44f105c95279db042db4f0011fb0a44aa719d0a1` is exactly the current `feat/sync-preview-v18-20-ios` head.
+- Two exact post-push checks for `44f105c95279db042db4f0011fb0a44aa719d0a1` exposed no workflow run and no commit status. The prior infrastructure failure was not rerun.
+- Static source checks executed: all changed Swift files had balanced delimiters; the literal navigation `\\n` is absent; the new route, mutation method, build number, and 12-method `LedgerStoreTests` inventory were found exactly.
+- `swift`, `swiftc`, `xcodebuild`, and `xcodegen` are unavailable in this environment. Build43 compilation and all 263 tests are **NOT RUN**.
+- No simulator/device UI, interaction, accessibility, light/dark, or screenshot comparison was executed.
+
+### Preview comparison and remaining differences
+
+- The bundle validator and projection formulas match the native validation and storage contract used by this stage.
+- The active web scenario screen points users to Finanțe → ipotezele autonomiei, while the active Finances module itself contains no projection-editor control. Build43 implements the explicitly queued safe local editor slice around the already-active stored contract.
+- Functional/financial/visual parity is not declared. Native compilation, the full test inventory, lossless reload on a real app build, and populated light/dark visual comparison remain open.
+
+### Next exact action
+
+On macOS, generate/open build43 at `44f105c95279db042db4f0011fb0a44aa719d0a1`, compile it, execute all expected 263 unit methods plus UI tests, then verify an imported non-empty projection round-trips without identifier/order loss and capture populated light/dark screenshots for Ipotezele autonomiei and Scenarii autonomie. If CI still does not allocate a runner, record the exact evidence once and continue the next independent visual/accessibility parity slice.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build42, AUTONOMIE SCENARIO COMPARISON / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
