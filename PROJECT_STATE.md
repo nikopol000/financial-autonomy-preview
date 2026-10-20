@@ -1,5 +1,45 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build46, POPULATED AUTONOMY UI FIXTURE / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes the build45 checkpoint below.
+
+### Exact repository state
+
+- Preview continuity HEAD was read fresh at `4e33a4cd064733ca0096bcef334d09cf4180dbd7`; the finite lease was claimed conditionally at `70f034c4a8c2dad7e1f9ad374ff2dc579fb1b497`.
+- iOS feature branch advanced with expected-SHA/no-force from build45 `44996bffbfd642e123915e270cd5564531692c20` to build46 `b64e5620cb6c54e576ca7dff74d46f18a9f97c24`.
+- `financial-autonomy-app:main` remains unchanged at `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- The active 783,793-byte v18.20 bundle was re-read at blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+
+### Completed build46 stage
+
+- Added a deterministic populated Autonomy fixture containing owned checking money, a separate negative credit-card balance, one monthly budget, one fixed expense, one debt payment and stored inflation/payoff assumptions.
+- The debt account is explicitly unavailable for spending; available credit never enters owned money.
+- Added a process-local `LedgerPersistence` implementation guarded by `#if DEBUG` and selected only by the explicit `-uiTestPopulatedAutonomy` launch argument. It does not touch `EncryptedLocalStore`, user defaults or production data.
+- Added two unit methods for deterministic fixture semantics and in-memory write/read behavior.
+- Added a third UI method that covers populated light/dark assumptions, edits and saves inflation, navigates away and back to verify rehydration, opens the populated payoff scenario, and retains four screenshot attachments.
+- Existing empty-ledger UI coverage remains unchanged. Expected inventories are now 269 unit methods and 3 UI methods.
+- Bumped `CURRENT_PROJECT_VERSION` from 45 to 46.
+
+### Verification actually executed
+
+- Fresh branch comparison confirmed build45 was still the feature HEAD immediately before the conditional write; published commit `b64e5620cb6c54e576ca7dff74d46f18a9f97c24` contains exactly the five intended files.
+- Static source checks passed: balanced delimiters, DEBUG guard, explicit launch gate, absence of production encrypted-store access in the fixture, negative/non-spendable debt representation, build 46, two new unit methods, three total UI methods, save/rehydration assertions and populated screenshot attachments.
+- Re-read the active v18.20 bundle and retained its Autonomy payoff/copy contract as the comparison source; this stage adds executable populated-state evidence plumbing and does not change the financial engine or the build44/45 visual contracts.
+- Exact post-push CI lookup exposed no workflow run and no commit status. The known pre-runner failure was not rerun.
+- No usable execution environment or Apple toolchain is available. Build46 compilation, all expected 269 unit methods, all 3 UI methods, simulator interaction, VoiceOver/keyboard checks and screenshots are **NOT RUN**.
+
+### Remaining differences
+
+- The committed populated route has not yet run on macOS/iPhone, so its compile status, interaction behavior and rendered screenshots remain unverified.
+- UI-test persistence proves process-local save/rehydration inside the navigation session; encrypted production reload remains covered by existing unit contracts but the full populated app relaunch still requires an Apple runner.
+- Full functional, financial, lossless and visual parity is not declared.
+
+### Next exact action
+
+On macOS compile exact build46 `b64e5620cb6c54e576ca7dff74d46f18a9f97c24`, execute all expected 269 unit methods and all 3 UI methods, inspect the four new populated light/dark attachments, and verify keyboard plus VoiceOver behavior. If CI again fails before runner allocation, record that evidence once and continue the next independent accessibility/visual parity audit without rerunning the same infrastructure failure.
+
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build45, AUTONOMY ASSUMPTIONS VISUAL/ACCESSIBILITY CONTRACT / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes the build44 checkpoint below.

@@ -1,5 +1,21 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build46
+
+1. On macOS generate/open exact app HEAD `b64e5620cb6c54e576ca7dff74d46f18a9f97c24`, compile it, and execute all expected 269 unit methods plus all 3 UI methods.
+2. Inspect the new populated light/dark assumptions and scenario screenshot attachments; verify the 2.5 → 3.5 save/navigation rehydration, payoff route, keyboard dismissal and VoiceOver labels.
+3. Exercise encrypted production persistence with an imported non-empty v18.20 projection across app relaunch, confirming exposure identifier spelling/order and payoff order remain lossless and failed writes publish no partial state.
+4. Check Native iOS CI for the exact build46 SHA. Current evidence: post-push lookup exposes neither workflow runs nor commit statuses; do not rerun the known pre-runner failure repeatedly.
+5. Keep all data local and existing snapshots readable; do not add backend, mandatory account, bank sync or telemetry, and never count available credit as owned money.
+
+### Build46 completed in this stage
+
+- App commit: `b64e5620cb6c54e576ca7dff74d46f18a9f97c24` on `feat/sync-preview-v18-20-ios`; source `main` unchanged.
+- Added a deterministic DEBUG-only, explicit-argument, process-local populated Autonomy fixture with owned-money/debt separation and no production-store access.
+- Added two unit methods and one populated light/dark UI route with save/rehydration, payoff scenario assertions and four retained screenshots; build number is 46.
+- Static and active-bundle source checks ran. Compilation, 269 unit methods, 3 UI methods, interactions and screenshots did not run because no Apple execution environment is available.
+
+
 ## CURRENT first unfinished action — build45
 
 1. On macOS generate/open exact app HEAD `44996bffbfd642e123915e270cd5564531692c20`, compile it, and execute all expected 267 unit methods plus both UI smoke methods.
