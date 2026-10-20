@@ -1,5 +1,17 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build38, DASHBOARD SPACE INPUT/CARD / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `0643aaae0a054b6c6bd910e21f53d6bf7a73017c`; version 18.20 build38 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Connected the build37 Space primitive to exact current-month preview inputs: calendar-month plan carry-forward, first-month calendar-day proration, all non-void Budgeted Expense operations through the selected day, and remaining fixed/debt/recurring obligations from the shared Coverage obligation list.
+- Added the native `Spațiu` card before the existing spending/next-income snapshots. It uses the active bundle disclosure labels/formula, 24-point radius, 18×12 padding, light/dark surfaces `#D1EAE2/#234A51`, accents `#31856C/#78D7BA`, and negative-space danger color. Missing imported plan data fails closed as unavailable.
+- Available credit remains excluded from owned money. Existing models, LedgerStore, local snapshots and persistence were not rewritten; no backend, account requirement, bank sync or telemetry was added.
+- Added four focused XCTest source methods for first-month proration, multi-category spend, partial fixed-obligation settlement and missing-plan failure. Updated module-order expectation. Expected native unit inventory is 246 methods.
+- EXECUTED verification: re-read preview `cashflow.period`, `summary` and bundle SpaceHome contracts; Node delimiter checks passed for all five changed Swift files, exact label/color/geometry source checks passed, and the Space test file contains 10 methods. Swift, Xcode and xcodegen are absent, so native build, all 246 XCTest methods, UI tests, interactions and screenshots are NOT RUN; visual 1:1 is not claimed.
+- Exact Native iOS CI for `0643aaae0a054b6c6bd910e21f53d6bf7a73017c`: run [39391890753](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39391890753), job [118525142051](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39391890753/job/118525142051), completed failure before runner allocation; steps and logs are absent. It was not rerun.
+- NEXT exact action: on macOS compile build38 and execute all 246 unit methods plus UI tests, then compare light/dark Space screenshots with v18.20. If runner infrastructure remains blocked, port the exact Autonomie simulation engine as a pure fail-closed calculation before rendering its card.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build37, EXACT DASHBOARD SPACE PRIMITIVE / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.

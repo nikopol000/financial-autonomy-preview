@@ -1,5 +1,14 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build38
+
+1. On macOS compile exact app HEAD `0643aaae0a054b6c6bd910e21f53d6bf7a73017c` and execute all 246 native unit methods plus UI tests.
+2. Compare light/dark Dashboard Space disclosure and values against the active v18.20 bundle; resolve every observed difference before claiming visual parity.
+3. If CI remains blocked before runner, implement the exact Autonomie simulation as a pure fail-closed engine, with future income, obligations, budget and credit semantics matched to preview before adding UI.
+4. Keep all work on `feat/sync-preview-v18-20-ios`; do not merge or modify app `main`.
+
+Completed in build38: exact monthly Space input adapter, remaining-obligation bridge, Space disclosure card, active module-order update, and four focused XCTest source methods. Exact CI run 39391890753/job 118525142051 failed before runner allocation with no steps/logs and was not rerun.
+
 ## Native iOS checkpoint — 2026-10-20 build37 exact Dashboard Space primitive
 - Feature HEAD `8d0724198b9255efd93974da5b53b0b7edb8af09` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
 - Added exact v18.20 Space arithmetic: available owned money minus remaining current-month obligations minus the positive portion of remaining variable budget.
