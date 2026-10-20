@@ -1,5 +1,21 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build49
+
+1. On macOS generate/open exact app HEAD `501be0f6eef427699abd2c0a0464bf2cc2901870`, compile it, and execute all 279 unit methods plus all 3 UI methods.
+2. Execute native encrypted backup round-trip and v18.20 web import fixtures for valid `dark/blue`, absent legacy appearance, invalid `system` mode and invalid `orange` accent; verify failures never replace live data.
+3. Verify encrypted restore/import immediately rehydrates the root appearance, Automatic/Dark/Light selection and Cyan/Ocean/Iris propagation without requiring a restart.
+4. Run VoiceOver/Accessibility Inspector and retained light/dark screenshots for Settings plus populated Autonomy; keep the earlier decimal-keyboard and relaunch checks open until actually executed.
+5. Check Native iOS CI for exact build49. Current fresh evidence: no workflow run and no commit status; do not repeatedly rerun the known pre-runner failure.
+
+### Build49 completed in this stage
+
+- App commit: `501be0f6eef427699abd2c0a0464bf2cc2901870` on `feat/sync-preview-v18-20-ios`; source `main` remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Added backward-compatible appearance state to the encrypted native snapshot, atomic persistence, root rehydration and strict optional v18.20 appearance import.
+- Added five unit methods; exact static inventory is 279 unit and 3 UI methods. Build number is 49.
+- Exact-tree, commit-diff, active-bundle and CI lookups ran. Compilation, tests, encrypted interaction, VoiceOver and screenshots did not run because no Apple execution environment is available.
+
+
 ## CURRENT first unfinished action — build48
 
 1. On macOS generate/open exact app HEAD `47e2a22a0f72568ebce7708a8aa42ceb03ec2fae`, compile it, and execute all expected 274 unit methods plus all 3 UI methods.

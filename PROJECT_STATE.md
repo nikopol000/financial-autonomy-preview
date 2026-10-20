@@ -1,5 +1,46 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-21 Bucharest — build49, APPEARANCE BACKUP/IMPORT RETENTION / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes the build48 checkpoint below.
+
+### Exact repository state
+
+- Preview continuity HEAD was read fresh at `a0f8c7a3939c5fad8481419740b0f4b3e3747c61`; the finite build49 lease was claimed with the expected handoff blob at `0a97a2226c8e2aecf860409313cfc52063691f55`.
+- iOS feature branch advanced fast-forward with expected SHA and no force from build48 `47e2a22a0f72568ebce7708a8aa42ceb03ec2fae` to build49 `501be0f6eef427699abd2c0a0464bf2cc2901870`.
+- `financial-autonomy-app:main` remains unchanged at `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- The active v18.20 bundle was re-read at blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+
+### Completed build49 stage
+
+- Added optional Codable `NativeAppearanceSettings` to `LedgerSnapshot`; absence remains valid so encrypted native snapshots written before build49 continue to decode without invented values.
+- Appearance changes now use the existing write-before-publish `LedgerStore` commit path. Failed encrypted writes leave both the published snapshot and device preference unchanged.
+- Root appearance rehydrates after encrypted native restore and optional v18.20 web import. Existing valid AppStorage values migrate into the encrypted snapshot when the Settings route first opens.
+- Native portable backup seal/open now validates and retains the exact mode/accent pair.
+- v18.20 import now accepts the optional `appearance` object, retains only `auto|dark|light` with `teal|blue|violet`, preserves older states without that key, and fails closed for unknown keys or values.
+- Added five unit methods covering legacy decode, encrypted round trip, invalid-value rejection, atomic failed writes, valid/absent web appearance and unknown web values. Static inventory is now 279 unit methods and 3 UI methods.
+- Bumped `CURRENT_PROJECT_VERSION` from 48 to 49. No backend, account, bank sync or telemetry was added; financial formulas and owned-money/credit semantics were not changed.
+
+### Verification actually executed
+
+- Re-read both repository refs immediately before checkpointing: feature HEAD is exact build49, app `main` is unchanged and the coordination lease is still owned by this run.
+- GitHub commit/diff verification confirms exactly nine intended files changed and build49 is a child of build48.
+- Re-read the active bundle contract at the exact blob and matched default `auto/violet`, allowed modes, Cyan/Ocean/Iris identifiers and all six active accent hex values.
+- Enumerated every Swift test blob from the exact build49 tree: 39 unit-test files contain 279 `test…` methods; the UI suite contains 3 methods.
+- Exact post-push CI lookup for build49 exposes no workflow run and no commit status. The known pre-runner failure was not rerun.
+- No Apple toolchain is available. Build49 compilation, all 279 unit methods, all 3 UI methods, simulator restore/import interaction, VoiceOver and screenshots are **NOT RUN**.
+
+### Remaining differences
+
+- Build49 must still be compiled on macOS and its new persistence/import paths executed against encrypted files.
+- Automatic theme transitions, accent propagation, restore-time visual rehydration, VoiceOver and Settings screenshots still require an iPhone simulator/device.
+- Earlier build47 keyboard/VoiceOver, populated encrypted relaunch and populated light/dark comparisons remain open. Full functional, financial, lossless and visual parity is not declared.
+
+### Next exact action
+
+On macOS generate/open exact build49 `501be0f6eef427699abd2c0a0464bf2cc2901870`, compile it, execute all 279 unit methods and 3 UI methods, then verify native encrypted restore plus v18.20 import rehydrate `dark/blue` and that invalid `system/orange` input is rejected without replacing live data. Inspect Settings and populated Autonomy in light/dark with VoiceOver and retained screenshots.
+
+
 ## CURRENT native checkpoint — 2026-10-21 Bucharest — build48, APPEARANCE SETTINGS PARITY / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes the build47 checkpoint below.
