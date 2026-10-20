@@ -1,5 +1,14 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-20 build32 imported Budget detail presentation
+- Feature HEAD `36bda7fe4bdd0f789d206dacb81e85c699f03510` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
+- Imported plans no longer show the legacy approximate editor/pace or Save action. The local native no-import budget path remains available.
+- Full Budget details now match v18.20 copy and inputs for Budget today, Safe today and window pace: included budgets, included/outside-pace/unbudgeted spend, owned cash, obligations, horizon, safe cap, exact Romanian statuses, remaining/daily/expected values and period range. Available credit is not owned money.
+- Added one focused XCTest source method for separating included, outside-pace and unbudgeted daily spend; expected inventory is 231 methods.
+- EXECUTED: inspected active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` modules 218/331; Node delimiter checks passed for the three touched Swift files and the `Incluse: Groceries` copy fixture passed. Swift/Xcode are unavailable locally; native build, 231 XCTest methods, UI tests and screenshots are NOT RUN.
+- Exact CI [39357830448](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39357830448), job `118416659197`, failed before runner allocation with no steps/logs and was not rerun.
+- NEXT: restore macOS execution and validate exact build32 HEAD. If the runner remains unavailable, add Dashboard Budget-row tap-through to matching expense detail lists and align compact card border/colors/spacing with v18.20, then perform screenshot comparison when native rendering becomes available. Preserve local-only storage and owned-money/available-credit separation. No 1:1 claim.
+
 ## Native iOS checkpoint — 2026-10-20 build31 exact Budget today / Safe today
 - Feature HEAD `e6513252f690b761494f4afbe9da36f3a3ce6870` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
 - Completed the exact v18.20 daily pace/contribution slice: restored-today budget allowance, strict included/outside spend roles, next-income Coverage with fixed/debt/recurring obligations, owned available cash only, net transfers-to-savings contribution remaining, and sequential allocation of a payment across recurring/scheduled dues.
