@@ -1,5 +1,19 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build34, BUDGET DRILLDOWN OPERATION EDITING / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `915b55e0e7c97a2a4e292d3d98b5a45ff279e512`; version 18.20 build34 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Operation rows in both Dashboard Budget drilldowns are now actionable. A tap opens the populated native editor, matching the active v18.20 TodaySpending/BudgetSpending → Record(existing) route.
+- Saving an edit uses the existing atomic `correctOperation` ledger path: the original operation is retained as a voided audit record and a replacement receives a new UUID. Imported v18.20 name/detail/debt/template fields, reconciliation link and event order are preserved instead of silently discarded.
+- Imported month-plan budgets are included in the editor picker, so existing imported budgeted expenses remain editable even when the native budget catalog has not been configured separately.
+- Available credit remains excluded from owned money. No backend, account requirement, bank sync or telemetry was added.
+- Added focused XCTest source method `testOperationEditReplacementPreservesImportedAndAuditMetadata`; expected native unit inventory is 234 methods.
+- EXECUTED verification: current active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` was re-read and its app route confirms both TodaySpending and BudgetSpending pass the selected operation to `Record(existing:)`; Node delimiter balance passed for DashboardView and WebBudgetWindowEngineTests; targeted source-contract checks passed. Swift and Xcode are absent, so native build, all 234 XCTest methods, UI tests, interaction checks and screenshots are NOT RUN.
+- Exact Native iOS CI for `915b55e0e7c97a2a4e292d3d98b5a45ff279e512`: run [39367864823](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39367864823), job [118448716789](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39367864823/job/118448716789), completed failure before runner allocation; runner id is 0, steps are empty and logs unavailable. It was not rerun.
+- NEXT exact action: on macOS compile build34, execute all 234 unit methods and UI tests, then verify both drilldown → editor → correction flows and compare Dashboard/Budget/detail/editor screenshots against v18.20. If runner infrastructure remains blocked, inspect the current active Dashboard bundle and native DashboardView for the first remaining functional/presentation mismatch, prioritizing exact compact-card theme colors and top-border geometry without claiming screenshot validation.
+
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build33, DASHBOARD BUDGET DRILLDOWNS / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.

@@ -1,5 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-20 build34 Budget drilldown operation editing
+- Feature HEAD `915b55e0e7c97a2a4e292d3d98b5a45ff279e512` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
+- Both Dashboard Budget detail lists now route a selected row into a populated operation editor, matching the active bundle route. Corrections retain the original as a voided audit record, create a replacement UUID, preserve imported/audit metadata, and accept imported month-plan budget IDs.
+- Available credit remains outside owned money; storage remains local-only with no account, backend, bank sync or telemetry.
+- Added one focused XCTest source method; expected inventory is 234 methods.
+- EXECUTED: re-read active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` and confirmed TodaySpending/BudgetSpending → Record(existing) routing; Node delimiter and targeted source-contract checks passed. Swift/Xcode are unavailable locally; native build, 234 XCTest methods, UI tests, interactions and screenshots are NOT RUN.
+- Exact CI [39367864823](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39367864823), job [118448716789](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39367864823/job/118448716789), failed before runner allocation (runner id 0, no steps/logs) and was not rerun.
+- NEXT: restore macOS execution and validate exact build34, including both drilldown correction flows and screenshot comparison. If the runner remains unavailable, inspect active Dashboard/native DashboardView for the first remaining mismatch, prioritizing compact-card theme colors/top-border geometry. Preserve local-only storage and owned-money/available-credit separation. No 1:1 claim.
+
+
 ## Native iOS checkpoint — 2026-10-20 build33 Dashboard Budget drilldowns
 - Feature HEAD `11d2caf0685bc30beca15a726905afc39b9fd03d` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
 - Dashboard daily rows now open today's non-voided, explicitly budgeted operations from budgets included in daily pace. Primary/pinned rows open the matching budget and inclusive window interval, with v18.20 ordering, totals and empty states.
