@@ -1,3 +1,13 @@
+\n## CURRENT first unfinished action — build42
+
+1. On macOS compile exact app HEAD `e1c1d76b83cd2d82191847a86ed5cff020984e9f` and execute all 260 native unit methods; resolve compiler/test failures before any new feature batch.
+2. Observe Native iOS CI for that exact commit if a run appears. Two post-push connector checks exposed no associated workflow run and no commit status; do not rerun the unchanged build39 pre-runner failure.
+3. Verify Finanțe → Scenarii autonomie navigation and compare populated light/dark scenario B/A states, no-selection state and disclosure copy with active v18.20 modules 223/326.
+4. If execution remains unavailable, audit and implement the first safe local editor slice for projection inflation, exposed costs and payoff selections. Preserve every imported ID/order, reject invalid values atomically and never treat available credit as owned money.
+5. Keep all work on `feat/sync-preview-v18-20-ios`; do not merge or modify app `main`.
+
+Completed in build42: exact Autonomie B/A scenario comparison, non-mutating disclaimer, duration/stop/upfront/difference states, Finanțe route and one focused XCTest source method. Native execution and rendered comparison remain unverified.
+
 # Financial Autonomy — Implementation Queue
 
 ## CURRENT first unfinished action — build41

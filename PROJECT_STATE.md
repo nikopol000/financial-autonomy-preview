@@ -1,3 +1,14 @@
+\n## CURRENT native checkpoint — 2026-10-20 Bucharest — build42, AUTONOMIE SCENARIO COMPARISON / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `e1c1d76b83cd2d82191847a86ed5cff020984e9f`; version 18.20 build42 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Added the native Autonomie simulations screen and a Finanțe → Planificare route. It computes scenario B with current installments and scenario A with only the configured payoff selection, while leaving balances, debts and local persistence untouched.
+- Matched active bundle module 326 copy and behavior: duration in days/months/years, capped wording, first uncovered day/reason, upfront owned-money withdrawal, difference in days, no-selection guidance and the explicit non-recommendation/non-mutation disclaimer.
+- Added one focused XCTest source method for exact duration and stop-line copy; expected native unit inventory is 260 methods.
+- EXECUTED verification: re-read active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` modules 223/326; targeted scenario copy, duration fixture and delimiter/source checks passed. Swift, Swiftc, Xcode and xcodegen are absent, so native compilation, all 260 XCTest methods, UI tests, navigation and screenshots are NOT RUN; visual 1:1 is not claimed.
+- Exact CI lookup for `e1c1d76b83cd2d82191847a86ed5cff020984e9f` was performed twice after the expected-SHA push; neither check exposed an associated workflow run or commit status. The prior build39 pre-runner failure was not rerun, and no build42 success is claimed.
+- NEXT exact action: on macOS compile build42 and execute all 260 unit methods, fixing actual compiler/test failures first, then verify the Finanțe route and compare populated light/dark scenario screenshots against v18.20. If runner infrastructure remains unavailable, audit and implement the first safe local editor slice for projection inflation/exposure/payoff assumptions without losing imported data.
+
 # Financial Autonomy — Project State
 
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build41, AUTONOMIE CARD + DAILY-INFLATION CORRECTIONS / NATIVE EXECUTION UNAVAILABLE
