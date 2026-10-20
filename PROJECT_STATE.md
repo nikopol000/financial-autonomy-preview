@@ -1,5 +1,17 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build40, LOSSLESS PROJECTION + INFLATION/PAYOFF ENGINE / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `c9bb2121eb4486fbcf16f7330f560715b42f2f58`; version 18.20 build40 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Extended `WebImportMetadata` additively with optional v18.20 projection data. Legacy snapshots and backups without `projection` remain readable; present projection payloads retain annual inflation, ordered exposed budget/expense/recurring IDs and ordered debt payoff selections. Unknown keys/IDs, duplicate selections, non-finite/out-of-range inflation and invalid amounts fail closed before ledger replacement.
+- Extended `WebAutonomyEngine` with the configured payoff scenario: selected payoff amounts are paid only from owned cash, settled debt obligations are removed, invalid/inactive selections fail closed, and insufficient upfront owned money is reported explicitly. Default installments behavior remains the default.
+- Added v18.20 inflation behavior: variable-budget exposure is weighted by remaining category values, fixed/recurring obligations use their own exposure IDs and elapsed-day exponent over 365.2425, while contractual debt payments are never indexed. Available credit and future income remain excluded.
+- Added five focused XCTest source methods: legacy/projection lossless import, invalid projection rejection, payoff settlement/upfront cash, insufficient payoff cash and exposed recurring inflation. Expected native unit inventory is 257 methods.
+- EXECUTED verification: re-read the active projection/autonomy contracts from preview bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2`; inspected the exact changed source and test contracts; feature ref advanced with expected-SHA from build39. Swift, Swiftc, Xcode and xcodegen are absent, so native compilation, all 257 XCTest methods, UI tests and screenshots are NOT RUN.
+- Exact CI lookup for `c9bb2121eb4486fbcf16f7330f560715b42f2f58` was performed twice after push: no workflow run and no commit status were exposed. The prior build39 pre-runner failure was not rerun, and no build40 success is claimed.
+- NEXT exact action: on macOS compile build40 and execute all 257 unit methods, fixing any actual compiler/test failures first. If runner infrastructure remains unavailable, wire the lossless engine to the native Autonomie card/disclosure before Spațiu, then compare populated light/dark screenshots against v18.20.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build39, DEFAULT AUTONOMY SIMULATION ENGINE / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
@@ -864,3 +876,4 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - Added local Files backup UI with show-password/confirmation and reviewed replacement; native format v1, not web-compatible. Added persistent system/light/dark theme. Added diagnostic export with default summary and explicit full financial data option; `5e5b0968` adds diagnostic tests, exact-HEAD CI pending.
 - UI screenshot smoke test + Xcode target `e79f86f3`; retained xcresult workflow `c0d7d8f2`. Pending: inspect exact HEAD CI/UI tests and screenshots, fix failures, verify Files interactions. Empty-state captures alone do not establish visual parity.
 - Next: inspect latest Native iOS CI for `5e5b0968`, repair failures; audit actual screenshots and document differences. Then correction history/date filtering, recurring obligations/income/loans/refinancing, preview migration and dashboard financial/visual parity. Sunset automation not implemented (system theme + manual only). No claim 1:1.
+

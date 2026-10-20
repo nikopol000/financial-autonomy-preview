@@ -1,5 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build40
+
+1. On macOS compile exact app HEAD `c9bb2121eb4486fbcf16f7330f560715b42f2f58` and execute all 257 native unit methods; resolve compiler/test failures before any new feature batch.
+2. Observe Native iOS CI for that exact commit if a run appears. Current connector evidence is no associated workflow run and no commit status after two post-push checks; do not rerun the unchanged build39 pre-runner failure.
+3. If execution remains unavailable, render the exact Autonomie card/disclosure before Spațiu using the lossless installments/payoff snapshots, with explicit capped/unavailable/deficit states and no available-credit or future-income leakage.
+4. Then compare populated light/dark Autonomie screenshots and interactions with the active v18.20 bundle and resolve all observed differences.
+5. Keep all work on `feat/sync-preview-v18-20-ios`; do not merge or modify app `main`.
+
+Completed in build40: optional lossless projection import, strict validation, weighted category/fixed/recurring inflation, non-indexed debt payments, payoff upfront/settlement behavior and five focused XCTest source methods. Native execution remains unverified.
+
 ## CURRENT first unfinished action — build39
 
 1. On macOS compile exact app HEAD `2eb8525ba067793b140c87961d4b8931a410c907` and execute all 252 native unit methods.
@@ -769,3 +779,4 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - Added local Files backup UI with show-password/confirmation and reviewed replacement; native format v1, not web-compatible. Added persistent system/light/dark theme. Added diagnostic export with default summary and explicit full financial data option; `5e5b0968` adds diagnostic tests, exact-HEAD CI pending.
 - UI screenshot smoke test + Xcode target `e79f86f3`; retained xcresult workflow `c0d7d8f2`. Pending: inspect exact HEAD CI/UI tests and screenshots, fix failures, verify Files interactions. Empty-state captures alone do not establish visual parity.
 - Next: inspect latest Native iOS CI for `5e5b0968`, repair failures; audit actual screenshots and document differences. Then correction history/date filtering, recurring obligations/income/loans/refinancing, preview migration and dashboard financial/visual parity. Sunset automation not implemented (system theme + manual only). No claim 1:1.
+
