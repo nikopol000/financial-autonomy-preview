@@ -1,5 +1,21 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build47
+
+1. On macOS generate/open exact app HEAD `5522fca9e5909a902acd6547803f0390aa15dc9b`, compile it, and execute all expected 270 unit methods plus all 3 UI methods.
+2. Verify the decimal keyboard toolbar is visible and hittable, dismissal leaves the edited value intact, and save/rehydration remains 2.5 → 3.5 in both appearances.
+3. Run VoiceOver/Accessibility Inspector through headings, inflation, exposed-cost switches, payoff switch/amount and save; correct reading order, labels, values, states and hints.
+4. Inspect populated light/dark attachments and verify encrypted production persistence across relaunch with identifier/payoff order preserved.
+5. Check Native iOS CI for the exact build47 SHA. Current evidence: post-push lookup exposes neither workflow runs nor commit statuses; do not rerun the known pre-runner failure repeatedly.
+
+### Build47 completed in this stage
+
+- App commit: `5522fca9e5909a902acd6547803f0390aa15dc9b` on `feat/sync-preview-v18-20-ios`; source `main` unchanged.
+- Added typed field focus, a deterministic decimal-keyboard close action, explicit VoiceOver labels/hints and one accessibility-copy unit method.
+- Strengthened the existing populated UI route to assert the label and keyboard disappearance; no Models, LedgerStore, financial formula or production persistence change.
+- Static and active-bundle source checks ran. Compilation, 270 unit methods, 3 UI methods, VoiceOver/keyboard execution and screenshots did not run because no Apple execution environment is available.
+
+
 ## CURRENT first unfinished action — build46
 
 1. On macOS generate/open exact app HEAD `b64e5620cb6c54e576ca7dff74d46f18a9f97c24`, compile it, and execute all expected 269 unit methods plus all 3 UI methods.

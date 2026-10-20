@@ -1,5 +1,45 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build47, AUTONOMY KEYBOARD/VOICEOVER CONTRACT / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes the build46 checkpoint below.
+
+### Exact repository state
+
+- Preview continuity HEAD was read fresh at `f7470faf748e4626981fd3ea26a61ea7e2919cd6`; the finite lease was claimed conditionally at `82d46d5b582e1f356972cf2e7e09badd2e90224b`.
+- iOS feature branch advanced with expected-SHA/no-force from build46 `b64e5620cb6c54e576ca7dff74d46f18a9f97c24` to build47 `5522fca9e5909a902acd6547803f0390aa15dc9b`.
+- `financial-autonomy-app:main` remains unchanged at `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- The active 783,793-byte v18.20 bundle was re-read at blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+
+### Completed build47 stage
+
+- Added typed focus state for the annual-inflation and per-debt payoff amount fields.
+- Added an explicit keyboard-toolbar action, “Închide tastatura”, with a stable UI-test identifier so decimal-pad entry no longer relies on scrolling to dismiss the keyboard.
+- Added stable Romanian VoiceOver labels and explanatory hints for inflation, exposed-cost toggles, payoff toggles, payoff amounts and the local save action.
+- Accessibility copy explicitly keeps inflation/payoff hypothetical and states that assumptions are saved locally; no financial formula or persisted field changed.
+- The populated UI route now asserts the inflation field label, uses the keyboard close action and verifies the keyboard disappears before saving.
+- Added one unit method locking the accessibility copy and simulation/local-only boundaries. Expected inventory is now 270 unit methods; UI inventory remains 3 methods.
+- Bumped `CURRENT_PROJECT_VERSION` from 46 to 47.
+
+### Verification actually executed
+
+- Fresh branch comparison confirmed build46 was still the exact feature HEAD before the conditional write; published build47 contains exactly the intended view, unit-test, UI-test and xcodegen files.
+- Static checks passed: balanced delimiters; two focus cases; shared focused-field binding; four explicit accessibility hints; stable keyboard identifier; save-time keyboard dismissal; one added unit method; three total UI methods; keyboard-close assertion; build 47.
+- Re-read the active bundle and confirmed the payoff/credit source contract remains available; build47 is a native accessibility interaction layer over the unchanged build43–46 financial and visual behavior.
+- Exact post-push CI lookup exposed no workflow run and no commit status. The known pre-runner failure was not rerun.
+- No usable execution environment or Apple toolchain is available. Build47 compilation, all expected 270 unit methods, all 3 UI methods, actual VoiceOver focus/order, keyboard interaction and screenshots are **NOT RUN**.
+
+### Remaining differences
+
+- VoiceOver reading order, hints and switch state announcements require execution on an iPhone simulator/device with Accessibility Inspector or VoiceOver.
+- The committed keyboard route requires XCUITest execution; static checks cannot prove the decimal keyboard toolbar is rendered or hittable.
+- Encrypted populated relaunch and rendered light/dark comparison remain open. Full functional, financial, lossless and visual parity is not declared.
+
+### Next exact action
+
+On macOS compile exact build47 `5522fca9e5909a902acd6547803f0390aa15dc9b`, execute all expected 270 unit methods and 3 UI methods, inspect populated light/dark attachments, and verify keyboard plus VoiceOver reading order/hints. If CI again fails before runner allocation, record that evidence once and continue the next independent screen accessibility audit without rerunning the same infrastructure failure.
+
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build46, POPULATED AUTONOMY UI FIXTURE / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes the build45 checkpoint below.
