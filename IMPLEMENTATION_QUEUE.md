@@ -1,5 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build39
+
+1. On macOS compile exact app HEAD `2eb8525ba067793b140c87961d4b8931a410c907` and execute all 252 native unit methods.
+2. If CI remains blocked before runner, extend the backward-compatible web-import metadata/parser to retain optional projection exposure and payoff selections without losing existing snapshots.
+3. Apply exact v18.20 inflation and payoff behavior to `WebAutonomyEngine`, with fixtures for weighted variable-budget inflation, non-indexed debt payments, invalid payoff and upfront cash.
+4. Only after those inputs are lossless, render the Autonomie card/disclosure before Spațiu and compare light/dark screenshots.
+5. Keep all work on `feat/sync-preview-v18-20-ios`; do not merge or modify app `main`.
+
+Completed in build39: pure default-installments Autonomie engine, daily budget/obligation simulation, exact stop/deficit/cap semantics and six focused XCTest source methods. Exact CI run 39398542210/job 118547207656 failed before runner allocation with no steps/logs and was not rerun.
+
 ## CURRENT first unfinished action — build38
 
 1. On macOS compile exact app HEAD `0643aaae0a054b6c6bd910e21f53d6bf7a73017c` and execute all 246 native unit methods plus UI tests.

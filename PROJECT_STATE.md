@@ -1,5 +1,17 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build39, DEFAULT AUTONOMY SIMULATION ENGINE / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `2eb8525ba067793b140c87961d4b8931a410c907`; version 18.20 build39 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Added a pure fail-closed port of the active v18.20 default `installments` Autonomie simulation: available owned money only, monthly plan carry-forward, first-month spent deduction, remainder-cent distribution, fixed/debt/recurring due-day costs, scheduled debts, installment exhaustion, and first fully uncovered day/deficit.
+- Future income and available credit are excluded. A finite 36,500-day success is explicitly capped, never reported as infinite. Unknown fixed/debt due days, missing owned balances, zero living cost and overflow fail closed with the preview reasons.
+- The engine is intentionally not connected to UI yet. The optional projection/payoff schema and inflation exposure used by the bundle are not retained by the current native web importer, so those paths remain an explicit lossless-read and calculation gap before the Autonomie card can be called 1:1.
+- Added six focused XCTest source methods for credit exclusion/daily stop, first-month spending, fixed due day, weekly recurrence/monthly reference, unknown due day and finite cap. Expected native unit inventory is 252 methods.
+- EXECUTED verification: active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` module 223 was re-read directly; Node fixtures reproduced `2 days / 2026-10-03 / 50`, spent-start `2026-10-04`, fixed due `2026-10-02`, and the capped horizon. Delimiter/source checks passed. Swift, Xcode and xcodegen are absent, so native build, all 252 XCTest methods, UI tests and screenshots are NOT RUN.
+- Exact Native iOS CI for `2eb8525ba067793b140c87961d4b8931a410c907`: run [39398542210](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39398542210), job [118547207656](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39398542210/job/118547207656), completed failure before runner allocation; steps and logs are absent. It was not rerun.
+- NEXT exact action: on macOS compile build39 and execute all 252 unit methods. If runner infrastructure remains blocked, retain optional projection/payoff data losslessly in backward-compatible native metadata/import, add inflation/payoff parity to the engine, then render the Autonomie card and disclosure.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build38, DASHBOARD SPACE INPUT/CARD / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
