@@ -1,9 +1,9 @@
 # Native iOS work handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-10-20T20:14:00Z
-Lease expires UTC: 2026-10-20T20:14:00Z
+Status: IN_PROGRESS
+Owner: automation-run-2026-10-20T21
+Updated UTC: 2026-10-20T21:00:00Z
+Lease expires UTC: 2026-10-20T21:20:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Checkpoint source HEAD: 5522fca9e5909a902acd6547803f0390aa15dc9b
 Checkpoint build: 18.20 build47
