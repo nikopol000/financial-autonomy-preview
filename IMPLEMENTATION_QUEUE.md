@@ -1,5 +1,20 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build44
+
+1. On macOS generate/open exact app HEAD `f9378dc0a3bc5b52e2ddd8b1242e8f0db9ab1b28`, compile it, and execute all expected 265 unit methods plus both UI smoke methods.
+2. Run the new light/dark navigation path through Finanțe → Ipotezele autonomiei → Scenarii autonomie and retain the four screenshot attachments.
+3. Repeat with an imported non-empty projection; confirm retained exposure identifier spelling/order and payoff order survive save/reload, and compare populated typography, spacing, toggles, money input, validation, and scenario results.
+4. Check Native iOS CI for the exact build44 SHA. Current evidence: two post-push checks exposed neither workflow runs nor commit statuses; do not rerun the known pre-runner failure repeatedly.
+5. Keep all data local and preserve existing snapshots; do not add backend, mandatory account, bank sync, or telemetry, and never count available credit as owned money.
+
+### Build44 completed in the preceding stage
+
+- App commit: `f9378dc0a3bc5b52e2ddd8b1242e8f0db9ab1b28` on `feat/sync-preview-v18-20-ios`; source `main` unchanged.
+- Scenarii autonomie now uses the exact active v18.20 Section palette, geometry, typography, value alignment, and accessibility headings instead of a platform-default GroupBox.
+- Added exact visual-contract tests and light/dark UI smoke coverage for both Autonomie planning screens; bumped build number to 44.
+- Static checks and direct bundle comparison ran. Compilation, 265 unit methods, two UI methods, interactions, and screenshots did not run because no Apple execution environment is available.
+
 ## CURRENT first unfinished action — build43
 
 1. On macOS compile exact app HEAD `44f105c95279db042db4f0011fb0a44aa719d0a1` and execute all expected 263 native unit methods plus available UI tests.

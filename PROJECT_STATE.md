@@ -1,5 +1,45 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build44, AUTONOMY SCENARIO VISUAL CONTRACT / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes the build43 checkpoint below.
+
+### Exact repository state
+
+- Preview continuity HEAD was read fresh at `9e2f5cacf32e15921050ecebad002e1fd65807dc`; the finite lease was claimed conditionally at `49a98f97f302d569a62afa1f8dc98f334b0631fe`.
+- iOS feature branch advanced with expected-SHA/no-force from build43 `44f105c95279db042db4f0011fb0a44aa719d0a1` to build44 `f9378dc0a3bc5b52e2ddd8b1242e8f0db9ab1b28`.
+- `financial-autonomy-app:main` remains unchanged and identical to `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- The active v18.20 bundle was re-read at blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+
+### Completed build44 stage
+
+- Replaced the platform-default `GroupBox` on Scenarii autonomie with the active preview Section contract.
+- Matched the exact light palette `#E8EDF3/#FAFCFE/#162C38/#364F5E/#566E7D/#B9C8D7` and dark palette `#0D1426/#192442/#F0F4F7/#D4DFE5/#AABCC8/#65718D`.
+- Matched the active geometry: content padding 20, content gap 18, section gap 14, horizontal/vertical padding 16/18, one-point border, and 20-point corner radius.
+- Matched the screen typography contract: 11-point tracked eyebrow, 32-point title, 20-point section headings, 16-point body, 13-point notes, and 17-point tabular values.
+- Added accessibility header traits plus stable identifiers for the current and payoff scenarios.
+- Added a light/dark UI smoke path through Finanțe → Ipotezele autonomiei and Scenarii autonomie, with screenshot attachments and empty-state assertions.
+- Added two unit methods locking scenario geometry and both palettes. Expected unit inventory is now 265 methods; the UI suite contains two smoke methods.
+- Bumped `CURRENT_PROJECT_VERSION` from 43 to 44.
+
+### Verification actually executed
+
+- Fresh comparison confirms `f9378dc0a3bc5b52e2ddd8b1242e8f0db9ab1b28` is exactly the feature-branch HEAD; source `main` is unchanged.
+- The active bundle Section styles and palette module were inspected directly and compared against the committed constants.
+- Static checks passed: balanced delimiters; all 12 light/dark colors present; build number 44 present; `GroupBox` absent; three scenario unit methods and two UI methods found.
+- Two exact post-push CI checks exposed no workflow run and no commit status. No prior pre-runner failure was rerun.
+- The available execution environment is unavailable and provides no Apple toolchain. Build44 compilation, all expected 265 unit methods, both UI methods, simulator interaction, and screenshots are **NOT RUN**.
+
+### Remaining differences
+
+- Populated-state screenshot comparison and accessibility interaction still require a real iPhone simulator/device.
+- Build43's assumptions editor remains a native safe editor around the stored v18.20 contract; the active web Finances module still exposes no equivalent editor control to compare visually.
+- Full functional, financial, lossless, and visual parity is not declared.
+
+### Next exact action
+
+On macOS compile exact build44 `f9378dc0a3bc5b52e2ddd8b1242e8f0db9ab1b28`, execute all expected 265 unit methods and both UI smoke methods, then verify lossless reload of a populated projection and compare the captured light/dark Ipotezele autonomiei and Scenarii autonomie screens with the active bundle. If runner allocation still fails before execution, record that evidence once and continue the next independent accessibility/visual parity slice.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build43, LOSSLESS AUTONOMY ASSUMPTIONS EDITOR / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes the build42 checkpoint below.
