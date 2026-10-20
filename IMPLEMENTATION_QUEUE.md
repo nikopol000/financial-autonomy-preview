@@ -1,5 +1,14 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-20 build35 exact compact Budget card tokens
+- Feature HEAD `2607a6fcde916f2f0213f9e71d1c0629a9eb6da9` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
+- Compact Budget populated/empty states now use the active bundle's exact light/dark surfaces, border and raised-track colors, radii, padding, unequal border widths and gaps. Daily/window tracks use the exact 7/5 and 8/4 height/radius pairs. Empty-state setup routes to Budget.
+- Available credit remains outside owned money; storage remains local-only with no account, backend, bank sync or telemetry.
+- Added one focused XCTest source method; expected inventory is 235 methods.
+- EXECUTED: re-read active bundle modules 208/218 from blob `be453db2699273a194543de4532db6ea4b2e1cf2`; Node source/token fixture and delimiter checks passed. Swift/Xcode/xcodegen are unavailable locally; native build, 235 XCTest methods, UI tests and screenshots are NOT RUN, so rendered parity is not claimed.
+- Exact CI [39373747228](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39373747228), job [118467129241](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39373747228/job/118467129241), failed before runner allocation with no steps/logs and was not rerun.
+- NEXT: restore macOS execution and validate exact build35 in light/dark screenshots. If the runner remains unavailable, align native Dashboard ordering to active v18.20: four top snapshots, Budget, quick actions, Banii mei, Calendar financiar. Preserve local-only storage and owned-money/available-credit separation. No 1:1 claim.
+
 ## Native iOS checkpoint — 2026-10-20 build34 Budget drilldown operation editing
 - Feature HEAD `915b55e0e7c97a2a4e292d3d98b5a45ff279e512` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
 - Both Dashboard Budget detail lists now route a selected row into a populated operation editor, matching the active bundle route. Corrections retain the original as a voided audit record, create a replacement UUID, preserve imported/audit metadata, and accept imported month-plan budget IDs.

@@ -1,5 +1,18 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build35, EXACT COMPACT BUDGET CARD TOKENS / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `2607a6fcde916f2f0213f9e71d1c0629a9eb6da9`; version 18.20 build35 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- The Dashboard compact Budget card now uses the active v18.20 palette exactly: light/dark surface `#EEF0FA/#202C47`, border `#A5A0E9/#495FAD`, and raised tracks `#E2EAF2/#2C3A5B`.
+- Populated geometry now matches the bundle tokens: radius 18, padding 12, top border 3, other borders 1.5 and gap 7. The empty state uses its distinct radius 22, padding 18, top border 5, side borders 2.5, bottom border 1.5 and gap 8, and routes setup to Budget.
+- Compact daily bars now use the exact 7-point/5-radius geometry; compact window bars use 8-point/4-radius geometry. Full Budget presentation keeps its native progress treatment.
+- Available credit remains excluded from owned money. No backend, account requirement, bank sync or telemetry was added.
+- Added focused XCTest source method `testCompactBudgetCardMatchesActiveBundleThemeAndGeometryTokens`; expected native unit inventory is 235 methods.
+- EXECUTED verification: current active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` module 218 and palette module 208 were re-read; a Node source/token fixture confirmed all six light/dark colors, both border geometries and both progress geometries; delimiter balance passed for DashboardView, WebBudgetWindowsView and WebBudgetWindowEngineTests. Swift, Xcode and xcodegen are absent, so native build, all 235 XCTest methods, UI tests and screenshots are NOT RUN; visual equality is not claimed.
+- Exact Native iOS CI for `2607a6fcde916f2f0213f9e71d1c0629a9eb6da9`: run [39373747228](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39373747228), job [118467129241](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39373747228/job/118467129241), completed failure before runner allocation; steps and logs are absent. It was not rerun.
+- NEXT exact action: on macOS compile build35, execute all 235 unit methods and UI tests, then compare light/dark Dashboard/Budget screenshots. If infrastructure remains blocked, reconcile the native Dashboard module order with active v18.20: snapshots (Autonomie, Spațiu, Cheltuit, Următorul venit), Budget, quick actions, Banii mei, then Calendar financiar; preserve all local data and current calculation behavior.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build34, BUDGET DRILLDOWN OPERATION EDITING / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.

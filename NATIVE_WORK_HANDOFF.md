@@ -1,15 +1,15 @@
 # Native iOS work handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: scheduled-native-parity
-Updated UTC: 2026-10-20T05:11:30Z
-Lease expires UTC: 2026-10-20T07:11:30Z
+Updated UTC: 2026-10-20T05:15:30Z
+Lease expires UTC: 2026-10-20T05:15:30Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Checkpoint source HEAD: 915b55e0e7c97a2a4e292d3d98b5a45ff279e512
-Checkpoint build: 18.20 build34
-Exact CI: run 39367864823, job 118448716789 — completed failure before runner allocation; runner id 0, steps empty and logs unavailable; not rerun
-Expected native unit inventory: 234 methods, NOT RUN
-Stage in progress: inspect active Dashboard card style and native DashboardView for the first remaining compact-card theme/border mismatch.
-Next exact action: derive the active v18.20 Budget-card tokens from the current bundle, implement a bounded build35 parity stage without claiming rendered validation, add source-level verification, and checkpoint exact CI evidence.
+Checkpoint source HEAD: 2607a6fcde916f2f0213f9e71d1c0629a9eb6da9
+Checkpoint build: 18.20 build35
+Exact CI: run 39373747228, job 118467129241 — completed failure before runner allocation; steps and logs absent; not rerun
+Expected native unit inventory: 235 methods, NOT RUN
+Completed stage: exact light/dark palette, unequal border geometry, spacing and compact progress geometry for populated and empty Dashboard Budget cards.
+Next exact action: on macOS compile build35, execute all 235 unit methods and UI tests, and compare light/dark Dashboard/Budget screenshots. If CI remains blocked before runner, align native Dashboard module ordering with active v18.20: four top snapshots, Budget, quick actions, Banii mei, then Calendar financiar.
 
 Before writing, read this file and fresh PROJECT_STATE.md/IMPLEMENTATION_QUEUE.md, verify both real repository HEADs and CI, and claim a finite IN_PROGRESS lease with an expected-SHA update. Never infer completion from this file alone.
