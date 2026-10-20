@@ -1,5 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-20 build36 Dashboard module order
+- Feature HEAD `370e0ca04c253c1f367ad25d3ea8faa99b2d84dd` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
+- Native available Dashboard modules now preserve the active rendered order: Cheltuit/Următorul venit, Acțiuni rapide, Buget, Banii mei, Calendar financiar/obligații. The bundle's comparator moves quick actions before Budget despite the declared default array.
+- Removed the redundant generic operation button and duplicate accounts group. Autonomie and Spațiu remain missing and are tracked explicitly; this is not a full Dashboard or 1:1 claim.
+- Available credit remains outside owned money; storage remains local-only with no account, backend, bank sync or telemetry.
+- Added one focused XCTest source method; expected inventory is 236 methods.
+- EXECUTED: re-read active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2`; Node order/absence/delimiter checks passed. Swift/Xcode/xcodegen are unavailable; native build, 236 XCTest methods, UI tests and screenshots are NOT RUN.
+- Exact CI [39378763278](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39378763278), job [118482768873](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39378763278/job/118482768873), failed before runner allocation with no steps/logs and was not rerun.
+- NEXT: restore macOS execution and validate exact build36. If unavailable, audit AutonomyHome/SpaceHome formulas against native financial engines and implement the first missing pure calculation primitive before UI. Preserve existing data and owned-money/available-credit separation.
+
 ## Native iOS checkpoint — 2026-10-20 build35 exact compact Budget card tokens
 - Feature HEAD `2607a6fcde916f2f0213f9e71d1c0629a9eb6da9` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
 - Compact Budget populated/empty states now use the active bundle's exact light/dark surfaces, border and raised-track colors, radii, padding, unequal border widths and gaps. Daily/window tracks use the exact 7/5 and 8/4 height/radius pairs. Empty-state setup routes to Budget.

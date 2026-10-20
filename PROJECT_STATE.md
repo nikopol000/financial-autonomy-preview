@@ -1,5 +1,17 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build36, DASHBOARD MODULE ORDER / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `370e0ca04c253c1f367ad25d3ea8faa99b2d84dd`; version 18.20 build36 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- The active bundle declares Autonomie, Spațiu, Cheltuit, Următorul venit, Buget and Acțiuni rapide, but its rendered comparator explicitly moves `quickActions` before `budget`. Native available modules now retain that rendered relative order: Cheltuit/Următorul venit, Acțiuni rapide, Buget, Banii mei, then Calendar financiar/obligații.
+- Removed the redundant generic `Operațiune nouă` Dashboard button because the four preview quick actions are the canonical entry surface. Removed the duplicate Dashboard `Conturi` group while retaining the `Banii mei` owned-money/available-credit cards. Autonomie and Spațiu remain explicit missing native modules; full Dashboard or visual parity is not claimed.
+- Available credit remains excluded from owned money. Existing local data and backward-compatible models were preserved; no backend, account requirement, bank sync or telemetry was added.
+- Added focused XCTest source method `testNativeDashboardModulesKeepActivePreviewRelativeOrder`; expected native unit inventory is 236 methods.
+- EXECUTED verification: active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` was re-read for the declared map and rendered quick-actions-before-budget comparator; Node source-order checks produced ordered indices `[1051,1092,1250,4374,4833]`; targeted absence checks and delimiter balance passed. Swift, Xcode and xcodegen are absent, so native build, all 236 XCTest methods, UI tests, interactions and screenshots are NOT RUN.
+- Exact Native iOS CI for `370e0ca04c253c1f367ad25d3ea8faa99b2d84dd`: run [39378763278](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39378763278), job [118482768873](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39378763278/job/118482768873), completed failure before runner allocation in seven seconds; steps and logs are absent. It was not rerun.
+- NEXT exact action: on macOS compile build36, execute all 236 unit methods and UI tests, then compare light/dark Dashboard screenshots. If runner infrastructure remains blocked, inspect active AutonomyHome/SpaceHome formulas against the existing native financial engines and implement the first missing pure calculation primitive before adding either card; preserve local data and owned-money/available-credit separation.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build35, EXACT COMPACT BUDGET CARD TOKENS / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
