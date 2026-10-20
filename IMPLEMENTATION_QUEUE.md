@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-20 build31 exact Budget today / Safe today
+- Feature HEAD `da9aed054563fdd9a3b14c89effb85b043a64659` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
+- Completed the exact v18.20 daily pace/contribution slice: restored-today budget allowance, strict included/outside spend roles, next-income Coverage with fixed/debt/recurring obligations, owned available cash only, and net transfers-to-savings contribution remaining.
+- Budget and Dashboard show Budget today and Safe today spent/limit bars. The full Budget presentation also shows plan contribution, completed savings transfers and remaining contribution.
+- Three XCTest source methods added; expected inventory 229. Bundle modules 205/210/220/221 and Node numerical fixtures were executed. Swift/Xcode are unavailable locally; native build/tests/UI/screenshots are NOT RUN.
+- Exact CI `39340449123`, job `118360369560`, failed before runner allocation with no steps/logs and was not rerun.
+- NEXT: restore macOS execution and validate exact HEAD. Independently remove legacy approximate duplicate pace UI for imported plans, then match the v18.20 status/detail copy and visual treatment before screenshot comparison. Preserve local-only storage and owned-money/available-credit separation. No 1:1 claim.
+
 ## Native iOS checkpoint — 2026-10-20 build30 current budget-window presentation
 - Feature HEAD `679e529cfad3624da77fbb50ecf14bb4d5690727` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
 - Completed the current-plan presentation slice: exact build29 snapshots are shown in Budget and Dashboard with Primary, additional windows, spent/limit progress, remaining/daily values, incomplete reasons, canonical pin order and collapsed pinned-window control.
@@ -7,7 +15,6 @@
 - Exact CI `39332817183`, job `118334911754`, failed before runner allocation with no steps/logs and was not rerun.
 - NEXT: restore macOS execution and validate exact HEAD. Independently implement contribution-aware current-plan summaries and exact Budget today/Safe today inputs, retaining the rule that available credit is not owned money. No 1:1 claim.
 
-# Financial Autonomy — Implementation Queue
 
 ## Native iOS checkpoint — 2026-10-20 build29 exact budget-window engine
 - Feature HEAD `a1de1d206619749fabb7b55fe6b7851b6804b6eb` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
@@ -16,7 +23,6 @@
 - Exact CI `39325651651`, job `118310680540`, failed before runner allocation with no steps/logs and was not rerun.
 - NEXT: restore macOS execution and test exact HEAD. Independently wire current-plan Primary/additional snapshots into Budget/Dashboard presentation, then contribution-aware financial summaries. Preserve owned-money/available-credit separation. No 1:1 claim.
 
-# Financial Autonomy — Implementation Queue
 
 ## Native iOS checkpoint — 2026-10-19 build28 budget-plan contract
 - Feature HEAD `8351011600e880c12061e346bd75e06bc0a49243` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.

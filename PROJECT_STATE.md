@@ -1,5 +1,17 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build31, EXACT DAILY/SAFE PACE AND CONTRIBUTION / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `da9aed054563fdd9a3b14c89effb85b043a64659`; version 18.20 build31 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Added a pure v18.20 daily-pace engine. Budget today restores today's matching Budgeted Expense before applying each included Primary window's rounded one-day cap, then reports included spend, outside-pace spend and unbudgeted spend exactly from explicit financial roles.
+- Safe today now uses available owned-account balances only, finds the next known income day, subtracts fixed/debt/recurring obligations through the preceding day, and floors the remainder across the inclusive horizon. Future income and all available credit are excluded.
+- Current-plan contribution is the configured plan amount less net current-month transfers from non-savings accounts into savings; reverse transfers reduce completed contribution. Budget UI and Dashboard now show the exact Budget today/Safe today bars, included budget names, unavailable reason, and (in the full Budget view) contribution remaining.
+- Three focused XCTest source methods cover restored-today allowance, contribution transfers and Coverage cash/obligation horizon. Expected native unit inventory: 229 methods.
+- EXECUTED verification: active v18.20 bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` modules 205/210/220/221 were inspected; Node fixtures reproduced allowance 1000, safe daily 700 and remaining contribution 3000. Targeted source/contract checks passed. Swift and Xcode are absent locally, so compilation, all 229 XCTest methods, UI tests, screenshots and interactive visual comparison are NOT RUN.
+- Exact Native iOS CI: run `39340449123`, job `118360369560`, completed `failure` before runner allocation; `steps=null`, logs unavailable. It was not rerun.
+- NEXT: restore/observe hosted macOS execution, compile exact HEAD `da9aed054563fdd9a3b14c89effb85b043a64659`, run all 229 unit methods plus UI tests and inspect screenshots. Independent next slice: remove the imported-plan path's remaining legacy approximate pace duplication and match v18.20 daily status/detail copy and visual treatment. Visual and functional 1:1 is not yet claimed.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build30, CURRENT BUDGET-WINDOW PRESENTATION / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
@@ -12,7 +24,6 @@ Supersedes older current entries.
 - Exact Native iOS CI: run `39332817183`, job `118334911754`, completed `failure` before runner allocation; `steps=null`, logs unavailable. It was not rerun.
 - NEXT: restore/observe hosted macOS execution, compile exact HEAD `679e529cfad3624da77fbb50ecf14bb4d5690727`, run all 226 unit methods plus UI tests and inspect screenshots. Independent next slice: port contribution-aware current-plan summaries and exact daily/safe pace inputs while preserving owned-money/available-credit separation. Visual and functional 1:1 is not yet claimed.
 
-# Financial Autonomy — Project State
 
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build29, V18.20 BUDGET-WINDOW ENGINE / NATIVE EXECUTION UNAVAILABLE
 
@@ -25,7 +36,6 @@ Supersedes older current entries.
 - Exact Native iOS CI: run `39325651651`, job `118310680540`, completed `failure` before runner allocation; `steps=null`, logs unavailable. It was not rerun.
 - NEXT: restore/observe hosted macOS execution, compile exact HEAD `a1de1d206619749fabb7b55fe6b7851b6804b6eb`, run all 225 unit methods plus UI tests and fix actual failures. Independent next parity slice: present current-plan Primary/additional window snapshots in native Budget/Dashboard UI, then port contribution-aware summaries while keeping owned money separate from available credit. No 1:1 claim.
 
-# Financial Autonomy — Project State
 
 ## CURRENT native checkpoint — 2026-10-19 Bucharest — build28, LOSSLESS BUDGET-PLAN CONTRACT / NATIVE EXECUTION UNAVAILABLE
 
