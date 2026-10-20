@@ -1,5 +1,14 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-20 build33 Dashboard Budget drilldowns
+- Feature HEAD `11d2caf0685bc30beca15a726905afc39b9fd03d` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
+- Dashboard daily rows now open today's non-voided, explicitly budgeted operations from budgets included in daily pace. Primary/pinned rows open the matching budget and inclusive window interval, with v18.20 ordering, totals and empty states.
+- Compact Budget card now exposes `Vezi toate →` and uses the v18.20 radius/padding/tinted-surface/border hierarchy. Available credit remains outside owned money.
+- Added two focused XCTest source methods; expected inventory is 233 methods.
+- EXECUTED: inspected active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` modules 218/324; Node delimiter checks and targeted source-contract searches passed. Swift/Xcode are unavailable locally; native build, 233 XCTest methods, UI tests, interactions and screenshots are NOT RUN.
+- Exact CI [39362556506](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39362556506), job `118431828659`, failed before runner allocation with no steps/logs and was not rerun.
+- NEXT: restore macOS execution and validate exact build33. If runner infrastructure remains unavailable, add operation-row edit parity from the two drilldown lists; use rendered comparison to finish compact-card theme colors/top-border geometry. Preserve local-only storage and owned-money/available-credit separation. No 1:1 claim.
+
 ## Native iOS checkpoint — 2026-10-20 build32 imported Budget detail presentation
 - Feature HEAD `36bda7fe4bdd0f789d206dacb81e85c699f03510` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
 - Imported plans no longer show the legacy approximate editor/pace or Save action. The local native no-import budget path remains available.

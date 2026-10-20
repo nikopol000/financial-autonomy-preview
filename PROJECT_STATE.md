@@ -1,5 +1,18 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build33, DASHBOARD BUDGET DRILLDOWNS / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `11d2caf0685bc30beca15a726905afc39b9fd03d`; version 18.20 build33 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Dashboard `Buget azi` and `Sigur azi` rows are now actionable and open the exact v18.20 subset: non-voided Budgeted Expense operations from today whose explicit budget is included in daily pace. The list shows count, total, operation name, day and amount.
+- Each available Primary/pinned window row now opens the exact budget-and-inclusive-period operation subset used by that bar, sorted newest-first with event order retained for same-day entries. Empty-state copy matches the active preview.
+- The compact card now has the v18.20 structure: `Buget` plus `Vezi toate →`, radius 18, padding 12, tinted surface, surrounding border and a stronger top accent. The destination opens the full native Budget view.
+- Available credit remains excluded from owned money. No backend, account requirement, bank sync or telemetry was added.
+- Added two focused XCTest source methods for daily included-budget selection and inclusive window filtering; expected native unit inventory is 233 methods.
+- EXECUTED verification: active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` modules 218 and 324 were inspected for navigation, filtering, ordering, empty copy and card metrics; Node delimiter checks passed for DashboardView, WebBudgetWindowsView and WebBudgetWindowEngineTests; targeted source-contract searches passed. Swift and Xcode are absent, so native build, all 233 XCTest methods, UI tests, interaction checks and screenshots are NOT RUN.
+- Exact Native iOS CI for `11d2caf0685bc30beca15a726905afc39b9fd03d`: run [39362556506](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39362556506), job `118431828659`, completed failure before runner allocation; steps are absent and logs unavailable. It was not rerun.
+- NEXT exact action: on macOS compile build33, execute all 233 unit methods and UI tests, then compare Dashboard/Budget/detail screenshots against v18.20. If infrastructure remains blocked, add operation-row edit parity from both drilldown lists and reconcile the compact card's theme colors/top-border geometry with rendered screenshots when available. Do not claim 1:1 yet.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build32, IMPORTED BUDGET DETAIL PRESENTATION / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
