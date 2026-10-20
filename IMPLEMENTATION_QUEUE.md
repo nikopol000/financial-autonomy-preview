@@ -1,5 +1,21 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build45
+
+1. On macOS generate/open exact app HEAD `44996bffbfd642e123915e270cd5564531692c20`, compile it, and execute all expected 267 unit methods plus both UI smoke methods.
+2. Import a non-empty v18.20 projection and verify save/reload preserves exposure identifier spelling/order and payoff order, while invalid/failed saves publish no partial state.
+3. Run the light/dark Finanțe → Ipotezele autonomiei → Scenarii autonomie route, verify keyboard and VoiceOver interaction, and retain/compare the four screenshots.
+4. Check Native iOS CI for the exact build45 SHA. Current evidence: two post-push checks exposed neither workflow runs nor commit statuses; do not rerun the known pre-runner failure repeatedly.
+5. Keep all data local and existing snapshots readable; do not add backend, mandatory account, bank sync or telemetry, and never count available credit as owned money.
+
+### Build45 completed in the preceding stage
+
+- App commit: `44996bffbfd642e123915e270cd5564531692c20` on `feat/sync-preview-v18-20-ios`; source `main` unchanged.
+- Ipotezele autonomiei now uses the active shared v18.20 Section palette, geometry and typography rather than a platform-default Form, with accessible 48/52-point controls and stable identifiers.
+- Existing financial validation, lossless ordering and atomic persistence were preserved without Models/LedgerStore rewrites.
+- Added two unit methods and strengthened the existing light/dark UI route; build number is 45.
+- Static and direct bundle checks ran. Compilation, 267 unit methods, two UI methods, interactions and screenshots did not run because no Apple execution environment is available.
+
 ## CURRENT first unfinished action — build44
 
 1. On macOS generate/open exact app HEAD `f9378dc0a3bc5b52e2ddd8b1242e8f0db9ab1b28`, compile it, and execute all expected 265 unit methods plus both UI smoke methods.

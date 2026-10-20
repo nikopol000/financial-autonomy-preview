@@ -1,5 +1,44 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build45, AUTONOMY ASSUMPTIONS VISUAL/ACCESSIBILITY CONTRACT / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes the build44 checkpoint below.
+
+### Exact repository state
+
+- Preview continuity HEAD was read fresh at `1b3a89f554c8a33fdea5a123b2cf6aefe3312fa1`; the finite lease was claimed conditionally at `9af73ca32c670f5cf84c5b48823899a015a93823`.
+- iOS feature branch advanced with expected-SHA/no-force from build44 `f9378dc0a3bc5b52e2ddd8b1242e8f0db9ab1b28` to build45 `44996bffbfd642e123915e270cd5564531692c20`.
+- `financial-autonomy-app:main` remains unchanged at `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- The active v18.20 bundle was re-read at blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+
+### Completed build45 stage
+
+- Replaced the platform-default `Form` on Ipotezele autonomiei with the same active v18.20 Section surface used by the paired scenarios screen.
+- Reused the exact active light/dark palette, 20-point content padding, 18-point content gap, 14-point section gap, 16/18 section padding, one-point border, 20-point radius, and matching headline/body/note typography.
+- Added styled numeric fields, a full-width save action, disabled-state opacity, and minimum 48/52-point input/action heights.
+- Added semantic header traits and stable screen, section, exposure, payoff, field, message, and save identifiers.
+- Preserved the existing lossless ordering, validation, atomic `LedgerStore.updateWebProjection` path, local-only storage, and owned-money/available-credit boundary without modifying Models or LedgerStore.
+- Added two unit methods for shared geometry and control hit sizes; expected unit inventory is now 267 methods. The existing two-method UI suite now asserts the redesigned screen identifier and eyebrow in both appearances.
+- Bumped `CURRENT_PROJECT_VERSION` from 44 to 45.
+
+### Verification actually executed
+
+- Fresh comparison confirms `44996bffbfd642e123915e270cd5564531692c20` is exactly the feature-branch HEAD; source `main` is unchanged.
+- Re-read the active 783,793-byte bundle and confirmed its exact 12 palette colors plus padding 20, gaps 18/14, radius 20 and border width 1.
+- Static checks passed on the published source: balanced delimiters; default Form absent; validation and atomic update path retained; shared contract, accessibility identifiers and build 45 present; two new unit methods and both UI methods found.
+- Two exact post-push CI checks exposed no workflow run and no commit status. The known pre-runner failure was not rerun.
+- No usable execution environment or Apple toolchain is available. Build45 compilation, all expected 267 unit methods, both UI methods, simulator interaction and screenshots are **NOT RUN**.
+
+### Remaining differences
+
+- The active web bundle references Ipotezele autonomiei but exposes no equivalent editor screen; this stage aligns the explicitly requested native editor with the bundle's shared Section contract, not with a nonexistent rendered web editor.
+- Lossless save/reload with populated imported data, VoiceOver interaction, keyboard behavior and light/dark screenshot comparison still require a real iPhone simulator/device.
+- Full functional, financial, lossless and visual parity is not declared.
+
+### Next exact action
+
+On macOS compile exact build45 `44996bffbfd642e123915e270cd5564531692c20`, execute all expected 267 unit methods and both UI smoke methods, then import a populated v18.20 projection and verify save/reload ordering, identifiers, keyboard/VoiceOver behavior and the four Autonomie planning screenshots. If CI again fails before runner allocation, record that evidence once and continue the next independent accessibility/visual parity audit.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build44, AUTONOMY SCENARIO VISUAL CONTRACT / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes the build43 checkpoint below.
