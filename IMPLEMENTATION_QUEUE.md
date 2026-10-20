@@ -1,5 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build41
+
+1. On macOS compile exact app HEAD `4440ecc5eccd07639d2beec9018a0aaa1f033782` and execute all 259 native unit methods; resolve compiler/test failures before any new feature batch.
+2. Observe Native iOS CI for that exact commit if a run appears. Two post-push connector checks exposed no associated workflow run and no commit status; do not rerun the unchanged build39 pre-runner failure.
+3. Compare populated light/dark Autonomie card screenshots and the expand/collapse calculation disclosure with the active v18.20 bundle; resolve every rendered or behavioral difference before claiming visual parity.
+4. If execution remains unavailable, audit native Finanțe projection controls and the Autonomie simulations screen against active bundle modules 223/326, then implement the first lossless functional gap without changing owned-money or available-credit semantics.
+5. Keep all work on `feat/sync-preview-v18-20-ios`; do not merge or modify app `main`.
+
+Completed in build41: exact Autonomie dashboard card/source order, daily post-distribution weighted budget inflation, exact payoff rejection messages, settled-debt unknown-due handling and two focused XCTest source methods. Native execution and rendered comparison remain unverified.
+
 ## CURRENT first unfinished action — build40
 
 1. On macOS compile exact app HEAD `c9bb2121eb4486fbcf16f7330f560715b42f2f58` and execute all 257 native unit methods; resolve compiler/test failures before any new feature batch.

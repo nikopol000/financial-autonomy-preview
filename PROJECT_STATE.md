@@ -1,5 +1,16 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build41, AUTONOMIE CARD + DAILY-INFLATION CORRECTIONS / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `4440ecc5eccd07639d2beec9018a0aaa1f033782`; version 18.20 build41 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Added the active v18.20 Autonomie card before Spațiu with the exact disclosed Romanian labels, expandable calculation rows, 28-point radius, 18×12 padding, light/dark hero and muted colors, and decorative source geometry. The card consumes the lossless installments/payoff snapshot and keeps available credit and future income outside owned money.
+- Corrected three engine differences found while re-reading the active bundle: variable-budget inflation is applied per simulated day after raw cent distribution, payoff validation/rejection uses the exact active messages, and a selected settled debt no longer blocks the scenario solely because its former due day is unknown.
+- Added two focused XCTest source methods for daily weighted inflation and Autonomie card tokens/order; expected native unit inventory is 259 methods.
+- EXECUTED verification: inspected active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2`; targeted source/copy/token/order checks and delimiter checks passed. A Node financial fixture reproduced 272 covered days, stop day `2027-06-30` and deficit 40 minor units. Swift, Swiftc, Xcode and xcodegen are absent, so native compilation, all 259 XCTest methods, UI tests and screenshots are NOT RUN; visual 1:1 is not claimed.
+- Exact CI lookup for `4440ecc5eccd07639d2beec9018a0aaa1f033782` was performed twice after the expected-SHA push; neither check exposed an associated workflow run or commit status. The prior build39 pre-runner failure was not rerun, and no build41 success is claimed.
+- NEXT exact action: on macOS compile build41 and execute all 259 unit methods, fixing actual compiler/test failures first, then compare populated light/dark Autonomie screenshots and disclosure interaction against v18.20. If runner infrastructure remains unavailable, audit the native Finanțe projection controls and Autonomie simulations screen against the active bundle and implement the first lossless functional gap.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build40, LOSSLESS PROJECTION + INFLATION/PAYOFF ENGINE / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
