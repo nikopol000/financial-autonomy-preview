@@ -1,5 +1,21 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build48
+
+1. On macOS generate/open exact app HEAD `47e2a22a0f72568ebce7708a8aa42ceb03ec2fae`, compile it, and execute all expected 274 unit methods plus all 3 UI methods.
+2. Verify Automatic/Dark/Light selection, the minute-boundary solar transition, Cyan/Ocean/Iris propagation, stable accessibility states and the Settings light/dark screenshots.
+3. Verify the appearance route retains Backup, Diagnostic and local-only privacy information without exposing or transmitting financial data.
+4. If Apple execution remains unavailable, add backward-compatible encrypted backup/import retention for valid appearance mode/accent values; older native snapshots must remain readable and unknown web values must fail closed.
+5. Check Native iOS CI for the exact build48 SHA. Current evidence: post-push lookup exposes neither workflow runs nor commit statuses; do not rerun the known pre-runner failure repeatedly.
+
+### Build48 completed in this stage
+
+- App commit: `47e2a22a0f72568ebce7708a8aa42ceb03ec2fae` on `feat/sync-preview-v18-20-ios`; source `main` unchanged.
+- Added the active v18.20 Settings/Appearance visual contract, exact local Romania solar estimate, automatic/manual modes, three exact accents, root-level application and legacy `system` migration.
+- Added four unit methods and strengthened the existing three-method UI suite; build number is 48.
+- Static, direct-bundle and independent solar-fixture checks ran. Compilation, 274 unit methods, 3 UI methods, transitions, VoiceOver and screenshots did not run because no Apple execution environment is available.
+
+
 ## CURRENT first unfinished action — build47
 
 1. On macOS generate/open exact app HEAD `5522fca9e5909a902acd6547803f0390aa15dc9b`, compile it, and execute all expected 270 unit methods plus all 3 UI methods.

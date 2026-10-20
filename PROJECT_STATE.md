@@ -1,5 +1,46 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-21 Bucharest — build48, APPEARANCE SETTINGS PARITY / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes the build47 checkpoint below.
+
+### Exact repository state
+
+- Preview continuity HEAD was read fresh at `8b6e496bd3a1a0156c6ce435de0cbb223cc0c1c3`; the expired lease was reclaimed conditionally at `f506fee44f5fff74a90d3c47f6720d6bf3e3bfb5`.
+- iOS feature branch advanced with expected-SHA/no-force from build47 `5522fca9e5909a902acd6547803f0390aa15dc9b` to build48 `47e2a22a0f72568ebce7708a8aa42ceb03ec2fae`.
+- `financial-autonomy-app:main` remains unchanged at `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- The active 783,857-byte v18.20 bundle was re-read at blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+
+### Completed build48 stage
+
+- Replaced the generic native appearance picker with the active v18.20 Settings/Appearance hierarchy, copy, exact shared Section geometry, preview hero, state examples and light/dark palette.
+- Ported the exact local astronomical day/night estimate for latitude 45.5°, including the preview constants, device time-zone handling and one-minute reevaluation. It requests no GPS and transmits no data.
+- Added the exact Automatic/Dark/Light modes and Cyan/Ocean/Iris accent contracts, including their six active light/dark hex values.
+- Applied the chosen appearance and accent at the native root so tab/navigation controls react immediately. Legacy `system` preference values migrate locally to `auto`.
+- Kept Backup, Diagnostic, version/build and the local-only privacy statement within the redesigned screen. No Models, LedgerStore, financial formula or financial persistence code changed.
+- Added four unit methods for defaults, accents, solar behavior and geometry. Expected inventory is now 274 unit methods; the three-method UI suite now asserts the Settings screen and stable mode/accent identifiers.
+- Bumped `CURRENT_PROJECT_VERSION` from 47 to 48.
+
+### Verification actually executed
+
+- Fresh branch comparison confirmed build47 was still the exact feature HEAD immediately before the conditional write; build48 is now the exact branch HEAD and source `main` is unchanged.
+- Re-read active bundle modules 208/330 and compared the exact solar constants, default mode/accent, mode labels, accent names/colors, shared palette, content padding 20, gaps 18/14, Section padding 16/18, radius 20 and preview radius 26.
+- Static checks passed on every changed source: balanced delimiters, exact 12 palette/accent colors, one-minute TimelineView update, build 48, four new unit methods and three total UI methods.
+- Executed an independent solar fixture with the ported formula: Bucharest summer noon resolves daylight and midnight resolves dark.
+- Exact post-push CI lookup exposed no workflow run and no commit status. The known pre-runner failure was not rerun.
+- No Apple toolchain is available. Build48 compilation, all expected 274 unit methods, all 3 UI methods, simulator interaction and screenshots are **NOT RUN**.
+
+### Remaining differences
+
+- Appearance choices currently persist in local AppStorage but are not yet embedded in the encrypted native backup or imported from the optional v18.20 appearance object.
+- The redesigned screen, minute-boundary automatic transition, accent propagation and VoiceOver announcements require execution on an iPhone simulator/device.
+- All earlier build47 keyboard/VoiceOver, encrypted populated relaunch and rendered populated light/dark checks remain open. Full functional, financial, lossless and visual parity is not declared.
+
+### Next exact action
+
+On macOS compile exact build48 `47e2a22a0f72568ebce7708a8aa42ceb03ec2fae`, execute all expected 274 unit methods and 3 UI methods, and inspect the Settings plus populated Autonomy light/dark routes. If Apple execution remains unavailable, implement backward-compatible encrypted backup/import retention for appearance mode and accent without changing financial data or accepting unknown values.
+
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build47, AUTONOMY KEYBOARD/VOICEOVER CONTRACT / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes the build46 checkpoint below.
