@@ -1,5 +1,17 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build37, EXACT DASHBOARD SPACE PRIMITIVE / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `8d0724198b9255efd93974da5b53b0b7edb8af09`; version 18.20 build37 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- Added the first missing Dashboard financial primitive: exact v18.20 `Spațiu = disponibil − obligații rămase − max(0, buget variabil rămas)`. A negative remaining budget never increases Space, while the resulting Space may remain negative.
+- The available input includes only checking/savings/cash accounts whose `availableForSpending` is not false. Credit-card and credit-line availability is excluded by construction and remains reported separately.
+- The primitive fails closed for invalid obligations, unrepresentable owned-money totals and either checked subtraction overflow. Existing models, local data and persistence were not rewritten; no backend, account requirement, bank sync or telemetry was added.
+- Added six focused XCTest source methods covering normal arithmetic, credit exclusion, unavailable-owned-account exclusion, over-budget clamping, negative Space and invalid/overflow failure. Expected native unit inventory is 242 methods.
+- EXECUTED verification: active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` was re-read for module 205 summary and SpaceHome disclosure; Node fixtures reproduced `3000`, `7000` and `-5000`; both changed Swift files passed delimiter balance and targeted source checks. Swift, Xcode and xcodegen are absent, so native build, all 242 XCTest methods, UI tests and screenshots are NOT RUN. The Space card itself and Autonomie remain missing.
+- Exact Native iOS CI for `8d0724198b9255efd93974da5b53b0b7edb8af09`: run [39385256639](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39385256639), job [118503448375](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39385256639/job/118503448375), completed failure before runner allocation in seven seconds; steps and logs are absent. It was not rerun.
+- NEXT exact action: on macOS compile build37 and execute all 242 unit methods plus UI tests. If infrastructure remains blocked, add the lossless current-month input adapter for Space by reusing exact budget-window period results and current-month fixed/debt/recurring obligations, then render the native Space card before beginning the larger Autonomie simulation.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build36, DASHBOARD MODULE ORDER / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.

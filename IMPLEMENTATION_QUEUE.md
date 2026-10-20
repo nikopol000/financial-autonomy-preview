@@ -1,5 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
+## Native iOS checkpoint — 2026-10-20 build37 exact Dashboard Space primitive
+- Feature HEAD `8d0724198b9255efd93974da5b53b0b7edb8af09` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
+- Added exact v18.20 Space arithmetic: available owned money minus remaining current-month obligations minus the positive portion of remaining variable budget.
+- Only available checking/savings/cash balances are owned input. Credit-card/credit-line availability and accounts explicitly unavailable for spending are excluded; negative Space remains visible.
+- Checked subtraction and fail-closed input validation prevent fabricated wrapped totals. Local persistence/models were preserved.
+- Six XCTest source methods added; expected inventory is 242.
+- EXECUTED: re-read active bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` modules 205/323; Node fixtures for normal, over-budget and negative results plus delimiter/source checks passed. Swift/Xcode/xcodegen are unavailable; native build, 242 XCTest methods, UI tests and screenshots are NOT RUN.
+- Exact CI [39385256639](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39385256639), job [118503448375](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39385256639/job/118503448375), failed before runner allocation with no steps/logs and was not rerun.
+- NEXT: restore macOS execution and validate exact build37. If unavailable, connect the pure Space primitive to lossless current-month budget/obligation inputs and render the Space card; Autonomie simulation remains a separate later stage. No 1:1 claim.
+
 ## Native iOS checkpoint — 2026-10-20 build36 Dashboard module order
 - Feature HEAD `370e0ca04c253c1f367ad25d3ea8faa99b2d84dd` on `feat/sync-preview-v18-20-ios` only; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains unchanged.
 - Native available Dashboard modules now preserve the active rendered order: Cheltuit/Următorul venit, Acțiuni rapide, Buget, Banii mei, Calendar financiar/obligații. The bundle's comparator moves quick actions before Budget despite the declared default array.
