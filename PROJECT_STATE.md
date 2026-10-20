@@ -1,5 +1,18 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-20 Bucharest — build32, IMPORTED BUDGET DETAIL PRESENTATION / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes older current entries.
+- Native feature/product HEAD `36bda7fe4bdd0f789d206dacb81e85c699f03510`; version 18.20 build32 on `feat/sync-preview-v18-20-ios` ONLY. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+- For an imported v18.20 plan, Budget now renders only the exact imported-plan presentation: the legacy approximate editor, approximate pace result and Save action are hidden. The native no-import path remains intact and local-only.
+- The full Budget view now exposes v18.20-style Budget today and Safe today calculation disclosures: included budgets, daily limit, included/outside-pace/unbudgeted spend, owned cash, obligations, post-obligation availability, next-income horizon and safe cap. Included budget names use ` · ` and the empty fallback `niciun buget`.
+- Full Primary/pinned window rows now include the exact Romanian pace labels, remaining and daily amounts, expected-to-date reference, and period range. The Dashboard compact card remains concise.
+- Available credit remains excluded from owned money and from Safe today. No backend, account requirement, bank sync or telemetry was added.
+- Added focused XCTest source method `testDailyBudgetSeparatesOutsidePaceAndUnbudgetedDetailInputs`; expected native unit inventory is 231 methods.
+- EXECUTED verification: active v18.20 bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` modules 218/331 were inspected; Node delimiter balance passed for BudgetView, WebBudgetWindowsView and WebBudgetWindowEngineTests; a Node copy fixture for `Incluse: Groceries` passed. Swift and Xcode are absent in this environment, so native build, all 231 XCTest methods, UI tests and screenshots are NOT RUN.
+- Exact Native iOS CI for `36bda7fe4bdd0f789d206dacb81e85c699f03510`: run [39357830448](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39357830448), job `118416659197`, completed failure before runner allocation; steps are absent and logs unavailable. It was not rerun.
+- NEXT exact action: on macOS, compile build32 and execute all 231 native unit methods plus UI tests on this exact HEAD. If infrastructure remains blocked before runner, implement Dashboard Budget-row tap-through to the matching expense detail lists and align the compact card border/colors/spacing with v18.20 before screenshot comparison. Do not claim 1:1 yet.
+
 ## CURRENT native checkpoint — 2026-10-20 Bucharest — build31, EXACT DAILY/SAFE PACE AND CONTRIBUTION / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes older current entries.
@@ -8,7 +21,7 @@ Supersedes older current entries.
 - Safe today now uses available owned-account balances only, finds the next known income day, subtracts fixed/debt/recurring obligations through the preceding day, and floors the remainder across the inclusive horizon. Future income and all available credit are excluded.
 - Current-plan contribution is the configured plan amount less net current-month transfers from non-savings accounts into savings; reverse transfers reduce completed contribution. Budget UI and Dashboard now show the exact Budget today/Safe today bars, included budget names, unavailable reason, and (in the full Budget view) contribution remaining.
 - Four focused XCTest source methods cover restored-today allowance, contribution transfers, Coverage cash/obligation horizon, and one-time allocation of a payment across multiple weekly recurring dues. Expected native unit inventory: 230 methods.
-- EXECUTED verification: active v18.20 bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` modules 205/210/220/221 were inspected; Node fixtures reproduced allowance 1000, safe daily 700, remaining contribution 3000, and four unpaid weekly dues after one payment was allocated exactly once. Targeted source/contract checks passed. Swift and Xcode are absent locally, so compilation, all 229 XCTest methods, UI tests, screenshots and interactive visual comparison are NOT RUN.
+- EXECUTED verification: active v18.20 bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` modules 205/210/220/221 were inspected; Node fixtures reproduced allowance 1000, safe daily 700, remaining contribution 3000, and four unpaid weekly dues after one payment was allocated exactly once. Targeted source/contract checks passed. Swift and Xcode are absent locally, so compilation, all 230 XCTest methods, UI tests, screenshots and interactive visual comparison are NOT RUN.
 - Exact Native iOS CI: run `39351588397`, job `118396758824`, completed `failure` before runner allocation; `steps=null`, logs unavailable. It was not rerun.
 - NEXT: restore/observe hosted macOS execution, compile exact HEAD `e6513252f690b761494f4afbe9da36f3a3ce6870`, run all 230 unit methods plus UI tests and inspect screenshots. Independent next slice: remove the imported-plan path's remaining legacy approximate pace duplication and match v18.20 daily status/detail copy and visual treatment. Visual and functional 1:1 is not yet claimed.
 
