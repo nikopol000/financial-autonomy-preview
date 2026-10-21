@@ -1,6 +1,39 @@
 # Financial Autonomy — Project State
 
 
+## CURRENT native checkpoint — 2026-10-21 Bucharest — build56, IMPORTED DASHBOARD TAIL ORDER / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes build55 below.
+
+### Exact repository state
+
+- Fresh preview HEAD `f3d8cfece41b1676764ca387b5ecfbb8453aa4d2` and its READY_FOR_NEXT_RUN handoff were read; the finite expected-SHA lease was claimed at `81b22f6a71a9417b28717baf9eef6a7066ba3832`.
+- iOS feature branch advanced fast-forward/no-force from build55 `a11c22a0dc661e97203fa457af974945b6df6f28` to build56 `d645b6741915c9d3ffb73f441008bd8a1dbd60fa`.
+- App `main` remains unchanged at `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Active v18.20 `index.html` and bundle `be453db2699273a194543de4532db6ea4b2e1cf2` were re-read.
+
+### Completed build56 stage
+
+- Native Dashboard now consumes the validated imported `dashboardLayout.order` for the visible movable tail.
+- The six preview-pinned modules remain in their effective active order; the composite native spending/next-income snapshot remains single-rendered.
+- Imported order can move native `money` and `obligations`; unavailable preview modules (`coverage`, `trackedBudgets`, conditional `attention`) stay absent.
+- Missing imported modules are appended in preview default order, and legacy/no-layout snapshots retain `money` then `obligations`.
+- Added one focused unit method with five cases and advanced the build number to 56.
+
+### Verification actually executed
+
+- Compared directly with active bundle module 209 and Dashboard rendering: web normalization filters/deduplicates imported IDs, appends defaults, pins the first six modules and filters unavailable nodes.
+- Exact commit verification confirms only `DashboardView.swift`, `DashboardOrderTests.swift` and `xcodegen.yml` changed.
+- Re-fetched exact build56 files: consumer/build/test markers are present; raw brace, parenthesis and bracket counts are balanced.
+- Enumerated the exact build56 tree: 41 unit files expose 297 `test…` methods and one UI file exposes 3 methods.
+- Native iOS CI push run [39559997235](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39559997235) failed before runner allocation. Job [119088675542](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39559997235/job/119088675542) has `runner_id: 0`, blank runner and zero steps; no rerun.
+- This Linux host has neither `swift`, `swiftc`, `xcodebuild` nor `xcodegen`. Compilation, 297 unit methods, 3 UI methods, simulator interaction and screenshots are **NOT RUN**.
+
+### Remaining differences and next exact action
+
+Compile exact build56 `d645b6741915c9d3ffb73f441008bd8a1dbd60fa` on macOS and execute all 297 unit plus 3 UI methods, including imported tail ordering. If Apple execution remains unavailable, audit the diagnostic/export paths next: confirm no plaintext financial snapshot is written unintentionally, retain the user-requested local diagnostic capability safely, and implement the smallest compatible correction if needed. Full 1:1 parity is not declared.
+
+
 ## CURRENT native checkpoint — 2026-10-21 Bucharest — build55, PAID-MONTH / DASHBOARD-ORDER RETENTION / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes build54 below. This checkpoint reconciles the documentation after build55 was published by the immediately preceding coordinated session.

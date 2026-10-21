@@ -1,6 +1,22 @@
 # Financial Autonomy — Implementation Queue
 
 
+## CURRENT first unfinished action — build56
+
+1. On macOS compile exact app HEAD `d645b6741915c9d3ffb73f441008bd8a1dbd60fa` and execute all 297 unit methods plus 3 UI methods.
+2. Import a layout whose movable tail is `obligations` before `money`, restore it from encrypted backup, and verify the native Dashboard renders that order while legacy/no-layout data preserves `money` then `obligations`.
+3. Do not rerun unchanged CI failure [39559997235](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39559997235): job [119088675542](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39559997235/job/119088675542) failed before runner allocation with `runner_id: 0` and zero steps.
+4. If Xcode remains unavailable, audit native diagnostic/export paths for unintended plaintext financial snapshots; preserve a safe local diagnostic capability and make the smallest backward-compatible correction if required.
+5. Then continue populated light/dark, VoiceOver and retained screenshot comparison.
+
+### Build56 completed in this stage
+
+- Dashboard consumes imported movable-tail order while keeping the preview-pinned first six modules fixed.
+- Unavailable preview modules remain absent; missing IDs append in preview default order; legacy/no-layout snapshots retain native defaults.
+- One focused method adds five ordering cases. Static inventory is 297 unit and 3 UI methods, **NOT RUN** without Apple tooling.
+- Exact build56 commit is `d645b6741915c9d3ffb73f441008bd8a1dbd60fa`; app `main` remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+
+
 ## CURRENT first unfinished action — build55
 
 1. On macOS compile exact app HEAD `a11c22a0dc661e97203fa457af974945b6df6f28` and execute all 296 unit methods plus 3 UI methods.
