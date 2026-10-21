@@ -1,5 +1,19 @@
 # Financial Autonomy — Implementation Queue
 
+
+## CURRENT first unfinished action — build53
+
+1. On macOS compile exact app HEAD `0a9a12387136fe79998d5d28653beca68dc99776` and execute all 293 unit methods plus 3 UI methods.
+2. Import populated monthly review progress, seal/open it through encrypted portable backup, and confirm all month keys and 0...4 stages remain exact while invalid data never replaces live state.
+3. Exact CI currently exposes no workflow run or status for build53; do not repeat the known pre-runner failure.
+4. If Xcode remains unavailable, audit the remaining nested strict-import refusals beginning with `monthPlans.latest.expenses` and `monthPlans.latest.debtPayments`; implement only a bounded lossless representation, then repeat the active-bundle audit.
+
+### Build53 completed in this stage
+
+- Non-empty v18.20 `reviews` is now retained losslessly in optional backward-compatible metadata and encrypted backups.
+- Exact `YYYY-MM` keys and integer stages 0...4 are validated; booleans, malformed months and out-of-range values fail closed.
+- Two focused tests were added; static inventory is 293 unit and 3 UI methods, NOT RUN without Apple tooling.
+
 ## CURRENT first unfinished action — build52
 
 1. On macOS compile exact app HEAD `9425efc73594760b1a1ce815c55c6349f57e960b` and execute all 291 unit methods plus 3 UI methods.

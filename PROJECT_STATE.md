@@ -1,5 +1,38 @@
 # Financial Autonomy — Project State
 
+
+## CURRENT native checkpoint — 2026-10-21 Bucharest — build53, MONTHLY REVIEW PROGRESS RETENTION / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes build52 below.
+
+### Exact repository state
+
+- Fresh continuity HEAD `8489ae9d82301e1acab9f6c0e654610952d2b2c6` was read and a finite expected-SHA lease was claimed at `2c3b98d6ba5e050d7ceb0dd26e6dae575fe2dd99`.
+- iOS feature branch advanced fast-forward/no-force from build52 `9425efc73594760b1a1ce815c55c6349f57e960b` to build53 `0a9a12387136fe79998d5d28653beca68dc99776`.
+- App `main` remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Active v18.20 bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` was re-read.
+
+### Completed build53 stage
+
+- Replaced the final known top-level non-empty import refusal with bounded, lossless monthly `reviews` metadata.
+- Month keys follow the active bundle's exact `YYYY-MM` contract and progress is an integer from 0 through 4; booleans, fractional/out-of-range stages and malformed months fail closed.
+- Review metadata is optional in the native Codable snapshot, so encrypted snapshots written before build53 remain readable.
+- Portable backup validation applies the same month/stage contract and encrypted seal/open preserves every retained month and stage.
+- Added two focused test methods for populated import/encrypted round-trip and malformed month, negative/overflow stage and boolean rejection.
+- Build number advanced to 53. Static inventory is 293 unit methods and 3 UI methods.
+
+### Verification actually executed
+
+- Compared directly with the active bundle validator, which accepts `YYYY-MM` keys and integer stages 0...4, and with the four-step review producer/pending-review consumer.
+- GitHub commit verification confirms exactly five intended files changed and build53 descends directly from build52.
+- Re-fetched all five exact-commit files; required symbols/build number are present and raw delimiter inventories are balanced.
+- Exact build53 CI lookup exposes no workflow run or commit status; no duplicate rerun was started.
+- The execution host is Linux and exposes neither `xcodebuild` nor `swiftc`. Compilation, 293 unit methods, 3 UI methods and encrypted execution are **NOT RUN**.
+
+### Remaining differences and next exact action
+
+Compile exact build53 `0a9a12387136fe79998d5d28653beca68dc99776` on macOS and run all 293 unit plus 3 UI methods, including populated monthly review import and encrypted round-trip. If Apple execution remains unavailable, continue the active-bundle importer audit at the remaining nested `Failure.unsupported` paths, beginning with historical/latest `monthPlans` expense/debt-payment reconciliation; remove a refusal only when the native representation can retain the preview meaning losslessly. Apple rendering, interaction, VoiceOver and retained screenshot parity remain unverified.
+
 ## CURRENT native checkpoint — 2026-10-21 Bucharest — build52, NAME CHANGE HISTORY RETENTION / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes build51 below.
