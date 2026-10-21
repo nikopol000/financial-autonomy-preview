@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## READY FOR IMPLEMENTATION — demo data only when no saved user data (2026-10-22)
+
+User requirement: keep the SAME preview URL. On first visit / browser with genuinely no saved financial dataset, show a realistic, populated demo experience for visual review (including Work) automatically. If any saved user dataset exists, load it unchanged and NEVER overwrite, migrate, reset, or seed it with demo data. A legitimate saved empty/zero-balance dataset is still real user data, not a reason to activate demo.
+
+Safety contract: keep demo state strictly isolated in memory or a separate namespace; demo writes must never enter production financial localStorage keys or backups; distinguish demo visually; provide a safe, explicit transition to an empty real dataset when the user chooses to start using the app; never silently merge demo transactions into real accounts. Reload behavior must preserve real data and not confuse demo with real state. Test fresh browser, populated existing storage, explicitly empty saved state, reload, exit demo, backup/restore and financial invariants. Preserve frozen v18.20 and release as a new version (at least v18.22 if v18.21 is already a candidate), per RELEASE_PROCESS.md. Coordinate with current v18.21 release gate and do not publish unverified changes. This requirement is web-only; no iOS changes.
+
+
 ## CURRENT WEB first unfinished action — v18.21 accessibility candidate (2026-10-22)
 
 1. Validate the exact v18.21 commit through GitHub Actions: `scripts/check_release.py`, `node --check`, `tests/shell-regression.cjs`, `tests/reconciliation-regression.cjs`.
