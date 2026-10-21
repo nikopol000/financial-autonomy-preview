@@ -1,6 +1,23 @@
 # Financial Autonomy — Implementation Queue
 
 
+## CURRENT first unfinished action — APPLE VALIDATION GATE, exact build56
+
+1. On macOS/Xcode compile exact app HEAD `d645b6741915c9d3ffb73f441008bd8a1dbd60fa`.
+2. Execute all 297 unit methods and 3 UI methods; do not infer pass status from static inventory.
+3. Import populated v18.20 state with `paidMonths` and `dashboardLayout`, seal/open it, and verify native paid flags plus `obligations`/ `money` tail ordering at runtime.
+4. Verify on-device local storage and normal backup remain encrypted, summary diagnostic omits sensitive values, and full diagnostic plaintext appears only after explicit opt-in with the warning visible.
+5. Compare populated Dashboard, Settings, Goals/Plans and restore/import flows in light/dark with retained screenshots and VoiceOver; resolve every observed difference before a 1:1 claim.
+6. Existing CI run [39559997235](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39559997235), job [119088675542](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39559997235/job/119088675542), failed before runner allocation and must not be rerun unchanged.
+
+### Non-Xcode audit complete at build56
+
+- All 54 non-test Swift sources were scanned for export/write paths.
+- Normal backup and local persistence are encrypted; only the explicitly opted-in full diagnostic is plaintext, matching the active preview requirement and warning.
+- The privacy-safe diagnostic summary is the default and has source tests asserting omission of names, sums and the snapshot.
+- No source correction or build increment was required. Static inventory remains 297 unit plus 3 UI methods, **NOT RUN**.
+
+
 ## CURRENT first unfinished action — build56
 
 1. On macOS compile exact app HEAD `d645b6741915c9d3ffb73f441008bd8a1dbd60fa` and execute all 297 unit methods plus 3 UI methods.
