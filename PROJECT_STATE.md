@@ -1181,3 +1181,15 @@ If implementation stops mid-task, record the exact first unfinished step in IMPL
 - UI screenshot smoke test + Xcode target `e79f86f3`; retained xcresult workflow `c0d7d8f2`. Pending: inspect exact HEAD CI/UI tests and screenshots, fix failures, verify Files interactions. Empty-state captures alone do not establish visual parity.
 - Next: inspect latest Native iOS CI for `5e5b0968`, repair failures; audit actual screenshots and document differences. Then correction history/date filtering, recurring obligations/income/loans/refinancing, preview migration and dashboard financial/visual parity. Sunset automation not implemented (system theme + manual only). No claim 1:1.
 
+
+
+## Native iOS checkpoint — 2026-10-21 — v18.20 build 50
+
+- App feature HEAD: `0d676ce0928ae68304073a05b44cedc600b2809e` on `feat/sync-preview-v18-20-ios`; app `main` was not modified.
+- Implemented the first independent post-build49 parity gap from the active preview bundle: native Obiective and Planuri models, local encrypted snapshot fields (optional for backward-compatible decoding), strict v18.20 goal/plan import, duplicate/orphan/limit/date validation, atomic store mutations, goal/plan editing screens, planning navigation, and preview Romanian copy.
+- Financial behavior: savings uses positive savings balances; revolving debt progress uses the amount actually owed; available credit is never counted as owned money; debt ratio uses active planned debt payments divided by configured monthly income and displays the preview's non-guarantee disclosure; manual goals never invent financial progress.
+- Build number advanced to 50. Added 5 unit methods; static source inventory is now 284 unit methods and 3 UI methods. They are NOT RUN because this environment exposes neither Xcode nor Swift.
+- Exact-commit Native iOS CI lookup for `0d676ce0` returned no workflow runs and no commit statuses. No duplicate rerun was started.
+- Static comparison performed against active preview bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2`: goal metrics, limits, plan uniqueness/steps/statuses and core copy were matched. Rendered visual parity is NOT verified.
+- Remaining verification for this stage: macOS compile, all 284 unit + 3 UI methods, encrypted legacy/current roundtrip, populated Obiective/Planuri interactions, VoiceOver/keyboard and light/dark screenshots.
+- Next exact action: compile and test build50 at `0d676ce0928ae68304073a05b44cedc600b2809e` on macOS; if Xcode remains unavailable, continue the next independent active-bundle parity audit without claiming build/UI verification.
