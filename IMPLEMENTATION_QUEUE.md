@@ -1,5 +1,10 @@
 # Financial Autonomy — Implementation Queue
 
+## Work visual report received (2026-10-22)
+
+Confirmed report: `docs/WEB_VISUAL_REVIEW.md`, 9 prioritized findings. Address P1 dark-mode expense/income button text contrast and budget form terminology first, then P2 disclosure target visibility, dashboard visual hierarchy, empty-state density, Finances header, History controls, Budgets empty-state CTA, and P3 typography. Work did not inspect populated demo state or iPhone viewport. First implement isolated automatic demo for browsers without saved user state (above), then validate populated mobile light/dark before claiming visual parity. Do not change real user data, frozen v18.20, or iOS; release only after tests and deployed verification.
+
+
 ## READY FOR IMPLEMENTATION — demo data only when no saved user data (2026-10-22)
 
 User requirement: keep the SAME preview URL. On first visit / browser with genuinely no saved financial dataset, show a realistic, populated demo experience for visual review (including Work) automatically. If any saved user dataset exists, load it unchanged and NEVER overwrite, migrate, reset, or seed it with demo data. A legitimate saved empty/zero-balance dataset is still real user data, not a reason to activate demo.
