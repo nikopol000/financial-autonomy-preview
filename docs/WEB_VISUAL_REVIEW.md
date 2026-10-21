@@ -6,6 +6,10 @@ Preview: https://financial-autonomy-preview.vercel.app/
 
 ## Domeniu și limite
 
+**Reconfirmare la cererea actuală:** preview-ul a fost redeschis în browser la 22 octombrie 2026. Antetul afișa tot v018.21, cu „Începe cu realitatea de azi”, Autonomie „—”, venit neconfigurat și invitație de configurare a primului buget. Datele demo automate nu au apărut în sesiunea fără date. Prin urmare, ecranele populate nu au putut fi evaluate. Acesta este același raport unic, actualizat; constatările light/dark de mai jos provin din inspecția interactivă efectuată anterior în această conversație asupra aceleiași versiuni, nu dintr-un audit al codului sursă.
+
+**Direcție:** numai îmbunătățiri incrementale. Se păstrează identitatea cromatică, cele două carduri distincte Autonomie/Spațiu și structura funcțională existentă; nu există dovezi care să justifice un redesign complet.
+
 Review vizual/UX interactiv, realizat în browserul ChatGPT Work. Au fost inspectate Dashboard, Finanțe, Istoric și Setări în light/dark; Bugete și formularul de configurare în light. Accentul a rămas Iris. Sesiunea era fără date financiare; nu au fost adăugate solduri sau tranzacții. Formularul de buget a fost deschis și închis fără salvare. Tema a fost schimbată numai pentru inspecție.
 
 **Limitare importantă:** viewportul disponibil era desktop, capturi de 1363 × 936 px. API-ul disponibil nu expune redimensionarea viewportului. Nu s-a verificat randarea la dimensiuni iPhone, Safari iOS, safe areas, tastatura mobilă sau ergonomia cu degetul. Recomandările tactile sunt bazate pe geometria DOM observată și necesită confirmare mobilă; capturile nu sunt simulări iPhone. Nu au fost evaluate carduri cu date populate, barele bugetelor active, sume lungi sau istorice populate. Nu se declară un audit complet de accesibilitate.
