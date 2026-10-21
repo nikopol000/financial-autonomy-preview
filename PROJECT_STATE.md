@@ -1,6 +1,38 @@
 # Financial Autonomy — Project State
 
 
+## CURRENT native checkpoint — 2026-10-21 Bucharest — build54, DISTINCT CURRENT/MONTH-PLAN RETENTION / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes build53 below.
+
+### Exact repository state
+
+- Fresh continuity HEAD `3ce6ad7f6b709c44150f9140c20873eb6bf4d9ed` was read and a finite expected-SHA lease was claimed at `1426c33c59b2b542dec913da595e5cb031298e61`.
+- iOS feature branch advanced fast-forward/no-force from build53 `0a9a12387136fe79998d5d28653beca68dc99776` to build54 `8a39db281e624d8324dffd02c3d52b4bcd9f50ec`.
+- App `main` remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Active v18.20 bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` was re-read.
+
+### Completed build54 stage
+
+- Removed two artificial importer refusals that required the latest monthly-plan expense rows and debt payments to equal the current top-level templates.
+- The active bundle validates these layers independently: current templates describe current configuration, while each `monthPlans` row is a dated plan snapshot. No bundle invariant requires equality.
+- Native import already retains both layers independently and losslessly: current expense/debt metadata remains in `expenseTemplates`/`debts`, monthly snapshots remain in `monthPlans`, fixed-expense month plans preserve dated execution, and current debt configuration remains native.
+- Added an encrypted round-trip fixture where current rent/payment values deliberately differ from the latest monthly plan and asserts both versions survive unchanged.
+- Build number advanced to 54. Static inventory is 294 unit methods and 3 UI methods.
+
+### Verification actually executed
+
+- Compared the importer directly with the active bundle validator and update paths. The validator checks each layer structurally and by references but has no equality requirement; editing current expenses/debts copies values into the current month without rewriting historical rows.
+- GitHub commit verification confirms exactly three intended files changed and build54 descends directly from build53.
+- Re-fetched all three exact-commit files; the two refusal strings are absent, the new lossless fixture/build number are present, and raw delimiter inventories are balanced.
+- Exact build54 CI lookup exposes no workflow run or commit status; no duplicate rerun was started.
+- The execution host remains Linux without `xcodebuild` or `swiftc`. Compilation, 294 unit methods, 3 UI methods and encrypted execution are **NOT RUN**.
+
+### Remaining differences and next exact action
+
+Compile exact build54 `8a39db281e624d8324dffd02c3d52b4bcd9f50ec` on macOS and run all 294 unit plus 3 UI methods, including the distinct-current/month-plan encrypted fixture. If Apple execution remains unavailable, audit the next valid active-state top-level gaps, beginning with optional `paidMonths` and `dashboardLayout`, which the bundle validates/uses but the strict native top-level key set does not yet accept. Preserve them only through bounded backward-compatible metadata and continue the active-bundle audit. Apple rendering, interaction, VoiceOver and screenshot parity remain unverified.
+
+
 ## CURRENT native checkpoint — 2026-10-21 Bucharest — build53, MONTHLY REVIEW PROGRESS RETENTION / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes build52 below.

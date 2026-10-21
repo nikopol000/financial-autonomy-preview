@@ -1,6 +1,20 @@
 # Financial Autonomy — Implementation Queue
 
 
+## CURRENT first unfinished action — build54
+
+1. On macOS compile exact app HEAD `8a39db281e624d8324dffd02c3d52b4bcd9f50ec` and execute all 294 unit methods plus 3 UI methods.
+2. Import deliberately different current expense/debt templates and latest monthly-plan values, then seal/open the snapshot and confirm both layers remain exact.
+3. Exact CI currently exposes no workflow run or status for build54; do not repeat the known pre-runner failure.
+4. If Xcode remains unavailable, audit and implement bounded lossless optional `paidMonths` and `dashboardLayout` state, then repeat the active-bundle audit.
+
+### Build54 completed in this stage
+
+- Removed artificial equality refusals between current templates and latest monthly-plan snapshots after confirming the active bundle treats them as independent valid layers.
+- Both current and dated values were already represented separately; one focused encrypted round-trip test now locks the lossless behavior.
+- Static inventory is 294 unit and 3 UI methods, NOT RUN without Apple tooling.
+
+
 ## CURRENT first unfinished action — build53
 
 1. On macOS compile exact app HEAD `0a9a12387136fe79998d5d28653beca68dc99776` and execute all 293 unit methods plus 3 UI methods.
