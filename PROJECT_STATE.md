@@ -1,6 +1,37 @@
 # Financial Autonomy — Project State
 
 
+## CURRENT native checkpoint — 2026-10-21 Bucharest — build55, PAID-MONTH / DASHBOARD-ORDER RETENTION / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes build54 below. This checkpoint reconciles the documentation after build55 was published by the immediately preceding coordinated session.
+
+### Exact repository state
+
+- Fresh preview continuity HEAD `24ac9b5e70b22bbdd97607755628a11ad688c0aa` and its READY_FOR_NEXT_RUN handoff were read before the finite expected-SHA lease was claimed at `f04c01b36d1d9077fc3e54df9fc484136dc9fa04`.
+- The iOS feature branch is exactly build55 `a11c22a0dc661e97203fa457af974945b6df6f28`, a direct fast-forward successor of build54 `8a39db281e624d8324dffd02c3d52b4bcd9f50ec`.
+- App `main` remains unchanged at `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- The active preview remains v18.20 and `index.html` still loads `index-v01820-history-back-navigation-20261014.js?build=18.20.1`. The active bundle contract was re-read at blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+
+### Completed build55 stage
+
+- Added bounded optional `paidMonths` and `dashboardLayout` metadata without breaking older encrypted native snapshots that omit either field.
+- `paidMonths` accepts only unique IDs belonging to fixed expenses, debts or recurring commitments and valid `YYYY-MM` keys. Imported fixed/recurring and loan paid flags are projected into the existing native schedule/loan books; card declarations remain metadata only and do not become owned money.
+- `dashboardLayout.order` accepts at most 32 unique active module IDs and is retained losslessly through encrypted backup validation.
+- Added two focused XCTest methods for populated import/native flags/encrypted round-trip and invalid plus legacy inputs.
+- Build number advanced to 55. Static inventory is 296 unit methods and 3 UI methods.
+
+### Verification actually executed
+
+- Re-read the active bundle validator. It independently permits optional `dashboardLayout.order` only when unique, bounded and composed of known module IDs, and optional `paidMonths` only for valid month keys, unique arrays and IDs referenced by expense/debt/recurring declarations.
+- Verified exact app commit `a11c22a0dc661e97203fa457af974945b6df6f28`: five intended files changed (`Models.swift`, `PortableBackup.swift`, `WebBackupV18_20.swift`, `WebBackupV18_20Tests.swift`, `xcodegen.yml`).
+- Exact Native iOS CI push run [39540413383](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39540413383) for build55 completed with failure. Its sole build job [119026600562](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39540413383/job/119026600562) has label `macos-15`, `runner_id: 0`, no runner name and zero steps, proving failure before runner allocation. It was not rerun.
+- The current host is Linux without Apple execution. Compilation, all 296 unit methods, all 3 UI methods, encrypted runtime round-trip, rendering, interaction, VoiceOver and screenshots are **NOT RUN**.
+
+### Remaining differences and next exact action
+
+Compile exact build55 `a11c22a0dc661e97203fa457af974945b6df6f28` on macOS and execute all 296 unit plus 3 UI methods, including populated `paidMonths` and `dashboardLayout` encrypted round-trip. If Xcode remains unavailable, implement the first independent feasible gap: make the native Dashboard consume the validated imported module order while keeping unavailable modules absent and preserving native defaults for legacy/no-layout snapshots. Then confirm whether any diagnostic export remains plaintext and continue populated light/dark, VoiceOver and screenshot comparison. Full 1:1 parity is not declared.
+
+
 ## CURRENT native checkpoint — 2026-10-21 Bucharest — build54, DISTINCT CURRENT/MONTH-PLAN RETENTION / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes build53 below.

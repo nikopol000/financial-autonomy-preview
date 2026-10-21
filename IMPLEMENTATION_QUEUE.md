@@ -1,6 +1,22 @@
 # Financial Autonomy — Implementation Queue
 
 
+## CURRENT first unfinished action — build55
+
+1. On macOS compile exact app HEAD `a11c22a0dc661e97203fa457af974945b6df6f28` and execute all 296 unit methods plus 3 UI methods.
+2. Import populated `paidMonths` and `dashboardLayout`, verify native fixed/recurring and loan paid flags, seal/open the snapshot, and confirm the retained metadata remains exact.
+3. Do not rerun unchanged CI failure [39540413383](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39540413383): job [119026600562](https://github.com/nikopol000/financial-autonomy-app/actions/runs/39540413383/job/119026600562) failed before runner allocation with `runner_id: 0` and zero steps.
+4. If Xcode remains unavailable, implement the native Dashboard imported-order consumer. Unknown/duplicate module IDs must remain rejected by import, unavailable modules must remain absent, and legacy/no-layout snapshots must preserve the native default order.
+5. After that, audit whether diagnostic export is plaintext, then continue retained populated light/dark, VoiceOver and screenshot comparison.
+
+### Build55 completed in the coordinated preceding stage
+
+- Added bounded backward-compatible `paidMonths` and `dashboardLayout` import/backup metadata.
+- Projected imported paid state into existing native fixed/recurring schedule and loan books without treating available credit as owned money.
+- Added two focused XCTest methods. Static inventory is 296 unit and 3 UI methods, **NOT RUN** without Apple tooling.
+- Exact build55 feature commit is `a11c22a0dc661e97203fa457af974945b6df6f28`; app `main` remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+
+
 ## CURRENT first unfinished action — build54
 
 1. On macOS compile exact app HEAD `8a39db281e624d8324dffd02c3d52b4bcd9f50ec` and execute all 294 unit methods plus 3 UI methods.
