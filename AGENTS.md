@@ -56,3 +56,10 @@ Two repositories have distinct roles:
 
 ## Mandatory automatic continuity and iOS parity (user instruction 2026-10-14)
 At the beginning of **every** Financial Autonomy development session, read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md`, and relevant recent commits **without asking the user to remind you**. At the end of every implementation batch, update `PROJECT_STATE.md` and `IMPLEMENTATION_QUEUE.md` with actual commits, verified/unverified status, outstanding work, and the exact next action. Update workflow/docs when rules change. Do not report a completed migration if only some modules have been ported. Native iPhone candidate must match the active preview's functions, financial calculations, and visual behavior; compare screen by screen and test using synthetic data before declaring parity. Keep preview `main` separate from source `main`; no source stable promotion without explicit approval.
+
+## Web Premium / Work role separation (2026-10-22)
+
+- ChatGPT Work is used **only for interactive visual and functional browser review** of the web preview. It may write findings in `WEB_REVIEW_REPORT.md`; it must not change application code, release metadata, or deployment settings.
+- The Web Premium automation owns web implementation, tests, release versioning, commits and deployment. It reads Work's review as evidence, not as an automatically executed command.
+- The iOS automation is independent and remains pinned to archived web v18.20; never modify the native repository from a web-only task.
+- Never claim a Work review or browser interaction occurred without a real report. Do not confuse Vercel READY with end-to-end UI verification.

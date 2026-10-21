@@ -1,5 +1,15 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT WEB first unfinished action — v18.21 accessibility candidate (2026-10-22)
+
+1. Validate the exact v18.21 commit through GitHub Actions: `scripts/check_release.py`, `node --check`, `tests/shell-regression.cjs`, `tests/reconciliation-regression.cjs`.
+2. Verify Vercel production READY on the exact commit and that deployed `index.html` references `index-v01821-accessibility-shell-20261022.js?build=18.21.1`; inspect deployed files if browser remains inaccessible.
+3. Preserve archived v18.20 unchanged for native parity and preserve local data across updates.
+4. Read `WEB_REVIEW_REPORT.md` when Work actually produces a browser review; prioritize confirmed visual/functional defects without allowing Work to implement.
+5. Next independent product audits: diagnostic export consent/privacy, high-contrast mobile readability, budget card layout and reconciliation invariants. Avoid changing financial formulas without explicit behavior/test coverage.
+6. At the end of the execution record exact commit, CI run, Vercel deployment and limitations in `PROJECT_STATE.md` and release history. Do not claim visual validation from CI alone.
+
+
 
 ## CURRENT first unfinished action — APPLE VALIDATION GATE, exact build56
 

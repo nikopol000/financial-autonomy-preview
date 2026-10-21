@@ -1,5 +1,16 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-22 01:56 Europe/Bucharest — v18.21 CANDIDATE / VERIFICATION PENDING
+
+- Scope: preview WEB only; v18.20 remains archived and is the unchanged iOS reference. Native repository and its stable main were not touched.
+- Baseline preview main HEAD: `ecc84e551208848399b71c77e821fc4b821db797`; baseline active v18.20 bundle blob: `be453db2699273a194543de4532db6ea4b2e1cf2`.
+- Candidate v18.21 adds Romanian HTML language and noscript, descriptive and privacy metadata, mobile browser theme-color, keyboard focus-visible treatment, forced-color focus and reduced-motion support. No changes to financial calculations, storage, reconciliation, transactions or backup schemas.
+- New v18.21 JavaScript is byte-identical to archived v18.20 after normalizing only diagnostic version and filename; a Node regression test asserts this invariant. Both bundles remain present.
+- Validation: local V8 parse of new bundle PASSED; GitHub Actions `check_release.py`, Node `--check`, shell test, reconciliation regression, and Vercel production deployment are PENDING. No visual Work review has been received or assumed.
+- First unfinished action: confirm exact commit CI passes; verify Vercel READY for exact commit, deployed HTML references v18.21 and bundle is served, then update this checkpoint with evidence. If verification fails, diagnose and correct without declaring release ready.
+- Collaboration: Work is review-only; it may update `WEB_REVIEW_REPORT.md` with actual browser findings. Web Premium automation owns code, tests, deploy and follow-up. iOS task stays isolated.
+
+
 
 ## CURRENT native checkpoint — 2026-10-21 Bucharest — build56 POST-AUDIT, NON-XCODE IMPLEMENTATION QUEUE EXHAUSTED / APPLE VALIDATION REQUIRED
 

@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <meta name="financial-autonomy-version" content="18.20" />
+    <meta name="financial-autonomy-version" content="18.21" />
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Financial Autonomy — bugete, conturi și claritate financiară, cu date păstrate local." />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101827" media="(prefers-color-scheme: dark)" />
     <title>Financial Autonomy</title>
     <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
     <style id="expo-reset">
@@ -25,17 +29,36 @@
         height: 100%;
         flex: 1;
       }
+      /* Clearly identify keyboard focus without showing a ring for normal taps. */
+      #root :is(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible {
+        outline: 3px solid #159cb4 !important;
+        outline-offset: 3px;
+      }
+      @media (forced-colors: active) {
+        #root :is(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible {
+          outline-color: Highlight !important;
+        }
+      }
+      /* Respect the system preference while leaving financial calculations untouched. */
+      @media (prefers-reduced-motion: reduce) {
+        #root, #root *, #root *::before, #root *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
     </style>
-    <!-- Vercel deployment retry for v17.96; no application logic changed. -->
+    <!-- Web premium accessibility shell v18.21; archived v18.20 bundle retained. -->
 </head>
 
   <body>
     <!-- Use static rendering with Expo Router to support running without JavaScript. -->
     <noscript>
-      You need to enable JavaScript to run this app.
+      Activează JavaScript pentru a utiliza Financial Autonomy.
     </noscript>
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
-  <script src="/financial-autonomy-preview/_expo/static/js/web/index-v01820-history-back-navigation-20261014.js?build=18.20.1" defer></script>
+  <script src="/financial-autonomy-preview/_expo/static/js/web/index-v01821-accessibility-shell-20261022.js?build=18.21.1" defer></script>
 </body>
 </html>
