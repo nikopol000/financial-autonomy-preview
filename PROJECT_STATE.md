@@ -1,5 +1,37 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-21 Bucharest — build52, NAME CHANGE HISTORY RETENTION / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes build51 below.
+
+### Exact repository state
+
+- Fresh continuity HEAD `cdd1847a485d3a56ed263b77e4fd3d6ef0238a7f` was read and a finite expected-SHA lease was claimed at `0b47dc95e6685c459cd1dad5ba78b30c15530a5b`.
+- iOS feature branch advanced fast-forward/no-force from build51 `9b54a2503043e5b0ff482f908d071c646826a1ad` to build52 `9425efc73594760b1a1ce815c55c6349f57e960b`.
+- App `main` remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Active v18.20 bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` was re-read.
+
+### Completed build52 stage
+
+- Added optional backward-compatible `WebTransactionNameChange` metadata so native encrypted snapshots written before build52 still decode and imported rename/merge audit remains ordered and lossless.
+- v18.20 import now accepts bounded non-empty `nameChanges` entries with exact keys: `date`, `action`, `sourceId`, `targetId`, `before`, `after`.
+- Retains both preview actions exactly: rename requires identical source/target IDs; merge requires different IDs. Dates, IDs and before/after labels are bounded and validated; unknown keys/actions fail closed.
+- Portable backup validation applies the same contract, and encrypted seal/open preserves the ordered history.
+- Added two focused test methods for ordered rename/merge import, encrypted round-trip, unknown fields, invalid actions and inconsistent IDs.
+- Build number advanced to 52. Static inventory is 291 unit methods and 3 UI methods.
+
+### Verification actually executed
+
+- Compared the parser directly with active bundle rename/merge producers and their exact field names/action semantics.
+- GitHub commit verification confirms exactly five intended files changed and build52 descends from build51.
+- Exact build52 CI lookup exposes no workflow run or commit status; no duplicate rerun was started.
+- Xcode/Swift remains unavailable. Compilation, 291 unit methods, 3 UI methods and encrypted execution are **NOT RUN**.
+
+### Remaining differences and next exact action
+
+Compile exact build52 `9425efc73594760b1a1ce815c55c6349f57e960b` on macOS and run all 291 unit plus 3 UI methods, including rename/merge encrypted import. If Apple execution remains unavailable, implement the final known top-level strict unsupported slice, non-empty monthly `reviews`, then repeat the active-bundle audit for further independent gaps.
+
+
 ## CURRENT native checkpoint — 2026-10-21 Bucharest — build51, GOAL/PLAN CONTRACT CORRECTION / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes the build50 checkpoint recorded below.

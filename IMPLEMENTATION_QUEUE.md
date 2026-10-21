@@ -1,5 +1,19 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build52
+
+1. On macOS compile exact app HEAD `9425efc73594760b1a1ce815c55c6349f57e960b` and execute all 291 unit methods plus 3 UI methods.
+2. Import ordered rename/merge history, seal/open it through encrypted portable backup, and confirm IDs, labels, dates and order remain exact while invalid data never replaces live state.
+3. Exact CI currently exposes no workflow run or status for build52; do not repeat the known pre-runner failure.
+4. If Xcode remains unavailable, implement bounded lossless non-empty monthly `reviews`, then audit the active bundle for the next remaining independent gap.
+
+### Build52 completed in this stage
+
+- Non-empty v18.20 `nameChanges` is now retained losslessly in optional backward-compatible metadata and encrypted backups.
+- Exact rename/merge keys and ID relationships are validated; unknown data fails closed.
+- Two focused tests were added; static inventory is 291 unit and 3 UI methods, NOT RUN without Apple tooling.
+
+
 ## CURRENT first unfinished action — build51
 
 1. On macOS generate/open exact app HEAD `9b54a2503043e5b0ff482f908d071c646826a1ad`, compile it, and execute all 289 unit methods plus all 3 UI methods.
