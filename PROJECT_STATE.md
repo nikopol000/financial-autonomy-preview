@@ -1,5 +1,38 @@
 # Financial Autonomy — Project State
 
+## CURRENT native checkpoint — 2026-10-21 Bucharest — build51, GOAL/PLAN CONTRACT CORRECTION / NATIVE EXECUTION UNAVAILABLE
+
+Supersedes the build50 checkpoint recorded below.
+
+### Exact repository state
+
+- Preview continuity HEAD was read fresh at `2cb81528a95d8863d1a395c0342168b1fe87cc6d`; the finite lease was claimed with expected SHA at `55a9e2456511c704c072f1b9ff2d1d13fb5c74c1`.
+- iOS feature branch advanced fast-forward with expected SHA and no force from build50 `0d676ce0928ae68304073a05b44cedc600b2809e` to build51 `9b54a2503043e5b0ff482f908d071c646826a1ad`.
+- App `main` remains unchanged at `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Active v18.20 bundle was re-read at blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+
+### Completed build51 stage
+
+- Corrected the build50 interpretation of plan `start`: it is the free-text “De unde pornesc? Ce resurse am?” answer, not a calendar date. The four planning prompts now map exactly to `start`, `ideas`, `questions`, and `decision`.
+- Added the missing “Ce trebuie să aflu? Costuri, întrebări, obstacole” editor and preview-equivalent “Mută mai sus”/“Elimină pasul” controls.
+- v18.20 import now accepts goals whose optional `deadline` key is absent, while still rejecting unknown keys. Narrative plan text remains bounded and lossless; only deadline and step due fields receive date validation.
+- Goal debt balance and debt-ratio progress now include current native loan principal/payment as well as revolving balances. Native configured monthly income is used when imported web income templates are absent. Available credit remains excluded from owned money.
+- Progress/unavailable copy now matches the active preview contract.
+- Strengthened length/count/unique-ID constraints and added five focused test methods across native encrypted round-trip, narrative plan semantics, loan balance/ratio, optional deadline import, and unknown/orphan rejection.
+- Build number advanced to 51. Static inventory is 289 unit methods and 3 UI methods.
+
+### Verification actually executed
+
+- Directly re-read the active bundle and confirmed the exact four plan field mappings, optional goal deadline behavior, progress arrow/copy, step statuses, move-up/removal controls, and debt goal formulas.
+- GitHub commit verification shows exactly six intended files changed and build51 is a child of build50.
+- Exact-commit CI lookup returned no workflow runs and no commit statuses; the known pre-runner failure was not rerun.
+- Xcode/Swift is unavailable here. Compilation, all 289 unit methods, 3 UI methods, encrypted interaction, VoiceOver and screenshots are **NOT RUN**.
+
+### Remaining differences and next exact action
+
+On macOS compile exact build51 `9b54a2503043e5b0ff482f908d071c646826a1ad`, run all 289 unit and 3 UI methods, and exercise populated goal/plan import, edit, reorder and encrypted round-trip. If Apple execution remains unavailable, audit and implement the next independent lossless v18.20 gap, beginning with non-empty `nameChanges`, without weakening strict import or rewriting Models/LedgerStore wholesale.
+
+
 ## CURRENT native checkpoint — 2026-10-21 Bucharest — build49, APPEARANCE BACKUP/IMPORT RETENTION / NATIVE EXECUTION UNAVAILABLE
 
 Supersedes the build48 checkpoint below.

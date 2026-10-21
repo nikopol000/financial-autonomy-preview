@@ -1,5 +1,20 @@
 # Financial Autonomy — Implementation Queue
 
+## CURRENT first unfinished action — build51
+
+1. On macOS generate/open exact app HEAD `9b54a2503043e5b0ff482f908d071c646826a1ad`, compile it, and execute all 289 unit methods plus all 3 UI methods.
+2. Exercise a populated v18.20 goal without `deadline`, narrative plan text, step reorder/status/due, loan debt-balance and debt-ratio progress, then verify encrypted save/reload preserves every field.
+3. Verify VoiceOver, decimal keyboard behavior and retained light/dark screenshots for Obiective and Planuri.
+4. Exact build51 CI currently exposes neither workflow runs nor commit statuses; do not repeatedly rerun the known pre-runner failure.
+5. If Apple execution remains unavailable, implement the next bounded lossless import gap: non-empty `nameChanges`, followed by `reviews`; retain IDs/order/history and reject unknown data atomically.
+
+### Build51 completed in this stage
+
+- Corrected build50 plan semantics: `start` is narrative, all four preview prompts map correctly, step move-up/removal is present, and optional goal deadline import is lossless.
+- Debt goal calculations now include native current loan principal/payment while excluding available credit; native configured income is used only when imported income templates are absent.
+- Added five focused tests; static inventory is 289 unit and 3 UI methods. Compilation/tests/UI remain NOT RUN without Apple tooling.
+
+
 ## CURRENT first unfinished action — build49
 
 1. On macOS generate/open exact app HEAD `501be0f6eef427699abd2c0a0464bf2cc2901870`, compile it, and execute all 279 unit methods plus all 3 UI methods.
