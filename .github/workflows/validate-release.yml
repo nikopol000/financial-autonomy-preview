@@ -24,5 +24,12 @@ jobs:
           node tests/reconciliation-v1822-candidate.cjs
           node scripts/prepare-v1822.cjs --write
           node --check _expo/static/js/web/index-v01822-reconciliation-20261022.js
+      - name: Retain exact v18.22 candidate for release promotion
+        uses: actions/upload-artifact@v4
+        with:
+          name: financial-autonomy-v18.22-candidate
+          path: _expo/static/js/web/index-v01822-reconciliation-20261022.js
+          if-no-files-found: error
+          retention-days: 14
       - name: Reconciliation regression
         run: node tests/reconciliation-regression.cjs
