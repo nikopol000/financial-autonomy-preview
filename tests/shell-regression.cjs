@@ -11,7 +11,7 @@ assert.match(html, /:focus-visible/);
 assert.match(html, /prefers-reduced-motion: reduce/);
 assert.match(html, /forced-colors: active/);
 assert.match(html, /Activează JavaScript/);
-const path = html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=18\.21\.1"/)?.[1];
+const path = html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=18\.22\.1"/)?.[1];
 assert.equal(path, '_expo/static/js/web/index-v01822-reconciliation-20261022.js');
 const current = fs.readFileSync(path, 'utf8');
 const baseline = fs.readFileSync('_expo/static/js/web/index-v01821-accessibility-shell-20261022.js', 'utf8');
