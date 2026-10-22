@@ -1,9 +1,10 @@
-// Node.js regression guard: v18.21 web-shell accessibility without financial-engine changes.
+// Guard the accessible web shell independently of the currently active release.
+// Archived v18.20 is immutable; v18.21 accessibility must not alter financial code.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const html = fs.readFileSync('index.html', 'utf8');
 const version = html.match(/<meta name="financial-autonomy-version" content="([^"]+)"/)?.[1];
-assert.equal(version, '18.21');
+assert.ok(['18.20', '18.21', '18.22'].includes(version), 'Unexpected active web version');
 assert.match(html, /<html lang="ro">/);
 assert.match(html, /name="description"/);
 assert.match(html, /name="robots" content="noindex, nofollow"/);
@@ -11,13 +12,24 @@ assert.match(html, /:focus-visible/);
 assert.match(html, /prefers-reduced-motion: reduce/);
 assert.match(html, /forced-colors: active/);
 assert.match(html, /Activează JavaScript/);
-const path = html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=18\.21\.1"/)?.[1];
-assert.equal(path, '_expo/static/js/web/index-v01821-accessibility-shell-20261022.js');
-const current = fs.readFileSync(path, 'utf8');
-const baseline = fs.readFileSync('_expo/static/js/web/index-v01820-history-back-navigation-20261014.js', 'utf8');
-assert.ok(current.includes('version:"18.21"'));
-assert.ok(current.includes('financial-autonomy-diagnostic-unic-v18.21.json'));
-const normalized = current.replace('version:"18.21"', 'version:"18.20"')
+
+const script = html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=(\d+\.\d+)\.\d+"/);
+assert.ok(script, 'Missing versioned bundle in HTML');
+assert.equal(script[2], version, 'HTML build key must match metadata');
+const names = {
+  '18.20': '_expo/static/js/web/index-v01820-history-back-navigation-20261014.js',
+  '18.21': '_expo/static/js/web/index-v01821-accessibility-shell-20261022.js',
+  '18.22': '_expo/static/js/web/index-v01822-reconciliation-20261022.js'
+};
+assert.equal(script[1], names[version], 'Unexpected active bundle for release');
+assert.ok(fs.existsSync(script[1]), 'Active bundle must exist');
+assert.ok(fs.readFileSync(script[1], 'utf8').includes('version:"' + version + '"'));
+
+const baseline = fs.readFileSync(names['18.20'], 'utf8');
+const accessible = fs.readFileSync(names['18.21'], 'utf8');
+assert.ok(accessible.includes('version:"18.21"'));
+assert.ok(accessible.includes('financial-autonomy-diagnostic-unic-v18.21.json'));
+const normalized = accessible.replace('version:"18.21"', 'version:"18.20"')
   .replace('financial-autonomy-diagnostic-unic-v18.21.json', 'financial-autonomy-diagnostic-unic-v18.20.json');
-assert.equal(normalized, baseline, 'No application or financial engine code may change in this shell-only release');
-console.log('PASS: v18.21 accessible shell; JS engine byte-identical to v18.20 after version normalization');
+assert.equal(normalized, baseline, 'v18.21 must differ from immutable v18.20 only by diagnostic metadata');
+console.log('PASS: active v' + version + ' HTML and bundle match; v18.21 shell keeps v18.20 financial engine unchanged');
