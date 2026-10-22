@@ -40,3 +40,13 @@ test('Multiple explanation directions should reconcile a +50 difference',()=>{
  assert.equal(api.checkRows(s,'ing').at(-1).difference,0);
  assert.equal(api.checkedBalance(s,'ing',date),15000);
 });
+
+test('New check compares against last confirmed balance plus intervening transactions',()=>{
+ const s=base();
+ s.balanceChecks=[check('first',9000,'2026-10-12',1000),check('second',9100,date,2000)];
+ s.transactions=[txn('spent','expense',500,date,1000)];
+ const rows=api.checkRows(s,'ing');
+ assert.equal(rows[1].expected,8500);
+ assert.equal(rows[1].difference,600);
+ assert.equal(api.checkedBalance(s,'ing',date),9100);
+});
