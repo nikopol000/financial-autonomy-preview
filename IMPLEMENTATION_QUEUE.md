@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB v18.25 — implemented, user-visible; verification follow-up OPEN (2026-10-22)
+
+- User-requested visual test: set both Dashboard quick-action buttons `Cheltuială` and `Venit` to the same light purple `#AD83E8`. Implemented in immutable v18.25 bundle; diagnostic and HTML version 18.25. User explicitly confirmed the visible difference.
+- Activation commit: `7e7fd7224204a9ba529a8a8968ae7973e45f274a`; Vercel deployment `dpl_97K8SoYdyUbBwms7FTifXuT3VxCw` READY. No iOS change.
+- OPEN verification: confirm `python3 scripts/check_release.py`, `node --check`, GitHub Actions on exact current HEAD, and independently verify served HTML/bundle and both buttons. Do not claim tests passed until confirmed.
+- Exact successful connector workflow and previous 404 root cause are in `RELEASE_PROCESS.md`. Earlier v18.22 blocked checkpoint is historical, not the current live version.
+
+
 ## Work visual report received (2026-10-22)
 
 Confirmed report: `docs/WEB_VISUAL_REVIEW.md`, 9 prioritized findings. Address P1 dark-mode expense/income button text contrast and budget form terminology first, then P2 disclosure target visibility, dashboard visual hierarchy, empty-state density, Finances header, History controls, Budgets empty-state CTA, and P3 typography. Work did not inspect populated demo state or iPhone viewport. First implement isolated automatic demo for browsers without saved user state (above), then validate populated mobile light/dark before claiming visual parity. Do not change real user data, frozen v18.20, or iOS; release only after tests and deployed verification.
