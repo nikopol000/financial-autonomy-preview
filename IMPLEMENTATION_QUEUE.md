@@ -1050,3 +1050,7 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 - Static comparison performed against active preview bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2`: goal metrics, limits, plan uniqueness/steps/statuses and core copy were matched. Rendered visual parity is NOT verified.
 - Remaining verification for this stage: macOS compile, all 284 unit + 3 UI methods, encrypted legacy/current roundtrip, populated Obiective/Planuri interactions, VoiceOver/keyboard and light/dark screenshots.
 - Next exact action: compile and test build50 at `0d676ce0928ae68304073a05b44cedc600b2809e` on macOS; if Xcode remains unavailable, continue the next independent active-bundle parity audit without claiming build/UI verification.
+
+## WEB write diagnostic — 2026-10-22
+
+GitHub contents API small-file write probe: if this paragraph is present on main, update_file with current blob SHA works. This does not validate a large 18.22 bundle upload or application release. Next: verify CI reconciliation and publish a versioned bundle only after full checks.
