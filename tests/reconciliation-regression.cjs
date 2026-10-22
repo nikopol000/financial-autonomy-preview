@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const html = fs.readFileSync('index.html','utf8');
 const bundlePath = html.match(/<script src="\/([^"?]+\.js)\?build=/)?.[1];
 assert.ok(bundlePath, 'Versioned bundle path missing');
-const source = fs.readFileSync(bundlePath,'utf8');
+const source = fs.readFileSync(bundlePath.replace(/^financial-autonomy-preview\//, ''),'utf8');
 const start = source.indexOf('__d(function(g,r,i,_a,m,_e,_d){"use strict";Object.defineProperty(_e,\'__esModule\',{value:!0}),Object.defineProperty(_e,"comparePoint"');
 assert.ok(start >= 0, 'Reconciliation module missing');
 const end = source.indexOf('},207,[]);',start);
