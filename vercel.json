@@ -4,6 +4,5 @@
       "source": "/financial-autonomy-preview/:path*",
       "destination": "/:path*"
     }
-  ],
-  "buildCommand": "node scripts/prepare-v1822.cjs --write"
+  ]
 }
