@@ -1,5 +1,15 @@
 # Financial Autonomy — Project State
 
+## WEB checkpoint — 2026-10-22 19:57 Europe/Bucharest — promotion still blocked
+
+- Actual main HEAD: `1f7808d05f93fdfb482f7ea1e1b0cac78a356c79`; index.html still references immutable v18.20. v18.22 is not published.
+- Exact-HEAD GitHub Actions WEB run 39811014969 completed SUCCESS; every validation step passed, including candidate generation, v18.22 reconciliation tests and artifact upload. This is candidate verification, not public release.
+- Vercel production deployment `dpl_9VxDJQExugBdpMVvryG87CL9hPTr` is READY, tied to exact HEAD. Direct public HTML fetch failed; served HTML/bundle/header are UNVERIFIED.
+- Immutable v18.22 candidate source was reproduced from archived v18.21 (blob `14ddeb3582c597ba149fa0b31613b72d530fe977`); all 3 intended replacements occurred once (783763 characters). The ordinary `create_file` publication attempt was BLOCKED by OpenAI safety checks; no alternate API/workflow was used. A separate small DEMO helper creation was also blocked. No new code was committed.
+- DEMO fail-closed design: check for both vault keys, real-state marker, and any legacy Financial Autonomy storage keys; storage errors or orphan keys suppress demo. A deliberate real-empty reset must persist intent before clearing vault; demo writes stay in isolated memory. Design only, NOT implemented.
+- First unfinished step: promote exact verified v18.22 bundle via permitted ordinary write when available, then index/diagnostic version, CI, Vercel and served HTML. If blocked, continue read-only analysis and retry on later execution. Never modify iOS or frozen v18.20.
+
+
 ## CURRENT WEB checkpoint — 2026-10-22 19:04 Europe/Bucharest — v18.22 CI CANDIDATE, NOT PUBLISHED
 
 - Fresh preview main HEAD: `b21b77c6eface139516a3e7f82574e7008a03a9b`; the latest commit only changes `tests/reconciliation-regression.cjs`. Archived v18.20 remains active: `index.html` has metadata 18.20 and references `index-v01820-history-back-navigation-20261014.js?build=18.20.1`.
