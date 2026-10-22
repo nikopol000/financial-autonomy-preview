@@ -21,3 +21,5 @@ jobs:
         run: node tests/shell-regression.cjs
       - name: Reconciliation regression
         run: node tests/reconciliation-regression.cjs
+      - name: Verify v18.22 candidate reconciliation independently of active release
+        run: node tests/reconciliation-v1822-candidate.cjs
