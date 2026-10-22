@@ -20,6 +20,9 @@ jobs:
       - name: Accessibility shell and unchanged financial engine
         run: node tests/shell-regression.cjs
       - name: Verify v18.22 candidate reconciliation independently of active release
-        run: node tests/reconciliation-v1822-candidate.cjs
+        run: |
+          node tests/reconciliation-v1822-candidate.cjs
+          node scripts/prepare-v1822.cjs --write
+          node --check _expo/static/js/web/index-v01822-reconciliation-20261022.js
       - name: Reconciliation regression
         run: node tests/reconciliation-regression.cjs
