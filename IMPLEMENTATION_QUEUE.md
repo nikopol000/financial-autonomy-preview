@@ -1,5 +1,18 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.26 candidate tested but NOT ACTIVATED
+
+- Immutable candidate exists: `_expo/static/js/web/index-v01826-reconciliation-20261022.js`, blob `a4fa059fdbafce7069f71150a9e129f15ea3c3f7`, committed at `0b7d78d239a2046123a5fc6463a5d18a3f07ae91` (Vercel READY for candidate commit only).
+- Active `index.html` remains v18.25, blob `54f9487a35a77c78186cc9b03bb1dd4c0287612b`. The attempted ordinary v18.26 activation update was blocked by tool safety checks; do not claim it was published.
+- Independently executed seven V8 reconciliation-module cases against the actual v18.26 candidate: post-check events, retroactive offsets, replacement of prior discrepancy, signed multi-row explanation, successive checks with intervening expense, negative subsequent check, zero subsequent check; 7/7 PASS. These do not replace CI or UI tests.
+- Demo audit: module 310 `loadWebVault` returns `emptyState()` when payload key is absent, even if an orphan encryption key exists. Demo gating must explicitly inspect both vault keys, legitimate empty state, legacy storage and storage errors; fail closed, no production writes. DEMO remains unimplemented.
+- First unfinished action: activate v18.26 by ordinary authorized index update; run exact HEAD CI and release/syntax tests; verify Vercel and served HTML/bundle/header; only then proceed to multi-row explanation UI and safe isolated demo. Do not touch iOS.
+
+## DESIGN NOTES ONLY — Budget uncertainty modes (2026-10-22 user discussion)
+
+Do not implement until financial semantics are reviewed. Budget is a target independent of payment account and may intentionally be funded from borrowed credit; distinguish owned money from available credit. When unexplained balance discrepancies exist, offer optional reversible views: (1) retain transaction-based budget for later explanations; (2) cap safe spending to actual owned/spendable funds only when user selects that preference; (3) recompute remaining-period pace based on days left, without pretending missed days had zero spending. Do not auto-consume budget from unexplained differences or fabricate transactions; do not show the missed-days option if no relevant unexplained data. Preserve original target and accurate ledger separately from forecasts. Human-centered tool, not a chat assistant: clear, nonjudgmental, user-directed, low-friction. Refine UX and financial contracts before changing formulas.
+
+
 ## NEW — Multi-transaction explanation of one balance discrepancy (requested 2026-10-22)
 
 Status: NOT CONFIRMED IMPLEMENTED. Inspect current v18.25 reconciliation UI and model before coding; extend existing mechanism, do not create a parallel ledger.
