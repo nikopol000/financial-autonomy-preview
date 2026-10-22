@@ -1,5 +1,16 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-22 19:04 Europe/Bucharest — v18.22 CI CANDIDATE, NOT PUBLISHED
+
+- Fresh preview main HEAD: `b21b77c6eface139516a3e7f82574e7008a03a9b`; the latest commit only changes `tests/reconciliation-regression.cjs`. Archived v18.20 remains active: `index.html` has metadata 18.20 and references `index-v01820-history-back-navigation-20261014.js?build=18.20.1`.
+- The repository workflow `.github/workflows/validate-release.yml` generates the immutable v18.22 candidate from v18.21, runs release/syntax/shell/candidate/reconciliation checks, and uploads the candidate artifact. Earlier verified CI run 39782626692 reported success (7/7 reconciliation candidate tests); this session could not independently read the Actions run details via the available GitHub connector, which filters commit runs to PRs. Do not treat candidate validation as publication.
+- Vercel production deployment `dpl_7SQizcWcQ6KGj4cZXnGsYMjiwb3k` is READY and tied to the exact HEAD; its state does NOT demonstrate the v18.22 candidate is served. Direct public HTML fetch was unavailable, and the deployment file-tree API returned 404.
+- The current blocker is promotion of the exact already-verified v18.22 artifact into a new immutable bundle plus index/diagnostic metadata, followed by a verified deployment. Never modify frozen v18.20, local encrypted data, backup format, or iOS repository.
+- DEMO must activate only when both production encrypted-state keys are definitively absent; an empty real state, orphan key or storage error must never trigger DEMO. All demo writes and exports must be isolated, and an explicit safe transition to empty real state is required. No DEMO product code was published.
+- Work review `docs/WEB_VISUAL_REVIEW.md` lists 9 visual findings, including two P1 items. Prioritize only after reconciliation and safe DEMO.
+- First unfinished action: promote exact v18.22 candidate only when ordinary permitted repository writes are accepted; verify Actions, Vercel READY, served HTML/bundle, header and diagnostic. Keep continuity updated with factual evidence.
+
+
 ## CURRENT WEB checkpoint — 2026-10-22 01:56 Europe/Bucharest — v18.21 CANDIDATE / VERIFICATION PENDING
 
 - Scope: preview WEB only; v18.20 remains archived and is the unchanged iOS reference. Native repository and its stable main were not touched.
