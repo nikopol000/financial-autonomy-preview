@@ -38,3 +38,19 @@ test('consecutive checks account for intervening expense',()=>{
  const rows=api.checkRows(s,'ing');
  assert.equal(rows[1].expected,8500);assert.equal(rows[1].difference,600);
 });
+
+test('consecutive checks without transactions compare to prior observed balance',()=>{
+ const s=base();s.balanceChecks=[check('first',9000,'2026-10-12',1000),check('second',9100,date,2000)];
+ const rows=api.checkRows(s,'ing');
+ assert.equal(rows[1].expected,9000);
+ assert.equal(rows[1].difference,100);
+ assert.equal(api.checkedBalance(s,'ing',date),9100);
+});
+test('second verification with matching intervening expense has zero unexplained difference',()=>{
+ const s=base();s.balanceChecks=[check('first',9000,'2026-10-12',1000),check('second',8500,date,2000)];
+ s.transactions=[txn('spent','expense',500,date,1000)];
+ const rows=api.checkRows(s,'ing');
+ assert.equal(rows[1].expected,8500);
+ assert.equal(rows[1].difference,0);
+ assert.equal(api.checkedBalance(s,'ing',date),8500);
+});
