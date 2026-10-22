@@ -1,5 +1,16 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-22 voice session — v18.25 user-visible, release checks outstanding
+
+- The prior 19:57 v18.22-blocked checkpoint below is historical, NOT the active preview state. User requested and observed live voice-driven releases v18.23, v18.24, v18.25.
+- Active v18.25 bundle: `_expo/static/js/web/index-v01825-purple-quick-actions-20261022.js` (full ~784k JS, immutable); bundle commit `354034d2f39b42ff62067ebc5bd072cdaef7034c`. Both `QuickActionsHome` expense and income button backgrounds set to `#AD83E8`; diagnostic `version:"18.25"`.
+- `index.html` activation commit `7e7fd7224204a9ba529a8a8968ae7973e45f274a`; version metadata 18.25; `?build=18.25.1`. Vercel production deployment `dpl_97K8SoYdyUbBwms7FTifXuT3VxCw` READY on exact activation commit, primary alias present.
+- User confirmed seeing v18.23, v18.24 and v18.25 in browser, and confirmed the two purple buttons are visibly changed in v18.25.
+- The assistant did NOT verify `python3 scripts/check_release.py`, `node --check`, GitHub Actions or independent served-browser behavior. These remain verification debt, not assumed PASS.
+- Voice-to-GitHub release mechanics, exact repo-relative JS path and prior 404 explanation are now documented in `RELEASE_PROCESS.md`. This is WEB preview only; frozen v18.20 bundle and separate native iOS repository unchanged.
+- Next: check exact-HEAD Actions, release/syntax checks, served public HTML and button appearance independently; then resume prioritized backlog (safe demo/reconciliation) only after inspecting current source and user priorities.
+
+
 ## WEB checkpoint — 2026-10-22 19:57 Europe/Bucharest — promotion still blocked
 
 - Actual main HEAD: `1f7808d05f93fdfb482f7ea1e1b0cac78a356c79`; index.html still references immutable v18.20. v18.22 is not published.
