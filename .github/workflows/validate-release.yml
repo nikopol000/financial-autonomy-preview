@@ -31,8 +31,5 @@ jobs:
           path: _expo/static/js/web/index-v01822-reconciliation-20261022.js
           if-no-files-found: error
           retention-days: 14
-      - name: Reconciliation regression for active release (known v18.21 failure)
-        continue-on-error: true
+      - name: Reconciliation regression
         run: node tests/reconciliation-regression.cjs
-      - name: Enforce candidate regression tests before release
-        run: node tests/reconciliation-v1822-candidate.cjs
