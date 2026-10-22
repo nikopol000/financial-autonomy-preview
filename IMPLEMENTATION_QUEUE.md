@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## NEW — Multi-transaction explanation of one balance discrepancy (requested 2026-10-22)
+
+Status: NOT CONFIRMED IMPLEMENTED. Inspect current v18.25 reconciliation UI and model before coding; extend existing mechanism, do not create a parallel ledger.
+
+Requirement: When an account balance reconciliation shows a signed unexplained delta (e.g. -100 RON), allow the user to build an editable list of multiple signed transactions (+/-), each with its own type, amount, date and transaction-level details, using the existing transaction semantics. Provide Add row, edit and delete; show original discrepancy, algebraic sum of explanation rows and remaining unexplained delta live at the top. A sequence of offsetting positive and negative rows is valid even if intermediate totals exceed the net discrepancy. Finalize only when signed sum matches discrepancy (with existing currency precision rules); ensure transaction history and account balances are not double counted. Define atomic save/cancel behavior, audit trail, subsequent balance updates and correction/undo; preserve existing saved data and encrypted backup compatibility. Add regression tests for alternating signs, partial explanation, zero remainder, edits/deletes, reload, history and no double-counting. Prioritize in web audit and implement in a new version under RELEASE_PROCESS.md; do not touch iOS.
+
+
 ## WEB v18.25 — implemented, user-visible; verification follow-up OPEN (2026-10-22)
 
 - User-requested visual test: set both Dashboard quick-action buttons `Cheltuială` and `Venit` to the same light purple `#AD83E8`. Implemented in immutable v18.25 bundle; diagnostic and HTML version 18.25. User explicitly confirmed the visible difference.
