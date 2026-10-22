@@ -1,4 +1,4 @@
-// Node.js regression guard: v18.21 web-shell accessibility without financial-engine changes.
+// Node.js regression guard: v18.22 reconciliation release with accessibility shell preserved.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const html = fs.readFileSync('index.html', 'utf8');
@@ -15,7 +15,7 @@ const path = html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)
 assert.equal(path, '_expo/static/js/web/index-v01822-reconciliation-20261022.js');
 const current = fs.readFileSync(path, 'utf8');
 const baseline = fs.readFileSync('_expo/static/js/web/index-v01821-accessibility-shell-20261022.js', 'utf8');
-assert.ok(current.includes('version:"18.21"'));
+assert.ok(current.includes('version:"18.22"'));
 assert.ok(current.includes('financial-autonomy-diagnostic-unic-v18.22.json'));
 const normalized = current.replace('version:"18.22"', 'version:"18.21"')
   .replace('financial-autonomy-diagnostic-unic-v18.22.json', 'financial-autonomy-diagnostic-unic-v18.21.json')
