@@ -11,6 +11,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Generate immutable v18.22 release bundle
+        run: node scripts/prepare-v1822.cjs --write
       - name: Verify version and bundle consistency
         run: python3 scripts/check_release.py
       - name: Validate JavaScript syntax
@@ -22,7 +24,6 @@ jobs:
       - name: Verify v18.22 candidate reconciliation independently of active release
         run: |
           node tests/reconciliation-v1822-candidate.cjs
-          node scripts/prepare-v1822.cjs --write
           node --check _expo/static/js/web/index-v01822-reconciliation-20261022.js
       - name: Retain exact v18.22 candidate for release promotion
         uses: actions/upload-artifact@v4
