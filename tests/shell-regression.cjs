@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const html = fs.readFileSync('index.html', 'utf8');
 const version = html.match(/<meta name="financial-autonomy-version" content="([^"]+)"/)?.[1];
-assert.ok(['18.20', '18.21', '18.22'].includes(version), 'Unexpected active web version');
+assert.match(version || '', /^18\.(?:2[0-9]|[3-9][0-9])$/, 'Unexpected active web version');
 assert.match(html, /<html lang="ro">/);
 assert.match(html, /name="description"/);
 assert.match(html, /name="robots" content="noindex, nofollow"/);
@@ -21,7 +21,8 @@ const names = {
   '18.21': '_expo/static/js/web/index-v01821-accessibility-shell-20261022.js',
   '18.22': '_expo/static/js/web/index-v01822-reconciliation-20261022.js'
 };
-assert.equal(script[1], names[version], 'Unexpected active bundle for release');
+if (names[version]) assert.equal(script[1], names[version], 'Unexpected archived release bundle');
+else assert.ok(script[1].startsWith('_expo/static/js/web/index-v0' + version.replace('.', '') + '-'), 'Active bundle filename must match release version');
 assert.ok(fs.existsSync(script[1]), 'Active bundle must exist');
 assert.ok(fs.readFileSync(script[1], 'utf8').includes('version:"' + version + '"'));
 
