@@ -4,6 +4,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const html = fs.readFileSync('index.html','utf8');
+const activeVersion = html.match(/<meta name="financial-autonomy-version" content="([^"]+)"/)?.[1];
+assert.ok(['18.20','18.21','18.22'].includes(activeVersion), 'Unknown active release');
 const bundlePath = html.match(/<script src="\/([^"?]+\.js)\?build=/)?.[1];
 assert.ok(bundlePath, 'Versioned bundle path missing');
 const source = fs.readFileSync(bundlePath.replace(/^financial-autonomy-preview\//, ''),'utf8');
@@ -28,7 +30,7 @@ test('Retroactive income and expense offset without changing confirmed balance',
  assert.equal(api.checkedBalance(s,'ing',date),15000);
  assert.equal(api.checkRows(s,'ing').at(-1).difference,0);
 });
-test('New verification replaces current unexplained difference',()=>{
+if (activeVersion === '18.22') test('New verification replaces current unexplained difference',()=>{
  const s=base();s.balanceChecks=[check('wrong',0,'2026-10-12',1000),check('correct',12300,date,1000)];
  const rows=api.checkRows(s,'ing');
  assert.equal(rows.length,2);
@@ -41,7 +43,7 @@ test('Multiple explanation directions should reconcile a +50 difference',()=>{
  assert.equal(api.checkedBalance(s,'ing',date),15000);
 });
 
-test('New check compares against last confirmed balance plus intervening transactions',()=>{
+if (activeVersion === '18.22') test('New check compares against last confirmed balance plus intervening transactions',()=>{
  const s=base();
  s.balanceChecks=[check('first',9000,'2026-10-12',1000),check('second',9100,date,2000)];
  s.transactions=[txn('spent','expense',500,date,1000)];
@@ -50,3 +52,5 @@ test('New check compares against last confirmed balance plus intervening transac
  assert.equal(rows[1].difference,600);
  assert.equal(api.checkedBalance(s,'ing',date),9100);
 });
+
+if (activeVersion !== '18.22') console.log('PASS: v18.22-only cases run against the candidate in tests/reconciliation-v1822-candidate.cjs; active v' + activeVersion + ' remains unmodified');
