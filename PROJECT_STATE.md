@@ -1,5 +1,14 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-23 — v18.33 unchanged; bundled AES-GCM synthetic persistence VERIFIED, browser OPEN
+
+- Resumed from v18.33. Confirmed the previously pending GitHub Pages runs for v18.33: deployment **40000577291 SUCCESS**, Pages build/deployment **40000575078 SUCCESS**. No application bundle, HTML, financial formulas, diagnostic, user storage or iOS changes in this batch.
+- Added `tests/vault-real-crypto-regression.cjs` at `7aef117d`, CI integration at `ccd5ddee`, and corrected the independent VM's browser globals at `c61a32bb`. **8/8 synthetic tests PASS** against the actual active v18.33 bundled AES-256-GCM and vault modules (no crypto mocking): Unicode roundtrip; bundled-to-Node/OpenSSL interoperability both directions; ciphertext/nonce/key tamper rejection; encrypted save/reload/edit; corruption preservation; failed write preservation; platform explicit-real-mode reload. Synthetic financial model validation is stubbed, not a full real-ledger browser run.
+- Exact GitHub Actions **40008454004 SUCCESS** (including all prior release/financial/demo suites and new crypto suite); GitHub Pages active deployment **40008454151 SUCCESS**, Pages build **40008455526 SUCCESS**. Vercel production **dpl_2psQskBEmAoWz6qXMS424m6zcxEH READY** for exact `c61a32bb`, primary alias `financial-autonomy-preview.vercel.app` confirmed. An intermediate test-harness run `40008412792` failed only its platform VM globals test (7/8); corrected and reverified (8/8).
+- **OPEN:** authorized interactive served browser/header, iPhone viewport, actual browser AES-GCM E2E, demo storage/reload UX, cross-tab persistence atomicity and issue #2 retroactive financial correction contract. Node VM + OpenSSL tests are real cryptography evidence, **not** browser evidence. Version and diagnostic remain **18.33**; no cosmetic release.
+- **NEXT FIRST:** obtain authorized interactive browser smoke test for fresh demo, memory-only edit/reload, blocked exports, explicit transition to real mode and preservation of an existing synthetic encrypted vault. If still inaccessible, audit/test concurrent-tab stale-write scenarios independently and record exact risk before changing financial persistence; then address observed premium UX findings.
+
+
 ## CURRENT WEB checkpoint — 2026-10-23 — v18.33 ACTIVE; preload-save fail-closed; CI/Vercel PASS, browser OPEN
 
 - Continued from v18.32 isolated demo. Found and reproduced a concrete direct-API write gap on the **actual v18.32 bundle**: on a completely fresh browser, calling platform `save` before `load` invoked the real encrypted-vault writer once, bypassing the intended automatic demo boundary. This is an API lifecycle gap; no evidence it was reachable through the normal rendered UI. No real browser storage or user ledger was touched.

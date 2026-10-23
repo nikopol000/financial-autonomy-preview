@@ -1,5 +1,12 @@
 # Financial Autonomy — Web Premium Release History
 
+## 2026-10-23 — v18.33 unchanged; synthetic AES-256-GCM verification only (no release)
+
+- Added eight regression cases using the **actual bundled** AES-GCM and vault code, cross-checked against Node/OpenSSL; synthetic save/reload/edit, tamper and write-failure preservation, and explicit real-mode reload PASS. No application code, version, diagnostic or iOS change.
+- Test/CI commits `7aef117d`, `ccd5ddee`, `c61a32bb`; GitHub Actions `40008454004 SUCCESS`; Pages deploy `40008454151 SUCCESS`, Pages build `40008455526 SUCCESS`; Vercel production `dpl_2psQskBEmAoWz6qXMS424m6zcxEH READY` for `c61a32bb` and primary alias.
+- Interactive browser, actual browser crypto execution, mobile visual review and cross-tab atomicity remain **unverified**. Keep v18.33 active until a substantive, independently testable change warrants a new immutable release.
+
+
 ## v18.33 — 2026-10-23 — fail-closed preload save before demo startup; CI/Vercel PASS, browser OPEN
 
 - Reproduced on real v18.32 platform module: an early direct `save` on empty localStorage reached the real vault writer once before `load` could initialize demo. Immutable v18.33 adds a conservative guard that rejects this path; explicit `fa_real=1`, confirmed exit, existing-vault saves and demo memory edits remain allowed. Independent V8 probe on v18.33 confirmed **zero** real-vault writes for the same case. This is API-level safety hardening; normal UI exploitability is not established.

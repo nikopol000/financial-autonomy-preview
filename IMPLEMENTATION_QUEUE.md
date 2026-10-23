@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.33 ACTIVE, real bundled AES-GCM synthetic tests PASS; browser OPEN
+
+- DONE: added `tests/vault-real-crypto-regression.cjs` and permanent CI step. Real v18.33 bundled AES-GCM implementation (not a crypto mock) interoperates with Node/OpenSSL in both directions; synthetic vault save/reload/edit, authenticated corruption refusal, failed write preservation and explicit real-mode platform reload pass. Test commit `7aef117d`, CI `ccd5ddee`, VM test-harness fix `c61a32bb`.
+- VERIFIED: **8/8 PASS**; GitHub Actions **40008454004 SUCCESS**, Pages deploy **40008454151 SUCCESS**, Pages build **40008455526 SUCCESS**. Vercel production **dpl_2psQskBEmAoWz6qXMS424m6zcxEH READY** for exact `c61a32bb` with primary alias. Earlier v18.33 Pages terminal SUCCESS also confirmed. No new release: active HTML/bundle/diagnostic still **18.33**.
+- OPEN: no interactive browser/header or browser-native AES E2E verification; Node VM is not a browser. Existing issue #2 historical reconciliation contract undecided; multi-tab atomicity unproven. No financial formulas, user data or iOS changed.
+- NEXT FIRST: browser smoke test with synthetic data (demo isolation, editing/reload, denied exports, explicit real transition, existing ciphertext preservation). If access remains blocked, independently test concurrent-tab write race and propose fail-closed contract without silently changing formulas; use verified premium UX findings for the next substantive release.
+
+
 ## WEB checkpoint 2026-10-23 — v18.33 ACTIVE; preload save isolation verified in CI
 
 - DONE: reproduced an early direct platform `save` on fresh storage reaching the real vault before demo initialization in v18.32. Guarded this lifecycle path in immutable v18.33 without changing existing vault operations or demo memory saves. Candidate `ed015a21`; HTML activation `f5dca7e1`. Version, build query, bundle and diagnostic all **18.33**.
