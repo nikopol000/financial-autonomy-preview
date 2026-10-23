@@ -34,3 +34,5 @@ jobs:
           retention-days: 14
       - name: Reconciliation regression
         run: node tests/reconciliation-regression.cjs
+      - name: Encrypted vault orphan-key regression
+        run: node tests/vault-orphan-regression.cjs
