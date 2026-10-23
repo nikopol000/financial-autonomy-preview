@@ -1,5 +1,13 @@
 # Financial Autonomy — Web Premium Release History
 
+## Non-release verification checkpoint — 2026-10-23 (v18.29 remains active)
+
+- Added `tests/reconciliation-history-persistence-regression.cjs` (6 synthetic integration tests) against the active real financial model and real vault load/save adapter, with a **mocked cryptographic envelope**; verified history, reload, correction/void audit, failed persistence and later check behavior. Added read-only `src/demo-eligibility.cjs` and `tests/demo-eligibility-regression.cjs` (10 tests), fail-closed for saved/empty/orphan/corrupt/unknown legacy keys or storage failures. This gate is **not bundled or user-visible**.
+- Exact GitHub Actions `39958505784` **SUCCESS** for test commit `204db77a`: new suites 6/6 and 10/10 PASS alongside prior regression and release checks. Pages build `39958505399` and deploy `39958505816` SUCCESS. Vercel `dpl_FhL36KWJcqr1S9uwQ3ZZJrs3MMad` READY on `204db77a` with primary alias. No new version: active `index.html` / bundle / diagnostic stay **18.29**.
+- Financial semantics discovery: voiding a historical linked income shifts a later check's computed checkedBalance despite unchanged stored observed value. Current behavior characterized, no formula changes; see issue **#2**. Protected Vercel browser fetch still 403; no browser proof or actual AES-GCM E2E. No real financial data or iOS changes.
+- NEXT: contract review for issue #2; safe in-memory demo implementation, real browser and mobile verification before any future release.
+
+
 ## v18.29 — 2026-10-23 — active WEB editor, automated checks PASS; interactive browser OPEN
 - Immutable active bundle: `_expo/static/js/web/index-v01829-multi-row-reconciliation-guarded-20261023.js`; HTML meta 18.29 / build 18.29.1 / diagnostic 18.29. Activation commit `8290d68c6caee1c304ce49e6849e05c9d6214c2d`.
 - New user-visible screen from the existing Dashboard “Explică diferența” action **for cash/current/savings checks only**: add, edit, remove multiple income/expense rows with the check date, signed difference/explained/remainder, Cancel, and Save enabled only at zero remainder. Debt/credit checks retain their previous single-operation path. No financial formulas changed; the same `src/reconciliation-batch.cjs` and `src/reconciliation-draft.cjs` contracts are embedded in the immutable bundle.

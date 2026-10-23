@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.29 unchanged; history and demo safety contracts CI PASS
+
+- DONE (tests only): 6 real-engine + vault-adapter synthetic integration tests for linked history, reload, void/correction audit, later checks and failed save; crypto envelope mocked. 10 fail-closed demo eligibility tests and pure read-only helper `src/demo-eligibility.cjs`, not bundled. Exact test commit `204db77a`; GitHub Actions **39958505784 SUCCESS**, Pages build **39958505399 SUCCESS**, active Pages deploy **39958505816 SUCCESS**, Vercel production **dpl_FhL36KWJcqr1S9uwQ3ZZJrs3MMad READY**. Active HTML/bundle/diagnostic **v18.29** unchanged.
+- REVIEW REQUIRED: issue **#2** records a real-engine historical income-void behavior: a later verified check's computed checkedBalance shifts while stored observed remains fixed. This is a contract question, not a confirmed formula fix. Preserve behavior until financial semantics and tests are agreed.
+- NOT DONE: browser verification (protected Vercel fetch 403), actual AES-GCM E2E, isolated demo activation/UI, cross-tab CAS, populated mobile review. The new demo classifier conservatively rejects ALL existing same-origin localStorage keys, including unknown legacy keys; it never reads user ledger values or writes data.
+- NEXT: decide semantics for issue #2, then implement in-memory demo isolation with exit/start-real safeguards and test backup/reload, followed by an immutable synchronized release and browser check. No iOS edits or cosmetic version bump.
+
+
 ## WEB checkpoint 2026-10-23 — v18.29 ACTIVE: multi-row editor, browser verification still OPEN
 
 - DONE: actual Dashboard reconciliation UI wired to tested draft/batch engine for cash/current/savings, with signed totals, editable income/expense rows, Cancel, stale encrypted-ledger check and one guarded encrypted save. Unsupported debt/credit paths retain previous Record behavior. Activation `8290d68c`, version + diagnostic 18.29 synchronized.
