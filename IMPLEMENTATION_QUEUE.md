@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+
+## WEB checkpoint 2026-10-23 — v18.31 ACTIVE: malformed encrypted vault preserved on direct save
+
+- DONE: reproduced issue #3 on v18.30; created immutable v18.31 bundle `cd39f698` and activated `index.html` at `af2187c1`. Direct save now authenticates/decrypts, migrates and validates existing ciphertext before any overwrite; malformed nonempty payload is preserved. Added 13 synthetic tests `12d15a61` including zeroization and storage failure. Candidate GitHub Actions `39974839264 SUCCESS`; active GitHub Actions `39974952214 SUCCESS` at `246a2e3a`. Vercel `dpl_D7L9FkvSEhsGRSdr55sQQtnF7WWm READY` on exact active CI commit with primary alias. Metadata/bundle/build/diagnostic **18.31**. No financial model or iOS changes.
+- OPEN: actual served HTML/header, browser interactions and real AES-GCM E2E (public fetch disabled); v18.31 Pages runs `39974951505` and `39974951946` not terminal at last check; cross-tab CAS and large-vault decrypt-on-save performance unverified. Issue #2 financial semantics still undecided. Demo classifier remains UNBUNDLED and demo not visible.
+- NEXT FIRST: finish Pages and authorized browser verification; independently test real crypto and preservation after reload. Then implement in-memory isolated demo with explicit real-data boundary, no storage/backup/export contamination and storage-failure regression. Do not create cosmetic releases or touch iOS.
+
+
 ## WEB checkpoint 2026-10-23 — v18.30 ACTIVE: empty vault presence protected; CI/VERCEL PASS
 
 - DONE: reproduced v18.29 data-loss risk with present empty ciphertext and missing key (load initialized fresh, direct save performed 2 writes); immutable v18.30 guards null vs empty key/payload and refuses blank ciphertext overwrite. Candidate `f52a35c1`, activation `44f9e292`, workflow `7aa41f2e`. Ten synthetic vault presence regressions. Candidate CI `39966268587 SUCCESS`, active CI `39966349253 SUCCESS`; Vercel `dpl_6q6mManSXg6DonZScYUmpMqUbNUa READY` on exact active workflow commit and production alias.
