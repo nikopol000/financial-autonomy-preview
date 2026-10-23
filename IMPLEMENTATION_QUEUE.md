@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.33 ACTIVE; P1 multi-tab stale write characterized, fix NEXT
+
+- AUDIT: active WEB platform module 309 saves the caller's entire ledger via vault module 310; vault verifies existing ciphertext integrity, **not** the caller's previously loaded revision. A second tab with a stale snapshot can silently replace a newer tab's valid financial transaction. Tracked as **issue #4** (P1, potential financial data loss). No formula change authorized or made.
+- TEST CODE: `b59487bc` extends real bundled crypto regression with 2 synthetic cross-tab scenarios: a **known-bad characterization** of lost update (not a safety pass), and demo edit rejection after another tab creates encrypted data. V8 parse OK, 10 declared tests. **CI runtime NOT CONFIRMED**; do not advertise 10/10 passed. Vercel `dpl_B1tUhxNaAANbbQxmGcDSxqPMVHV1` READY for this test commit, but no browser evidence.
+- ACTIVE: version/diagnostic **18.33**, unchanged; no app bundle, user data or iOS edits. Real browser and issue #2 financial semantics remain OPEN.
+- NEXT FIRST: confirm CI outcome for `b59487bc`; implement zero-write stale-revision refusal + same-tab repeat save + reloaded-tab recovery; use Web Locks where supported, document unsupported-browser simultaneous race; test corruption, reset, demo isolation and two tabs before creating a new immutable v18.34. Complete release/CI/Pages/Vercel checks and checkpoint, then authorized interactive smoke test. No cosmetic release.
+
+
 ## WEB checkpoint 2026-10-23 — v18.33 ACTIVE, real bundled AES-GCM synthetic tests PASS; browser OPEN
 
 - DONE: added `tests/vault-real-crypto-regression.cjs` and permanent CI step. Real v18.33 bundled AES-GCM implementation (not a crypto mock) interoperates with Node/OpenSSL in both directions; synthetic vault save/reload/edit, authenticated corruption refusal, failed write preservation and explicit real-mode platform reload pass. Test commit `7aef117d`, CI `ccd5ddee`, VM test-harness fix `c61a32bb`.
