@@ -48,6 +48,8 @@ jobs:
         run: node tests/vault-presence-regression.cjs
       - name: Vault corrupt ciphertext preservation against active release
         run: node tests/vault-corrupt-save-regression.cjs
+      - name: Bundled AES-GCM synthetic vault persistence and OpenSSL interop
+        run: node tests/vault-real-crypto-regression.cjs
       - name: Isolated memory-only demo session and real financial model
         run: node tests/demo-session-regression.cjs
       - name: Active isolated demo WEB integration regression
