@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — draft row controller TESTED, interactive UI NOT YET IMPLEMENTED
+
+- IMPLEMENTED: `src/reconciliation-draft.cjs` (commit `5be2ee4b`) provides in-memory add/edit/remove, signed preview from real financial model, Cancel, stale-state guard and one final validated snapshot handoff. It does NOT save, change financial formulas or alter real data.
+- TESTED: nine new permanent integration cases in `tests/reconciliation-batch-regression.cjs` (commit `7d80f4ec`), **28/28** total PASS in exact GitHub Actions run `39942927811` (validation SUCCESS). Vercel production `dpl_9QjQa4ACfpJWzBHfX77V9KrTy5Rv` READY for the test commit. Browser verification and GitHub Pages terminal status not yet confirmed.
+- ACTIVE: **v18.28** remains the only UI release; the new controller is not bundled into the React app. No cosmetic release and no iOS edits.
+- NEXT FIRST: connect controller to actual UI, use existing encrypted save exactly once after validating current ledger state, verify reload/history/undo and no double counting with integration tests, then create versioned v18.29 with synchronized diagnostic and full release checks. Separately audit isolated DEMO eligibility and legacy keys. Do not claim atomic persisted UI before the actual vault integration.
+
 ## WEB checkpoint 2026-10-23 — financial-engine-derived draft totals TESTED, UI still OPEN
 
 - IMPLEMENTED (helper only): `previewReconciliationBatch` in `src/reconciliation-batch.cjs`, commit `07ccc74683b204b8ae2a2588b9a7ef5aafb31d27`. It computes live difference-before-draft, signed explained total, remainder and canSave from a cloned **real financial model** state. Empty and partial rows are previewable; no partial state can be persisted through this API. Existing strict final staging contract remains intact. No financial formulas or vault writes changed.
