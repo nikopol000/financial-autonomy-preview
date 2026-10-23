@@ -1,5 +1,14 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-23 — v18.26 active; exact-HEAD CI verified; four permanent regressions added
+
+- Preview index references immutable v18.26 bundle `_expo/static/js/web/index-v01826-reconciliation-20261022.js?build=18.26.1`; metadata and diagnostic are 18.26. Activation commit `6ff0aa628dff0ee3ee0326e74a9971d1e58defbe`. No new application release in this batch.
+- Verified GitHub Actions push run `39875420075` SUCCESS on checkpoint commit `dcfee97410b2187559378908f21b20583941e25e`: release consistency (Python), Node syntax, shell, candidate and active reconciliation regression checks all SUCCESS. This closes the previous uncertainty about exact-head CI on v18.26.
+- Added four permanent active-bundle financial regression cases in `tests/reconciliation-regression.cjs`: successive downward checks, zero checkpoint, same-day transaction between checks, signed offsetting multi-row explanation of a negative discrepancy. Test-only commit `32e7b32985bc240cf7687cd777e5a81d78417c6f`. GitHub Actions validation run `39882092227` SUCCESS, including the reconciliation step and Node/Python guards. No financial formulas, production data, or iOS code changed.
+- Vercel production deployment `dpl_8QRbVNnxoj5EAFKSKcH7Dkfh6gut` READY for earlier docs commit `dcfee974`; aliases include `financial-autonomy-preview.vercel.app`. Served HTML/bundle/header and interactive behavior are NOT independently verified; Vercel deployment file-tree endpoint returned 404 and public HTML fetch was disabled. Do not confuse READY with browser verification.
+- Next: inspect actual reconciliation editor/transaction-linking UX, design and implement atomic multi-transaction explanation with tests; separately implement fail-closed, in-memory isolated DEMO after storage-key audit. No cosmetic release; only version bump after tested user-visible change. Continue browser verification when browser access exists. Work remains review-only.
+
+
 ## CURRENT WEB checkpoint — 2026-10-22 voice session — v18.25 user-visible, release checks outstanding
 
 - The prior 19:57 v18.22-blocked checkpoint below is historical, NOT the active preview state. User requested and observed live voice-driven releases v18.23, v18.24, v18.25.
