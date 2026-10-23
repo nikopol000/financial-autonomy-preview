@@ -167,7 +167,7 @@ async function test(name,fn) {
     const s=storage();
     function platform(url){
       const globalThis={localStorage:s,location:{href:url},history:{state:null,replaceState(){}},
-        crypto:{getRandomValues:array=>nodeCrypto.webcrypto.getRandomValues(array),randomUUID:()=>nodeCrypto.randomUUID()}};
+        navigator:{locks:serialLocks()},crypto:{getRandomValues:array=>nodeCrypto.webcrypto.getRandomValues(array),randomUUID:()=>nodeCrypto.randomUUID()}};
       const {factory,dependencies}=moduleFactory(309,{...sandbox,globalThis,URL,Blob}),api={};
       factory(globalThis,id=>id===205?model:vault,()=>{},null,{exports:api},api,dependencies);
       return api;
@@ -184,7 +184,7 @@ async function test(name,fn) {
 
   await test('Stale second tab is rejected without writes; reload and same-tab repeat saves succeed',async()=>{
     const s=storage();vault.saveWebVault(s,sample(),random);
-    const a=realTab(s),b=realTab(s);
+    const locks=serialLocks(),a=realTab(s,{locks}),b=realTab(s,{locks});
     const aState=clone(await a.load()),bState=clone(await b.load());
     aState.transactions.push({id:'tab-a-synthetic',kind:'expense',amount:111});
     await a.save(aState);
@@ -216,36 +216,37 @@ async function test(name,fn) {
     const ids=vault.loadWebVault(s).transactions.map(t=>t.id);
     assert.equal(Number(ids.includes('lock-a'))+Number(ids.includes('lock-b')),1);
   });
-  await test('KNOWN GAP: no-Web-Locks simultaneous interleaving can still lose a valid transaction',async()=>{
-    // Deterministic synthetic interleaving: tab A writes after tab B has passed
-    // its revision check, but immediately before B commits its own ciphertext.
-    // This is a risk characterization, NOT a successful safety guarantee.
+  await test('No-Web-Locks real save and reset fail closed with zero writes',async()=>{
     const s=storage();vault.saveWebVault(s,sample(),random);
-    const a=realTab(s),b=realTab(s);
-    const aState=clone(await a.load()),bState=clone(await b.load());
-    aState.transactions.push({id:'race-a',kind:'income',amount:101});
-    bState.transactions.push({id:'race-b',kind:'expense',amount:202});
-    const originalSet=s.setItem.bind(s);
-    let injected=false,firstWriter=null;
-    s.setItem=(key,value)=>{
-      if(key===PAYLOAD&&!injected){
-        injected=true;
-        // Async platform save executes the synchronous vault write before
-        // returning its promise. No navigator.locks is available to either tab.
-        firstWriter=a.save(aState);
-      }
-      originalSet(key,value);
-    };
-    await b.save(bState);
-    assert.ok(firstWriter,'Synthetic concurrent writer was not injected');
-    await firstWriter;
-    const ids=vault.loadWebVault(s).transactions.map(t=>t.id);
-    assert.ok(ids.includes('race-b'),'Last writer should be present');
-    assert.ok(!ids.includes('race-a'),'Known lost-update risk must remain visible until mitigated');
+    const missing=realTab(s),invalid=realTab(s,{locks:{}});
+    const state=clone(await missing.load());await invalid.load();
+    state.transactions.push({id:'must-not-write',kind:'expense',amount:123});
+    const before=clone(s.data),writes=s.writes;
+    for(const tab of [missing,invalid]){
+      await assert.rejects(tab.save(state),/Web Locks|browser actualizat/i);
+      await assert.rejects(tab.resetData(),/Web Locks|browser actualizat/i);
+    }
+    assert.deepEqual(s.data,before);assert.equal(s.writes,writes);
+    assert.ok(!vault.loadWebVault(s).transactions.some(t=>t.id==='must-not-write'));
+  });
+  await test('No-Web-Locks explicit real mode cannot create a vault; demo stays memory-only',async()=>{
+    const s=storage();
+    const real=realTab(s);
+    await real.load();
+    await assert.rejects(real.save(sample()),/Web Locks|browser actualizat/i);
+    await assert.rejects(real.resetData(),/Web Locks|browser actualizat/i);
+    assert.equal(s.writes,0);assert.deepEqual(s.data,{});
+    const demo=realTab(s,{url:'https://example.test/'});
+    const initial=clone(await demo.load());
+    assert.equal(demo.isDemo(),true);
+    initial.transactions.push({id:'memory-only',kind:'expense',amount:123});
+    await demo.save(initial);
+    assert.ok((await demo.load()).transactions.some(t=>t.id==='memory-only'));
+    assert.equal(s.writes,0);assert.deepEqual(s.data,{});
   });
   await test('Stale reset refuses deletion; refreshed reset and new real save succeed',async()=>{
     const s=storage();vault.saveWebVault(s,sample(),random);
-    const a=realTab(s),b=realTab(s),x=clone(await a.load());await b.load();
+    const locks=serialLocks(),a=realTab(s,{locks}),b=realTab(s,{locks}),x=clone(await a.load());await b.load();
     x.transactions.push({id:'newer',kind:'income',amount:999});
     await a.save(x);
     const before=clone(s.data),writes=s.writes;
@@ -258,7 +259,7 @@ async function test(name,fn) {
   });
   await test('Externally changed ciphertext after load blocks save with zero writes',async()=>{
     const s=storage();vault.saveWebVault(s,sample(),random);
-    const a=realTab(s);const state=clone(await a.load());
+    const a=realTab(s,{locks:serialLocks()});const state=clone(await a.load());
     s.data[PAYLOAD]=s.data[PAYLOAD].slice(0,-1)+'x';
     const before=clone(s.data),writes=s.writes;
     await assert.rejects(a.save(state),/altă filă|Reîncarcă/i);
@@ -268,7 +269,7 @@ async function test(name,fn) {
     const s=storage();
     function tab(url){
       const globalThis={localStorage:s,location:{href:url},history:{state:null,replaceState(){}},
-        crypto:{getRandomValues:array=>nodeCrypto.webcrypto.getRandomValues(array),randomUUID:()=>nodeCrypto.randomUUID()}};
+        navigator:{locks:serialLocks()},crypto:{getRandomValues:array=>nodeCrypto.webcrypto.getRandomValues(array),randomUUID:()=>nodeCrypto.randomUUID()}};
       const {factory,dependencies}=moduleFactory(309,{...sandbox,globalThis,URL,Blob}),api={};
       factory(globalThis,id=>id===205?model:vault,()=>{},null,{exports:api},api,dependencies);
       return api;
@@ -283,6 +284,6 @@ async function test(name,fn) {
     assert.deepEqual(s.data,before);
     assert.equal(s.writes,writes);
   });
-  console.log(passed+'/14 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==14)process.exitCode=1;
+  console.log(passed+'/15 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==15)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
