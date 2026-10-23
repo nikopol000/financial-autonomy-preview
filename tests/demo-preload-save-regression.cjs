@@ -20,8 +20,9 @@ function storage(initial={}){
  setItem(k,v){writes++;data[k]=v;},removeItem(k){writes++;delete data[k];},
  get writes(){return writes;},get data(){return data;}};
 }
-function platform(s,url='https://example.test/financial-autonomy-preview/'){
+function platform(s,url='https://example.test/financial-autonomy-preview/',supportsLocks=true){
  const globalThis={localStorage:s,location:{href:url},history:{state:null,replaceState(_state,_title,next){globalThis.location.href=next}},crypto:{getRandomValues:a=>a,randomUUID:()=> 'synthetic-id'}};
+ if(supportsLocks)globalThis.navigator={locks:{request:(_name,_options,fn)=>fn()}};
  let realSaves=0,realLoads=0;
  const model={validateState:()=>{},emptyState:()=>({version:4,accounts:[],transactions:[]}),
  saveTransaction:(state,row)=>({...state,transactions:[...state.transactions,row]})};
@@ -57,6 +58,13 @@ async function test(name,fn){try{await fn();passed++;console.log('PASS',name)}ca
   await api.load();assert.equal(api.isDemo(),false);assert.equal(counts().realLoads,1);
   await api.save({version:4});assert.equal(counts().realSaves,1);
  });
+ await test('No-Web-Locks explicit real mode fails closed without calling vault writer',async()=>{
+  const s=storage(),{api,counts}=platform(s,'https://example.test/?fa_real=1',false);
+  await api.load();
+  await assert.rejects(api.save({version:4}),/Web Locks|browser actualizat/i);
+  await assert.rejects(api.resetData(),/Web Locks|browser actualizat/i);
+  assert.equal(counts().realSaves,0);assert.equal(s.writes,0);
+ });
  await test('Active demo save never reaches the real vault',async()=>{
   const s=storage(),{api,counts}=platform(s);
   const demo=await api.load();await api.save(demo);
@@ -71,6 +79,6 @@ async function test(name,fn){try{await fn();passed++;console.log('PASS',name)}ca
   assert.equal(counts().realSaves,1);
   assert.ok(globalThis.location.href.includes('fa_real=1'));
  });
- console.log(passed+'/6 demo preload-save regressions passed ('+path+')');
- if(passed!==6)process.exitCode=1;
+ console.log(passed+'/7 demo preload-save regressions passed ('+path+')');
+ if(passed!==7)process.exitCode=1;
 })().catch(err=>{console.error(err);process.exitCode=1});
