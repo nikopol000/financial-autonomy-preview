@@ -1,5 +1,12 @@
 # Financial Autonomy — Web Premium Release History
 
+## 2026-10-24 — v18.34 unchanged; no-lock simultaneous-write characterization (NO RELEASE)
+
+- Added deterministic test to active bundled AES-GCM cross-tab suite, commit **`63793dc9`**. With Web Locks absent, tab A writes between B's revision check and payload commit; both saves succeed and A's transaction disappears. This is a **known-unsafe characterization** (test expects the vulnerability), not a resolved safety check. Issue #4 remains P1 OPEN.
+- CI **40030915151 SUCCESS**, **14/14** synthetic bundled crypto/cross-tab tests; Pages build **40030914704 SUCCESS** and deploy **40030915181 SUCCESS**. Vercel production **dpl_Ek5sf4MW1ikxi52c2eZwJCartY82 READY** for exact test commit, primary alias confirmed. No immutable bundle/HTML/diagnostic change, so release remains **18.34**; no actual browser, user storage, formula or iOS touched.
+- NEXT: fail-closed/no-lock UX and real-vault write policy with tests; preserve supported Web Locks saves and isolated demo. Then release only after mandatory gates and browser verification if accessible.
+
+
 ## v18.34 — 2026-10-24 — stale real-vault save/reset guard; CI/Pages/Vercel PASS; browser OPEN
 
 - Previous v18.33 test characterization `b59487bc` Actions **40016788097 SUCCESS**; v18.33 had an actual stale second-tab overwrite risk (issue #4). Candidate PR **#5** `60855ff5` adds revision check around encrypted real-vault load/save, fail-closed zero-write conflict, same-tab revision refresh, guarded reset and optional origin-wide Web Locks. No silent financial merges, accounting formula changes, actual data access or iOS edits.
