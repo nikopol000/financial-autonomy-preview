@@ -1,5 +1,13 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-23 — v18.27 vault orphan guard ACTIVE; independent tests pass; CI/browser open
+
+- v18.27 immutable bundle `_expo/static/js/web/index-v01827-vault-orphan-guard-20261023.js` (candidate commit `c0bd035aa3b04fb80f8a7c99b1581574b98fd654`) activated in `index.html` commit `105ac171977b30660861178ab4830a10a3e9980f`. HTML version 18.27, build 18.27.1, diagnostic 18.27; metadata-driven header preserved. Comparison with v18.26 proved only two bundle edits: orphan-key fail-closed load guard and diagnostic version. No financial formula, real data or iOS changes.
+- Test assertion fix `0c0361c5e35cd653caee22003635ff5bb90677ce` makes saved decrypted state comparison structural and tests deliberately saved empty ledger. CI workflow now runs `tests/vault-orphan-regression.cjs` (commit `0ef9dcdb6abf7a5399bfe572fd49b77d42fb0455`).
+- Independent V8 parse PASS, **7/7 vault state scenarios PASS**, **12/12 reconciliation regression scenarios PASS** against exact v18.27 bundle. Official local Python/Node commands were not run; exact-HEAD GitHub Actions status is NOT verified (combined commit statuses expose Vercel only).
+- Vercel production `dpl_5L4G2bvqRhdLFjpKBYpjug1DpjL6` READY on exact `0ef9dcdb`, primary alias present. Public HTML/browser inspection blocked; deployment file tree API 404. Do not claim UI or served-header validation.
+- First unfinished action: verify exact-HEAD GitHub Actions run and served HTML/header; then audit `saveWebVault` behavior with orphan key and continue atomic multi-transaction reconciliation contracts/tests. DEMO remains unimplemented. No cosmetic releases or iOS edits.
+
 ## CURRENT WEB checkpoint — 2026-10-23 — 12 reconciliation regressions, no product release
 
 - Main test commit `8a6c124c18309651225fde30b33b29404c2aa7fa`: added 3 permanent regression cases to `tests/reconciliation-regression.cjs` for historical vs latest check separation, editing a historical linked transaction, and voiding one of two offsetting explanation rows. All **12/12 active-bundle cases PASS** in an independent V8 harness loading the real v18.26 bundle; full bundle V8 compilation PASS. Exact `index.html` metadata 18.26, bundle filename/build 18.26.1, diagnostic version 18.26 and metadata-derived header assertions PASS. The official Node/Python commands have NOT been run locally this batch.
