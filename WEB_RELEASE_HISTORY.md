@@ -1,5 +1,13 @@
 # Financial Autonomy — Web Premium Release History
 
+## Non-release verification checkpoint — 2026-10-23 — isolated in-memory demo contract
+
+- No new preview version: **v18.31** remains active. Added `src/demo-session.cjs` (synthetic seed generated with real financial engine, memory-only edits, fail-closed storage checks, no backup/diagnostic export, explicit exit and real-mode confirmation), `tests/demo-session-regression.cjs` (10 synthetic scenarios), and a permanent CI step. Commits `6668f262`, `4555505d`, `028d9c66`.
+- GitHub Actions **39983762929 SUCCESS** with new step PASS; Pages build **39983762241 SUCCESS** and deploy **39983763160 SUCCESS**; Vercel production `dpl_BFiUbZddVPFbvfMsT3phJywF4SUv READY` on exact CI commit. No actual demo UI activation, no data writes or iOS/formula changes.
+- OPEN: interactive browser/real AES-GCM E2E; integration must guard every save/export/backup/restore/reset entry point. Separate diagnostic filename mismatch (download still v18.26; JSON version 18.31) to correct during next meaningful release.
+- NEXT: integrate isolated demo into React startup and mode controls, test fail-closed storage/backup and UI behavior, release immutable synchronized v18.32 only after checks.
+
+
 
 ## v18.31 — 2026-10-23 — existing corrupted ciphertext preserved; CI/VERCEL PASS; browser OPEN
 

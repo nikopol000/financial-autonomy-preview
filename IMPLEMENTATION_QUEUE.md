@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.31 unchanged; in-memory DEMO contract TESTED, not bundled
+
+- DONE: synthetic seed and memory-only session in `src/demo-session.cjs` (`6668f262`), real-engine integration tests (`4555505d`) and permanent CI step (`028d9c66`). Demo eligibility is fail-closed on existing/legacy/corrupt/unknown keys and storage errors; reads/edits are cloned; export/backup prohibited; explicit discard and confirmation required for real mode. **10/10 new tests PASS** in GitHub Actions **39983762929 SUCCESS**. Pages build **39983762241 SUCCESS**, deployment **39983763160 SUCCESS**; Vercel production `dpl_BFiUbZddVPFbvfMsT3phJywF4SUv READY` for `028d9c66`. No app release or version bump; active v18.31.
+- OPEN: helper is NOT in React bundle, so no visible demo; need to intercept all app save/backup/diagnostic/restore/reset paths, confirm real-mode reload and handle concurrent storage. Browser and actual AES-GCM E2E unverified. Diagnostic export currently downloads a filename ending v18.26 although payload says 18.31; fix with next substantive release.
+- NEXT FIRST: integrate web UI with DEMO label, in-memory persistence and explicit exit/start-real, block export/backup/restore in demo; add automated UI and storage-failure tests, then release immutable v18.32 with synchronized filename/diagnostic/metadata. Do not change accounting formulas or iOS.
+
+
 
 ## WEB checkpoint 2026-10-23 — v18.31 ACTIVE: malformed encrypted vault preserved on direct save
 

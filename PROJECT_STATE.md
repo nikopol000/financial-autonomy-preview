@@ -1,5 +1,14 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-23 — v18.31 unchanged; isolated DEMO memory contract CI PASS; UI NOT ACTIVATED
+
+- Resumed from v18.31. Created `src/demo-session.cjs` (`6668f262`): deterministic synthetic seed via the **active financial model** (2 accounts, 3 transactions), and a session that keeps all edits in memory, returns cloned snapshots, rejects backup/diagnostic exports, and discards data on exit or if local storage becomes occupied/inaccessible. Real-mode transition requires explicit discard and confirmation; it returns a reload instruction but does not touch the real vault.
+- Added `tests/demo-session-regression.cjs` (`4555505d`) and CI workflow step (`028d9c66`). Exact GitHub Actions validation **39983762929 SUCCESS** (new isolated-demo step PASS plus release consistency, JS syntax and existing financial/vault suites). GitHub Pages build **39983762241 SUCCESS** and active deploy **39983763160 SUCCESS**. Vercel production `dpl_BFiUbZddVPFbvfMsT3phJywF4SUv` **READY** for `028d9c66`. No new user-facing bundle/version: HTML/diagnostic remain **18.31**.
+- **NOT IMPLEMENTED:** demo is NOT imported by the live React UI; no automatic demo appears yet. Tests verify the isolated contract, not that application backup/diagnostic routes are blocked. Browser/header and actual AES-GCM E2E remain unverified (public fetch disabled). Real data and iOS untouched; no financial formulas changed.
+- Audit finding: active bundle diagnostic JSON payload version is 18.31, but its downloaded filename is still hardcoded `financial-autonomy-diagnostic-unic-v18.26.json`, and bundle detection searches for `index-v01811`. Correct these with the next substantive release and test filename/metadata alignment; do not bump version solely for cosmetics.
+- **NEXT FIRST:** integrate session into web-only startup/UI with a visible DEMO badge and explicit `Ieși din demo / Începe cu date reale` boundary; route *all* saves to memory while in demo, block backup/diagnostic/restore/reset paths, never auto-activate if real/legacy/unknown storage exists; add UI/storage/reload tests before immutable v18.32. Preserve issue #2 financial semantics and cross-tab limitations.
+
+
 
 ## CURRENT WEB checkpoint — 2026-10-23 — v18.31 corrupt ciphertext overwrite guard ACTIVE; CI/VERCEL PASS; browser OPEN
 
