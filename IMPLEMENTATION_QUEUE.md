@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.28 vault save fail-closed protection ACTIVE; CI PASS
+
+- v18.27 gap reproduced: an orphan encryption key caused a guarded load error but did not prevent a direct `saveWebVault` from recreating ciphertext. This was verified against the real v18.27 bundle with an in-memory storage mock (one unexpected write).
+- v18.28 immutable candidate `5e552a8d`, HTML activation `2d78ba31`, five new persistent vault-write tests `58c19cfe`. HTML/bundle/diagnostic version aligned to 18.28; no accounting engine, data, iOS or DEMO changes.
+- Exact `58c19cfe` GitHub Actions validation `39922341479` SUCCESS: Python release consistency, Node syntax, 12 reconciliation scenarios and 11 vault load/save scenarios PASS. Vercel production `dpl_9JbTqfY1zmN1Qd3g1UEzaS3pf9Tn` READY on exact commit, primary alias confirmed. Pages build `39922341079` SUCCESS; separate Pages deployment `39922341352` not yet terminal at checkpoint.
+- OPEN: public served HTML/header and interactive error behavior (web fetch disabled; Vercel fetch 403). NEXT: verify exact HEAD checks after docs, attempt browser when authorized, then implement atomic multi-transaction reconciliation via contract/test-first approach; independently audit fail-closed DEMO eligibility and legacy keys. No unnecessary version bump.
+
+
 ## WEB checkpoint 2026-10-23 — v18.27 activated; CI/browser verification open
 
 - Security release v18.27: immutable candidate `_expo/static/js/web/index-v01827-vault-orphan-guard-20261023.js` (candidate commit `c0bd035a`) activated by `index.html` commit `105ac171977b30660861178ab4830a10a3e9980f`. Metadata, bundle/build and diagnostic all identify 18.27. Exact diff from v18.26: fail-closed orphan vault key guard plus diagnostic version only; no financial formula changes.
