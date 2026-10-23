@@ -1,5 +1,15 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-23 — v18.28 ACTIVE; vault save/load guards and CI verified; browser open
+
+- Reproduced a real v18.27 data-safety gap: `loadWebVault` rejected an orphan encryption key with missing payload, but `saveWebVault` still wrote a new payload under that orphan key. Independent V8 reproduction: load threw, save did NOT throw, and one payload write occurred.
+- Implemented the narrow fail-closed write guard in immutable v18.28 bundle `_expo/static/js/web/index-v01828-vault-save-guard-20261023.js` (candidate commit `5e552a8d8588d9e978d7615ee8b80a510cce1404`); activated with synchronized HTML 18.28, build 18.28.1, diagnostic 18.28 (commit `2d78ba317e910549cb9737ddf1af22d1831b3c58`). No financial formulas, saved user data, demo data, or iOS project touched.
+- Added 5 persistent vault write regressions to `tests/vault-orphan-regression.cjs`: orphan save rejection/no writes, first save, existing vault update, payload-only rejection, failed first write followed by guarded retry (commit `58c19cfe9222983982400ffdd92429e1145c443f`). Independent candidate V8 parse PASS and four write scenarios PASS before activation.
+- Exact test commit GitHub Actions validation run `39922341479` **SUCCESS**, confirmed from job logs: `python3 scripts/check_release.py` PASS (version/bundle/diagnostic), Node syntax PASS, **12/12** reconciliation regressions PASS, **11/11** vault load/save regressions PASS. GitHub Pages build run `39922341079` SUCCESS; separate active-preview Pages deployment run `39922341352` was still in progress at checkpoint.
+- Vercel production deployment `dpl_9JbTqfY1zmN1Qd3g1UEzaS3pf9Tn` **READY** for exact test commit `58c19cfe`, alias `financial-autonomy-preview.vercel.app` confirmed by deployment details. Served public HTML/header and interactive UI NOT verified: web fetch disabled and Vercel protected fetch returned 403 (deployment aliases permission). Do not equate READY with browser testing.
+- NEXT: recheck exact HEAD CI/deploy after continuity commits, retry served/browser verification when access exists; then define atomic multi-transaction reconciliation batch contract and add tests before implementing UI. Audit isolated DEMO storage/legacy-key eligibility separately; DEMO not implemented. No cosmetic releases.
+
+
 ## CURRENT WEB checkpoint — 2026-10-23 — v18.27 vault orphan guard ACTIVE; independent tests pass; CI/browser open
 
 - v18.27 immutable bundle `_expo/static/js/web/index-v01827-vault-orphan-guard-20261023.js` (candidate commit `c0bd035aa3b04fb80f8a7c99b1581574b98fd654`) activated in `index.html` commit `105ac171977b30660861178ab4830a10a3e9980f`. HTML version 18.27, build 18.27.1, diagnostic 18.27; metadata-driven header preserved. Comparison with v18.26 proved only two bundle edits: orphan-key fail-closed load guard and diagnostic version. No financial formula, real data or iOS changes.
