@@ -263,3 +263,14 @@ test('Duplicate row IDs are rejected before prepare', () => {
   assert.throws(() => d.add(row('a','income',200)),/duplicat/);
   assert.equal(d.getRows().length,1);
 });
+
+
+test('UI-shaped income and unbudgeted expense rows pass the REAL financial engine', () => {
+  const out = stage(state(),[
+    row('ui-expense','expense',700,{financialRole:'unbudgeted'}),
+    row('ui-income','income',200,{financialRole:'income'})
+  ]);
+  assert.equal(diff(out),0);
+  assert.equal(out.transactions.length,2);
+  assert.equal(rec.checkedBalance(out,'ing',date),9500);
+});
