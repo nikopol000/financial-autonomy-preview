@@ -40,3 +40,5 @@ jobs:
         run: node tests/reconciliation-batch-regression.cjs
       - name: Reconciliation editor UI and guarded persistence
         run: node tests/reconciliation-ui-regression.cjs
+      - name: Reconciliation history reload void and persistence regression
+        run: node tests/reconciliation-history-persistence-regression.cjs
