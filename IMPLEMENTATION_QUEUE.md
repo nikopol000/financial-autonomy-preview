@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.27 activated; CI/browser verification open
+
+- Security release v18.27: immutable candidate `_expo/static/js/web/index-v01827-vault-orphan-guard-20261023.js` (candidate commit `c0bd035a`) activated by `index.html` commit `105ac171977b30660861178ab4830a10a3e9980f`. Metadata, bundle/build and diagnostic all identify 18.27. Exact diff from v18.26: fail-closed orphan vault key guard plus diagnostic version only; no financial formula changes.
+- Corrected permanent vault regression test (commit `0c0361c5e35cd653caee22003635ff5bb90677ce`) to compare decrypted JSON structurally and cover deliberately saved empty state. Added test to Actions workflow in `0ef9dcdb6abf7a5399bfe572fd49b77d42fb0455`.
+- Independent V8 checks on the exact committed v18.27 bundle: full JavaScript parse PASS, vault state cases **7/7 PASS**, active reconciliation regression cases **12/12 PASS**. These are NOT a substitute for the official Node/Python commands or GitHub Actions.
+- Vercel production deployment `dpl_5L4G2bvqRhdLFjpKBYpjug1DpjL6` READY for exact workflow commit `0ef9dcdb`, with primary alias `financial-autonomy-preview.vercel.app`. GitHub combined status exposed Vercel success only; **exact-HEAD GitHub Actions result NOT VERIFIED**. Vercel file-tree endpoint returned 404 and public HTML/browser fetch was unavailable; served HTML/header and interactive vault recovery are **NOT VERIFIED**.
+- NEXT: obtain exact-HEAD Actions logs/result and run `python3 scripts/check_release.py`, `node --check`, `node tests/vault-orphan-regression.cjs`, `node tests/reconciliation-regression.cjs` when execution environment is available. Independently verify served HTML, header and vault error in browser. If still blocked, audit `saveWebVault` orphan-key write behavior and define/test atomic multi-row reconciliation before UI implementation. Do not implement demo until fail-closed storage/legacy-key contract is complete; no iOS edits.
+
 ## WEB checkpoint 2026-10-23 — v18.26 CI debt resolved; four regression tests committed
 
 - Exact v18.26 release metadata/bundle/diagnostic already active in main; no new product release in this iteration.
