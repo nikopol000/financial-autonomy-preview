@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.33 ACTIVE; preload save isolation verified in CI
+
+- DONE: reproduced an early direct platform `save` on fresh storage reaching the real vault before demo initialization in v18.32. Guarded this lifecycle path in immutable v18.33 without changing existing vault operations or demo memory saves. Candidate `ed015a21`; HTML activation `f5dca7e1`. Version, build query, bundle and diagnostic all **18.33**.
+- VERIFIED: v18.32 actual module **1 unintended real writer call**; v18.33 **0 calls and rejection** in independent V8 probe. Added six synthetic preload/exit/real-mode regressions; candidate Actions **40000283633 SUCCESS**, active Actions **40000400577 SUCCESS**. Demo UI integration regression now targets the actual active bundle, not pinned v18.32. Vercel **dpl_E3UXJimCmHEo3RZ4UzMmn3pvTC6K READY** on activation SHA, production alias confirmed.
+- OPEN: Pages final status pending at inspection; interactive browser/mobile, served header and real AES-GCM E2E unverified. Issue #2 retroactive reconciliation contract and cross-tab atomicity unresolved. No iOS, real user data or accounting formula modifications.
+- NEXT FIRST: terminal Pages confirmation; authorized browser smoke test of fresh demo, no storage writes, edit/reload, blocked export, exit to real mode and existing encrypted vault. Follow with synthetic AES-GCM E2E and documented P1/P2 premium UX issues. No cosmetic release.
+
+
 ## WEB checkpoint 2026-10-23 — v18.32 ACTIVE; demo isolated in WEB UI, browser still unverified
 
 - DONE: integrated existing demo eligibility/session into active WEB platform and React startup. Fresh browser gets synthetic 2-account/3-operation DEMO with clear badge; all saves remain in memory. Backup/diagnostic export, import/restore and reset blocked; explicit confirmed exit/start-real uses URL-only mode marker. Real/legacy/corrupt/unknown storage never auto-activates demo; concurrent storage appearance invalidates it. Diagnostic JSON, filename, metadata, bundle/build aligned to **18.32**. Candidate `d038e203`, activation `12253a14`.

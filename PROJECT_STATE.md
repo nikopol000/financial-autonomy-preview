@@ -1,5 +1,14 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-23 — v18.33 ACTIVE; preload-save fail-closed; CI/Vercel PASS, browser OPEN
+
+- Continued from v18.32 isolated demo. Found and reproduced a concrete direct-API write gap on the **actual v18.32 bundle**: on a completely fresh browser, calling platform `save` before `load` invoked the real encrypted-vault writer once, bypassing the intended automatic demo boundary. This is an API lifecycle gap; no evidence it was reachable through the normal rendered UI. No real browser storage or user ledger was touched.
+- Immutable v18.33 bundle `_expo/static/js/web/index-v01833-demo-preload-guard-20261023.js` created at `ed015a21`; activated in `index.html` at `f5dca7e1`. New guard refuses a pre-initialization real-vault write on empty inspectable storage unless the user has explicitly selected real mode (`fa_real=1` or confirmed exit). Existing-vault paths and demo memory saves remain unchanged. Independent V8 reproduction: v18.32 real writer **1 call**, v18.33 **0 calls + explicit error**.
+- Added `tests/demo-preload-save-regression.cjs` (6 synthetic lifecycle scenarios); initial CI exposed a test-harness globalThis isolation error, fixed at `76b706f6`. Candidate GitHub Actions **40000283633 SUCCESS**. Removed stale v18.32 pinning from the active demo integration regression/CI; active release GitHub Actions **40000400577 SUCCESS** (release/syntax, reconciliation, vault and demo suites). HTML metadata, immutable filename/build key, embedded diagnostic and downloaded diagnostic filename all **18.33**. Vercel production **dpl_E3UXJimCmHEo3RZ4UzMmn3pvTC6K READY** for exact activation `f5dca7e1`, primary alias confirmed.
+- **OPEN:** Pages build/deploy for activation were still running at last inspection; actual served browser/header, mobile UX, AES-GCM browser E2E and concurrent-tab atomicity unverified (public fetch disabled). Issue #2 historical correction semantics remains contract-gated. No financial formulas, real data, source stable main or iOS modified.
+- **NEXT FIRST:** verify terminal Pages result and authorized interactive v18.33 browser smoke test (fresh demo, memory-only edit/reload, blocked export, explicit real transition, existing encrypted vault). Then add synthetic real-crypto AES-GCM save/reload tests and address evidenced premium UX issues; avoid cosmetic releases.
+
+
 ## CURRENT WEB checkpoint — 2026-10-23 — v18.32 ACTIVE; isolated DEMO UI + memory-only saves, CI/Pages/Vercel PASS; browser OPEN
 
 - Continued from the verified v18.31 demo contract. Created immutable candidate `_expo/static/js/web/index-v01832-isolated-demo-20261023.js` (corrected candidate `d038e203`); activated via `index.html` at `12253a14`. HTML metadata, immutable bundle/build query, embedded diagnostic JSON version, diagnostic filename and bundle lookup now identify **18.32**.

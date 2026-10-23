@@ -1,5 +1,13 @@
 # Financial Autonomy — Web Premium Release History
 
+## v18.33 — 2026-10-23 — fail-closed preload save before demo startup; CI/Vercel PASS, browser OPEN
+
+- Reproduced on real v18.32 platform module: an early direct `save` on empty localStorage reached the real vault writer once before `load` could initialize demo. Immutable v18.33 adds a conservative guard that rejects this path; explicit `fa_real=1`, confirmed exit, existing-vault saves and demo memory edits remain allowed. Independent V8 probe on v18.33 confirmed **zero** real-vault writes for the same case. This is API-level safety hardening; normal UI exploitability is not established.
+- Candidate `_expo/static/js/web/index-v01833-demo-preload-guard-20261023.js` at `ed015a21`; activated HTML `f5dca7e1`. Added six regression scenarios and corrected test VM isolation (`76b706f6`). Candidate CI **40000283633 SUCCESS**; active CI **40000400577 SUCCESS**. Updated active demo integration regression to follow the HTML version rather than stale v18.32. HTML/bundle/build/diagnostic JSON and diagnostic filename all **18.33**.
+- Vercel production **dpl_E3UXJimCmHEo3RZ4UzMmn3pvTC6K READY**, exact activation commit and primary alias confirmed. Pages build/deploy not yet terminal at last check. Browser-served HTML/header, real AES-GCM E2E and iPhone viewport remain unverified (protected fetch unavailable). No financial formula, real user data or iOS change.
+- Rollback: point `index.html` to immutable v18.32, but doing so reopens the confirmed preload-write bypass; prefer forward correction. NEXT: finish Pages verification, interactive synthetic browser demo/real transition and crypto E2E, then priority premium UX.
+
+
 ## v18.32 — 2026-10-23 — isolated memory-only DEMO activated; CI/Pages/Vercel PASS, browser OPEN
 
 - Continued from v18.31 tested demo contract; immutable candidate `_expo/static/js/web/index-v01832-isolated-demo-20261023.js` (corrected candidate `d038e203`), activated by `index.html` commit `12253a14802357219b0f566f5371a2c57fb7a308`. Auto demo only on completely empty inspectable same-origin storage; 2 synthetic accounts and 3 synthetic transactions, cloned in-memory updates through real financial engine. DEMO badge and explicit confirmed real-mode transition; concurrent storage invalidates demo.
