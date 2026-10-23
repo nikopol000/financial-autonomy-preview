@@ -46,7 +46,5 @@ jobs:
         run: node tests/demo-eligibility-regression.cjs
       - name: Vault presence and empty ciphertext regression against active release
         run: node tests/vault-presence-regression.cjs
-      - name: Vault corrupt ciphertext preservation candidate
-        env:
-          FA_VAULT_TEST_BUNDLE: _expo/static/js/web/index-v01831-vault-corrupt-guard-20261023.js
+      - name: Vault corrupt ciphertext preservation against active release
         run: node tests/vault-corrupt-save-regression.cjs
