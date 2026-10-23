@@ -16,8 +16,10 @@ assert.ok(start >= 0 && end > start, 'Vault module boundaries changed');
 const factory = vm.runInNewContext('(' + source.slice(start + 4, end + 1) + ')');
 const fresh = { version: 4, accounts: [], transactions: [], balanceChecks: [] };
 const saved = { version: 4, accounts: [{ id: 'saved' }], transactions: [], balanceChecks: [] };
+const emptySaved = { version: 4, accounts: [], transactions: [], balanceChecks: [] };
+let decoded = saved;
 const model = { emptyState: () => fresh, migrate: x => x, validateState: () => {} };
-const crypto = { hexToBytes: () => new Uint8Array(32), unseal: () => JSON.stringify(saved) };
+const crypto = { hexToBytes: () => new Uint8Array(32), unseal: () => JSON.stringify(decoded) };
 const api = {};
 factory({}, id => id === 205 ? model : crypto, () => {}, null, {}, api, [205, 311]);
 const KEY = 'financial-autonomy.preview.key.v1';
@@ -53,7 +55,10 @@ test('Existing encrypted payload with missing key remains blocked', () => {
 });
 test('Existing encrypted data, including a deliberately empty ledger, stays real', () => {
   const s = storage({ [KEY]: 'a'.repeat(64), [PAYLOAD]: 'ciphertext' });
-  assert.equal(api.loadWebVault(s), saved);
+  assert.deepEqual(JSON.parse(JSON.stringify(api.loadWebVault(s))), saved);
+  decoded = emptySaved;
+  assert.deepEqual(JSON.parse(JSON.stringify(api.loadWebVault(s))), emptySaved);
+  decoded = saved;
   assert.equal(s.writes, 0);
 });
 test('Storage permission errors never fall back to an empty ledger', () => {
