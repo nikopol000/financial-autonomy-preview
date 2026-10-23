@@ -2,7 +2,7 @@
 // WEB integration tests on the actual staged/active JS bundle. Synthetic storage only.
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8');
-const active=html.match(/<script src="\\/financial-autonomy-preview\\/([^"?]+\\.js)\\?build=/)?.[1];
+const active=html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=/)?.[1];
 const path=process.env.FA_DEMO_BUNDLE||active;
 assert.ok(path,'Bundle missing');const source=fs.readFileSync(path,'utf8');
 function factory(marker,end,globals={}){
@@ -12,7 +12,7 @@ function factory(marker,end,globals={}){
 }
 const rec={};factory('Object.defineProperty(_e,"comparePoint"','},207,[]);')({},()=>{},()=>{},null,{},rec,[]);
 const model={};
-const deps={206:{upgradeNames:s=>s,roleOf:t=>t.kind,attachTransactionName:(s,t)=>({s,t}),validateNames:()=>{}},207:rec,208:{validAppearance:()=>true},209:{isDashboardModuleId:()=>true},210:{},204:{today:()=> '2026-10-23',validDate:d=>/^\\d{4}-\\d{2}-\\d{2}$/.test(d),validateState:()=>{}}};
+const deps={206:{upgradeNames:s=>s,roleOf:t=>t.kind,attachTransactionName:(s,t)=>({s,t}),validateNames:()=>{}},207:rec,208:{validAppearance:()=>true},209:{isDashboardModuleId:()=>true},210:{},204:{today:()=> '2026-10-23',validDate:d=>/^\d{4}-\d{2}-\d{2}$/.test(d),validateState:()=>{}}};
 factory('e.saveTransaction=function','},205,[206,207,208,209,210,204]);')({},id=>deps[id],()=>{},null,{},model,[206,207,208,209,210,204]);
 const KEY='financial-autonomy.preview.key.v1',PAYLOAD='financial-autonomy.preview.payload.v1';
 function storage(initial={}){
