@@ -1,5 +1,14 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-23 — atomic reconciliation staging contract committed; v18.28 unchanged
+
+- Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, active index/bundle and existing regression tests. Exact active HTML remains v18.28, bundle `index-v01828-vault-save-guard-20261023.js`, diagnostic 18.28; no product bundle release this batch.
+- Added pure, **not yet wired to the UI**, `src/reconciliation-batch.cjs` staging helper (commit `624f2e51`), with fail-closed validation and single-snapshot handoff; it calls the real model's `saveTransaction`, `checkRows`, `checkedBalance` rather than introducing new accounting formulas. It does not persist data. Initial scope is **income/expense rows on cash/current/savings accounts with the same date as the balance check**; debt, transfers, historical edits and mixed dates remain unsupported pending contracts.
+- Added `tests/reconciliation-batch-regression.cjs` (commit `4128808e`) and wired it to `.github/workflows/validate-release.yml` (commit `1c137e59`). Twelve contract cases executed independently against actual v18.28 bundle modules 205/207 in V8: **12 PASS, 0 FAIL**. Includes positive/negative signed offsets, overshoot, incomplete draft rejection, invalid later row rollback, duplicate IDs, no writes on cancel, single snapshot handoff, preexisting partial explanations, and historical-check isolation. This independent V8 execution is NOT the GitHub Actions result.
+- Vercel production `dpl_DN7UqDeeffqmRaFQ8GVPoRdShwLE` READY for exact workflow commit `1c137e595c85566ddff80da836ef367db5fcc9ef`, with primary alias. GitHub connector's commit-run lookup returned an empty list (PR-only limitation), so **exact-HEAD CI is not confirmed**. Public browser/served-header verification remains OPEN (previous 403).
+- NEXT FIRST: obtain GitHub Actions validation result for `1c137e59`; if failed, repair the test harness. Then integrate the verified staging contract into a real multi-row editor with editable draft rows, live remaining difference, Cancel and exactly one encrypted save; test UI and no double counting before creating synchronized v18.29. Preserve same-date model invariant until an explicitly tested multi-date contract exists. Audit isolated DEMO separately. No iOS, real vault, or financial formula changes.
+
+
 ## CURRENT WEB checkpoint — 2026-10-23 — v18.28 ACTIVE; vault save/load guards and CI verified; browser open
 
 - Reproduced a real v18.27 data-safety gap: `loadWebVault` rejected an orphan encryption key with missing payload, but `saveWebVault` still wrote a new payload under that orphan key. Independent V8 reproduction: load threw, save did NOT throw, and one payload write occurred.
