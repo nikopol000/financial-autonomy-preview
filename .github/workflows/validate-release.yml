@@ -54,3 +54,7 @@ jobs:
         run: |
           node --check _expo/static/js/web/index-v01832-isolated-demo-20261023.js
           FA_DEMO_BUNDLE=_expo/static/js/web/index-v01832-isolated-demo-20261023.js node tests/demo-web-integration-regression.cjs
+      - name: Verify v18.33 demo preload write guard against the candidate bundle
+        run: |
+          node --check _expo/static/js/web/index-v01833-demo-preload-guard-20261023.js
+          FA_DEMO_BUNDLE=_expo/static/js/web/index-v01833-demo-preload-guard-20261023.js node tests/demo-preload-save-regression.cjs
