@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.34 unchanged; P1 no-lock race independently reproduced
+
+- DONE: reviewed real v18.34 platform and crypto modules; appended one deterministic no-Web-Locks simultaneous interleaving test to `tests/vault-real-crypto-regression.cjs` at **`63793dc9`**. Test demonstrates that even with stale-revision comparison, B can overwrite A after both loaded S and B passed its check. This is an explicitly **known-bad characterization**, not a passing safety property. No financial or demo logic changed.
+- VERIFIED: **14/14** bundled real-AES synthetic tests in Actions **40030915151 SUCCESS** (plus existing active demo/preload/financial checks); Pages build **40030914704 SUCCESS**, Pages deployment **40030915181 SUCCESS**; Vercel production **dpl_Ek5sf4MW1ikxi52c2eZwJCartY82 READY** for test commit and primary alias. Active version/diagnostic remain **18.34**. iOS and real storage untouched.
+- NEXT FIRST (P1 issue #4): choose and implement a genuinely safe no-lock fallback; localStorage check-then-write or lease is **not atomic**. Prefer blocking real-vault save/reset when Web Locks is absent, with actionable Romanian UI feedback and explicit test harness adaptation. Confirm locked browsers retain functionality and demo stays memory-only. Run regression + release gate, then only ship an immutable new version when verified. Browser/iPhone E2E and financial issue #2 remain open.
+
+
 ## WEB checkpoint 2026-10-24 — v18.34 ACTIVE; P1 multi-tab mitigation released, browser and no-lock race OPEN
 
 - DONE: immutable WEB v18.34, PR #5 merged `abbe34b`; real-mode load records exact ciphertext/key revision; stale save/reset rejects with zero writes; successful saves refresh revision; Web Locks serializes cooperating tabs when available. Existing AES-GCM, demo memory-only boundary and financial formulas preserved. Real-crypto tests expanded from 10 characterization cases to **13 regression cases** (including stale rejection, lock serialization, same-tab repeat, reload recovery, reset and corruption).
