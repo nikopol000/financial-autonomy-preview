@@ -4,6 +4,7 @@
 
 - DONE: actual Dashboard reconciliation UI wired to tested draft/batch engine for cash/current/savings, with signed totals, editable income/expense rows, Cancel, stale encrypted-ledger check and one guarded encrypted save. Unsupported debt/credit paths retain previous Record behavior. Activation `8290d68c`, version + diagnostic 18.29 synchronized.
 - VERIFIED: GitHub Actions `39950690986` SUCCESS (28 batch/draft, 6 UI simulation, 12 reconciliation, 11 vault tests; release and JS syntax checks), Pages build `39950689715` SUCCESS, active Pages deploy `39950690949` SUCCESS, Vercel production `dpl_AanfPkafjKtuQ8N7xutDdJftsDoC` READY on activation commit. History `WEB_RELEASE_HISTORY.md` updated.
+- POST-RELEASE TEST: UI-shaped income/unbudgeted rows passed the actual financial engine in commit `bcfb865a`, CI `39950948282` SUCCESS (**29/29** batch/controller and 6/6 simulated editor UI), Vercel READY for exact test commit. No new release needed.
 - OPEN: served browser/header, populated mobile light/dark, actual history/reload/void and failed-save browser behavior; Vercel browser fetch 403, public fetch unavailable. No cross-tab atomicity claim. Automatic isolated demo remains NOT IMPLEMENTED. No iOS changes.
 - NEXT FIRST: browser synthetic-vault end-to-end verification of v18.29 (or independent history/reload/void tests if access remains blocked); then fail-closed demo eligibility audit including orphan key, explicit empty saved ledger and legacy keys. Avoid cosmetic version bumps; do not touch iOS.
 
