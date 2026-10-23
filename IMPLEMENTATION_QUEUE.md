@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.26 activated, verification incomplete
+
+- `index.html` activated immutable v18.26 bundle in commit `6ff0aa628dff0ee3ee0326e74a9971d1e58defbe` (meta 18.26, build 18.26.1, diagnostic 18.26). JS V8 parse PASS and seven independent reconciliation cases PASS.
+- Vercel production `dpl_G1R3GoEtRhnGrDjjhXELka4ZnntK` READY for exact commit, with primary alias `financial-autonomy-preview.vercel.app`. Served HTML/header and interactive browser are NOT independently verified. GitHub Actions push CI result NOT confirmed (connector returns only PR-triggered runs). Local Node and Python release commands NOT executed.
+- Additional regression cases for negative/zero successive checks and historical signed rows passed V8 probes, but GitHub write of permanent tests was BLOCKED by safety checks; no tests committed. Demo and multi-row UI still open. iOS unchanged.
+- First unfinished step: obtain exact-HEAD GitHub Actions validation and served HTML/header proof; then persist tests and begin multi-row explanation UI or fail-closed isolated demo. No cosmetic release.
+
+
 ## WEB checkpoint 2026-10-23 — v18.26 candidate tested but NOT ACTIVATED
 
 - Immutable candidate exists: `_expo/static/js/web/index-v01826-reconciliation-20261022.js`, blob `a4fa059fdbafce7069f71150a9e129f15ea3c3f7`, committed at `0b7d78d239a2046123a5fc6463a5d18a3f07ae91` (Vercel READY for candidate commit only).
