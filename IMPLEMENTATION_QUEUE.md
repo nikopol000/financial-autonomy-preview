@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — financial-engine-derived draft totals TESTED, UI still OPEN
+
+- IMPLEMENTED (helper only): `previewReconciliationBatch` in `src/reconciliation-batch.cjs`, commit `07ccc74683b204b8ae2a2588b9a7ef5aafb31d27`. It computes live difference-before-draft, signed explained total, remainder and canSave from a cloned **real financial model** state. Empty and partial rows are previewable; no partial state can be persisted through this API. Existing strict final staging contract remains intact. No financial formulas or vault writes changed.
+- TESTED: seven new persistent regression cases, commit `a0ddf31a5334a6c8fa8e5b2a82eb2dc4bf847f1f`; **19/19 batch cases PASS in GitHub Actions run 39935979084**, along with release consistency, JS syntax, vault, reconciliation and shell checks. Vercel `dpl_65Tich4aARB1xvqwENsnzALrEgCt` READY for exact test commit with primary alias. GitHub Pages deployment pending at last inspection; browser/served header unverified.
+- STATUS: active version **v18.28**, unchanged. This is a verified contract/test improvement, **NOT** an interactive multi-row editor or a new release. No iOS or user financial data touched.
+- NEXT FIRST: integrate add/edit/remove draft rows into the actual web UI, use live totals and strict stage, guard against stale state, Cancel without writes and save one encrypted snapshot; test history/reload/no double counting and UI. Only then release immutable synchronized v18.29 with full CI/Vercel/served-browser checks. Audit fail-closed isolated DEMO separately.
+
 ## WEB checkpoint 2026-10-23 — reconciliation batch contract TEST-FIRST, no UI release
 
 - IMPLEMENTED (not yet active in preview UI): `src/reconciliation-batch.cjs` stages multiple linked income/expense transactions in memory using existing model functions, rejects partial/invalid batches, and returns one validated snapshot for the caller to persist once. It never writes to the vault itself. Commit `624f2e51`.
