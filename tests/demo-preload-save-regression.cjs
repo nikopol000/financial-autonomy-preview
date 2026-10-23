@@ -11,7 +11,7 @@ const source=fs.readFileSync(path,'utf8');
 const marker='e.unlock=async function(){return!0}';
 const at=source.indexOf(marker),start=source.lastIndexOf('__d(function(',at),end=source.indexOf('},309,[205,310]);',at);
 assert.ok(at>=0&&start>=0&&end>start,'WEB platform module missing');
-const factory=vm.runInNewContext('('+source.slice(start+4,end+1)+')',{URL,Blob});
+const factorySource='('+source.slice(start+4,end+1)+')';
 const KEY='financial-autonomy.preview.key.v1',PAYLOAD='financial-autonomy.preview.payload.v1';
 function storage(initial={}){
  const data={...initial};let writes=0;
@@ -28,6 +28,7 @@ function platform(s,url='https://example.test/financial-autonomy-preview/'){
  const vault={loadWebVault:()=>{realLoads++;return model.emptyState();},
  saveWebVault:()=>{realSaves++;},clearWebVault:()=>{}};
  const api={};
+ const factory=vm.runInNewContext(factorySource,{globalThis,URL,Blob});
  factory({},id=>id===205?model:vault,()=>{},null,{},api,[205,310]);
  return {api,globalThis,counts:()=>({realSaves,realLoads})};
 }
