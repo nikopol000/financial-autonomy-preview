@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.29 ACTIVE: multi-row editor, browser verification still OPEN
+
+- DONE: actual Dashboard reconciliation UI wired to tested draft/batch engine for cash/current/savings, with signed totals, editable income/expense rows, Cancel, stale encrypted-ledger check and one guarded encrypted save. Unsupported debt/credit paths retain previous Record behavior. Activation `8290d68c`, version + diagnostic 18.29 synchronized.
+- VERIFIED: GitHub Actions `39950690986` SUCCESS (28 batch/draft, 6 UI simulation, 12 reconciliation, 11 vault tests; release and JS syntax checks), Pages build `39950689715` SUCCESS, active Pages deploy `39950690949` SUCCESS, Vercel production `dpl_AanfPkafjKtuQ8N7xutDdJftsDoC` READY on activation commit. History `WEB_RELEASE_HISTORY.md` updated.
+- OPEN: served browser/header, populated mobile light/dark, actual history/reload/void and failed-save browser behavior; Vercel browser fetch 403, public fetch unavailable. No cross-tab atomicity claim. Automatic isolated demo remains NOT IMPLEMENTED. No iOS changes.
+- NEXT FIRST: browser synthetic-vault end-to-end verification of v18.29 (or independent history/reload/void tests if access remains blocked); then fail-closed demo eligibility audit including orphan key, explicit empty saved ledger and legacy keys. Avoid cosmetic version bumps; do not touch iOS.
+
 ## WEB checkpoint 2026-10-23 — draft row controller TESTED, interactive UI NOT YET IMPLEMENTED
 
 - IMPLEMENTED: `src/reconciliation-draft.cjs` (commit `5be2ee4b`) provides in-memory add/edit/remove, signed preview from real financial model, Cancel, stale-state guard and one final validated snapshot handoff. It does NOT save, change financial formulas or alter real data.
