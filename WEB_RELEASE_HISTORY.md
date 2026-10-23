@@ -1,5 +1,13 @@
 # Financial Autonomy — Web Premium Release History
 
+## 2026-10-23 — v18.33 unchanged; cross-tab encrypted-vault lost-update audit (NO RELEASE)
+
+- Inspected real active WEB modules 309/310. The decrypt/validate-before-save guard preserves corrupt ciphertext, but a **valid newer** ciphertext can be overwritten by a second tab saving an older ledger snapshot. Logged **P1 issue #4**; no financial formulas or user data touched.
+- Added synthetic stale-writer characterization and demo/real cross-tab boundary check to `tests/vault-real-crypto-regression.cjs` at `b59487bc`. Test JS parses, 10 declared cases; **GitHub Actions runtime outcome unavailable at checkpoint**. The lost-update case deliberately characterizes unsafe v18.33 behavior; it must become a rejection regression after the fix.
+- Vercel production `dpl_B1tUhxNaAANbbQxmGcDSxqPMVHV1` READY for exact test commit. Browser, Pages and Actions status for this commit not independently confirmed. Active HTML, bundle, build key and diagnostic remain **18.33**; no new release.
+- NEXT: verify CI; implement and test fail-closed stale-write detection/serialization with explicit fallback limits, then only release a versioned WEB artifact after all required checks. iOS untouched.
+
+
 ## 2026-10-23 — v18.33 unchanged; synthetic AES-256-GCM verification only (no release)
 
 - Added eight regression cases using the **actual bundled** AES-GCM and vault code, cross-checked against Node/OpenSSL; synthetic save/reload/edit, tamper and write-failure preservation, and explicit real-mode reload PASS. No application code, version, diagnostic or iOS change.
