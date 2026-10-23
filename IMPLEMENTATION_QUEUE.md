@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.34 ACTIVE; P1 multi-tab mitigation released, browser and no-lock race OPEN
+
+- DONE: immutable WEB v18.34, PR #5 merged `abbe34b`; real-mode load records exact ciphertext/key revision; stale save/reset rejects with zero writes; successful saves refresh revision; Web Locks serializes cooperating tabs when available. Existing AES-GCM, demo memory-only boundary and financial formulas preserved. Real-crypto tests expanded from 10 characterization cases to **13 regression cases** (including stale rejection, lock serialization, same-tab repeat, reload recovery, reset and corruption).
+- VERIFIED: PR CI **40024635654 SUCCESS**, merged-main CI **40024733423 SUCCESS**, Pages build **40024733502 SUCCESS**, Pages deployment **40024733526 SUCCESS**; Vercel **dpl_GP34wybJjTEUVVjs5uuxKkdGvB4H READY** exact merge SHA and primary alias. Version, HTML/build, diagnostic JSON/name **18.34**. No iOS or real data modified.
+- LIMIT: Web Locks not guaranteed in every browser; fallback detects sequential stale snapshots but **cannot provide atomic simultaneous compare-and-swap**. Issue #4 stays OPEN until browser and fallback risk disposition. Interactive Vercel/browser and mobile UX unverified; issue #2 historical reconciliation contract remains open.
+- NEXT FIRST: confirm checkpoint commit's active preload regression and CI, test real browser synthetic demo and two-tab conflict/reload with Web Locks; if unavailable, add an explicit safety affordance for browsers without lock support and audit same-tab pending saves. Then proceed to evidenced premium UX changes; no cosmetic releases.
+
 ## WEB checkpoint 2026-10-23 — v18.33 ACTIVE; P1 multi-tab stale write characterized, fix NEXT
 
 - AUDIT: active WEB platform module 309 saves the caller's entire ledger via vault module 310; vault verifies existing ciphertext integrity, **not** the caller's previously loaded revision. A second tab with a stale snapshot can silently replace a newer tab's valid financial transaction. Tracked as **issue #4** (P1, potential financial data loss). No formula change authorized or made.

@@ -54,7 +54,5 @@ jobs:
         run: node tests/demo-session-regression.cjs
       - name: Active isolated demo WEB integration regression
         run: node tests/demo-web-integration-regression.cjs
-      - name: Verify v18.33 demo preload write guard against the candidate bundle
-        run: |
-          node --check _expo/static/js/web/index-v01833-demo-preload-guard-20261023.js
-          FA_DEMO_BUNDLE=_expo/static/js/web/index-v01833-demo-preload-guard-20261023.js node tests/demo-preload-save-regression.cjs
+      - name: Verify active WEB demo preload write guard
+        run: node tests/demo-preload-save-regression.cjs

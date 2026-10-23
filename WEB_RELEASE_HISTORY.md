@@ -1,5 +1,12 @@
 # Financial Autonomy — Web Premium Release History
 
+## v18.34 — 2026-10-24 — stale real-vault save/reset guard; CI/Pages/Vercel PASS; browser OPEN
+
+- Previous v18.33 test characterization `b59487bc` Actions **40016788097 SUCCESS**; v18.33 had an actual stale second-tab overwrite risk (issue #4). Candidate PR **#5** `60855ff5` adds revision check around encrypted real-vault load/save, fail-closed zero-write conflict, same-tab revision refresh, guarded reset and optional origin-wide Web Locks. No silent financial merges, accounting formula changes, actual data access or iOS edits.
+- Immutable bundle `_expo/static/js/web/index-v01834-multitab-vault-guard-20261024.js`; HTML version/build and diagnostic JSON/download filename **18.34**. Candidate Actions **40024635654 SUCCESS**, merged preview main `abbe34b19212aeef28261f2686c524ee601cffcc` Actions **40024733423 SUCCESS**, Pages build **40024733502 SUCCESS**, Pages deployment **40024733526 SUCCESS**. 13 bundled AES-GCM/cross-tab synthetic cases PASS in CI. Vercel production **dpl_GP34wybJjTEUVVjs5uuxKkdGvB4H READY** for exact merge commit and primary alias confirmed.
+- IMPORTANT: Web Locks only protects cooperating tabs where supported; no-lock fallback rejects sequential stale writes but does not guarantee atomic simultaneous writes. No interactive browser/header or iPhone proof (protected Vercel fetch inaccessible). Issue #4 remains open for residual risk and browser test; issue #2 remains contract-gated.
+- Rollback: restore `index.html` pointer to immutable v18.33 without clearing storage, but that reintroduces confirmed lost-update risk; prefer forward correction. NEXT: verify active preload regression on v18.34 and checkpoint CI/Pages/Vercel, synthetic real-browser two-tab tests and fallback disposition.
+
 ## 2026-10-23 — v18.33 unchanged; cross-tab encrypted-vault lost-update audit (NO RELEASE)
 
 - Inspected real active WEB modules 309/310. The decrypt/validate-before-save guard preserves corrupt ciphertext, but a **valid newer** ciphertext can be overwritten by a second tab saving an older ledger snapshot. Logged **P1 issue #4**; no financial formulas or user data touched.
