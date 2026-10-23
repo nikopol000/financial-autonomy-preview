@@ -92,7 +92,7 @@ await test('Diagnostic, backup, restore and destructive reset have demo UI guard
   assert.ok(source.includes('disabled:R.isDemo()'));
 });
 await test('Diagnostic filename, embedded version and active bundle match HTML',()=>{
-  const version=html.match(/<meta name="financial-autonomy-version" content="(\\d+\\.\\d+)"/)?.[1];
+  const version=html.match(/<meta name="financial-autonomy-version" content="(\d+\.\d+)"/)?.[1];
   assert.ok(version,'HTML release version missing');
   assert.ok(source.includes('version:"'+version+'"'));
   assert.ok(source.includes('financial-autonomy-diagnostic-unic-v'+version+'.json'));
