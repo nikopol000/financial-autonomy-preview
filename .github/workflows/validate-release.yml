@@ -48,3 +48,5 @@ jobs:
         run: node tests/vault-presence-regression.cjs
       - name: Vault corrupt ciphertext preservation against active release
         run: node tests/vault-corrupt-save-regression.cjs
+      - name: Isolated memory-only demo session and real financial model
+        run: node tests/demo-session-regression.cjs
