@@ -216,6 +216,33 @@ async function test(name,fn) {
     const ids=vault.loadWebVault(s).transactions.map(t=>t.id);
     assert.equal(Number(ids.includes('lock-a'))+Number(ids.includes('lock-b')),1);
   });
+  await test('KNOWN GAP: no-Web-Locks simultaneous interleaving can still lose a valid transaction',async()=>{
+    // Deterministic synthetic interleaving: tab A writes after tab B has passed
+    // its revision check, but immediately before B commits its own ciphertext.
+    // This is a risk characterization, NOT a successful safety guarantee.
+    const s=storage();vault.saveWebVault(s,sample(),random);
+    const a=realTab(s),b=realTab(s);
+    const aState=clone(await a.load()),bState=clone(await b.load());
+    aState.transactions.push({id:'race-a',kind:'income',amount:101});
+    bState.transactions.push({id:'race-b',kind:'expense',amount:202});
+    const originalSet=s.setItem.bind(s);
+    let injected=false,firstWriter=null;
+    s.setItem=(key,value)=>{
+      if(key===PAYLOAD&&!injected){
+        injected=true;
+        // Async platform save executes the synchronous vault write before
+        // returning its promise. No navigator.locks is available to either tab.
+        firstWriter=a.save(aState);
+      }
+      originalSet(key,value);
+    };
+    await b.save(bState);
+    assert.ok(firstWriter,'Synthetic concurrent writer was not injected');
+    await firstWriter;
+    const ids=vault.loadWebVault(s).transactions.map(t=>t.id);
+    assert.ok(ids.includes('race-b'),'Last writer should be present');
+    assert.ok(!ids.includes('race-a'),'Known lost-update risk must remain visible until mitigated');
+  });
   await test('Stale reset refuses deletion; refreshed reset and new real save succeed',async()=>{
     const s=storage();vault.saveWebVault(s,sample(),random);
     const a=realTab(s),b=realTab(s),x=clone(await a.load());await b.load();
@@ -256,6 +283,6 @@ async function test(name,fn) {
     assert.deepEqual(s.data,before);
     assert.equal(s.writes,writes);
   });
-  console.log(passed+'/13 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==13)process.exitCode=1;
+  console.log(passed+'/14 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==14)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
