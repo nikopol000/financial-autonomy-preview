@@ -1,5 +1,14 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-24 — v18.34 unchanged; no-Web-Locks concurrent race characterized, CI/Pages/Vercel verified
+
+- Resumed from exact checkpoint `fa1827c0`, read mandatory process/continuity files and active immutable v18.34 module 309. Verified prior checkpoint CI `40024898736` SUCCESS, Pages `40024898919` / `40024898555` SUCCESS; the active demo-preload regression is included in that workflow. No iOS or source-stable repository touched.
+- Added a deterministic **KNOWN-UNSAFE** synthetic interleaving to the actual v18.34 AES-GCM/cross-tab regression at test commit **`63793dc927b51b6f5a1e7f196d9b21e7043d2270`**. Two real-mode tabs load the same encrypted ledger with `navigator.locks` absent; tab A writes after tab B's revision check but before B's payload commit. Both saves resolve, and B's ciphertext loses A's transaction. This is a *risk characterization* and must not be presented as protection or browser E2E proof. Existing Web Locks serialization tests remain.
+- **VERIFIED:** GitHub Actions **40030915151 SUCCESS**, including **14/14** bundled AES-GCM/cross-tab synthetic cases and active preload/demo/financial suites; Pages build **40030914704 SUCCESS**, Pages deployment **40030915181 SUCCESS**. Vercel production **dpl_Ek5sf4MW1ikxi52c2eZwJCartY82 READY**, exact test SHA and primary alias confirmed. No application bundle, HTML, formulas, real data, diagnostic or version changed: **v18.34**.
+- **OPEN P1 #4:** no-lock simultaneous saves can still lose transactions. Sequential stale protection does not fix this. Real interactive two-tab/browser/mobile test remains unavailable; Vercel READY is not UI proof. Historical financial issue #2 still contract-gated.
+- **NEXT FIRST:** implement a tested safe no-Web-Locks policy (prefer fail-closed real-vault mutations with explicit Romanian guidance/read-only affordance; audit all real-mode test harnesses and browser support before release). Preserve demo-only edits and valid locked saves; test no-write fallback, reset, same-tab and cross-tab paths, then immutable version/diagnostic, CI/Pages/Vercel/browser verification. Do not ship a cosmetic release.
+
+
 ## CURRENT WEB checkpoint — 2026-10-24 — v18.34 ACTIVE; sequential stale-tab protection + Web Locks, CI/Pages/Vercel verified; browser OPEN
 
 - Resumed from v18.33 issue #4 and independently confirmed previously unverified characterization commit `b59487bc`: Actions **40016788097 SUCCESS**, Pages build **40016787511 SUCCESS** and deploy **40016788027 SUCCESS**; latest docs commit `1d871a43` also passed Actions **40016963135**. Prior v18.33 stale overwrite was a *known unsafe characterization*, not a safety guarantee.
