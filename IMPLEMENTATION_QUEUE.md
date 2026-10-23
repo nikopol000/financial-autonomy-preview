@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — reconciliation batch contract TEST-FIRST, no UI release
+
+- IMPLEMENTED (not yet active in preview UI): `src/reconciliation-batch.cjs` stages multiple linked income/expense transactions in memory using existing model functions, rejects partial/invalid batches, and returns one validated snapshot for the caller to persist once. It never writes to the vault itself. Commit `624f2e51`.
+- TESTED independently: `tests/reconciliation-batch-regression.cjs` with 12/12 PASS against active v18.28 reconciliation and saveTransaction bundle modules; commit `4128808e`. CI workflow includes the new suite from commit `1c137e59`, but exact-HEAD Actions result remains UNVERIFIED. Vercel production READY for that commit, not browser-tested.
+- LIMITATIONS / CONTRACT: the helper currently supports only cash/current/savings account balance checks and income/expense rows dated exactly on the check date. Real model validation enforces same-date linkage. Do NOT advertise a multi-date/debt/transfer editor or claim atomic persisted UI exists.
+- NEXT: verify new CI step; implement actual row editor (add/edit/remove, signed live total/remainder, cancellation, one encrypted save, re-open/history), connect to pure staging helper without changing formulas; add UI/integration tests and release only after synchronized version/diagnostic + CI + Vercel + served preview checks. Demo isolation audit follows. No iOS changes.
+
+
 ## WEB checkpoint 2026-10-23 — v18.28 vault save fail-closed protection ACTIVE; CI PASS
 
 - v18.27 gap reproduced: an orphan encryption key caused a guarded load error but did not prevent a direct `saveWebVault` from recreating ciphertext. This was verified against the real v18.27 bundle with an in-memory storage mock (one unexpected write).
