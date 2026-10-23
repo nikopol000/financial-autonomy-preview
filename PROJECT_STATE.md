@@ -1,5 +1,15 @@
 # Financial Autonomy — Project State
 
+
+## CURRENT WEB checkpoint — 2026-10-23 — v18.31 corrupt ciphertext overwrite guard ACTIVE; CI/VERCEL PASS; browser OPEN
+
+- Resumed from v18.30 and confirmed issue #3: a nonempty malformed ciphertext could be rejected by `loadWebVault` yet overwritten by a direct `saveWebVault`. Created immutable `_expo/static/js/web/index-v01831-vault-corrupt-guard-20261023.js` (candidate `cd39f698`); save now decrypts, migrates and validates the existing ciphertext **before any replacement write**, fails closed on corruption, and zeroizes the key buffer on every guarded exit. Existing data is never read or changed by development; no financial formulas, iOS, or real vaults touched.
+- Added `tests/vault-corrupt-save-regression.cjs` (13 synthetic scenarios: corrupt authentication, JSON/migration/validation errors, valid existing update, fresh initialization, blank/orphan/missing key, storage failure, key zeroization); commit `12d15a61`. Candidate CI `39974839264 SUCCESS` on `76024875`; activated `index.html` v18.31 at `af2187c1`, then CI pinned tests to active bundle at `246a2e3a`. Exact post-activation GitHub Actions `39974952214 SUCCESS`: release/diagnostic consistency, JS syntax, vault safety, reconciliation, history, demo eligibility and editor suites. HTML metadata/build/bundle/diagnostic all **18.31**.
+- Vercel production `dpl_D7L9FkvSEhsGRSdr55sQQtnF7WWm READY` on `246a2e3a`, alias `financial-autonomy-preview.vercel.app` confirmed. Prior v18.30 Pages runs `39966349496` and `39966349319` both SUCCESS. v18.31 Pages runs `39974951505` / `39974951946` were still running at last check. Browser/header/real AES-GCM E2E **NOT VERIFIED**: public fetch disabled and interactive browser not available. READY is not browser evidence.
+- REMAINING: demo eligibility gate is unbundled and no isolated demo is visible; issue #2 historical correction semantics still needs a financial contract; cross-tab atomicity and mobile UX browser validation open. Current guard adds decrypt/migrate/validate on each existing-vault save; large-ledger performance is unmeasured.
+- NEXT FIRST: verify terminal Pages status and served v18.31 header in an authorized browser; audit true AES-GCM save/reload and any existing-vault validation incompatibility. Then implement **in-memory only** demo with explicit exit/start-real boundary and backup/export exclusion, with fail-closed storage tests. Do not change formulas or iOS.
+
+
 ## CURRENT WEB checkpoint — 2026-10-23 — v18.30 vault presence guard ACTIVE; CI/VERCEL PASS; browser OPEN
 
 - Found and independently reproduced a real data-loss path in active v18.29: with an EXISTING empty-string ciphertext value but no encryption key, `loadWebVault` treated the payload as absent and initialized a new ledger; direct `saveWebVault` then overwrote that storage footprint (2 writes). This violates fail-closed preservation even if ciphertext is empty/corrupt.
