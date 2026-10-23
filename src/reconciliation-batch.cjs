@@ -3,12 +3,12 @@
 // Pure staging contract for the future multi-row reconciliation editor.
 // No storage writes, no balance mutation and no invented accounting formula.
 // Uses the active financial model's saveTransaction/checkRows/checkedBalance.
-function stageReconciliationBatch(state, checkId, rows, engine, today) {
+function buildReconciliationBatch(state, checkId, rows, engine, today, previewOnly) {
   if (!state || !engine || typeof engine.saveTransaction !== 'function' ||
       typeof engine.checkRows !== 'function' || typeof engine.checkedBalance !== 'function') {
     throw new Error('Motorul financiar nu este disponibil.');
   }
-  if (!Array.isArray(rows) || rows.length === 0 || rows.length > 100) {
+  if (!Array.isArray(rows) || (!previewOnly && rows.length === 0) || rows.length > 100) {
     throw new Error('Adaugă între 1 și 100 de operațiuni.');
   }
   const check = (state.balanceChecks || []).find(c => c.id === checkId && !c.voided);
@@ -50,7 +50,7 @@ function stageReconciliationBatch(state, checkId, rows, engine, today) {
     staged = engine.saveTransaction(staged, { ...row }, today);
   }
   const after = engine.checkRows(staged, check.accountId).find(c => c.id === checkId);
-  if (!after || after.difference !== 0) {
+  if (!after || !Number.isSafeInteger(after.difference) || (!previewOnly && after.difference !== 0)) {
     throw new Error('Explicațiile nu acoperă diferența; salvează numai un lot complet.');
   }
   if (after.observed !== original.observed ||
@@ -58,7 +58,26 @@ function stageReconciliationBatch(state, checkId, rows, engine, today) {
       JSON.stringify(staged.balanceChecks) !== JSON.stringify(state.balanceChecks)) {
     throw new Error('Verificarea sau soldul confirmat s-a modificat neașteptat.');
   }
+  if (previewOnly) {
+    const explainedDifference = original.difference - after.difference;
+    if (!Number.isSafeInteger(explainedDifference)) throw new Error('Totalul explicațiilor depășește limita sigură.');
+    return Object.freeze({
+      differenceBeforeDraft: original.difference,
+      explainedDifference,
+      remainingDifference: after.difference,
+      canSave: rows.length > 0 && after.difference === 0
+    });
+  }
   return staged; // Caller must persist this snapshot ONCE, only after success.
 }
 
-module.exports = { stageReconciliationBatch };
+function stageReconciliationBatch(state, checkId, rows, engine, today) {
+  return buildReconciliationBatch(state, checkId, rows, engine, today, false);
+}
+
+// Financial-engine-derived live totals; never returns a persistable partial snapshot.
+function previewReconciliationBatch(state, checkId, rows, engine, today) {
+  return buildReconciliationBatch(state, checkId, rows, engine, today, true);
+}
+
+module.exports = { stageReconciliationBatch, previewReconciliationBatch };
