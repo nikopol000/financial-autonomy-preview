@@ -31,7 +31,7 @@ const sandbox = {
   globalThis: {crypto: nodeCrypto.webcrypto}
 };
 const cache = new Map([[204,{validateState:model.validateState}],[205,model]]);
-function moduleFactory(id) {
+function moduleFactory(id,context=sandbox) {
   const pattern = new RegExp('\\},'+id+',\\[([^\\]]*)\\]\\);','g');
   const matches = [...source.matchAll(pattern)];
   assert.equal(matches.length,1,'Expected one Metro module '+id);
@@ -40,7 +40,7 @@ function moduleFactory(id) {
   assert.ok(start >= 0 && match.index > start,'Metro factory missing '+id);
   const factorySource = '('+source.slice(start+4,match.index+1)+')';
   const dependencies = match[1] ? match[1].split(',').map(Number) : [];
-  return {factory:vm.runInNewContext(factorySource,sandbox),dependencies};
+  return {factory:vm.runInNewContext(factorySource,context),dependencies};
 }
 function load(id) {
   if (cache.has(id)) return cache.get(id);
@@ -145,7 +145,7 @@ async function test(name,fn) {
     function platform(url){
       const globalThis={localStorage:s,location:{href:url},history:{state:null,replaceState(){}},
         crypto:{getRandomValues:array=>nodeCrypto.webcrypto.getRandomValues(array),randomUUID:()=>nodeCrypto.randomUUID()}};
-      const {factory,dependencies}=moduleFactory(309),api={};
+      const {factory,dependencies}=moduleFactory(309,{...sandbox,globalThis,URL,Blob}),api={};
       factory(globalThis,id=>id===205?model:vault,()=>{},null,{exports:api},api,dependencies);
       return api;
     }
