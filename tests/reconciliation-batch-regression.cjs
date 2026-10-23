@@ -4,7 +4,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
-const { stageReconciliationBatch } = require('../src/reconciliation-batch.cjs');
+const { stageReconciliationBatch, previewReconciliationBatch } = require('../src/reconciliation-batch.cjs');
 const html = fs.readFileSync('index.html', 'utf8');
 const bundle = html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=/)?.[1];
 assert.ok(bundle, 'Active bundle not found');
@@ -125,4 +125,55 @@ test('Historical explanation does not consume a later checkpoint difference', ()
   const out = stage(s,[row('a','expense',700),row('b','income',200)]);
   assert.equal(diff(out,'c1'),0);
   assert.equal(diff(out,'later'),before);
+});
+
+test('Live preview with no rows keeps original difference and cannot save', () => {
+  const p = previewReconciliationBatch(state(), 'c1', [], engine, today);
+  assert.equal(p.differenceBeforeDraft,-500);
+  assert.equal(p.explainedDifference,0);
+  assert.equal(p.remainingDifference,-500);
+  assert.equal(p.canSave,false);
+});
+test('Live preview of incomplete negative batch shows signed overshoot', () => {
+  const p = previewReconciliationBatch(state(), 'c1', [row('a','expense',700)], engine, today);
+  assert.equal(p.explainedDifference,-700);
+  assert.equal(p.remainingDifference,200);
+  assert.equal(p.canSave,false);
+});
+test('Live preview with opposite signs reaches zero without early persistence', () => {
+  const s = state(), before = JSON.stringify(s);
+  const p = previewReconciliationBatch(s,'c1',[row('a','expense',700),row('b','income',200)],engine,today);
+  assert.equal(p.explainedDifference,-500);
+  assert.equal(p.remainingDifference,0);
+  assert.equal(p.canSave,true);
+  assert.equal(JSON.stringify(s),before);
+});
+test('Live preview reports only outstanding difference after existing explanation', () => {
+  const s = model.saveTransaction(state(),row('old','expense',300),today);
+  const p = previewReconciliationBatch(s,'c1',[row('new','expense',200)],engine,today);
+  assert.equal(p.differenceBeforeDraft,-200);
+  assert.equal(p.explainedDifference,-200);
+  assert.equal(p.remainingDifference,0);
+  assert.equal(p.canSave,true);
+});
+test('Live preview is frozen and never exposes a persistable partial snapshot', () => {
+  const p = previewReconciliationBatch(state(),'c1',[row('a','expense',700)],engine,today);
+  assert.ok(Object.isFrozen(p));
+  assert.equal(Object.keys(p).some(k => /state|snapshot|transactions/i.test(k)),false);
+});
+test('Invalid later draft row fails without mutating the original state', () => {
+  const s = state(), before = JSON.stringify(s);
+  assert.throws(() => previewReconciliationBatch(s,'c1',[
+    row('a','expense',700),row('b','income',200,{date:'2026-10-12'})
+  ],engine,today),/datei sale/);
+  assert.equal(JSON.stringify(s),before);
+});
+test('Live preview with positive difference and alternating signs is accurate', () => {
+  const p = previewReconciliationBatch(state(10500),'c1',[
+    row('a','income',700),row('b','expense',200)
+  ],engine,today);
+  assert.equal(p.differenceBeforeDraft,500);
+  assert.equal(p.explainedDifference,500);
+  assert.equal(p.remainingDifference,0);
+  assert.equal(p.canSave,true);
 });
