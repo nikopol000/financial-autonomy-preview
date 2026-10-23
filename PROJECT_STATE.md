@@ -1,5 +1,13 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-23 — v18.33 unchanged; P1 multi-tab lost-update risk audited, mitigation NOT RELEASED
+
+- Continued from exact checkpoint `c72d9167` (bundled AES-GCM synthetic verification). Inspected active `index.html` v18.33 and actual bundle modules 309 (platform) and 310 (encrypted vault). The vault authenticates existing ciphertext before saving but does **not** compare it with the state previously loaded by the saving tab. Two tabs can therefore load S; A saves S+A; B subsequently saves stale S+B and removes A's transaction without a conflict warning. AES-GCM authentication does not protect against legitimate stale writes. **P1 issue #4** documents acceptance requirements.
+- Added two synthetic scenarios to the active real-crypto test file at `b59487bc`: an explicit **known-gap characterization** for a stale second tab overwriting A, and a positive check that a demo tab refuses edits after a second tab creates a real encrypted vault. Test source parsed successfully (10 test declarations). **GitHub Actions execution/result NOT YET CONFIRMED**: GitHub connector exposes only PR workflow runs for commit queries, and commit combined status showed Vercel only. Do not call 10/10 PASS without run evidence.
+- Vercel production `dpl_B1tUhxNaAANbbQxmGcDSxqPMVHV1` READY for exact test commit `b59487bc`. This is deployment evidence, **not** execution of tests or browser behavior. No application JS/HTML, diagnostic, financial formulas, real data or iOS changed; active release remains **18.33**.
+- **NEXT FIRST:** independently obtain CI result for `b59487bc` and repair test if necessary; implement a guarded real-mode load/save revision contract with zero-write conflict rejection, same-tab successive saves, safe reload, Web Locks serialization when available, explicit fallback limitations and regression tests. Then immutable v18.34 release only after candidate CI, release/diagnostic sync, exact deployment and browser verification if available. Browser demo/mobile E2E remains OPEN; financial issue #2 remains contract-gated.
+
+
 ## CURRENT WEB checkpoint — 2026-10-23 — v18.33 unchanged; bundled AES-GCM synthetic persistence VERIFIED, browser OPEN
 
 - Resumed from v18.33. Confirmed the previously pending GitHub Pages runs for v18.33: deployment **40000577291 SUCCESS**, Pages build/deployment **40000575078 SUCCESS**. No application bundle, HTML, financial formulas, diagnostic, user storage or iOS changes in this batch.
