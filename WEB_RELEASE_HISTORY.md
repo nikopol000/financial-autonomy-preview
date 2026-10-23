@@ -1,5 +1,12 @@
 # Financial Autonomy — Web Premium Release History
 
+## v18.32 — 2026-10-23 — isolated memory-only DEMO activated; CI/Pages/Vercel PASS, browser OPEN
+
+- Continued from v18.31 tested demo contract; immutable candidate `_expo/static/js/web/index-v01832-isolated-demo-20261023.js` (corrected candidate `d038e203`), activated by `index.html` commit `12253a14802357219b0f566f5371a2c57fb7a308`. Auto demo only on completely empty inspectable same-origin storage; 2 synthetic accounts and 3 synthetic transactions, cloned in-memory updates through real financial engine. DEMO badge and explicit confirmed real-mode transition; concurrent storage invalidates demo.
+- Demo guards: platform denies backup, import and reset; Tools blocks direct diagnostic export and disables backup/restore/diagnostic buttons. Diagnostic filename fixed from stale v18.26 to **v18.32**; JSON version, HTML metadata, immutable JS filename and build query all **18.32**. No accounting formula or iOS changes; no real data accessed.
+- Test evidence: new `tests/demo-web-integration-regression.cjs` 10/10 PASS on candidate; GitHub Actions candidate **39992200298 SUCCESS**, active **39992571960 SUCCESS** (release/syntax and existing suites). GitHub Pages build **39992571276 SUCCESS**, active deploy **39992571968 SUCCESS**. Vercel production **dpl_993zu7erx2EJFZsxAFfq7vx8RRGN READY** for activation SHA, primary alias associated.
+- NOT VERIFIED: real served HTML/header, interactive browser/mobile visual behavior, actual AES-GCM browser persistence; protected fetch **403**. Cross-tab atomicity not established; financial issue #2 still contract-gated. Rollback: restore index pointer to immutable v18.31 without clearing storage, but fresh-browser automatic demo would disappear. NEXT: browser smoke tests with synthetic vault, explicit real-mode transition, and export blocking; then address concrete UX issues and AES-GCM E2E.
+
 ## Non-release verification checkpoint — 2026-10-23 — isolated in-memory demo contract
 
 - No new preview version: **v18.31** remains active. Added `src/demo-session.cjs` (synthetic seed generated with real financial engine, memory-only edits, fail-closed storage checks, no backup/diagnostic export, explicit exit and real-mode confirmation), `tests/demo-session-regression.cjs` (10 synthetic scenarios), and a permanent CI step. Commits `6668f262`, `4555505d`, `028d9c66`.
