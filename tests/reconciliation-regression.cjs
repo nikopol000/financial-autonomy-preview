@@ -57,3 +57,37 @@ if (hasNewReconciliation) test('New check compares against last confirmed balanc
 });
 
 if (!hasNewReconciliation) console.log('PASS: v18.22-only cases run against the candidate in tests/reconciliation-v1822-candidate.cjs; active v' + activeVersion + ' remains unmodified');
+
+
+if (hasNewReconciliation) test('Successive downward checks replace prior discrepancy, not accumulate it',()=>{
+ const s=base();s.balanceChecks=[check('first',9000,'2026-10-12',1000),check('second',8500,date,1000)];
+ const rows=api.checkRows(s,'ing');
+ assert.equal(rows[0].difference,-1000);
+ assert.equal(rows[1].expected,9000);
+ assert.equal(rows[1].difference,-500);
+ assert.equal(api.checkedBalance(s,'ing',date),8500);
+});
+if (hasNewReconciliation) test('A zero observed balance is a real checkpoint, not a missing value',()=>{
+ const s=base();s.balanceChecks=[check('zero',0,'2026-10-12',1000),check('next',3000,date,1000)];
+ const rows=api.checkRows(s,'ing');
+ assert.equal(rows[1].expected,0);
+ assert.equal(rows[1].difference,3000);
+ assert.equal(api.checkedBalance(s,'ing',date),3000);
+});
+if (hasNewReconciliation) test('A same-day transaction between two checks affects only the later expectation',()=>{
+ const s=base();s.balanceChecks=[check('first',9000,date,1000),check('second',9500,date,3000)];
+ s.transactions=[txn('income','income',500,date,2000)];
+ const rows=api.checkRows(s,'ing');
+ assert.equal(rows[0].expected,10000);
+ assert.equal(rows[1].expected,9500);
+ assert.equal(rows[1].difference,0);
+ assert.equal(api.checkedBalance(s,'ing',date),9500);
+});
+if (hasNewReconciliation) test('Signed multi-row explanation can offset a negative discrepancy without double counting',()=>{
+ const s=base();s.balanceChecks=[check('c1',9500,date,3000)];
+ s.transactions=[txn('e1','expense',700,date,1000,{reconciliationCheckId:'c1'}),txn('i1','income',200,date,2000,{reconciliationCheckId:'c1'})];
+ const rows=api.checkRows(s,'ing');
+ assert.equal(rows[0].expected,9500);
+ assert.equal(rows[0].difference,0);
+ assert.equal(api.checkedBalance(s,'ing',date),9500);
+});
