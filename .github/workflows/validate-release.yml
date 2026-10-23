@@ -38,3 +38,5 @@ jobs:
         run: node tests/vault-orphan-regression.cjs
       - name: Atomic reconciliation batch contract
         run: node tests/reconciliation-batch-regression.cjs
+      - name: Reconciliation editor UI and guarded persistence
+        run: node tests/reconciliation-ui-regression.cjs
