@@ -177,3 +177,89 @@ test('Live preview with positive difference and alternating signs is accurate', 
   assert.equal(p.remainingDifference,0);
   assert.equal(p.canSave,true);
 });
+
+// UI-ready draft controller: edit/delete, live totals, stale-ledger guard and
+// single-snapshot handoff. The real active financial engine is used above.
+const { createReconciliationDraft } = require('../src/reconciliation-draft.cjs');
+function draft(s = state()) {
+  return createReconciliationDraft({ state:s, checkId:'c1', engine, today });
+}
+test('Draft starts with signed live totals and no persistable rows', () => {
+  const d = draft();
+  const p = d.preview();
+  assert.equal(p.differenceBeforeDraft,-500);
+  assert.equal(p.remainingDifference,-500);
+  assert.equal(p.canSave,false);
+  assert.equal(d.getRows().length,0);
+});
+test('Draft add/edit/remove recalculates signed remaining difference using real engine', () => {
+  const d = draft();
+  assert.equal(d.add(row('a','expense',700)).remainingDifference,200);
+  assert.equal(d.add(row('b','income',200)).canSave,true);
+  assert.equal(d.update('a',{amount:600}).remainingDifference,-100);
+  assert.equal(d.remove('b').remainingDifference,100);
+  assert.equal(d.update('a',{amount:500}).canSave,true);
+  assert.equal(d.getRows().length,1);
+});
+test('Invalid row and invalid edit are rejected without corrupting draft', () => {
+  const d = draft();
+  d.add(row('a','expense',700));
+  assert.throws(() => d.add(row('bad','income',200,{date:'2026-10-12'})),/datei sale/);
+  assert.throws(() => d.update('a',{id:'changed'}),/Identificatorul/);
+  assert.throws(() => d.update('a',{amount:0}),/Suma/);
+  assert.throws(() => d.remove('missing'),/nu mai există/);
+  assert.equal(d.getRows().length,1);
+  assert.equal(d.preview().remainingDifference,200);
+});
+test('Draft does not expose mutable internal rows or original ledger', () => {
+  const s = state(), before = JSON.stringify(s), d = draft(s);
+  const input = row('a','expense',700);
+  d.add(input);
+  input.amount = 1;
+  const visible = d.getRows();
+  visible[0].amount = 1;
+  assert.equal(d.getRows()[0].amount,700);
+  assert.equal(JSON.stringify(s),before);
+});
+test('Stale ledger is rejected even after a fully balanced draft', () => {
+  const s = state(), d = draft(s);
+  d.add(row('a','expense',700));
+  d.add(row('b','income',200));
+  const changed = JSON.parse(JSON.stringify(s));
+  changed.transactions.push({id:'outside-change'});
+  assert.throws(() => d.prepare(changed),/Registrul s-a modificat/);
+  assert.equal(d.preview().canSave,true); // User can reload; no write occurred.
+  assert.equal(s.transactions.length,0);
+});
+test('Incomplete prepare fails without closing editable draft', () => {
+  const s = state(), d = draft(s);
+  d.add(row('a','expense',700));
+  assert.throws(() => d.prepare(s),/lot complet/);
+  d.add(row('b','income',200));
+  assert.equal(d.preview().canSave,true);
+});
+test('Prepared snapshot is handed off once and never mutates original ledger', () => {
+  const s = state(), before = JSON.stringify(s), d = draft(s);
+  d.add(row('a','expense',700));
+  d.add(row('b','income',200));
+  const out = d.prepare(s);
+  assert.equal(diff(out),0);
+  assert.equal(out.transactions.length,2);
+  assert.equal(JSON.stringify(s),before);
+  assert.throws(() => d.prepare(s),/închisă/);
+  assert.throws(() => d.add(row('c','expense',1)),/închisă/);
+});
+test('Cancel discards draft and rejects all later operations without writes', () => {
+  const s = state(), before = JSON.stringify(s), d = draft(s);
+  d.add(row('a','expense',700));
+  d.cancel();
+  assert.throws(() => d.preview(),/închisă/);
+  assert.throws(() => d.prepare(s),/închisă/);
+  assert.equal(JSON.stringify(s),before);
+});
+test('Duplicate row IDs are rejected before prepare', () => {
+  const d = draft();
+  d.add(row('a','expense',700));
+  assert.throws(() => d.add(row('a','income',200)),/duplicat/);
+  assert.equal(d.getRows().length,1);
+});
