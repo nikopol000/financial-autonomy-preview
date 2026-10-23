@@ -6,7 +6,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const html=fs.readFileSync('index.html','utf8');
-const active=html.match(/<script src="\\/financial-autonomy-preview\\/([^"?]+\\.js)\\?build=/)?.[1];
+const active=html.split('<script src="/financial-autonomy-preview/')[1]?.split('?build=')[0];
 const path=process.env.FA_VAULT_TEST_BUNDLE||active;
 assert.ok(path&&path.startsWith('_expo/static/js/web/'),'Vault bundle path missing');
 const source=fs.readFileSync(path,'utf8');
