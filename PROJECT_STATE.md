@@ -1,5 +1,14 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-23 — 12 reconciliation regressions, no product release
+
+- Main test commit `8a6c124c18309651225fde30b33b29404c2aa7fa`: added 3 permanent regression cases to `tests/reconciliation-regression.cjs` for historical vs latest check separation, editing a historical linked transaction, and voiding one of two offsetting explanation rows. All **12/12 active-bundle cases PASS** in an independent V8 harness loading the real v18.26 bundle; full bundle V8 compilation PASS. Exact `index.html` metadata 18.26, bundle filename/build 18.26.1, diagnostic version 18.26 and metadata-derived header assertions PASS. The official Node/Python commands have NOT been run locally this batch.
+- Vercel production `dpl_3J3ZTfnyqyWWhUTLdUNAK9muoWKh` READY for exact test commit; primary alias present. This is **not** proof of served HTML or interactive UI. Deployment file-tree API returned 404; browser verification still OPEN. Exact test-commit GitHub Actions result is NOT verified: connector commit-run endpoint returns only PR-triggered runs.
+- Financial semantics clarified from real bundle: `MoneyHome` intentionally shows the **latest** unreconciled check per account, whereas diagnostic exposes all historical checks. Do not sum old and new discrepancies as currently available money; historical correction/history discoverability needs a separate UX decision and tests. Earlier report that old differences were necessarily a current-money display bug was too broad.
+- No product bundle, financial formulas, vault, data or iOS source changed; version stays v18.26. Atomic multi-row editor and isolated demo are NOT implemented.
+- First unfinished step: confirm exact-commit GitHub Actions run for `8a6c124c` (or record inability), then specify/test atomic batch persistence and cancellation using existing `saveTransaction`/validation semantics before implementing UI. Independently audit orphan-key demo protection; do not publish an untested release.
+
+
 ## CURRENT WEB checkpoint — 2026-10-23 — v18.26 active; exact-HEAD CI verified; four permanent regressions added
 
 - Preview index references immutable v18.26 bundle `_expo/static/js/web/index-v01826-reconciliation-20261022.js?build=18.26.1`; metadata and diagnostic are 18.26. Activation commit `6ff0aa628dff0ee3ee0326e74a9971d1e58defbe`. No new application release in this batch.
