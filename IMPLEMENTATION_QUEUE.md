@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.26 CI debt resolved; four regression tests committed
+
+- Exact v18.26 release metadata/bundle/diagnostic already active in main; no new product release in this iteration.
+- GitHub Actions push run `39875420075` completed SUCCESS on `dcfee974`, including release Python check, Node syntax and reconciliation tests. Permanent active-bundle cases added at `32e7b32985bc240cf7687cd777e5a81d78417c6f`: negative successive checks, zero checkpoint, same-day intervening transaction, signed negative-difference multi-row explanation. GitHub Actions validation `39882092227` SUCCESS for exact test commit. PROJECT_STATE checkpoint commit `80b78779e36bd007921ea34c3d77aeee4be9c687`.
+- Latest observed production deployment before tests was `dpl_8QRbVNnxoj5EAFKSKcH7Dkfh6gut` READY for `dcfee974`; aliases confirmed. No independent public HTML/browser proof. Vercel deployment file tree 404; public fetch disabled. Treat visual verification as OPEN.
+- NEXT: audit current v18.26 reconciliation UI and transaction persistence for an atomic multi-row explanation editor, with signed-sum/undo/reload/history tests; protect financial invariants. Independently audit vault key states for fail-closed demo mode. No iOS edits and no budget formula changes. Publish only when meaningful feature is verified with new synchronized version and diagnostic.
+
+
 ## WEB checkpoint 2026-10-23 — v18.26 activated, verification incomplete
 
 - `index.html` activated immutable v18.26 bundle in commit `6ff0aa628dff0ee3ee0326e74a9971d1e58defbe` (meta 18.26, build 18.26.1, diagnostic 18.26). JS V8 parse PASS and seven independent reconciliation cases PASS.
