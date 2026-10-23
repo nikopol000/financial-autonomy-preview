@@ -91,3 +91,31 @@ if (hasNewReconciliation) test('Signed multi-row explanation can offset a negati
  assert.equal(rows[0].difference,0);
  assert.equal(api.checkedBalance(s,'ing',date),9500);
 });
+
+if (hasNewReconciliation) test('Historical discrepancy is not accumulated into a later observed checkpoint',()=>{
+ const s=base();s.balanceChecks=[check('old',9000,'2026-10-12',1000),check('latest',8500,date,1000)];
+ const rows=api.checkRows(s,'ing');
+ assert.equal(rows[0].difference,-1000);
+ assert.equal(rows[1].expected,9000);
+ assert.equal(rows[1].difference,-500);
+ assert.equal(api.checkedBalance(s,'ing',date),8500);
+});
+if (hasNewReconciliation) test('Editing a linked historical explanation changes only its own interval',()=>{
+ const s=base();s.balanceChecks=[check('old',9000,'2026-10-12',1000),check('latest',8500,date,1000)];
+ s.transactions=[txn('old-expense','expense',1000,'2026-10-12',500,{reconciliationCheckId:'old'})];
+ let rows=api.checkRows(s,'ing');
+ assert.equal(rows[0].difference,0);
+ assert.equal(rows[1].difference,-500);
+ s.transactions[0].amount=500;
+ rows=api.checkRows(s,'ing');
+ assert.equal(rows[0].difference,-500);
+ assert.equal(rows[1].difference,-500);
+});
+if (hasNewReconciliation) test('Voiding one of two offsetting explanation rows reopens discrepancy without moving verified balance',()=>{
+ const s=base();s.balanceChecks=[check('c1',9500,'2026-10-12',3000)];
+ s.transactions=[txn('expense','expense',700,'2026-10-12',1000,{reconciliationCheckId:'c1'}),txn('income','income',200,'2026-10-12',2000,{reconciliationCheckId:'c1'})];
+ assert.equal(api.checkRows(s,'ing')[0].difference,0);
+ s.transactions[1].voided=true;
+ assert.equal(api.checkRows(s,'ing')[0].difference,200);
+ assert.equal(api.checkedBalance(s,'ing','2026-10-12'),9500);
+});
