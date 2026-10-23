@@ -1,5 +1,15 @@
 # Financial Autonomy — Web Premium Release History
 
+
+## v18.31 — 2026-10-23 — existing corrupted ciphertext preserved; CI/VERCEL PASS; browser OPEN
+
+- Fixed issue #3: in v18.30 a direct `saveWebVault` could overwrite nonempty ciphertext that `loadWebVault` rejected. New immutable bundle `_expo/static/js/web/index-v01831-vault-corrupt-guard-20261023.js` candidate `cd39f698`, activated by `index.html` commit `af2187c1`. Before updating an existing vault, the save path decrypts/authenticates, parses, migrates and validates the old state, failing closed without writes on any error. Key bytes are zeroized on guard failure. No accounting formula, actual user data or iOS modifications.
+- Added 13 synthetic regressions `tests/vault-corrupt-save-regression.cjs` at `12d15a61`; candidate CI `39974839264 SUCCESS`, active CI `39974952214 SUCCESS` after `246a2e3a`, including Python release consistency, Node syntax, existing vault/reconciliation/history/demo suites. HTML version 18.31, build 18.31.1, diagnostic 18.31. Vercel production `dpl_D7L9FkvSEhsGRSdr55sQQtnF7WWm READY` on `246a2e3a` with primary alias.
+- NOT VERIFIED: interactive browser/served header and actual AES-GCM E2E; public fetch disabled. Pages runs `39974951505` / `39974951946` were still in progress at checkpoint. Decrypt-on-save performance for large ledgers and cross-tab atomicity remain open.
+- Rollback: restore `index.html` pointer to v18.30 immutable bundle without clearing local storage, **but v18.30 reintroduces the confirmed corrupt ciphertext overwrite path**. Prefer a forward fix if needed.
+- NEXT: Pages/browser evidence, real crypto regression, then memory-only isolated demo with explicit exit/start-real and backup/export exclusion; financial issue #2 remains contract-gated.
+
+
 ## v18.30 — 2026-10-23 — vault key/payload presence safety, automated checks PASS; browser OPEN
 
 - Data preservation fix: v18.29 interpreted a present empty ciphertext value as absent; when no key existed, load returned a new empty ledger and direct save wrote a replacement key/payload. Independently reproduced on actual v18.29 vault module (2 writes). On exact v18.30 module, the same case throws on load/save and writes **zero** values. Blank keys and blank ciphertext with a valid key are also blocked. No accounting engine, user data or iOS changes.
