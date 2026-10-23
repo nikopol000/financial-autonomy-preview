@@ -1,5 +1,15 @@
 # Financial Autonomy — Web Premium Release History
 
+## v18.30 — 2026-10-23 — vault key/payload presence safety, automated checks PASS; browser OPEN
+
+- Data preservation fix: v18.29 interpreted a present empty ciphertext value as absent; when no key existed, load returned a new empty ledger and direct save wrote a replacement key/payload. Independently reproduced on actual v18.29 vault module (2 writes). On exact v18.30 module, the same case throws on load/save and writes **zero** values. Blank keys and blank ciphertext with a valid key are also blocked. No accounting engine, user data or iOS changes.
+- Immutable bundle `_expo/static/js/web/index-v01830-vault-presence-guard-20261023.js` candidate `f52a35c1`; HTML activation `44f9e292`; active CI workflow `7aa41f2e`. HTML meta 18.30 / build 18.30.1 / diagnostic 18.30.
+- Added `tests/vault-presence-regression.cjs` (10 cases); candidate GitHub Actions **39966268587 SUCCESS**, post-activation **39966349253 SUCCESS** (Python release consistency, Node syntax and existing financial, UI, persistence, vault and demo eligibility tests). Vercel production **dpl_6q6mManSXg6DonZScYUmpMqUbNUa READY** for `7aa41f2e` with primary alias.
+- NOT VERIFIED: interactive browser/header, real AES-GCM persistence, GitHub Pages terminal outcome at checkpoint (runs `39966349496`, `39966349319`), and corrupted NONEMPTY ciphertext direct-save guard. Vercel authenticated HTML fetch denied 403 and deployment files endpoint returned 404. Do not equate READY with browser proof.
+- Rollback: restore only `index.html` pointer to immutable v18.29 if necessary, without touching local storage. However v18.29 reintroduces the confirmed empty-ciphertext overwrite vulnerability; prefer correcting v18.30 forward.
+- NEXT: close deployment/browser verification, test malformed ciphertext save guard, then isolated demo implementation with explicit real-data boundary; issue #2 financial semantics remains pending.
+
+
 ## Non-release verification checkpoint — 2026-10-23 (v18.29 remains active)
 
 - Added `tests/reconciliation-history-persistence-regression.cjs` (6 synthetic integration tests) against the active real financial model and real vault load/save adapter, with a **mocked cryptographic envelope**; verified history, reload, correction/void audit, failed persistence and later check behavior. Added read-only `src/demo-eligibility.cjs` and `tests/demo-eligibility-regression.cjs` (10 tests), fail-closed for saved/empty/orphan/corrupt/unknown legacy keys or storage failures. This gate is **not bundled or user-visible**.

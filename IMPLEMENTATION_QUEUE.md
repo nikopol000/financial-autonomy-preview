@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.30 ACTIVE: empty vault presence protected; CI/VERCEL PASS
+
+- DONE: reproduced v18.29 data-loss risk with present empty ciphertext and missing key (load initialized fresh, direct save performed 2 writes); immutable v18.30 guards null vs empty key/payload and refuses blank ciphertext overwrite. Candidate `f52a35c1`, activation `44f9e292`, workflow `7aa41f2e`. Ten synthetic vault presence regressions. Candidate CI `39966268587 SUCCESS`, active CI `39966349253 SUCCESS`; Vercel `dpl_6q6mManSXg6DonZScYUmpMqUbNUa READY` on exact active workflow commit and production alias.
+- OPEN: protected browser/served-header check (403), Pages deployment terminal result, real AES-GCM browser test, malformed nonempty ciphertext direct-save audit, multi-tab atomicity. Financial issue #2 remains undecided; no formula changes. Demo eligibility gate remains UNBUNDLED, demo still not visible. No iOS changes.
+- NEXT FIRST: finish Pages/browser evidence; test direct-save refusal for nonempty malformed ciphertext, then isolated memory-only demo with explicit exit/start-real boundary, no demo in encrypted backups, reload and storage-failure tests. Release only on verified user-visible change.
+
+
 ## WEB checkpoint 2026-10-23 — v18.29 unchanged; history and demo safety contracts CI PASS
 
 - DONE (tests only): 6 real-engine + vault-adapter synthetic integration tests for linked history, reload, void/correction audit, later checks and failed save; crypto envelope mocked. 10 fail-closed demo eligibility tests and pure read-only helper `src/demo-eligibility.cjs`, not bundled. Exact test commit `204db77a`; GitHub Actions **39958505784 SUCCESS**, Pages build **39958505399 SUCCESS**, active Pages deploy **39958505816 SUCCESS**, Vercel production **dpl_FhL36KWJcqr1S9uwQ3ZZJrs3MMad READY**. Active HTML/bundle/diagnostic **v18.29** unchanged.
