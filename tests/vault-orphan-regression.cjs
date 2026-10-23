@@ -19,7 +19,7 @@ const saved = { version: 4, accounts: [{ id: 'saved' }], transactions: [], balan
 const emptySaved = { version: 4, accounts: [], transactions: [], balanceChecks: [] };
 let decoded = saved;
 const model = { emptyState: () => fresh, migrate: x => x, validateState: () => {} };
-const crypto = { hexToBytes: () => new Uint8Array(32), unseal: () => JSON.stringify(decoded) };
+const crypto = { hexToBytes: () => new Uint8Array(32), bytesToHex: () => 'b'.repeat(64), seal: () => 'sealed-vault', unseal: () => JSON.stringify(decoded) };
 const api = {};
 factory({}, id => id === 205 ? model : crypto, () => {}, null, {}, api, [205, 311]);
 const KEY = 'financial-autonomy.preview.key.v1';
@@ -69,4 +69,58 @@ test('Explicit clearing of both keys permits a fresh start', () => {
   assert.throws(() => api.loadWebVault(s), /Cheia locală există fără datele criptate/);
   s.removeItem(KEY);
   assert.equal(api.loadWebVault(s), fresh);
+});
+
+function writableStorage(initial = {}, failPayload = false) {
+  const data = { ...initial };
+  let writes = 0;
+  return {
+    getItem(k) { return data[k] ?? null; },
+    setItem(k, v) {
+      writes++;
+      if (failPayload && k === PAYLOAD) throw Error('Simulated quota failure');
+      data[k] = v;
+    },
+    removeItem(k) { delete data[k]; },
+    get writes() { return writes; },
+    get data() { return data; }
+  };
+}
+const randomBytes = n => new Uint8Array(n).fill(11);
+test('Orphan encryption key blocks save as well as load without writing', () => {
+  const s = writableStorage({ [KEY]: 'a'.repeat(64) });
+  assert.throws(() => api.saveWebVault(s, saved, randomBytes), /Salvarea este blocată/);
+  assert.equal(s.writes, 0);
+  assert.equal(s.data[KEY], 'a'.repeat(64));
+  assert.equal(s.data[PAYLOAD], undefined);
+});
+test('Fresh browser can initialize both encrypted vault keys on first save', () => {
+  const s = writableStorage();
+  api.saveWebVault(s, saved, randomBytes);
+  assert.equal(s.writes, 2);
+  assert.equal(s.data[KEY], 'b'.repeat(64));
+  assert.equal(s.data[PAYLOAD], 'sealed-vault');
+});
+test('Existing complete encrypted vault updates payload but preserves encryption key', () => {
+  const s = writableStorage({ [KEY]: 'a'.repeat(64), [PAYLOAD]: 'previous-vault' });
+  api.saveWebVault(s, saved, randomBytes);
+  assert.equal(s.writes, 1);
+  assert.equal(s.data[KEY], 'a'.repeat(64));
+  assert.equal(s.data[PAYLOAD], 'sealed-vault');
+});
+test('Payload without key blocks save without modifying the ciphertext', () => {
+  const s = writableStorage({ [PAYLOAD]: 'previous-vault' });
+  assert.throws(() => api.saveWebVault(s, saved, randomBytes), /cheia lor lipsește/);
+  assert.equal(s.writes, 0);
+  assert.equal(s.data[PAYLOAD], 'previous-vault');
+});
+test('Failed initial payload write leaves a guarded orphan instead of silent overwrite', () => {
+  const s = writableStorage({}, true);
+  assert.throws(() => api.saveWebVault(s, saved, randomBytes), /nu a putut salva/);
+  assert.equal(s.data[KEY], 'b'.repeat(64));
+  assert.equal(s.data[PAYLOAD], undefined);
+  assert.throws(() => api.loadWebVault(s), /Cheia locală există fără datele criptate/);
+  const writesBeforeRetry = s.writes;
+  assert.throws(() => api.saveWebVault(s, saved, randomBytes), /Salvarea este blocată/);
+  assert.equal(s.writes, writesBeforeRetry);
 });
