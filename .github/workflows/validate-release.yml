@@ -44,5 +44,5 @@ jobs:
         run: node tests/reconciliation-history-persistence-regression.cjs
       - name: Isolated demo eligibility fail-closed contract
         run: node tests/demo-eligibility-regression.cjs
-      - name: Verify immutable v18.30 vault presence guard candidate
-        run: FA_VAULT_TEST_BUNDLE=_expo/static/js/web/index-v01830-vault-presence-guard-20261023.js node tests/vault-presence-regression.cjs
+      - name: Vault presence and empty ciphertext regression against active release
+        run: node tests/vault-presence-regression.cjs
