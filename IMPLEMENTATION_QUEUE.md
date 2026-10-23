@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-23 — v18.32 ACTIVE; demo isolated in WEB UI, browser still unverified
+
+- DONE: integrated existing demo eligibility/session into active WEB platform and React startup. Fresh browser gets synthetic 2-account/3-operation DEMO with clear badge; all saves remain in memory. Backup/diagnostic export, import/restore and reset blocked; explicit confirmed exit/start-real uses URL-only mode marker. Real/legacy/corrupt/unknown storage never auto-activates demo; concurrent storage appearance invalidates it. Diagnostic JSON, filename, metadata, bundle/build aligned to **18.32**. Candidate `d038e203`, activation `12253a14`.
+- VERIFIED: **10/10** new bundle integration tests PASS, candidate CI **39992200298 SUCCESS**, post-activation CI **39992571960 SUCCESS**, Pages build **39992571276 SUCCESS** and deployment **39992571968 SUCCESS**, Vercel `dpl_993zu7erx2EJFZsxAFfq7vx8RRGN READY` on exact activation commit and primary alias associated. Financial model unchanged; no real data or iOS changes.
+- OPEN: interactive browser and actual AES-GCM end-to-end still blocked by protected Vercel fetch (403); source/CI tests are not visual evidence. Cross-tab CAS unproven; historical correction semantics issue #2 contract-gated. UX: CSV detector is currently callable in demo but import is refused with a message; consider clearer disabled affordance after browser review.
+- NEXT FIRST: authorized browser smoke test of DEMO badge, editing without storage writes, blocked exports, exit confirmation, real-mode reload, and existing-vault preservation; then synthetic AES-GCM E2E. Only ship further UX/financial changes with tests and immutable version. Do not touch iOS.
+
 ## WEB checkpoint 2026-10-23 — v18.31 unchanged; in-memory DEMO contract TESTED, not bundled
 
 - DONE: synthetic seed and memory-only session in `src/demo-session.cjs` (`6668f262`), real-engine integration tests (`4555505d`) and permanent CI step (`028d9c66`). Demo eligibility is fail-closed on existing/legacy/corrupt/unknown keys and storage errors; reads/edits are cloned; export/backup prohibited; explicit discard and confirmation required for real mode. **10/10 new tests PASS** in GitHub Actions **39983762929 SUCCESS**. Pages build **39983762241 SUCCESS**, deployment **39983763160 SUCCESS**; Vercel production `dpl_BFiUbZddVPFbvfMsT3phJywF4SUv READY` for `028d9c66`. No app release or version bump; active v18.31.
