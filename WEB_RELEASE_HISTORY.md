@@ -1,5 +1,13 @@
 # Financial Autonomy — Web Premium Release History
 
+
+## v18.35 — 2026-10-24 — no-Web-Locks real-vault writes fail closed; CI/Pages/Vercel PASS; browser OPEN
+
+- Real v18.34 no-lock simultaneous-writer race was independently reproduced in 14/14 known-unsafe characterization suite; v18.35 **eliminates that application-platform write path** by rejecting real-mode save/reset when Web Locks is unavailable. Explicit Romanian guidance; no local storage mutation on refusal. Web Locks-supported writes, stale revision checks and in-memory DEMO continue. Immutable bundle `_expo/static/js/web/index-v01835-no-lock-fail-closed-20261024.js`; HTML version/build and diagnostic JSON/export filename all **18.35**.
+- PR **#6** candidate `c8f1e77f` Actions **40037332352 SUCCESS**; merge to preview main **`b708b888b8582ddd5bd14f5637d163efdbc55d6e`** Actions **40037393135 SUCCESS**. Bundled AES-GCM/cross-tab **15/15 PASS**, preload guard **7/7 PASS**, release and syntax PASS. Pages deploy **40037393185 SUCCESS**, build/deploy **40037392315 SUCCESS**; Vercel production **dpl_BNqivh5222Y282Gc1Jmv5BNWuTXa READY** for exact merge SHA with primary alias.
+- NOT VERIFIED: served header/browser interactions, Web Locks real-browser support, actual two-tab/phone UI, proactive read-only warning. Protected Vercel fetch 403. P1 issue #4 remains open for browser acceptance; issue #2 requires financial contract. No actual user storage, accounting formulas or iOS touched. NEXT: browser smoke with synthetic data; if inaccessible, UI error visibility/read-only warning tests. Rollback to v18.34 would **reintroduce confirmed no-lock lost-update risk**; prefer forward fixes.
+
+
 ## 2026-10-24 — v18.34 unchanged; no-lock simultaneous-write characterization (NO RELEASE)
 
 - Added deterministic test to active bundled AES-GCM cross-tab suite, commit **`63793dc9`**. With Web Locks absent, tab A writes between B's revision check and payload commit; both saves succeed and A's transaction disappears. This is a **known-unsafe characterization** (test expects the vulnerability), not a resolved safety check. Issue #4 remains P1 OPEN.

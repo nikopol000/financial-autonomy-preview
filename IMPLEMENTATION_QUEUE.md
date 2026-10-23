@@ -1,5 +1,14 @@
 # Financial Autonomy — Implementation Queue
 
+
+## WEB checkpoint 2026-10-24 — v18.35 ACTIVE; P1 no-lock lost-update mitigation shipped
+
+- DONE: PR **#6** `c8f1e77f`, merge **`b708b888`**. Immutable WEB v18.35 replaces the unsafe no-lock real-vault save/reset fallback with a **fail-closed** Romanian error, preserving zero writes and existing ciphertext. Web Locks serializes supported real saves; DEMO stays memory-only. Tests replace known-unsafe race expectation with explicit no-lock zero-write regressions. No iOS, actual financial data or formula changes.
+- VERIFIED: candidate Actions **40037332352 SUCCESS**, main Actions **40037393135 SUCCESS**, 15/15 actual bundled AES-GCM synthetic cases, 7/7 demo preload cases, release/diagnostic and syntax checks; Pages **40037393185** and **40037392315 SUCCESS**; Vercel production **dpl_BNqivh5222Y282Gc1Jmv5BNWuTXa READY**, exact merge SHA, primary alias. Version/diagnostic **18.35**.
+- OPEN: interactive browser/header and real multi-tab E2E not verified; Vercel fetch denied 403. Issue #4 remains open for browser proof and proactive unsupported-browser warning; issue #2 historical balance-check semantics contract-gated.
+- NEXT FIRST: test browser with synthetic ledger when authorized; otherwise inspect real UI error handling and implement/test clear pre-edit read-only affordance for missing Web Locks without cosmetic release. Follow with multi-row reconciliation and prioritized premium UX.
+
+
 ## WEB checkpoint 2026-10-24 — v18.34 unchanged; P1 no-lock race independently reproduced
 
 - DONE: reviewed real v18.34 platform and crypto modules; appended one deterministic no-Web-Locks simultaneous interleaving test to `tests/vault-real-crypto-regression.cjs` at **`63793dc9`**. Test demonstrates that even with stale-revision comparison, B can overwrite A after both loaded S and B passed its check. This is an explicitly **known-bad characterization**, not a passing safety property. No financial or demo logic changed.

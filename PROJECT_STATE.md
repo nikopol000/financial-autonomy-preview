@@ -1,5 +1,14 @@
 # Financial Autonomy — Project State
 
+
+## CURRENT WEB checkpoint — 2026-10-24 — v18.35 ACTIVE; no-Web-Locks financial writes fail closed, CI/Pages/Vercel verified; browser OPEN
+
+- Resumed from exact P1 checkpoint `a8c9c4c1` / issue #4. On the actual immutable v18.34 module 309, no-Web-Locks writers could overwrite concurrent financial transactions. Implemented a **substantive data-loss mitigation** in immutable v18.35 `_expo/static/js/web/index-v01835-no-lock-fail-closed-20261024.js`, PR **#6** candidate `c8f1e77f`, merged preview main at **`b708b888b8582ddd5bd14f5637d163efdbc55d6e`**. Real-mode save and reset now refuse to write if `navigator.locks.request` is absent, with actionable Romanian message. Locked browsers retain serialized saves, stale-revision checks, real-vault load, and encrypted storage; DEMO remains editable only in memory. No financial formulas, real data or iOS modified.
+- **VERIFIED:** candidate GitHub Actions **40037332352 SUCCESS**, main **40037393135 SUCCESS**. Real bundled AES-GCM/cross-tab tests **15/15 PASS** (including zero-write no-lock save/reset and demo isolation); demo preload **7/7 PASS**; release consistency and JS syntax PASS. Pages deploy **40037393185 SUCCESS**, Pages build/deploy **40037392315 SUCCESS** for exact release merge SHA. Vercel production **dpl_BNqivh5222Y282Gc1Jmv5BNWuTXa READY**, exact merge SHA, primary alias confirmed. HTML metadata/build, bundle diagnostic JSON/download filename all **18.35**.
+- **NOT VERIFIED:** served browser/header, actual two-tab browser behavior, mobile viewport and proactive read-only UI affordance. Vercel authenticated fetch denied **403** (project/team authorization); READY is not interactive proof. Issue #4 remains OPEN for browser acceptance and UX warning; historical issue #2 remains financial-contract gated.
+- **NEXT FIRST:** authorized synthetic browser smoke test of v18.35 (DEMO, real vault, two tabs, reload, Web Locks/no-lock refusal and reconciliation); if access remains blocked, independently audit UI save/reset error surfacing and add a tested proactive read-only warning for unsupported browsers. Then resume multiple-row reconciliation and premium UX based on verified findings. Never alter accounting formulas or iOS from this WEB workflow.
+
+
 ## CURRENT WEB checkpoint — 2026-10-24 — v18.34 unchanged; no-Web-Locks concurrent race characterized, CI/Pages/Vercel verified
 
 - Resumed from exact checkpoint `fa1827c0`, read mandatory process/continuity files and active immutable v18.34 module 309. Verified prior checkpoint CI `40024898736` SUCCESS, Pages `40024898919` / `40024898555` SUCCESS; the active demo-preload regression is included in that workflow. No iOS or source-stable repository touched.
