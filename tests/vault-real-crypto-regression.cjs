@@ -157,6 +157,51 @@ async function test(name,fn) {
     assert.deepEqual(clone(await second.load()),sample());
     assert.equal(s.writes,2);
   });
-  console.log(passed+'/8 bundled AES-GCM synthetic vault integration tests passed ('+path+')');
-  if(passed!==8)process.exitCode=1;
+
+  // Characterization, NOT a passing concurrency guarantee: each tab starts from
+  // the same synthetic snapshot. Existing v18.33 decrypt-on-save verifies
+  // ciphertext integrity but does not detect a legitimate newer revision.
+  await test('KNOWN GAP: stale second tab silently replaces first tab transaction',async()=>{
+    const s=storage();vault.saveWebVault(s,sample(),random);
+    function tab(url='https://example.test/?fa_real=1'){
+      const globalThis={localStorage:s,location:{href:url},history:{state:null,replaceState(){}},
+        crypto:{getRandomValues:array=>nodeCrypto.webcrypto.getRandomValues(array),randomUUID:()=>nodeCrypto.randomUUID()}};
+      const {factory,dependencies}=moduleFactory(309,{...sandbox,globalThis,URL,Blob}),api={};
+      factory(globalThis,id=>id===205?model:vault,()=>{},null,{exports:api},api,dependencies);
+      return api;
+    }
+    const a=tab(),b=tab(),aState=clone(await a.load()),bState=clone(await b.load());
+    aState.transactions.push({id:'tab-a-synthetic',kind:'expense',amount:111});
+    await a.save(aState);
+    const afterA=clone(s.data),writesAfterA=s.writes;
+    bState.transactions.push({id:'tab-b-synthetic',kind:'income',amount:222});
+    await b.save(bState);
+    const final=clone(vault.loadWebVault(s));
+    assert.ok(final.transactions.some(t=>t.id==='tab-b-synthetic'));
+    assert.ok(!final.transactions.some(t=>t.id==='tab-a-synthetic'),
+      'Expected to reproduce lost update on the current v18.33 bundle');
+    assert.notDeepEqual(s.data,afterA);
+    assert.equal(s.writes,writesAfterA+1);
+  });
+  await test('Actual DEMO tab rejects edit after another tab creates real encrypted vault',async()=>{
+    const s=storage();
+    function tab(url){
+      const globalThis={localStorage:s,location:{href:url},history:{state:null,replaceState(){}},
+        crypto:{getRandomValues:array=>nodeCrypto.webcrypto.getRandomValues(array),randomUUID:()=>nodeCrypto.randomUUID()}};
+      const {factory,dependencies}=moduleFactory(309,{...sandbox,globalThis,URL,Blob}),api={};
+      factory(globalThis,id=>id===205?model:vault,()=>{},null,{exports:api},api,dependencies);
+      return api;
+    }
+    const demo=tab('https://example.test/'),demoState=clone(await demo.load());
+    assert.equal(demo.isDemo(),true);
+    const real=tab('https://example.test/?fa_real=1');
+    await real.load();
+    await real.save(sample());
+    const before=clone(s.data),writes=s.writes;
+    await assert.rejects(demo.save(demoState),/Local data appeared|storage became inaccessible/i);
+    assert.deepEqual(s.data,before);
+    assert.equal(s.writes,writes);
+  });
+  console.log(passed+'/10 bundled AES-GCM and cross-tab synthetic audit tests passed ('+path+')');
+  if(passed!==10)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
