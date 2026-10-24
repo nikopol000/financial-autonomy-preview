@@ -449,3 +449,109 @@ test('Transfer 300→500→300 and void→restore across two checked accounts co
   assert.deepEqual(otherDifferences(reloaded),cashBaseline);
   assert.equal(total(reloaded),baselineTotal);
 });
+
+
+// ISSUE #2 — transfer destination reassignment and credit-card boundary.
+// Actual immutable v18.41 modules 205/207; synthetic balances only.
+// These assertions characterize existing account/debt arithmetic and reject
+// invalid destinations. They do NOT approve historical income-audit semantics.
+function reassignmentFixture() {
+  const s=model.emptyState('2026-10-01');
+  for (const [id,kind,opening] of [
+    ['ing','current',10000],['cash','cash',5000],['savings','savings',3000]
+  ]) s.accounts.push({id,name:id,kind,date:'2026-10-01',opening});
+  s.debts.push({
+    id:'card',name:'Synthetic card',kind:'card',date:'2026-10-01',
+    amount:2000,payment:0,limit:10000,day:1
+  });
+  for (const [id,order,first,second] of [
+    ['ing',3000,9500,9400],['cash',4000,4900,4800],
+    ['savings',5000,2900,2800],['card',6000,2000,2000]
+  ]) s.balanceChecks.push(
+    {id:id+'-1',accountId:id,observed:first,date:'2026-10-13',order},
+    {id:id+'-2',accountId:id,observed:second,date:'2026-10-16',order}
+  );
+  return s;
+}
+const reassignmentBalances=s=>['ing','cash','savings','card']
+  .map(id=>rec.checkedBalance(s,id,'2026-10-15'));
+const reassignmentDifferences=s=>['ing','cash','savings','card']
+  .map(id=>Array.from(rec.checkRows(s,id),row=>row.difference));
+const reassignmentNetWorth=s=>{
+  const [ing,cash,savings,card]=reassignmentBalances(s);
+  return ing+cash+savings-card; // Credit liability, never available owned money.
+};
+
+test('Reassign transfer cash→savings→card→cash: checks, net worth and exact undo (#2)',()=>{
+  const original=reassignmentFixture(),unchanged=JSON.stringify(original);
+  const baselineNetWorth=reassignmentNetWorth(original);
+  const row={
+    id:'transfer-reassigned',name:'Synthetic transfer',kind:'transfer',
+    amount:300,date:'2026-10-15',accountId:'ing',
+    destinationId:'cash',details:[],financialRole:'transfer'
+  };
+  const toCash=model.saveTransaction(original,row,today);
+  const observed=Array.from(toCash.balanceChecks,c=>[c.id,c.observed]);
+  assert.deepEqual(reassignmentBalances(toCash),[9200,5200,2900,2000]);
+  assert.deepEqual(reassignmentDifferences(toCash),[
+    [-500,200],[-100,-400],[-100,-100],[0,0]
+  ]);
+  const toSavings=model.saveTransaction(toCash,{
+    ...toCash.transactions.find(t=>t.id===row.id),destinationId:'savings'
+  },today);
+  assert.deepEqual(reassignmentBalances(toSavings),[9200,4900,3200,2000]);
+  assert.deepEqual(reassignmentDifferences(toSavings),[
+    [-500,200],[-100,-100],[-100,-400],[0,0]
+  ]);
+  const toCard=model.saveTransaction(toSavings,{
+    ...toSavings.transactions.find(t=>t.id===row.id),
+    destinationId:null,destinationCreditId:'card'
+  },today);
+  assert.deepEqual(reassignmentBalances(toCard),[9200,4900,2900,1700]);
+  assert.deepEqual(reassignmentDifferences(toCard),[
+    [-500,200],[-100,-100],[-100,-100],[0,300]
+  ]);
+  // Card payment decreases owned checking AND the credit liability by 300;
+  // its available credit is not an additional owned asset.
+  for (const s of [toCash,toSavings,toCard])
+    assert.equal(reassignmentNetWorth(s),baselineNetWorth);
+  const restored=model.saveTransaction(toCard,{
+    ...toCard.transactions.find(t=>t.id===row.id),
+    destinationId:'cash',destinationCreditId:null
+  },today);
+  assert.deepEqual(reassignmentBalances(restored),reassignmentBalances(toCash));
+  assert.deepEqual(reassignmentDifferences(restored),reassignmentDifferences(toCash));
+  assert.equal(reassignmentNetWorth(restored),baselineNetWorth);
+  assert.deepEqual(Array.from(restored.balanceChecks,c=>[c.id,c.observed]),observed);
+  assert.equal(restored.audit.length,3);
+  assert.equal(restored.transactions.length,1);
+  assert.equal(JSON.stringify(original),unchanged);
+  const store=storage();vault.saveWebVault(store,restored,randomBytes);
+  const loaded=vault.loadWebVault(store);
+  assert.deepEqual(reassignmentBalances(loaded),reassignmentBalances(toCash));
+  assert.deepEqual(reassignmentDifferences(loaded),reassignmentDifferences(toCash));
+  assert.equal(loaded.audit.length,3);
+});
+
+test('Invalid transfer reassignment rejects both destinations, unknown/same account and pre-opening date (#2)',()=>{
+  const original=reassignmentFixture();
+  const toCash=model.saveTransaction(original,{
+    id:'transfer-guard',name:'Synthetic transfer',kind:'transfer',
+    amount:300,date:'2026-10-15',accountId:'ing',
+    destinationId:'cash',details:[],financialRole:'transfer'
+  },today);
+  const before=JSON.stringify(toCash),row=toCash.transactions[0];
+  const rejected=[
+    {destinationId:'cash',destinationCreditId:'card'},
+    {destinationId:'missing',destinationCreditId:null},
+    {destinationId:'ing',destinationCreditId:null},
+    {destinationId:null,destinationCreditId:'missing'},
+    {destinationId:'cash',destinationCreditId:null,date:'2026-09-30'}
+  ];
+  for (const patch of rejected) {
+    assert.throws(()=>model.saveTransaction(toCash,{...row,...patch},today));
+    assert.equal(JSON.stringify(toCash),before,'Rejected edit must not mutate ledger');
+  }
+  assert.equal(toCash.audit.length,0);
+  assert.equal(toCash.transactions.length,1);
+});
