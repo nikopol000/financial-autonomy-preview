@@ -13,6 +13,7 @@ assert.ok(path && path.startsWith('_expo/static/js/web/'), 'Active WEB bundle mi
 const source = fs.readFileSync(path, 'utf8');
 const KEY = 'financial-autonomy.preview.key.v1';
 const PAYLOAD = 'financial-autonomy.preview.payload.v1';
+const RESET = 'financial-autonomy.preview.reset.v1';
 const clone = value => JSON.parse(JSON.stringify(value));
 const empty = () => ({version:4,accounts:[],transactions:[],balanceChecks:[]});
 const model = {
@@ -348,7 +349,7 @@ async function test(name,fn) {
     const outcomes=await Promise.allSettled([resetTab.resetData(),saveTab.save(stale)]);
     assert.deepEqual(outcomes.map(o=>o.status),['fulfilled','rejected']);
     assert.match(String(outcomes[1].reason),/altă filă|Reîncarcă/i);
-    assert.equal(locks.requests,2);assert.equal(s.writes,writes+2);
+    assert.equal(locks.requests,2);assert.equal(s.writes,writes+4);
     assert.equal(s.getItem(KEY),null);assert.equal(s.getItem(PAYLOAD),null);
     assert.deepEqual(clone(vault.loadWebVault(s)),empty());
   });
@@ -395,44 +396,138 @@ async function test(name,fn) {
     await tab.save(newer);
     assert.deepEqual(clone(vault.loadWebVault(backing)),newer);
   });
-  // Fault injection documents a real two-key reset limitation. These tests
-  // characterize current behavior, not an assertion that partial deletion is safe.
-  await test('Reset: first localStorage deletion failure leaves encrypted vault intact',async()=>{
+  // Committed tombstone is written BEFORE any ciphertext/key deletion.
+  // After an interruption, reload resumes deletion; it never restores old data.
+  await test('Reset: denied commit marker write leaves original encrypted ledger intact',async()=>{
     const backing=storage();vault.saveWebVault(backing,sample(),random);
     const before=clone(backing.data),writes=backing.writes;
-    const failing={
-      getItem:key=>backing.getItem(key),
-      setItem:(...args)=>backing.setItem(...args),
-      removeItem(){throw Error('Injected first deletion failure');},
-      key:i=>backing.key(i),get length(){return backing.length}
+    const denied={
+      getItem:k=>backing.getItem(k),key:i=>backing.key(i),get length(){return backing.length},
+      setItem(k,v){if(k===RESET)throw Error('QuotaExceededError');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k)
     };
-    const tab=realTab(failing,{locks:serialLocks()});await tab.load();
-    await assert.rejects(tab.resetData(),/Injected first deletion failure/);
+    const tab=realTab(denied,{locks:serialLocks()});await tab.load();
+    await assert.rejects(tab.resetData(),/QuotaExceededError/);
     assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
     assert.deepEqual(clone(vault.loadWebVault(backing)),sample());
   });
-  await test('KNOWN UNSAFE: second reset deletion failure strands key without ciphertext',async()=>{
+  await test('Reset: first ciphertext deletion failure leaves committed marker and resumes on reload',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    const before=clone(backing.data),writes=backing.writes;
+    const failing={
+      getItem:k=>backing.getItem(k),setItem:(...args)=>backing.setItem(...args),
+      removeItem(){throw Error('Injected first deletion failure');},
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(failing,{locks:serialLocks()});const stale=clone(await tab.load());
+    await assert.rejects(tab.resetData(),/Resetarea a fost întreruptă/);
+    assert.equal(backing.writes,writes+1);
+    assert.equal(backing.getItem(RESET),'committed-v1');
+    assert.equal(backing.getItem(KEY),before[KEY]);assert.equal(backing.getItem(PAYLOAD),before[PAYLOAD]);
+    assert.throws(()=>vault.loadWebVault(backing),/Resetarea locală/);
+    await assert.rejects(tab.save(stale),/Resetarea locală|Reîncarcă/);
+    assert.deepEqual(clone(await realTab(backing,{locks:serialLocks()}).load()),empty());
+    assert.equal(backing.getItem(RESET),null);assert.equal(backing.getItem(KEY),null);assert.equal(backing.getItem(PAYLOAD),null);
+  });
+  await test('Reset: second deletion failure strands key temporarily but reload finishes committed reset',async()=>{
     const backing=storage();vault.saveWebVault(backing,sample(),random);
     const before=clone(backing.data),writes=backing.writes;
     let deletes=0;
     const failing={
-      getItem:key=>backing.getItem(key),
-      setItem:(...args)=>backing.setItem(...args),
-      removeItem(key){
-        deletes++;
-        if(deletes===2)throw Error('Injected second deletion failure');
-        backing.removeItem(key);
-      },
+      getItem:k=>backing.getItem(k),setItem:(...args)=>backing.setItem(...args),
+      removeItem(k){if(++deletes===2)throw Error('Injected key deletion failure');backing.removeItem(k)},
       key:i=>backing.key(i),get length(){return backing.length}
     };
     const tab=realTab(failing,{locks:serialLocks()});const stale=clone(await tab.load());
-    await assert.rejects(tab.resetData(),/Injected second deletion failure/);
-    assert.equal(deletes,2);assert.equal(backing.writes,writes+1);
-    assert.equal(backing.getItem(KEY),before[KEY]);
-    assert.equal(backing.getItem(PAYLOAD),null);
-    assert.throws(()=>vault.loadWebVault(backing),/Cheia locală există fără datele criptate/);
-    await assert.rejects(tab.save(stale),/altă filă|Reîncarcă/i);
+    await assert.rejects(tab.resetData(),/Resetarea a fost întreruptă/);
+    assert.equal(deletes,2);assert.equal(backing.writes,writes+2);
+    assert.equal(backing.getItem(RESET),'committed-v1');
+    assert.equal(backing.getItem(KEY),before[KEY]);assert.equal(backing.getItem(PAYLOAD),null);
+    assert.throws(()=>vault.loadWebVault(backing),/Resetarea locală/);
+    await assert.rejects(tab.save(stale),/Resetarea locală|Reîncarcă/);
+    assert.deepEqual(clone(await realTab(backing,{locks:serialLocks()}).load()),empty());
+    assert.equal(backing.getItem(RESET),null);assert.equal(backing.getItem(KEY),null);
   });
-  console.log(passed+'/24 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==24)process.exitCode=1;
+  await test('Reset: final marker deletion failure never resurrects deleted ledger',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    const failing={
+      getItem:k=>backing.getItem(k),setItem:(...args)=>backing.setItem(...args),
+      removeItem(k){if(k===RESET)throw Error('Injected final marker deletion failure');backing.removeItem(k)},
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(failing,{locks:serialLocks()});await tab.load();
+    await assert.rejects(tab.resetData(),/Resetarea a fost întreruptă/);
+    assert.equal(backing.getItem(RESET),'committed-v1');
+    assert.equal(backing.getItem(KEY),null);assert.equal(backing.getItem(PAYLOAD),null);
+    assert.throws(()=>vault.loadWebVault(backing),/Resetarea locală/);
+    assert.deepEqual(clone(await realTab(backing,{locks:serialLocks()}).load()),empty());
+    assert.equal(backing.getItem(RESET),null);
+  });
+  await test('Reset: failed first recovery can be retried without changing commit intent',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    let fail=true;
+    const flaky={
+      getItem:k=>backing.getItem(k),setItem:(...args)=>backing.setItem(...args),
+      removeItem(k){if(k===PAYLOAD&&fail)throw Error('Storage unavailable');backing.removeItem(k)},
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks:serialLocks()});await tab.load();
+    await assert.rejects(tab.resetData(),/Resetarea a fost întreruptă/);
+    await assert.rejects(realTab(flaky,{locks:serialLocks()}).load(),/Storage unavailable/);
+    assert.equal(backing.getItem(RESET),'committed-v1');
+    fail=false;
+    assert.deepEqual(clone(await realTab(flaky,{locks:serialLocks()}).load()),empty());
+    assert.equal(backing.getItem(RESET),null);
+  });
+  await test('Reset: pending marker blocks stale writer even when ciphertext pair remains unchanged',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    const locks=serialLocks(),staleTab=realTab(backing,{locks});
+    const stale=clone(await staleTab.load()),before=clone(backing.data);
+    const failing={
+      getItem:k=>backing.getItem(k),setItem:(...args)=>backing.setItem(...args),
+      removeItem(){throw Error('Interrupted before first delete')},
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const resetTab=realTab(failing,{locks});await resetTab.load();
+    await assert.rejects(resetTab.resetData(),/Resetarea a fost întreruptă/);
+    assert.equal(backing.getItem(PAYLOAD),before[PAYLOAD]);
+    const writes=backing.writes;
+    stale.transactions.push({id:'must-not-resurrect',kind:'income',amount:999});
+    await assert.rejects(staleTab.save(stale),/Resetarea locală|Reîncarcă/);
+    assert.equal(backing.writes,writes);
+    assert.deepEqual(clone(await realTab(backing,{locks}).load()),empty());
+  });
+  await test('Reset: pending marker cannot be recovered without Web Locks',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    backing.setItem(RESET,'committed-v1');
+    const before=clone(backing.data),writes=backing.writes;
+    await assert.rejects(realTab(backing).load(),/Web Locks/);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+  });
+  await test('Reset: invalid marker fails closed with no deletion or save',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    backing.setItem(RESET,'unknown-marker');
+    const before=clone(backing.data),writes=backing.writes;
+    assert.throws(()=>vault.loadWebVault(backing),/Resetarea locală/);
+    assert.throws(()=>vault.saveWebVault(backing,sample(),random),/Salvarea este blocată/);
+    assert.throws(()=>vault.clearWebVault(backing),/Marcaj de resetare necunoscut/);
+    await assert.rejects(realTab(backing,{locks:serialLocks()}).load(),/Marcaj de resetare necunoscut/);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+  });
+  await test('Reset: successful deletion and new vault creation reject stale pre-reset tab',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    const locks=serialLocks(),stale=realTab(backing,{locks}),reset=realTab(backing,{locks});
+    const old=clone(await stale.load());await reset.load();
+    await reset.resetData();
+    assert.equal(backing.getItem(RESET),null);
+    const fresh=realTab(backing,{locks}),emptyState=clone(await fresh.load());
+    emptyState.transactions.push({id:'post-reset-new',kind:'income',amount:321});
+    await fresh.save(emptyState);
+    assert.ok(vault.loadWebVault(backing).transactions.some(t=>t.id==='post-reset-new'));
+    const writes=backing.writes;
+    await assert.rejects(stale.save(old),/altă filă|Reîncarcă/);
+    assert.equal(backing.writes,writes);
+  });
+  console.log(passed+'/31 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==31)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
