@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 transfer destination and card liability
+
+- DONE: [PR #21](https://github.com/nikopol000/financial-autonomy-preview/pull/21) test-only merged `58baa121`. Synthetic checked accounts ING/cash/savings and card liability: transfer destination cash→savings→card→cash preserves owned-minus-debt net worth, account-specific check differences, unchanged observed anchors and exact reversal; three audit entries and mocked-vault reload. Invalid double/unknown/same-account destinations and pre-opening edit fail closed with zero mutation.
+- VERIFIED: candidate [40101168814](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40101168814) SUCCESS with two named test PASS; merged main [40101209168](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40101209168) SUCCESS; Pages [40101209143](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40101209143) / [40101208808](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40101208808) SUCCESS; Vercel `dpl_4tVhBvEcycmwNuXMBFym5gfojni8` READY on merge SHA. Issue #2 updated. No product release: active HTML/bundle/diagnostic **18.41** unchanged, no formulas, real data, backup, iOS or stable source edits. Browser acceptance NOT VERIFIED.
+- BLOCKED: #2 historical linked-income audit offsets/undo requires explicit financial contract; #4 browser/two-tab/DEMO/iPhone pending authorized access; #14 budget perspectives discovery-only; #17 budget microcopy analysis remains nonurgent.
+- NEXT FIRST: synthetic transfer source reassignment/chronology with observed checks and card edge, preserve zero-write fail-closed safety; browser if accessible; do not bump version without product change.
+
+
 ## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 transfer edit/void check isolation
 
 - DONE: test-only [PR #20](https://github.com/nikopol000/financial-autonomy-preview/pull/20), merged `297545fb7`. Synthetic real-engine ING/cash transfer 3→5→3 RON and void→restore with multiple checks: source/destination changes offset, total owned money conserved, both sets of check differences return to transfer baseline, observed amounts unchanged, four audit entries and mocked-vault reload verified. #2 [comment](https://github.com/nikopol000/financial-autonomy-preview/issues/2#issuecomment-6384603585) records evidence and remaining decision gate.
