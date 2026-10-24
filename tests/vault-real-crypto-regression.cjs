@@ -339,6 +339,62 @@ async function test(name,fn) {
     assert.match(source,/tranzacțiile, reconcilierea și resetarea nu se pot salva/);
     assert.match(source,/accessibilityRole:"alert",style:\[he\.banner,\{borderWidth:2,borderColor:"#D97706"/);
   });
-  console.log(passed+'/19 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==19)process.exitCode=1;
+  await test('Concurrent reset then stale save cannot resurrect an erased ledger',async()=>{
+    const s=storage();vault.saveWebVault(s,sample(),random);
+    const locks=serialLocks(),resetTab=realTab(s,{locks}),saveTab=realTab(s,{locks});
+    await resetTab.load();const stale=clone(await saveTab.load());
+    stale.transactions.push({id:'stale-resurrection',kind:'income',amount:999});
+    const writes=s.writes;
+    const outcomes=await Promise.allSettled([resetTab.resetData(),saveTab.save(stale)]);
+    assert.deepEqual(outcomes.map(o=>o.status),['fulfilled','rejected']);
+    assert.match(String(outcomes[1].reason),/altă filă|Reîncarcă/i);
+    assert.equal(locks.requests,2);assert.equal(s.writes,writes+2);
+    assert.equal(s.getItem(KEY),null);assert.equal(s.getItem(PAYLOAD),null);
+    assert.deepEqual(clone(vault.loadWebVault(s)),empty());
+  });
+  await test('Concurrent save then stale reset cannot erase newer transactions',async()=>{
+    const s=storage();vault.saveWebVault(s,sample(),random);
+    const locks=serialLocks(),saveTab=realTab(s,{locks}),resetTab=realTab(s,{locks});
+    const updated=clone(await saveTab.load());await resetTab.load();
+    updated.transactions.push({id:'must-survive-reset',kind:'expense',amount:234});
+    const writes=s.writes;
+    const outcomes=await Promise.allSettled([saveTab.save(updated),resetTab.resetData()]);
+    assert.deepEqual(outcomes.map(o=>o.status),['fulfilled','rejected']);
+    assert.match(String(outcomes[1].reason),/altă filă|Reîncarcă/i);
+    assert.equal(locks.requests,2);assert.equal(s.writes,writes+1);
+    assert.ok(vault.loadWebVault(s).transactions.some(t=>t.id==='must-survive-reset'));
+    assert.notEqual(s.getItem(KEY),null);assert.notEqual(s.getItem(PAYLOAD),null);
+  });
+  await test('Vault revision changing during decrypt fails load and cannot authorize a stale save',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    const newer=clone(sample());
+    newer.transactions.push({id:'concurrent-valid-write',kind:'income',amount:345});
+    let payloadReads=0,changed=false;
+    const interleaved={
+      getItem(key){
+        const value=backing.getItem(key);
+        if(key===PAYLOAD&&++payloadReads===2){
+          vault.saveWebVault(backing,newer,random);
+          changed=true;
+        }
+        return value;
+      },
+      setItem:(...args)=>backing.setItem(...args),
+      removeItem:(...args)=>backing.removeItem(...args),
+      key:i=>backing.key(i),
+      get length(){return backing.length}
+    };
+    const tab=realTab(interleaved,{locks:serialLocks()});
+    const before=backing.writes;
+    await assert.rejects(tab.load(),/altă filă|Reîncarcă/i);
+    assert.equal(changed,true);assert.equal(backing.writes,before+1);
+    const latest=clone(backing.data),writes=backing.writes;
+    await assert.rejects(tab.save(sample()),/altă filă|Reîncarcă/i);
+    assert.deepEqual(backing.data,latest);assert.equal(backing.writes,writes);
+    assert.deepEqual(clone(await tab.load()),newer);
+    await tab.save(newer);
+    assert.deepEqual(clone(vault.loadWebVault(backing)),newer);
+  });
+  console.log(passed+'/22 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==22)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
