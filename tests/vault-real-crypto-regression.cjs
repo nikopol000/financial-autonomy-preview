@@ -528,6 +528,95 @@ async function test(name,fn) {
     await assert.rejects(stale.save(old),/altă filă|Reîncarcă/);
     assert.equal(backing.writes,writes);
   });
-  console.log(passed+'/31 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==31)process.exitCode=1;
+
+  // SecurityError/permission failures must not be treated as an absent marker
+  // or permission to overwrite an existing encrypted ledger.
+  await test('Reset: denied marker read before load fails closed with zero writes',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    const before=clone(backing.data),writes=backing.writes;
+    const denied={
+      getItem(k){if(k===RESET)throw Error('SecurityError: reset marker read denied');return backing.getItem(k)},
+      setItem:(...args)=>backing.setItem(...args),
+      removeItem:(...args)=>backing.removeItem(...args),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    await assert.rejects(realTab(denied,{locks:serialLocks()}).load(),/SecurityError/);
+    assert.throws(()=>vault.loadWebVault(denied),/SecurityError/);
+    assert.throws(()=>vault.saveWebVault(denied,sample(),random),/SecurityError/);
+    assert.throws(()=>vault.clearWebVault(denied),/SecurityError/);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+    assert.deepEqual(clone(vault.loadWebVault(backing)),sample());
+  });
+  await test('Reset: marker read permission revoked after load blocks peek save and reset',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    let deny=false;
+    const flaky={
+      getItem(k){if(deny&&k===RESET)throw Error('SecurityError: permission revoked');return backing.getItem(k)},
+      setItem:(...args)=>backing.setItem(...args),
+      removeItem:(...args)=>backing.removeItem(...args),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks:serialLocks()});
+    const state=clone(await tab.load()),before=clone(backing.data),writes=backing.writes;
+    deny=true;
+    await assert.rejects(tab.peek(),/SecurityError/);
+    await assert.rejects(tab.save(state),/SecurityError/);
+    await assert.rejects(tab.resetData(),/SecurityError/);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+    deny=false;
+    assert.deepEqual(clone(await tab.load()),state);
+    await tab.save(state);
+    assert.deepEqual(clone(vault.loadWebVault(backing)),state);
+  });
+  await test('Reset: committed marker with read denial remains pending until permission returns',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    const locks=serialLocks(),stale=realTab(backing,{locks});
+    const staleState=clone(await stale.load());
+    backing.setItem(RESET,'committed-v1');
+    let deny=true;
+    const flaky={
+      getItem(k){if(deny&&k===RESET)throw Error('SecurityError: marker inaccessible');return backing.getItem(k)},
+      setItem:(...args)=>backing.setItem(...args),
+      removeItem:(...args)=>backing.removeItem(...args),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const before=clone(backing.data),writes=backing.writes;
+    await assert.rejects(realTab(flaky,{locks}).load(),/SecurityError/);
+    await assert.rejects(stale.save(staleState),/Resetarea locală|Reîncarcă/);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+    deny=false;
+    assert.deepEqual(clone(await realTab(flaky,{locks}).load()),empty());
+    assert.equal(backing.getItem(RESET),null);
+    assert.equal(backing.getItem(KEY),null);assert.equal(backing.getItem(PAYLOAD),null);
+    await assert.rejects(stale.save(staleState),/altă filă|Reîncarcă/);
+  });
+  await test('Reset: corrupt marker inserted after load blocks stale save and reset without deletion',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    const locks=serialLocks(),tab=realTab(backing,{locks});
+    const state=clone(await tab.load());
+    backing.setItem(RESET,'corrupt-marker');
+    const before=clone(backing.data),writes=backing.writes;
+    await assert.rejects(tab.save(state),/Resetarea locală|Reîncarcă/);
+    await assert.rejects(tab.resetData(),/Resetarea locală|Reîncarcă/);
+    await assert.rejects(realTab(backing,{locks}).load(),/Marcaj de resetare necunoscut/);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+  });
+  await test('KNOWN UNSAFE: first vault creation payload-write failure strands an orphan key',()=>{
+    const backing=storage();
+    const failing={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(k===PAYLOAD)throw Error('QuotaExceededError: payload write denied');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    assert.throws(()=>vault.saveWebVault(failing,sample(),random),/nu a putut salva/);
+    assert.match(backing.getItem(KEY),/^[0-9a-f]{64}$/);
+    assert.equal(backing.getItem(PAYLOAD),null);
+    assert.throws(()=>vault.loadWebVault(backing),/Cheia locală există fără datele criptate/);
+    const before=clone(backing.data),writes=backing.writes;
+    assert.throws(()=>vault.saveWebVault(backing,sample(),random),/Salvarea este blocată/);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+  });
+  console.log(passed+'/36 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==36)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
