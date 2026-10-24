@@ -1,0 +1,108 @@
+'use strict';
+// Exercise the actual active WEB bundle's Editor handlers using synthetic state.
+// No browser or real user storage is accessed.
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const html = fs.readFileSync('index.html','utf8');
+const path = html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=/)?.[1];
+assert.ok(path, 'Active WEB bundle missing');
+const source = fs.readFileSync(path,'utf8');
+assert.ok(source.includes('N&&(0,m.jsx)(t.default,{accessibilityRole:"alert"'),
+  'Editor error state is not exposed as an accessible alert');
+assert.ok(source.includes('secondary:!0,disabled:R,onPress:async()=>{if(R||!v)return;'),
+  'Close/reopen control must be disabled while saving');
+assert.ok(source.includes('label:"Salveaz\\u0103 corec\\u021bia",disabled:R,onPress:async()=>{if(R)return;'),
+  'Opening correction control must be disabled while saving');
+
+function extractHandler(needle) {
+  const labelAt=source.indexOf(needle);
+  assert.ok(labelAt>=0,'Missing Editor control: '+needle);
+  const marker='onPress:async()=>{';
+  const at=source.indexOf(marker,labelAt);
+  assert.ok(at>=0&&at<labelAt+200,'Expected guarded async handler: '+needle);
+  const firstBrace=source.indexOf('{',at);
+  let depth=0,quote='',escaped=false;
+  for(let i=firstBrace;i<source.length;i++) {
+    const ch=source[i];
+    if(quote) {
+      if(escaped)escaped=false;
+      else if(ch==='\\')escaped=true;
+      else if(ch===quote)quote='';
+      continue;
+    }
+    if(ch==='"'||ch==="'"||ch===String.fromCharCode(96)){quote=ch;continue}
+    if(ch==='{')depth++;
+    else if(ch==='}'&&--depth===0)
+      return source.slice(at+'onPress:'.length,i+1);
+  }
+  throw Error('Unclosed handler: '+needle);
+}
+
+function fixture(needle,{fail=false,invalid=false,balance=0}={}) {
+  const v={id:'synthetic-account',name:'Synthetic',opening:100};
+  const state={accounts:[v],debts:[v]};
+  const d={accountBalance:()=>balance,debtBalance:()=>balance};
+  const o={today:()=> '2026-10-24',signedMoney:()=>{
+    if(invalid)throw Error('Invalid synthetic amount');
+    return 200;
+  }};
+  const Y={opening:'2',date:'2026-10-24'};
+  let error='',busy=false,closed=0,writes=0,attempted;
+  const O=value=>{error=value};
+  const I=value=>{busy=value};
+  const b=async value=>{
+    writes++;attempted=value;
+    if(fail)throw Error('Registrul a fost modificat de altă filă.');
+  };
+  const h=()=>{closed++};
+  const handler=new Function('v','x','e','d','o','O','b','h','R','I','Y',
+    'return ('+extractHandler(needle)+')')
+    (v,'account',state,d,o,O,b,h,false,I,Y);
+  return {press:handler,get error(){return error},get busy(){return busy},
+    get closed(){return closed},get writes(){return writes},
+    get attempted(){return attempted}};
+}
+
+const close='label:v?.closedAt?';
+const correction='label:"Salveaz\\u0103 corec\\u021bia"';
+let passed=0;
+async function test(name,fn) {
+  try{await fn();passed++;console.log('PASS',name)}
+  catch(err){console.error('FAIL',name,err.stack||err);process.exitCode=1}
+}
+(async()=>{
+  await test('Close-account stale save refusal displays error, never closes modal',async()=>{
+    const f=fixture(close,{fail:true});await f.press();
+    assert.match(f.error,/altă filă/);assert.equal(f.closed,0);
+    assert.equal(f.writes,1);assert.equal(f.busy,false);
+  });
+  await test('Nonzero balance blocks account closure before any write',async()=>{
+    const f=fixture(close,{balance:300});await f.press();
+    assert.match(f.error,/soldul este zero/);assert.equal(f.closed,0);
+    assert.equal(f.writes,0);assert.equal(f.busy,false);
+  });
+  await test('Successful account closure persists once before modal closes',async()=>{
+    const f=fixture(close);await f.press();
+    assert.equal(f.writes,1);assert.equal(f.closed,1);
+    assert.equal(f.attempted.accounts[0].closedAt,'2026-10-24');
+    assert.equal(f.busy,false);
+  });
+  await test('Opening correction stale save refusal displays error, never closes',async()=>{
+    const f=fixture(correction,{fail:true});await f.press();
+    assert.match(f.error,/altă filă/);assert.equal(f.closed,0);
+    assert.equal(f.writes,1);assert.equal(f.busy,false);
+  });
+  await test('Invalid opening correction amount reports error without write',async()=>{
+    const f=fixture(correction,{invalid:true});await f.press();
+    assert.match(f.error,/Invalid synthetic amount/);assert.equal(f.closed,0);
+    assert.equal(f.writes,0);assert.equal(f.busy,false);
+  });
+  await test('Successful opening correction persists once before modal closes',async()=>{
+    const f=fixture(correction);await f.press();
+    assert.equal(f.writes,1);assert.equal(f.closed,1);
+    assert.equal(f.attempted.accounts[0].opening,200);
+    assert.equal(f.busy,false);
+  });
+  console.log(passed+'/6 Editor save-error regression tests passed');
+  if(passed!==6)process.exitCode=1;
+})().catch(err=>{console.error(err);process.exitCode=1});
