@@ -631,3 +631,130 @@ test('Invalid transfer source reassignment rejects unknown, same destination, ca
   assert.equal(toCash.transactions.length,1);
   assert.equal(toCash.audit.length,0);
 });
+
+
+//
+// ISSUE #2 — credit/overdraft transfer sources and card-to-card boundaries.
+// Synthetic only, using the actual active immutable financial engine. These
+// tests characterize existing behavior, not a new credit-accounting contract.
+function creditSourceFixture() {
+  const state=reassignmentFixture();
+  for(const [id,kind,amount,order] of [
+    ['card-b','card',1000,7000],
+    ['overdraft','overdraft',500,8000]
+  ]) {
+    state.debts.push({
+      id,name:'Synthetic '+id,kind,date:'2026-10-01',
+      amount,payment:0,limit:10000,day:1
+    });
+    for(const [suffix,day] of [['1','2026-10-13'],['2','2026-10-16']])
+      state.balanceChecks.push({
+        id:id+'-'+suffix,accountId:id,observed:amount,date:day,order
+      });
+  }
+  return state;
+}
+const creditSourceIds=['ing','cash','savings','card','card-b','overdraft'];
+const creditSourceBalances=s=>creditSourceIds.map(id=>rec.checkedBalance(s,id,'2026-10-15'));
+const creditSourceDifferences=s=>creditSourceIds.map(id=>
+  Array.from(rec.checkRows(s,id),row=>row.difference));
+const creditSourceNetWorth=s=>{
+  const [ing,cash,savings,card,cardB,overdraft]=creditSourceBalances(s);
+  return ing+cash+savings-card-cardB-overdraft;
+};
+
+test('Credit-card→cash transfer source reassigned to overdraft and restored: no minted money, checks and vault undo (#2)',()=>{
+  const original=creditSourceFixture(),unchanged=JSON.stringify(original);
+  const netWorth=creditSourceNetWorth(original);
+  const fromCard=model.saveTransaction(original,{
+    id:'credit-source-cash',name:'Synthetic credit to cash',kind:'transfer',
+    amount:300,date:'2026-10-15',accountId:'',creditId:'card',
+    destinationId:'cash',details:[],financialRole:'transfer'
+  },today);
+  const observed=Array.from(fromCard.balanceChecks,c=>[c.id,c.observed]);
+  assert.deepEqual(creditSourceBalances(fromCard),[9500,5200,2900,2300,1000,500]);
+  assert.deepEqual(Array.from(rec.checkRows(fromCard,'card'),c=>c.difference),[0,-300]);
+  assert.equal(creditSourceNetWorth(fromCard),netWorth);
+  const fromOverdraft=model.saveTransaction(fromCard,{
+    ...fromCard.transactions[0],creditId:'overdraft'
+  },today);
+  assert.deepEqual(creditSourceBalances(fromOverdraft),[9500,5200,2900,2000,1000,800]);
+  assert.deepEqual(Array.from(rec.checkRows(fromOverdraft,'overdraft'),c=>c.difference),[0,-300]);
+  assert.equal(creditSourceNetWorth(fromOverdraft),netWorth);
+  const restored=model.saveTransaction(fromOverdraft,{
+    ...fromOverdraft.transactions[0],creditId:'card'
+  },today);
+  assert.deepEqual(creditSourceBalances(restored),creditSourceBalances(fromCard));
+  assert.deepEqual(creditSourceDifferences(restored),creditSourceDifferences(fromCard));
+  assert.deepEqual(Array.from(restored.balanceChecks,c=>[c.id,c.observed]),observed);
+  assert.equal(restored.audit.length,2);
+  assert.equal(restored.transactions.length,1);
+  assert.equal(creditSourceNetWorth(restored),netWorth);
+  assert.equal(JSON.stringify(original),unchanged);
+  const store=storage();vault.saveWebVault(store,restored,randomBytes);
+  const loaded=vault.loadWebVault(store);
+  assert.deepEqual(creditSourceBalances(loaded),creditSourceBalances(fromCard));
+  assert.deepEqual(creditSourceDifferences(loaded),creditSourceDifferences(fromCard));
+  assert.equal(loaded.audit.length,2);
+});
+
+test('Card-to-card source correction, void and restore preserve two debt checks and owned net worth (#2)',()=>{
+  const original=creditSourceFixture(),netWorth=creditSourceNetWorth(original);
+  const fromCard=model.saveTransaction(original,{
+    id:'credit-source-card',name:'Synthetic card-to-card',kind:'transfer',
+    amount:300,date:'2026-10-15',accountId:'',creditId:'card',
+    destinationCreditId:'card-b',details:[],financialRole:'transfer'
+  },today);
+  assert.deepEqual(creditSourceBalances(fromCard),[9500,4900,2900,2300,700,500]);
+  assert.deepEqual(Array.from(rec.checkRows(fromCard,'card'),c=>c.difference),[0,-300]);
+  assert.deepEqual(Array.from(rec.checkRows(fromCard,'card-b'),c=>c.difference),[0,300]);
+  const fromOverdraft=model.saveTransaction(fromCard,{
+    ...fromCard.transactions[0],creditId:'overdraft'
+  },today);
+  assert.deepEqual(creditSourceBalances(fromOverdraft),[9500,4900,2900,2000,700,800]);
+  const restored=model.saveTransaction(fromOverdraft,{
+    ...fromOverdraft.transactions[0],creditId:'card'
+  },today);
+  const voided=model.saveTransaction(restored,{...restored.transactions[0],voided:true},today);
+  assert.deepEqual(creditSourceBalances(voided),creditSourceBalances(original));
+  const unvoided=model.saveTransaction(voided,{...voided.transactions[0],voided:false},today);
+  assert.deepEqual(creditSourceBalances(unvoided),creditSourceBalances(fromCard));
+  assert.deepEqual(creditSourceDifferences(unvoided),creditSourceDifferences(fromCard));
+  for(const state of [fromCard,fromOverdraft,restored,voided,unvoided])
+    assert.equal(creditSourceNetWorth(state),netWorth);
+  assert.equal(unvoided.audit.length,4);
+  assert.deepEqual(Array.from(unvoided.balanceChecks,c=>[c.id,c.observed]),
+    Array.from(original.balanceChecks,c=>[c.id,c.observed]));
+  const store=storage();vault.saveWebVault(store,unvoided,randomBytes);
+  assert.deepEqual(creditSourceDifferences(vault.loadWebVault(store)),creditSourceDifferences(fromCard));
+});
+
+test('Invalid credit source/destination edits reject without mutating checked ledger (#2)',()=>{
+  const original=creditSourceFixture();
+  original.debts.push({
+    id:'loan',name:'Synthetic loan',kind:'loan',date:'2026-10-01',
+    amount:5000,payment:0,limit:0,day:1
+  });
+  const active=model.saveTransaction(original,{
+    id:'credit-source-guard',name:'Synthetic guarded transfer',kind:'transfer',
+    amount:300,date:'2026-10-15',accountId:'',creditId:'card',
+    destinationCreditId:'card-b',details:[],financialRole:'transfer'
+  },today);
+  const before=JSON.stringify(active),row=active.transactions[0];
+  for(const patch of [
+    {creditId:'missing'},
+    {creditId:'loan'},
+    {creditId:'card-b'},
+    {accountId:'ing'},
+    {creditId:'overdraft',accountId:'cash'},
+    {destinationCreditId:'missing'},
+    {destinationCreditId:'loan'},
+    {destinationCreditId:'card',creditId:'card'},
+    {date:'2026-09-30'}
+  ]) {
+    assert.throws(()=>model.saveTransaction(active,{...row,...patch},today));
+    assert.equal(JSON.stringify(active),before,'Rejected credit edit must not mutate ledger');
+  }
+  assert.equal(active.audit.length,0);
+  assert.equal(active.transactions.length,1);
+});
