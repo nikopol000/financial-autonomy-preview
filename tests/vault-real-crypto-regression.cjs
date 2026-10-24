@@ -293,7 +293,7 @@ async function test(name,fn) {
     assert.equal(invalid.canWriteReal(),false);
     await supported.load();await unsupported.load();await invalid.load();
     assert.deepEqual(s.data,before);assert.equal(s.writes,writes);
-    const demoStorage=storage(),demo=realTab(demoStorage);
+    const demoStorage=storage(),demo=realTab(demoStorage,{url:'https://example.test/'});
     await demo.load();
     assert.equal(demo.isDemo(),true);
     assert.equal(demo.canWriteReal(),false);
