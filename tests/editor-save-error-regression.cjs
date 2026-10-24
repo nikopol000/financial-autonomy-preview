@@ -53,11 +53,11 @@ function extractHandler(needle) {
   throw Error('Unclosed handler: '+needle);
 }
 
-function fixture(needle,{fail=false,invalid=false,balance=0,kind='account',date='2026-10-24'}={}) {
+function fixture(needle,{fail=false,invalid=false,balance=0,kind='account',date='2026-10-24',transactions=[],balanceChecks=[],checkAudit=[]}={}) {
   const account={id:'synthetic-account',name:'Synthetic account',opening:100,date:'2026-10-01'};
   const debt={id:'synthetic-debt',name:'Synthetic debt',amount:400,payment:50,kind:'loan',date:'2026-10-01'};
   const v=kind==='debt'?debt:account;
-  const state={started:'2026-10-01',accounts:[account],debts:[debt],transactions:[],audit:[]};
+  const state={started:'2026-10-01',accounts:[account],debts:[debt],transactions,balanceChecks,checkAudit,audit:[]};
   const d={accountBalance:()=>balance,debtBalance:()=>balance};
   const parse=()=>{if(invalid)throw Error('Invalid synthetic amount');return 200};
   const o={today:()=> '2026-10-24',validDate:dateApi.validDate,signedMoney:parse,money:parse};
@@ -171,6 +171,48 @@ async function test(name,fn) {
       assert.equal(f.writes,0);assert.equal(f.closed,0);assert.equal(f.busy,false);
     });
   }
-  console.log(passed+'/17 Editor save-error regression tests passed');
-  if(passed!==17)process.exitCode=1;
+
+  // Historical chronology: the actual balance engine ignores operations before
+  // a corrected opening date. Refuse that move instead of silently losing them.
+  const priorAccountExpense={id:'prior-expense',kind:'expense',date:'2026-10-05',accountId:'synthetic-account',amount:20,order:1000};
+  const priorDebtPayment={id:'prior-payment',kind:'debtPayment',date:'2026-10-05',accountId:'synthetic-account',debtId:'synthetic-debt',amount:50,principal:50,order:1000};
+  await test('Actual engine confirms moving an opening date can omit historical money movements',async()=>{
+    const a=fixture(correction,{transactions:[priorAccountExpense,priorDebtPayment]});
+    assert.equal(rec.checkedBalance(a.initial,'synthetic-account','2026-10-24'),30);
+    assert.equal(rec.checkedBalance(a.initial,'synthetic-debt','2026-10-24'),350);
+    const shifted={...a.initial,
+      accounts:a.initial.accounts.map(x=>({...x,date:'2026-10-24'})),
+      debts:a.initial.debts.map(x=>({...x,date:'2026-10-24'}))};
+    assert.equal(rec.checkedBalance(shifted,'synthetic-account','2026-10-24'),100);
+    assert.equal(rec.checkedBalance(shifted,'synthetic-debt','2026-10-24'),400);
+  });
+  for(const [name,kind,transactions,balanceChecks,checkAudit] of [
+    ['account expense','account',[priorAccountExpense],[],[]],
+    ['incoming account transfer','account',[{id:'incoming',date:'2026-10-05',kind:'transfer',destinationId:'synthetic-account'}],[],[]],
+    ['debt repayment','debt',[priorDebtPayment],[],[]],
+    ['credit card purchase','debt',[{id:'credit',date:'2026-10-05',kind:'expense',creditId:'synthetic-debt'}],[],[]],
+    ['earlier balance observation','account',[],[{id:'prior-check',accountId:'synthetic-account',date:'2026-10-05',order:1000,observed:100}],[]],
+    ['historical corrected observation','account',[],[],[{date:'2026-10-06',action:'Corectare',before:{id:'prior-check',accountId:'synthetic-account',date:'2026-10-05',order:1000,observed:100}}]]
+  ]) {
+    await test(kind+' opening correction blocks '+name+' before any write',async()=>{
+      const f=fixture(correction,{kind,transactions,balanceChecks,checkAudit});
+      await f.press();
+      assert.match(f.error,/operațiuni sau verificări de sold/);
+      assert.equal(f.writes,0);assert.equal(f.closed,0);assert.equal(f.busy,false);
+    });
+  }
+  await test('Unrelated earlier operation does not block opening correction',async()=>{
+    const f=fixture(correction,{transactions:[{id:'other',date:'2026-10-05',kind:'expense',accountId:'other-account'}]});
+    await f.press();assert.equal(f.writes,1);assert.equal(f.closed,1);
+  });
+  await test('Operations after the new opening date are retained and correction is allowed',async()=>{
+    const f=fixture(correction,{date:'2026-10-10',transactions:[{id:'later',date:'2026-10-20',kind:'expense',accountId:'synthetic-account'}]});
+    await f.press();assert.equal(f.writes,1);assert.equal(f.closed,1);
+  });
+  await test('Same-day operations follow the opening balance and remain allowed',async()=>{
+    const f=fixture(correction,{kind:'debt',transactions:[{id:'same-day',date:'2026-10-24',kind:'debtPayment',debtId:'synthetic-debt'}]});
+    await f.press();assert.equal(f.writes,1);assert.equal(f.closed,1);
+  });
+  console.log(passed+'/27 Editor save-error regression tests passed');
+  if(passed!==27)process.exitCode=1;
 })().catch(err=>{console.error(err);process.exitCode=1});
