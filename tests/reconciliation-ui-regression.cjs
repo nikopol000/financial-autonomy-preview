@@ -18,7 +18,7 @@ assert.ok(snippet.includes(batch.slice(batch.indexOf('function buildReconciliati
 assert.ok(snippet.includes(draft.slice(draft.indexOf('function createReconciliationDraft('),draft.indexOf('module.exports ='))),'Bundle draft controller diverged from tested source');
 assert.match(source, /onExplainDifference:\(id,kind,expenseType\)=>/);
 assert.match(source, /"Explică"===I&&Q&&\(0,k\.jsx\)\(FAReconciliationEditor/);
-assert.match(snippet, /const current=await R\.load\(\)/);
+assert.match(snippet, /const current=await R\.peek\(\)/);
 assert.match(snippet, /const snapshot=controller\.prepare\(current\)/);
 assert.match(snippet, /await onSave\(snapshot\)/);
 
@@ -52,7 +52,7 @@ function fixture(options={}) {
     return Math.round(n*100);
   }};
   const y={saveTransaction:engine.saveTransaction},faRec={checkRows:engine.checkRows,checkedBalance:engine.checkedBalance};
-  const R={load:async()=>JSON.parse(JSON.stringify(loadState))};
+  const R={peek:async()=>JSON.parse(JSON.stringify(loadState))};
   const globals={crypto:{randomUUID:()=> 'test-id-'+(++counter)}};
   const make = new Function('t','h','k','d','o','x','y','faRec','R','globalThis',
     snippet+'; return FAReconciliationEditor;');

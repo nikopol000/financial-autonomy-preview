@@ -299,13 +299,46 @@ async function test(name,fn) {
     assert.equal(demo.canWriteReal(),false);
     assert.equal(demoStorage.writes,0);
   });
+  await test('Reconciliation peek sees concurrent vault change but never authorizes stale UI save',async()=>{
+    const s=storage();vault.saveWebVault(s,sample(),random);
+    const locks=serialLocks(),a=realTab(s,{locks}),b=realTab(s,{locks});
+    const stale=clone(await a.load()),newer=clone(await b.load());
+    newer.transactions.push({id:'other-tab-newer',kind:'income',amount:1234});
+    await b.save(newer);
+    const observed=clone(await a.peek());
+    assert.ok(observed.transactions.some(t=>t.id==='other-tab-newer'));
+    stale.transactions.push({id:'stale-editor-should-not-write',kind:'expense',amount:555});
+    const before=clone(s.data),writes=s.writes;
+    await assert.rejects(a.save(stale),/altă filă|Reîncarcă/i);
+    assert.deepEqual(s.data,before);assert.equal(s.writes,writes);
+    const refreshed=clone(await a.load());
+    refreshed.transactions.push({id:'after-explicit-refresh',kind:'expense',amount:555});
+    await a.save(refreshed);
+    assert.ok(vault.loadWebVault(s).transactions.some(t=>t.id==='other-tab-newer'));
+    assert.ok(vault.loadWebVault(s).transactions.some(t=>t.id==='after-explicit-refresh'));
+  });
+  await test('Reconciliation peek allows unchanged vault and remains memory-only in DEMO',async()=>{
+    const s=storage();vault.saveWebVault(s,sample(),random);
+    const tab=realTab(s,{locks:serialLocks()}),state=clone(await tab.load());
+    const before=clone(s.data),writes=s.writes;
+    assert.deepEqual(clone(await tab.peek()),state);
+    assert.deepEqual(s.data,before);assert.equal(s.writes,writes);
+    state.transactions.push({id:'valid-after-peek',kind:'income',amount:111});
+    await tab.save(state);
+    assert.ok(vault.loadWebVault(s).transactions.some(t=>t.id==='valid-after-peek'));
+    const emptyStorage=storage(),demo=realTab(emptyStorage,{url:'https://example.test/'});
+    const demoState=clone(await demo.load());
+    assert.deepEqual(clone(await demo.peek()),demoState);
+    assert.equal(emptyStorage.writes,0);
+  });
   await test('Actual WEB UI shows pre-edit read-only warning only for real mode without Web Locks',()=>{
+    assert.match(source,/const current=await R\.peek\(\);/);
     assert.match(source,/e&&!R\.isDemo\(\)&&!R\.canWriteReal\(\)&&\(0,k\.jsxs\)\(d\.default/);
     assert.match(source,/MOD DOAR CITIRE · SALVAREA BLOCATĂ/);
     assert.match(source,/Nu începe editări aici/);
     assert.match(source,/tranzacțiile, reconcilierea și resetarea nu se pot salva/);
     assert.match(source,/accessibilityRole:"alert",style:\[he\.banner,\{borderWidth:2,borderColor:"#D97706"/);
   });
-  console.log(passed+'/17 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==17)process.exitCode=1;
+  console.log(passed+'/19 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==19)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
