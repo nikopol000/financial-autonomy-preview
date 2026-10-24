@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 unchanged; #14 DISCOVERY documented (NOT APPROVED)
+
+- Completed static inspection of active modules 207/210/219/220, budget-window/daily/coverage behavior, check anchoring and staged reconciliation; researched Actual Budget/Monarch official documentation and anecdotal YNAB/Actual user reports.
+- Proposal/alternatives, worked examples, edge cases, test plan and seven contract questions: `docs/BUDGET_PERSPECTIVES_DISCOVERY.md`; issue #14 remains open. No product/financial formula implementation, no new release.
+- NEXT: independent audit/test of edit/void history across multiple observed checks (#2) and browser acceptance (#4) if authorized; **do not implement budget perspectives until explicit user approval**. No iOS edits.
+
+
 ## WEB checkpoint 2026-10-24 — v18.41 UNCHANGED; ordinary pre-opening transactions fail closed (test-only)
 
 - DONE: inspected actual active `Record` and model `saveTransaction`/`validateState` code. Six new real-engine synthetic tests cover pre-opening account source, transfer destination, credit card, loan repayment, retroactive edit refusal without mutating input, and same-day transfer/balances. Existing validation protects these paths; **no product bug or formula change was justified**, so no new release.

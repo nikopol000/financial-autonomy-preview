@@ -1,5 +1,13 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-24 — v18.41 UNCHANGED; issue #14 discovery researched, financial contract BLOCKED
+
+- REAL HEAD inspected: `1c7be4dac05251d866efd2838c789012b508aacf`; read AGENTS, RELEASE_PROCESS, PROJECT_STATE, IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW and `docs/WEB_VISUAL_REVIEW.md`, plus open issues #14/#4/#2/#1 and real bundled modules 207/210/219/220, reconciliation staging/draft. Published version remains **18.41**. No product bundle, finance formula, vault, real data, source stable or iOS changed.
+- DISCOVERY: documented options, external benchmarks, numerical cases, risks and explicit approval questions in `docs/BUDGET_PERSPECTIVES_DISCOVERY.md`. Recommended preserving original plan and adding at most separate read-only global liquidity context after approval. Critical distinction: observed balance is already an anchor; never subtract unexplained negative difference twice or count available credit as cash. No formula approval assumed.
+- VERIFIED: GitHub source inspection and source references; **no tests, new CI, Vercel deployment or browser interaction claimed for this documentation-only change**. Existing v18.41 prior CI/Pages evidence is in previous checkpoint; Vercel/browser remains unverified at latest prior checkpoint.
+- NEXT FIRST: continue independent actual-engine synthetic audit of historical transaction edit/void + multiple checks (issue #2) and authorized browser checks if access is restored. Issue #14 stays DISCOVERY until explicit decisions on allocation, savings, obligations, discrepancies and horizon. No cosmetic release.
+
+
 ## CURRENT WEB checkpoint — 2026-10-24 — v18.41 UNCHANGED; ordinary transaction chronology independently covered; CI/Pages PASS; Vercel/browser OPEN
 
 - Resumed from v18.41 chronology guard. Audited real active bundled `Record` handler and model `saveTransaction`/`validateState`: source-account, transfer destination, credit-card and loan-repayment references already reject operations dated before their opening; an edit cannot bypass the same validation. Added six synthetic real-engine regressions for those four references, rejected backdated edit with unchanged input, and allowed same-day transfer with both real balances verified. **No production defect reproduced, so no new bundle/version.** No formulas, user storage, stable source or iOS modified.
