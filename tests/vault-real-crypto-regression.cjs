@@ -332,7 +332,7 @@ async function test(name,fn) {
     assert.equal(emptyStorage.writes,0);
   });
   await test('Actual WEB UI shows pre-edit read-only warning only for real mode without Web Locks',()=>{
-    assert.match(source,/const current=await R\\.peek\\(\\);/);
+    assert.match(source,/const current=await R\.peek\(\);/);
     assert.match(source,/e&&!R\.isDemo\(\)&&!R\.canWriteReal\(\)&&\(0,k\.jsxs\)\(d\.default/);
     assert.match(source,/MOD DOAR CITIRE · SALVAREA BLOCATĂ/);
     assert.match(source,/Nu începe editări aici/);
