@@ -323,3 +323,61 @@ test('Repeated 200→300→400→200 income edit keeps observed anchors and pers
   // The exact later-check difference is deliberately NOT asserted as desired
   // accounting behavior; issue #2 requires an approved financial contract.
 });
+
+
+// ISSUE #2 — synthetic mixed checkAudit + inter-account transfer + historical
+// income edit. This characterizes the existing WEB engine, not an approved
+// financial contract. No actual account data or browser storage is accessed.
+test('Transfer between checked accounts and checkAudit reversal isolate cash while income undo still drifts (#2)',()=>{
+  const original=withIndependentAccount(),originalJSON=JSON.stringify(original);
+  const staged=stage(original);
+  const transfer=model.saveTransaction(staged,{
+    id:'transfer-1',name:'Synthetic ING to cash',kind:'transfer',amount:300,
+    date:'2026-10-15',accountId:'ing',destinationId:'cash',
+    details:[],financialRole:'transfer'
+  },today);
+  assert.equal(transfer.transactions.length,3);
+  assert.equal(transfer.audit.length,0);
+  assert.deepEqual(threeDifferences(transfer),[0,-100,-100]);
+  assert.deepEqual(otherDifferences(transfer),[['b1',-100],['b2',-400]]);
+  const totalBefore=rec.checkedBalance(staged,'ing','2026-10-15')+
+    rec.checkedBalance(staged,'cash','2026-10-15');
+  const totalAfter=rec.checkedBalance(transfer,'ing','2026-10-15')+
+    rec.checkedBalance(transfer,'cash','2026-10-15');
+  assert.equal(totalBefore,14300);
+  assert.equal(totalAfter,totalBefore,'Internal transfer must not create owned money');
+  const cashBaseline=otherDifferences(transfer);
+  const cashBalances=otherBalances(transfer);
+  const c2=transfer.balanceChecks.find(c=>c.id==='c2');
+  const changedCheck=model.saveBalanceCheck(transfer,{...c2,observed:9300},today);
+  assert.deepEqual(threeDifferences(changedCheck),[0,-200,0]);
+  const restoredCheck=model.saveBalanceCheck(changedCheck,{
+    ...changedCheck.balanceChecks.find(c=>c.id==='c2'),observed:9400
+  },today);
+  assert.equal(restoredCheck.checkAudit.length,2);
+  assert.deepEqual(threeDifferences(restoredCheck),[0,-100,-100]);
+  const income=restoredCheck.transactions.find(t=>t.id==='income');
+  const changedIncome=model.saveTransaction(restoredCheck,{...income,amount:300},today);
+  const restoredIncome=model.saveTransaction(changedIncome,{
+    ...changedIncome.transactions.find(t=>t.id==='income'),amount:200
+  },today);
+  assert.equal(restoredIncome.transactions.find(t=>t.id==='income').amount,200);
+  assert.equal(restoredIncome.transactions.find(t=>t.id==='transfer-1').amount,300);
+  assert.equal(restoredIncome.checkAudit.length,2);
+  assert.equal(restoredIncome.audit.length,2);
+  assert.deepEqual(Array.from(restoredIncome.balanceChecks,c=>[c.id,c.observed]),[
+    ['c1',9500],['c2',9400],['c3',9000],['b1',4900],['b2',4800]
+  ]);
+  assert.deepEqual(otherDifferences(restoredIncome),cashBaseline);
+  assert.deepEqual(otherBalances(restoredIncome),cashBalances);
+  // Current-engine characterization ONLY: the exact income reversal leaves
+  // both later ING check differences 100 cents below the transfer baseline.
+  assert.deepEqual(threeDifferences(restoredIncome),[0,-200,-200]);
+  const store=storage();vault.saveWebVault(store,restoredIncome,randomBytes);
+  const loaded=vault.loadWebVault(store);
+  assert.deepEqual(threeDifferences(loaded),[0,-200,-200]);
+  assert.deepEqual(otherDifferences(loaded),cashBaseline);
+  assert.equal(loaded.checkAudit.length,2);
+  assert.equal(loaded.audit.length,2);
+  assert.equal(JSON.stringify(original),originalJSON);
+});
