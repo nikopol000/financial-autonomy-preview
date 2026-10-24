@@ -293,7 +293,7 @@ test('Income edits and undo on ING never alter independent cash account checks (
   for (const state of [up,further,undone]) {
     assert.deepEqual(otherDifferences(state),b);
     assert.deepEqual(otherBalances(state),balances);
-    assert.deepEqual(state.balanceChecks.filter(c=>c.accountId==='cash').map(c=>c.observed),[4900,4800]);
+    assert.deepEqual(Array.from(state.balanceChecks.filter(c=>c.accountId==='cash'),c=>c.observed),[4900,4800]);
   }
   assert.equal(JSON.stringify(base),before);
   assert.equal(undone.audit.length,3);
