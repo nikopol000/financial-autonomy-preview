@@ -170,7 +170,7 @@ test('Three observed checks: income void then undo leaves a +200 drift on later 
   assert.equal(restored.transactions.length,2);
   assert.equal(restored.transactions.find(t=>t.id==='income').voided,false);
   assert.equal(restored.audit.length,2);
-  assert.deepEqual(restored.balanceChecks.map(c=>c.observed),originalObserved);
+  assert.deepEqual(Array.from(restored.balanceChecks,c=>c.observed),originalObserved);
   // c1 returns to zero, but later differences do NOT return to their baseline.
   // These numbers are observations of the existing engine, NOT desired values.
   assert.deepEqual(['c1','c2','c3'].map(id=>difference(restored,id)),[0,100,-200]);
@@ -184,7 +184,7 @@ test('Three observed checks: income void then undo leaves a +200 drift on later 
   const reloaded=vault.loadWebVault(store);
   assert.equal(reloaded.audit.length,2);
   assert.deepEqual(['c1','c2','c3'].map(id=>difference(reloaded,id)),[0,100,-200]);
-  assert.deepEqual(reloaded.balanceChecks.map(c=>c.observed),originalObserved);
+  assert.deepEqual(Array.from(reloaded.balanceChecks,c=>c.observed),originalObserved);
 });
 
 test('Three observed checks: expense edit and exact reversal retain baseline later differences',()=>{
