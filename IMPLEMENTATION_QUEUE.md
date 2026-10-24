@@ -1,3 +1,10 @@
+## WEB checkpoint 2026-10-25 — v18.44 reset journal merged (#29)
+
+- DONE: [PR #32](https://github.com/nikopol000/financial-autonomy-preview/pull/32), merge `fe49400c78a46fbc7d7a261e8296b50f507a7fd1`, implements an explicit committed reset marker and resumable cleanup under Web Locks. Immutable WEB **18.44** bundle, HTML/build and diagnostic synchronized; previous 18.43 preserved. The committed reset is destructive by user intent; incomplete cleanup does not silently reload or restore old data. `docs/RESET_JOURNAL_CONTRACT.md` details protocol and limitations.
+- VERIFIED: candidate [40136867923](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40136867923) and merged-main [40136908057](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40136908057) **SUCCESS**; 31/31 synthetic AES-GCM tests with 9 reset-journal fault/concurrency scenarios, JS/release guard and non-vault-byte-identity regression PASS. Both Pages [40136908072](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40136908072) / [40136907732](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40136907732) **SUCCESS**; Vercel `dpl_7jSzEaYPGZR1jjdt41zrnoAhF7qE` READY production on exact merge SHA and primary alias.
+- OPEN: #29 actual browser two-tab/reload/permission and reset UX acceptance (synthetic tests are not real-browser proof); #4 Web Locks/browser behavior; #2 and #25 require approved financial contracts. #14 budget perspectives remain **DISCOVERY / NOT APPROVED**, no modes or formulas changed; #17 UX nonurgent. No real data, encrypted backup format, iOS or stable-source changes.
+- NEXT FIRST: real browser reset-recovery smoke test when authorized, then fault-inject read denial/unknown marker and check no stale-tab resurrection. Keep #29 open until acceptance; do not claim physical erase on a failed cleanup. Continue incremental UX after critical safety checks.
+
 # Financial Autonomy — Implementation Queue
 
 ## WEB checkpoint 2026-10-25 — v18.43 unchanged; #29 partial reset deletion audit
