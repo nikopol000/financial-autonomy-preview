@@ -1,5 +1,11 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.36 ACTIVE; unsupported-browser read-only warning
+
+- DONE: PR **#7** candidate `479fec45`, merge `3c44eb74`; immutable v18.36 adds an accessible amber **MOD DOAR CITIRE** warning above real financial editing when Web Locks is unavailable. Platform exposes a read-only capability probe matching the existing fail-closed write policy. DEMO stays memory-only and is excluded; no accounting, user data or iOS changes.
+- VERIFIED: candidate Actions **40043332545 SUCCESS**, main Actions **40043371575 SUCCESS**, bundled real AES-GCM/cross-tab regressions **17/17 PASS**, release/syntax/diagnostic checks PASS, Pages **40043371570** and **40043370673 SUCCESS**, Vercel **dpl_Cw9syFKZARjy1qCohexe3W3Rdpx3 READY** on exact merge SHA and primary alias. Initial candidate CI **40043274927 FAILED** due incorrect test demo URL; test fixed and passing. Version/build/diagnostic **18.36**.
+- OPEN: actual browser and mobile UI not verified due Vercel 403; UI structural assertion is not an interactive rendering test. Issue #4 remains open for two-tab/browser acceptance. Historical reconciliation issue #2 needs approved financial semantics.
+- NEXT FIRST: synthetic browser validation of warning vs DEMO, save/reset refusal and cross-tab stale reload; if still blocked, audit and test editor save-error surfacing and multi-row reconciliation independently. Do not create a cosmetic release or touch iOS.
 
 ## WEB checkpoint 2026-10-24 — v18.35 ACTIVE; P1 no-lock lost-update mitigation shipped
 

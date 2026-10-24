@@ -1,5 +1,10 @@
 # Financial Autonomy — Web Premium Release History
 
+## v18.36 — 2026-10-24 — proactive no-Web-Locks read-only warning; CI/Pages/Vercel PASS; browser OPEN
+
+- v18.35 protected stored data from no-lock concurrent overwrites but only warned after a failed save. New immutable v18.36 `_expo/static/js/web/index-v01836-no-lock-readonly-warning-20261024.js` adds an accessible amber real-mode **MOD DOAR CITIRE** banner before editing when `navigator.locks.request` is unavailable. The existing fail-closed save/reset and stale-revision checks remain unchanged; DEMO remains memory-only and is excluded from the warning. HTML/build, diagnostic JSON and diagnostic export filename are synchronized to **18.36**. No financial formula, user data or iOS changes.
+- PR **#7**, head `479fec457024410fdd9fd6f30daa779ca270c48b`, merge `3c44eb74d933a7da0acd42be87bb950c110e7c1a`. Candidate CI **40043332545 SUCCESS**, main CI **40043371575 SUCCESS**; bundled synthetic AES-GCM/cross-tab **17/17 PASS** and release/syntax checks PASS. Pages deploy **40043371570 SUCCESS**, Pages build/deploy **40043370673 SUCCESS**. Vercel production **dpl_Cw9syFKZARjy1qCohexe3W3Rdpx3 READY**, exact merge SHA, primary alias associated. Initial candidate CI **40043274927 FAILED** due test harness URL (demo test entered real mode); corrected and rerun PASS.
+- **LIMIT:** Vercel protected fetch 403; actual served browser/header, iPhone and two-tab behavior not independently verified. Issue #4 remains open for browser acceptance. NEXT: synthetic interactive browser check, then audited save-error UX and multiple-row reconciliation; financial issue #2 remains contract-gated.
 
 ## v18.35 — 2026-10-24 — no-Web-Locks real-vault writes fail closed; CI/Pages/Vercel PASS; browser OPEN
 
