@@ -1,5 +1,14 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-25 — v18.43 unchanged; #29 partial reset deletion audit
+
+- DONE: [PR #30](https://github.com/nikopol000/financial-autonomy-preview/pull/30) merged `f4249267f5c20beeec9ae230ec45f8be527557ef`, two fault-injection tests against real WEB v18.43 vault module 310/platform 309; 22 → **24** AES-GCM/cross-tab cases. First remove failure preserves ciphertext/key; second remove failure **KNOWN UNSAFE** strands key without payload. Opened [issue #29](https://github.com/nikopol000/financial-autonomy-preview/issues/29) with mitigation options and failure-atomic recovery acceptance; no fix or user incident claimed.
+- VERIFIED: candidate [CI 40132935804](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40132935804) SUCCESS with both named tests PASS, 24/24 AES-GCM cases, v18.43 release guard and JS syntax. Vercel production `dpl_7ogvKE4cTfvkuua5wTHZRD93QV3B` READY on exact merge SHA and primary alias. Merged-main CI/Pages terminal outcomes not independently checked. Protected served header and actual two-tab/iPhone browser remain unverified.
+- SAFETY: no product change; immutable bundle/index/diagnostic remain **18.43**; no financial formulas, real data, encrypted backup, backend, telemetry or iOS changes. #14 remains DISCOVERY/NOT APPROVED; #2/#25 financial contracts blocked; #4 browser Web Locks still OPEN. Independent nonurgent #17 empty-state proposal documented from older v18.21 visual report, not asserted to reproduce in v18.43.
+- NEXT FIRST: design and test interrupted-reset recovery semantics for #29 (all storage failure points, no accidental data resurrection, no plaintext), then implement only after rigorous test coverage; recheck final CI/Pages/Vercel, real browser when possible. Do not bump version for tests/docs alone or implement #14 without explicit approval.
+
+
+
 ## WEB checkpoint 2026-10-24 — v18.43 published; #17 UI terminology follow-up
 
 - DONE: [PR #28](https://github.com/nikopol000/financial-autonomy-preview/pull/28), merged `be998f2afa2b3a48e337daaa201d8f03ffc82b89`: 10 exact-context user-visible Romanian label/explanation changes, immutable WEB **18.43** JS, HTML build key, diagnostic version/name. No changes to internal period identifiers, formulas, financial roles, encrypted vault, backend, real data or iOS.
