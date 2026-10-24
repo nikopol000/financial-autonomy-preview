@@ -1,5 +1,11 @@
 # Financial Autonomy — Web Premium Release History
 
+## v18.39 — 2026-10-24 — debt opening correction targets debt principal; candidate CI/Vercel PASS, browser/Pages/main CI OPEN
+
+- Found actual financial-state bug in v18.38 Editor: debt opening correction prefills missing `v.opening` and saves into `accounts`, leaving the selected debt principal unchanged while closing the modal. Immutable v18.39 uses `debts[].amount` for debt prefill/save, preserves other debt attributes and accounts, retains close-on-persist and save-error visibility. No formulas, actual user data, iOS or stable source modified.
+- **PR #10** candidate `a80f8f66` GitHub Actions **40056843745 SUCCESS**: 10/10 actual-handler tests, full release/JS syntax and configured financial/crypto/demo suites. Merged preview main `7733062d`. Test-only follow-up `2fc822f8` adds an eleventh contract against the real bundled `checkedBalance`; independent V8 check PASS (debt 400→200; account unchanged 100). HTML metadata/build, immutable bundle diagnostic JSON and filename all **18.39**. Vercel production **dpl_3QHECQewpEsEU12496TQRBH9R9Y7 READY**, exact follow-up commit and primary alias.
+- LIMIT: main/test-only GitHub Actions and Pages terminal runs not independently confirmed through available connector; CI for 11th test not yet confirmed. No browser-rendered UI, two-tab or iPhone verification due protected Vercel. NEXT: obtain remaining CI/Pages evidence, authorized synthetic browser test and further financial save-path audit. Rollback to v18.38 would restore the debt correction no-op.
+
 ## v18.38 — 2026-10-24 — account editor save failures displayed instead of unhandled rejection; CI/Pages/Vercel PASS; browser OPEN
 
 - Audited v18.37 WEB Editor: closing/reopening accounts/debts and correcting opening balances bypassed normal save error handling. A stale encrypted-vault write rejection could be unhandled and fail without an accessible modal error. Immutable v18.38 `_expo/static/js/web/index-v01838-editor-save-errors-20261024.js` catches errors in both actions, exposes the existing alert, disables while pending and only closes on confirmed persistence. No accounting formula, real data, stable source or iOS change.
