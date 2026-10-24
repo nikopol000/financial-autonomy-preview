@@ -274,3 +274,60 @@ test('UI-shaped income and unbudgeted expense rows pass the REAL financial engin
   assert.equal(out.transactions.length,2);
   assert.equal(rec.checkedBalance(out,'ing',date),9500);
 });
+
+
+// v18.41 chronology follow-up: ordinary Record create/edit paths must never
+// persist a transaction earlier than any referenced account or debt opening.
+// These cases use the actual bundled saveTransaction + validateState functions;
+// no real storage is touched, and financial formulas are not modified.
+function chronologyState() {
+  const s = model.emptyState('2026-10-01');
+  s.accounts.push(
+    {id:'early',name:'Early account',kind:'current',date:'2026-10-01',opening:10000},
+    {id:'late',name:'Late account',kind:'savings',date:'2026-10-10',opening:10000}
+  );
+  s.debts.push(
+    {id:'card',name:'Credit card',kind:'card',date:'2026-10-10',amount:0,payment:0,limit:10000,day:7},
+    {id:'loan',name:'Loan',kind:'loan',date:'2026-10-10',amount:5000,payment:500,limit:0,day:7}
+  );
+  return s;
+}
+function chronologyRow(id, extra={}) {
+  return {id,name:id,kind:'expense',amount:200,date:'2026-10-05',
+    accountId:'early',details:[],...extra};
+}
+for (const [label, rowInput] of [
+  ['source account',chronologyRow('pre-source',{accountId:'late'})],
+  ['transfer destination',chronologyRow('pre-destination',{
+    kind:'transfer',destinationId:'late'})],
+  ['credit card',chronologyRow('pre-credit',{
+    accountId:'',creditId:'card'})],
+  ['loan repayment',chronologyRow('pre-loan',{
+    kind:'debtPayment',debtId:'loan',principal:100,amount:100})]
+]) {
+  test('Real transaction engine rejects pre-opening '+label+' without mutating input',()=>{
+    const s=chronologyState(),before=JSON.stringify(s);
+    assert.throws(()=>model.saveTransaction(s,rowInput,today));
+    assert.equal(JSON.stringify(s),before);
+    assert.equal(s.transactions.length,0);
+  });
+}
+test('Editing an existing operation before its account opening is rejected atomically',()=>{
+  const s=chronologyState();
+  const valid=model.saveTransaction(s,chronologyRow('edit-me',{
+    accountId:'late',date:'2026-10-10'}),today);
+  const before=JSON.stringify(valid);
+  assert.throws(()=>model.saveTransaction(valid,{
+    ...valid.transactions[0],date:'2026-10-05'},today));
+  assert.equal(JSON.stringify(valid),before);
+  assert.equal(valid.transactions[0].date,'2026-10-10');
+});
+test('Same-day transfer to a newly opened account remains valid and balanced',()=>{
+  const s=chronologyState();
+  const out=model.saveTransaction(s,chronologyRow('same-day',{
+    kind:'transfer',date:'2026-10-10',destinationId:'late'}),today);
+  assert.equal(out.transactions.length,1);
+  assert.equal(rec.checkedBalance(out,'early','2026-10-10'),9800);
+  assert.equal(rec.checkedBalance(out,'late','2026-10-10'),10200);
+  assert.equal(s.transactions.length,0);
+});
