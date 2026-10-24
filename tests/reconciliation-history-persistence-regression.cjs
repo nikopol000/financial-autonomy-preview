@@ -204,3 +204,57 @@ test('Three observed checks: expense edit and exact reversal retain baseline lat
   assert.equal(restored.transactions.length,2);
   assert.equal(restored.audit.length,2);
 });
+
+
+// ISSUE #2 — independent historical edit characterization, NOT a target contract.
+// Only synthetic fixtures, actual immutable v18.41 modules 205/207, no user data.
+function threeChecks() {
+  const s=initial();
+  s.balanceChecks.push(
+    {id:'c2',accountId:'ing',observed:9400,date:'2026-10-14',order:3000},
+    {id:'c3',accountId:'ing',observed:9000,date:'2026-10-16',order:3000}
+  );
+  return s;
+}
+const threeDifferences=s=>['c1','c2','c3'].map(id=>difference(s,id));
+
+test('Income amount 200→300→200: later checks drift -100 despite exact undo (#2 characterization)',()=>{
+  const base=stage(threeChecks()),original=JSON.stringify(base);
+  assert.deepEqual(threeDifferences(base),[0,-100,-400]);
+  const income=base.transactions.find(t=>t.id==='income');
+  const edited=model.saveTransaction(base,{...income,amount:300},today);
+  assert.deepEqual(threeDifferences(edited),[-100,0,-300]);
+  assert.equal(edited.audit.at(-1).before.amount,200);
+  const restored=model.saveTransaction(edited,{
+    ...edited.transactions.find(t=>t.id==='income'),amount:200
+  },today);
+  assert.equal(restored.transactions.find(t=>t.id==='income').amount,200);
+  assert.equal(restored.audit.length,2);
+  assert.deepEqual(threeDifferences(restored),[0,-200,-500]);
+  assert.deepEqual(Array.from(restored.balanceChecks,c=>c.observed),[9500,9400,9000]);
+  assert.equal(JSON.stringify(base),original);
+  const store=storage();vault.saveWebVault(store,restored,randomBytes);
+  assert.deepEqual(threeDifferences(vault.loadWebVault(store)),[0,-200,-500]);
+});
+
+test('Editing date of a linked income is rejected, leaving checks and ledger unchanged',()=>{
+  const base=stage(threeChecks()),before=JSON.stringify(base);
+  const income=base.transactions.find(t=>t.id==='income');
+  assert.throws(()=>model.saveTransaction(base,{...income,date:'2026-10-14'},today));
+  assert.equal(JSON.stringify(base),before);
+  assert.deepEqual(threeDifferences(base),[0,-100,-400]);
+});
+
+test('Observed check edit and exact undo restore differences; checkAudit records both',()=>{
+  const base=stage(threeChecks()),before=JSON.stringify(base);
+  const c2=base.balanceChecks.find(c=>c.id==='c2');
+  const edited=model.saveBalanceCheck(base,{...c2,observed:9300},today);
+  assert.deepEqual(threeDifferences(edited),[0,-200,-300]);
+  assert.equal(edited.checkAudit.length,1);
+  const restored=model.saveBalanceCheck(edited,{
+    ...edited.balanceChecks.find(c=>c.id==='c2'),observed:9400
+  },today);
+  assert.deepEqual(threeDifferences(restored),[0,-100,-400]);
+  assert.equal(restored.checkAudit.length,2);
+  assert.equal(JSON.stringify(base),before);
+});
