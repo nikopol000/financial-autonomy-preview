@@ -38,14 +38,14 @@ function extractHandler(needle) {
   throw Error('Unclosed handler: '+needle);
 }
 
-function fixture(needle,{fail=false,invalid=false,balance=0}={}) {
-  const v={id:'synthetic-account',name:'Synthetic',opening:100};
-  const state={accounts:[v],debts:[v]};
+function fixture(needle,{fail=false,invalid=false,balance=0,kind='account'}={}) {
+  const account={id:'synthetic-account',name:'Synthetic account',opening:100,date:'2026-10-01'};
+  const debt={id:'synthetic-debt',name:'Synthetic debt',amount:400,payment:50,kind:'loan',date:'2026-10-01'};
+  const v=kind==='debt'?debt:account;
+  const state={accounts:[account],debts:[debt]};
   const d={accountBalance:()=>balance,debtBalance:()=>balance};
-  const o={today:()=> '2026-10-24',signedMoney:()=>{
-    if(invalid)throw Error('Invalid synthetic amount');
-    return 200;
-  }};
+  const parse=()=>{if(invalid)throw Error('Invalid synthetic amount');return 200};
+  const o={today:()=> '2026-10-24',signedMoney:parse,money:parse};
   const Y={opening:'2',date:'2026-10-24'};
   let error='',busy=false,closed=0,writes=0,attempted;
   const O=value=>{error=value};
@@ -57,7 +57,7 @@ function fixture(needle,{fail=false,invalid=false,balance=0}={}) {
   const h=()=>{closed++};
   const handler=new Function('v','x','e','d','o','O','b','h','R','I','Y',
     'return ('+extractHandler(needle)+')')
-    (v,'account',state,d,o,O,b,h,false,I,Y);
+    (v,kind,state,d,o,O,b,h,false,I,Y);
   return {press:handler,get error(){return error},get busy(){return busy},
     get closed(){return closed},get writes(){return writes},
     get attempted(){return attempted}};
@@ -103,6 +103,33 @@ async function test(name,fn) {
     assert.equal(f.attempted.accounts[0].opening,200);
     assert.equal(f.busy,false);
   });
-  console.log(passed+'/6 Editor save-error regression tests passed');
-  if(passed!==6)process.exitCode=1;
+  await test('Debt opening correction prefills the actual principal, not nonexistent opening',async()=>{
+    const expression=source.match(/onPress:\(\)=>\{w\(\{\.\.\.Y,opening:(.*?),date:v\.date,openingCorrection:"yes"\}\)\}/)?.[1];
+    assert.ok(expression,'Debt correction prefill expression missing');
+    const prefill=new Function('v','x','C','return '+expression);
+    const C=value=>String((value||0)/100);
+    assert.equal(prefill({amount:400},'debt',C),'4');
+    assert.equal(prefill({opening:100},'account',C),'1');
+  });
+  await test('Debt correction changes only selected debt principal, preserves accounts and payment',async()=>{
+    const f=fixture(correction,{kind:'debt'});await f.press();
+    assert.equal(f.writes,1);assert.equal(f.closed,1);assert.equal(f.busy,false);
+    assert.equal(f.attempted.debts[0].amount,200);
+    assert.equal(f.attempted.debts[0].payment,50);
+    assert.equal(f.attempted.debts[0].date,'2026-10-24');
+    assert.equal(f.attempted.accounts[0].opening,100);
+    assert.equal(f.attempted.accounts[0].date,'2026-10-01');
+  });
+  await test('Debt correction stale save refuses closure and exposes error',async()=>{
+    const f=fixture(correction,{kind:'debt',fail:true});await f.press();
+    assert.match(f.error,/altă filă/);assert.equal(f.closed,0);
+    assert.equal(f.writes,1);assert.equal(f.busy,false);
+  });
+  await test('Invalid debt correction refuses persistence and leaves modal open',async()=>{
+    const f=fixture(correction,{kind:'debt',invalid:true});await f.press();
+    assert.match(f.error,/Invalid synthetic amount/);assert.equal(f.writes,0);
+    assert.equal(f.closed,0);assert.equal(f.busy,false);
+  });
+  console.log(passed+'/10 Editor save-error regression tests passed');
+  if(passed!==10)process.exitCode=1;
 })().catch(err=>{console.error(err);process.exitCode=1});
