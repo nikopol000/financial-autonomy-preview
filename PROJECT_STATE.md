@@ -1,5 +1,15 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-24 — v18.41 UNCHANGED; #2 repeated income edits and independent account checks tested
+
+- REAL HEAD at start: `544e1f8932c7a72d8c39b3838419adfd67868f4e`; read mandatory AGENTS, RELEASE_PROCESS, PROJECT_STATE, IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, `docs/WEB_VISUAL_REVIEW.md` and open issues #17/#14/#4/#2/#1. Actual v18.41 bundle module 207 inspected. No budget mode (#14) or new financial contract approved.
+- DONE: test-only [PR #18](https://github.com/nikopol000/financial-autonomy-preview/pull/18) merged `f3fb3f1614b2496a02c3e7ae12bf8177075ffdb9`. Added synthetic real-engine independent cash account (50 RON opening, observations 49/48 RON) alongside ING income edit 2→3→4→2 RON. All cash differences, checked balances and observed values remain unchanged through edits and mocked-vault reload. Existing-engine ING check differences in RON: [0,-1,-4] → [-1,0,-3] → [-2,0,-3] → [0,-3,-6]; exact undo leaves -2 RON drift on both later checks. This is **characterization**, NOT approved accounting behavior.
+- VERIFIED: candidate `c3c3be5f` [Actions 40088316767](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40088316767) **SUCCESS** after test-only fixture fixes (global unique check order, cross-VM array normalization). Merged main [Actions 40088347311](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40088347311) **SUCCESS**; Pages [40088347356](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40088347356) and [40088347323](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40088347323) **SUCCESS**. Vercel production `dpl_3mk8vdENS8RUriwd9CPjnT6gxCoh` **READY**, exact merge SHA. No app bundle/index/diagnostic change; active version **18.41**; no real data, formulas, stable source, iOS, or encrypted backup changed.
+- DISCOVERY: issue #17 mapped actual budget-editor English headings and budget-note microcopy to their rendered component literals; Romanian copy candidates recorded in issue, **not published**. #14 remains research-only and unapproved.
+- BLOCKED/UNVERIFIED: issue #2 needs explicit observed-anchor/retroactive-offset and exact-undo numerical contract before formula change; #4 actual two-tab/DEMO/browser acceptance remains unverified due protected access. Vercel READY is not interactive/browser proof.
+- NEXT FIRST: audit historical income adjustments combined with multiple `checkAudit` events and account transfers on synthetic fixtures; propose #2 acceptance examples without implementing semantics. Retry authorized browser acceptance, and prioritize #4 if accessible. No cosmetic release.
+
+
 ## CURRENT WEB checkpoint — 2026-10-24 — v18.41 UNCHANGED; #2 income amount edit/undo drift independently characterized
 
 - REAL HEAD at start: `4d21d4e9a9f43804f014226e360959fe9ca50f5d`. Read all mandatory continuity/release docs, `docs/WEB_VISUAL_REVIEW.md` (actual path), open issues #14/#4/#2/#1 and actual immutable v18.41 modules 205/207. #14 budget perspectives remain DISCOVERY/NOT APPROVED.

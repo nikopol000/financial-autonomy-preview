@@ -1,5 +1,14 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 repeated income audit and cross-account isolation, #17 copy analysis
+
+- DONE: [PR #18](https://github.com/nikopol000/financial-autonomy-preview/pull/18) test-only synthetic financial model: linked income 2→3→4→2 RON changes ING three-check differences [0,-1,-4] → [-1,0,-3] → [-2,0,-3] → [0,-3,-6] RON; independent cash account's two observed checks, differences and balances are unchanged after edits and mocked-vault reload. Current-engine characterization only; exact undo drift unresolved, NOT approved formula.
+- VERIFIED: candidate `c3c3be5f` Actions **40088316767 SUCCESS**, merged main `f3fb3f16` Actions **40088347311 SUCCESS**, Pages **40088347356 / 40088347323 SUCCESS**, Vercel `dpl_3mk8vdENS8RUriwd9CPjnT6gxCoh` **READY** on exact merge SHA. Prior candidate failures were test-fixture-only and repaired before merge. Bundle/index/diagnostic remain **18.41**. No iOS, stable source, real data, backup, or formula changes. Browser/iPhone unverified.
+- NONURGENT #17: static mapping of English budget editor headings and budget-note microcopy, with draft Romanian copy in issue comment; not implemented. #14 financial perspectives still DISCOVERY, approval required.
+- BLOCKED: #2 observed anchors, retroactive audit offsets and exact-undo contract require user approval; #4 browser/two-tab/DEMO acceptance still protected/unverified.
+- NEXT FIRST: synthetic mixed `checkAudit` + repeated income audit and cross-account transfers; prioritize safety, no financial semantic changes. If browser accessible, verify two-tab, demo and iPhone. Periodically review #17, #14 without implementing unapproved budget modes.
+
+
 ## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 income amount edit/undo characterized, #17 UX discovery
 
 - DONE: read real HEAD and mandatory docs/issues; three test-only synthetic cases added via **PR #16** against actual v18.41 financial modules. Linked income 2→3→2 RON with three observed checks leaves **-1 RON drift** in both later differences, unlike reversible observed check 94→93→94 RON correction. Invalid linked income date edit rejects. Mock-vault reload preserves drift. This is **current-engine characterization**, NOT a financial contract or approved fix.
