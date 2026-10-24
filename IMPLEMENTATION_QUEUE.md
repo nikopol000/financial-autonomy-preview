@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 ACTIVE; historical opening-date moves fail closed
+
+- DONE: reproduced on actual `checkedBalance` that advancing an account/debt opening date past existing dated transactions silently drops earlier effects (synthetic account 30→100; debt 350→400 with same openings). Added targeted Editor preflight rejecting forward date moves past linked transactions, checks or check-audit history. No formulas, real storage, stable source or iOS changed.
+- RELEASE: immutable v18.41 bundle, HTML build/metadata, diagnostic JSON and export filename aligned. PR **#12**, candidate `bdea999a` Actions **40068841081 SUCCESS**, **27/27 Editor tests PASS** (ten new chronology cases); merged preview main `b7d354e1` Actions **40068884806 SUCCESS**, Pages **40068884822 / 40068884522 SUCCESS**. Vercel production **dpl_5uuTd8eB9AyCSm1S9sPhFNCcbSJV READY**, exact merge SHA and primary alias. Re-fetched main files; release and syntax checks PASS.
+- OPEN: served browser/header, two-tab, DEMO and mobile acceptance blocked/unverified; issue #4 browser proof, issue #2 historical multi-row reconciliation contract. CI is not visual proof.
+- NEXT FIRST: authorized synthetic browser test; if unavailable, inspect and characterize ordinary transaction saves dated before referenced account/debt opening date (potential silent exclusion by the real balance engine), then implement only an evidenced fail-closed fix with regression. Audit multiple-transaction reconciliation independently. No cosmetic release.
+
 ## WEB checkpoint 2026-10-24 — v18.40 ACTIVE; account/debt opening correction dates guarded
 
 - DONE: audited real v18.39 Editor and found opening correction could pass invalid, pre-ledger or future dates to encrypted save. Added actual `validDate` + ledger start/today preflight for account/debt opening correction; no accounting formula changes. Six new zero-write/error synthetic regressions using the actual bundled date validator; **17/17 Editor PASS**.
