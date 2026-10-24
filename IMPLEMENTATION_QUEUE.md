@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 transfer edit/void check isolation
+
+- DONE: test-only [PR #20](https://github.com/nikopol000/financial-autonomy-preview/pull/20), merged `297545fb7`. Synthetic real-engine ING/cash transfer 3→5→3 RON and void→restore with multiple checks: source/destination changes offset, total owned money conserved, both sets of check differences return to transfer baseline, observed amounts unchanged, four audit entries and mocked-vault reload verified. #2 [comment](https://github.com/nikopol000/financial-autonomy-preview/issues/2#issuecomment-6384603585) records evidence and remaining decision gate.
+- VERIFIED: candidate CI **40096821863 SUCCESS** (named regression PASS), main CI **40096864644 SUCCESS**, Pages **40096864639 / 40096864641 SUCCESS**, Vercel production `dpl_AmxxhJtoGh5vXN3rFih79WxXMPyR` **READY** exact merged SHA. No release bump: active bundle/index/diagnostic **18.41**. No formulas, user data, backup, stable source or iOS changed; no real browser acceptance claimed.
+- BLOCKED: #2 historical linked-income observed-anchor and exact-undo contract needs approval; #4 protected browser/two-tab/DEMO/iPhone unverified; #14 budget perspectives DISCOVERY/NOT APPROVED; #17 budget copy analysis nonurgent.
+- NEXT FIRST: synthetic transfer destination/account reassignment with existing observed checks and credit-card edges, test safety and persistence; if no defect, no product release. Retry authorized browser when available. Keep #14 formulas unchanged.
+
+
 ## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 mixed transfer/checkAudit/income audit
 
 - DONE: test-only [PR #19](https://github.com/nikopol000/financial-autonomy-preview/pull/19), merged `5fa58577`. Actual v18.41 model with synthetic ING/cash checks and 3 RON transfer: combined balance conserved, cash checks unaffected by ING income edits, checkAudit 94→93→94 RON fully reversible; linked income 2→3→2 RON still drifts both later ING differences by -1 RON. Mocked-vault reload persists characterization. Documented approval alternatives in issue #2; **not a financial fix**.
