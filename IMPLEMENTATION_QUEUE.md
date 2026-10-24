@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 UNCHANGED; ordinary pre-opening transactions fail closed (test-only)
+
+- DONE: inspected actual active `Record` and model `saveTransaction`/`validateState` code. Six new real-engine synthetic tests cover pre-opening account source, transfer destination, credit card, loan repayment, retroactive edit refusal without mutating input, and same-day transfer/balances. Existing validation protects these paths; **no product bug or formula change was justified**, so no new release.
+- VERIFIED: PR **#13** candidate `27f3f666` Actions **40072571362 SUCCESS**, merged main **`1828e78d`** Actions **40072597753 SUCCESS**, Pages **40072597816** and **40072597418 SUCCESS**. Active HTML/bundle/diagnostic remain v18.41. No iOS, stable source or real user data modified.
+- BLOCKED/OPEN: Vercel API 403 on deployment listing and 404 on scoped hostname lookup; no live browser/served header evidence. Issue #4 browser acceptance and issue #2 historical multi-row contract remain open.
+- NEXT FIRST: authorized Vercel/browser acceptance; if unavailable, investigate backdated edits/voided transaction audit and multi-check reconciliation chronology with actual bundled engine, tests first. No cosmetic release.
+
 ## WEB checkpoint 2026-10-24 — v18.41 ACTIVE; historical opening-date moves fail closed
 
 - DONE: reproduced on actual `checkedBalance` that advancing an account/debt opening date past existing dated transactions silently drops earlier effects (synthetic account 30→100; debt 350→400 with same openings). Added targeted Editor preflight rejecting forward date moves past linked transactions, checks or check-audit history. No formulas, real storage, stable source or iOS changed.
