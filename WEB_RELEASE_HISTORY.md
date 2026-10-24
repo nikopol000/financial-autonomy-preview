@@ -1,5 +1,11 @@
 # Financial Autonomy — Web Premium Release History
 
+## v18.39 verification follow-up — 2026-10-24 — CI test fixture repaired; no new application release
+
+- Recovered terminal evidence: merged main `7733062d` Actions **40056882836 SUCCESS**, Pages **40056882843 / 40056882303 SUCCESS**. Later main test-only `d48c784b` Actions **40056986898 FAILED** (10/11 Editor tests): the newly added real `checkedBalance` test's synthetic state lacked the `transactions`/`audit` arrays required by the engine, causing a `reduce` TypeError. This failure was in the test setup, not an observed product regression.
+- **Test-only fix `97affe3c`** completed the fixture. Main Actions **40060847007 SUCCESS**, **11/11 Editor tests PASS**, release/syntax and all configured suites PASS; Pages workflow **40060847055 SUCCESS** and build/deployment **40060846725 SUCCESS**. Vercel production **dpl_2AwPv1b9wXjWdBPrC8Cd6CR1UwHj READY** for exact test commit. **v18.39 remains active**, no new bundle, financial formula, real data, stable source or iOS change.
+- LIMIT: browser, two-tab, mobile and demo visual acceptance still unverified due Vercel SSO. NEXT: authorized synthetic browser verification; otherwise audit opening-date guards and remaining save paths before any substantive release.
+
 ## v18.39 — 2026-10-24 — debt opening correction targets debt principal; candidate CI/Vercel PASS, browser/Pages/main CI OPEN
 
 - Found actual financial-state bug in v18.38 Editor: debt opening correction prefills missing `v.opening` and saves into `accounts`, leaving the selected debt principal unchanged while closing the modal. Immutable v18.39 uses `debts[].amount` for debt prefill/save, preserves other debt attributes and accounts, retains close-on-persist and save-error visibility. No formulas, actual user data, iOS or stable source modified.

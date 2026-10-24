@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.39 ACTIVE; main CI regression repaired (test-only)
+
+- DONE: retrieved terminal main CI and Pages evidence absent from prior checkpoint. Merge `7733062d`: Actions **40056882836 SUCCESS**, Pages **40056882843 / 40056882303 SUCCESS**. Test-only `d48c784b` validation **40056986898 FAILED** at the newly added eleventh `checkedBalance` assertion because synthetic fixture omitted `transactions` and `audit` arrays required by the actual engine.
+- FIXED: `97affe3c471f2a6568ab937aecb4ca622041aa83` completes **test fixture only**. Main Actions **40060847007 SUCCESS**, **11/11 Editor PASS**, other configured suites and release/JS checks PASS. Pages **40060847055 / 40060846725 SUCCESS**; Vercel production **dpl_2AwPv1b9wXjWdBPrC8Cd6CR1UwHj READY** for exact commit. Active bundle, metadata, diagnostic **18.39 unchanged**; no cosmetic release, formulas, real data, iOS or stable source changes.
+- OPEN: Vercel SSO blocks real browser acceptance; issue #4 two-tab acceptance, issue #2 historical financial semantics contract.
+- NEXT FIRST: authorized synthetic browser test; if blocked, audit debt opening-date validation and other async Editor save paths with real bundled financial engine, add failing regression before a meaningful product fix. Do not bump version for tests/docs alone.
+
 ## WEB checkpoint 2026-10-24 — v18.39 ACTIVE; debt principal opening correction fixed
 
 - DONE: audited real v18.38 Editor and identified that debt opening correction used `v.opening` (undefined on debt records) and wrote `accounts` rather than `debts[].amount`. Released immutable v18.39 through **PR #10**, candidate `a80f8f66`, merge `7733062d`; corrected debt principal prefill/target, preserved account behavior and all existing save-error guards. No formula, real data, iOS or stable source change.
