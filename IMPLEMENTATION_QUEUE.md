@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 income amount edit/undo characterized, #17 UX discovery
+
+- DONE: read real HEAD and mandatory docs/issues; three test-only synthetic cases added via **PR #16** against actual v18.41 financial modules. Linked income 2→3→2 RON with three observed checks leaves **-1 RON drift** in both later differences, unlike reversible observed check 94→93→94 RON correction. Invalid linked income date edit rejects. Mock-vault reload preserves drift. This is **current-engine characterization**, NOT a financial contract or approved fix.
+- VERIFIED: candidate `e2d039c` Actions **40084351644 SUCCESS**, merged main `2db3c44` Actions **40084379265 SUCCESS**, Pages **40084379197 / 40084379152 SUCCESS**, Vercel **dpl_EAnQALA4PksrpdZQco9jpnsczwMB READY** exact main SHA. Bundle/index/diagnostic unchanged at **18.41**. No iOS, stable source, formula, or real data changes. Browser/iPhone unverified.
+- NONURGENT: opened issue **#17** for existing English technical budget microcopy confirmed statically in v18.41 bundle, mapped to 22 Oct visual review. No copy change or release. #14 remains unapproved discovery.
+- BLOCKED: #2 needs explicit semantics for historical observed anchors, income audit offsets and exact undo; #4 browser/two-tab/DEMO acceptance pending protected access.
+- NEXT FIRST: synthetic audit of repeated income edits and multiple account checks, and approval-ready #2 numeric contract options; no financial change until approved. Periodically assess #17 UX copy and #14 discovery, but prioritize safety.
+
 ## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 three-check income undo drift (test-only, contract BLOCKED)
 
 - DONE: read real HEAD, mandatory docs, visual review and all open issues; audited actual bundled module 205 saveTransaction + module 207 checkRows/checkedBalance. Two new real-engine synthetic tests via PR **#15** characterize historical income void/undo across **three** observations and contrast reversible expense edits. The same restored 2 RON income leaves later check differences **+2 RON** from original despite identical stored observations; mocked-vault reload preserves it. **This is NOT an approved target formula.**

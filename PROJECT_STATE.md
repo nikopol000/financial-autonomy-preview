@@ -1,5 +1,14 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-24 — v18.41 UNCHANGED; #2 income amount edit/undo drift independently characterized
+
+- REAL HEAD at start: `4d21d4e9a9f43804f014226e360959fe9ca50f5d`. Read all mandatory continuity/release docs, `docs/WEB_VISUAL_REVIEW.md` (actual path), open issues #14/#4/#2/#1 and actual immutable v18.41 modules 205/207. #14 budget perspectives remain DISCOVERY/NOT APPROVED.
+- NEW #2 synthetic characterization: with account 100 RON, checks c1=95/c2=94/c3=90 RON and linked c1 expense 7 + income 2 RON, differences after stage are [0,-1,-4] RON. Editing linked income **2→3 RON** gives [-1,0,-3]; exact undo **3→2 RON** leaves [0,-2,-5] (later checks drift **-1 RON** from baseline despite unchanged transaction and observed amounts). Linked income date change to another check date is rejected. Separately, c2 observed 94→93→94 RON restores all three differences to baseline; two checkAudit entries recorded. These numbers **characterize current code only**, not desired accounting semantics. Mock-vault reload of the income-undo case preserves the drift.
+- VERIFIED test-only PR **#16** candidate `e2d039c093583b5ad344e49306e361b15ec8146a`: Actions **40084351644 SUCCESS**; merged preview main `2db3c44f5361953d0863c31b41113f50291fcaf2`: Actions **40084379265 SUCCESS**, Pages **40084379197 / 40084379152 SUCCESS**; Vercel production **dpl_EAnQALA4PksrpdZQco9jpnsczwMB READY** exact merge SHA. No bundle/index/diagnostic change, **version remains 18.41**. No real user data, formula, stable source, or iOS changes; no browser/iPhone proof.
+- NONURGENT DISCOVERY: opened issue **#17** after static inspection of active v18.41 bundle; English technical budget microcopy from the 22 Oct visual review still exists. Copy-only UX analysis, not implemented; #14 financial perspective contract unaffected.
+- OPEN/BLOCKED: #2 exact-undo semantics and audit-offset financial contract need explicit user approval before any formula change; #4 browser/two-tab/DEMO acceptance and SSO-protected iPhone light/dark unverified.
+- NEXT FIRST: propose explicit #2 acceptance examples (observed anchors, audit offsets and undo) for approval; independently audit repeated historical income edits across accounts/checks using synthetic tests. Continue #17 UX mapping only after critical safety work; #14 remains discovery. No cosmetic release.
+
 ## CURRENT WEB checkpoint — 2026-10-24 — v18.41 UNCHANGED; three-check historical income undo drift characterized, #2 contract OPEN
 
 - REAL HEAD at start: `870b747ff8ae1a8584bbb3788a92f457ed382f7b`. Read mandatory AGENTS/RELEASE_PROCESS/PROJECT_STATE/IMPLEMENTATION_QUEUE/DEVELOPMENT_WORKFLOW, `docs/WEB_VISUAL_REVIEW.md`, open issues #14/#4/#2/#1, and active immutable v18.41 modules 205/207. Issue #14 discovery remains **NOT APPROVED**; no budget mode or formula implemented.
