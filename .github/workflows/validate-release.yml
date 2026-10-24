@@ -21,6 +21,8 @@ jobs:
           node --check "$BUNDLE"
       - name: Romanian budget copy immutable-release regression
         run: node tests/budget-copy-regression.cjs
+      - name: Verify v18.43 budget UI copy is engine-identical to v18.42
+        run: node tests/budget-copy-followup-regression.cjs
       - name: Accessibility shell and unchanged financial engine
         run: node tests/shell-regression.cjs
       - name: Verify v18.22 candidate reconciliation independently of active release
