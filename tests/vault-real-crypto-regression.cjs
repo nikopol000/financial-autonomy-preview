@@ -395,6 +395,44 @@ async function test(name,fn) {
     await tab.save(newer);
     assert.deepEqual(clone(vault.loadWebVault(backing)),newer);
   });
-  console.log(passed+'/22 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==22)process.exitCode=1;
+  // Fault injection documents a real two-key reset limitation. These tests
+  // characterize current behavior, not an assertion that partial deletion is safe.
+  await test('Reset: first localStorage deletion failure leaves encrypted vault intact',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    const before=clone(backing.data),writes=backing.writes;
+    const failing={
+      getItem:key=>backing.getItem(key),
+      setItem:(...args)=>backing.setItem(...args),
+      removeItem(){throw Error('Injected first deletion failure');},
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(failing,{locks:serialLocks()});await tab.load();
+    await assert.rejects(tab.resetData(),/Injected first deletion failure/);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+    assert.deepEqual(clone(vault.loadWebVault(backing)),sample());
+  });
+  await test('KNOWN UNSAFE: second reset deletion failure strands key without ciphertext',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    const before=clone(backing.data),writes=backing.writes;
+    let deletes=0;
+    const failing={
+      getItem:key=>backing.getItem(key),
+      setItem:(...args)=>backing.setItem(...args),
+      removeItem(key){
+        deletes++;
+        if(deletes===2)throw Error('Injected second deletion failure');
+        backing.removeItem(key);
+      },
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(failing,{locks:serialLocks()});const stale=clone(await tab.load());
+    await assert.rejects(tab.resetData(),/Injected second deletion failure/);
+    assert.equal(deletes,2);assert.equal(backing.writes,writes+1);
+    assert.equal(backing.getItem(KEY),before[KEY]);
+    assert.equal(backing.getItem(PAYLOAD),null);
+    assert.throws(()=>vault.loadWebVault(backing),/Cheia locală există fără datele criptate/);
+    await assert.rejects(tab.save(stale),/altă filă|Reîncarcă/i);
+  });
+  console.log(passed+'/24 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==24)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
