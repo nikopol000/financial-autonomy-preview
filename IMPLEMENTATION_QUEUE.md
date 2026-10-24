@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.40 ACTIVE; account/debt opening correction dates guarded
+
+- DONE: audited real v18.39 Editor and found opening correction could pass invalid, pre-ledger or future dates to encrypted save. Added actual `validDate` + ledger start/today preflight for account/debt opening correction; no accounting formula changes. Six new zero-write/error synthetic regressions using the actual bundled date validator; **17/17 Editor PASS**.
+- RELEASE: immutable v18.40 JS, HTML build/metadata, diagnostic payload and export filename synchronized. PR **#11** candidate `d2ce85eb` Actions **40065015902 SUCCESS** (initial **40064968880 FAILED** due stale diagnostic filename, corrected); merged preview main **`59aac1ef`**. Vercel production **dpl_9U6QawMog3FjuF9Mvb8WZ5STKMgQ READY**, primary alias present. Independently checked active main HTML/bundle. No iOS, stable source, real data or formulas touched.
+- OPEN: main-push Actions and Pages terminal state not accessible through available connector; real SSO-protected served header, browser/two-tab/DEMO/mobile acceptance not verified. Issue #4 browser acceptance, issue #2 multi-row reconciliation semantics contract.
+- NEXT FIRST: verify main Actions/Pages if possible; authorized synthetic browser correction/stale-tab/demo/multi-row test. If SSO persists, audit opening-date changes relative to existing dated transactions/observations and remaining async Editor save paths; require failing synthetic real-engine regression before any substantive fix, no cosmetic version bump.
+
 ## WEB checkpoint 2026-10-24 — v18.39 ACTIVE; main CI regression repaired (test-only)
 
 - DONE: retrieved terminal main CI and Pages evidence absent from prior checkpoint. Merge `7733062d`: Actions **40056882836 SUCCESS**, Pages **40056882843 / 40056882303 SUCCESS**. Test-only `d48c784b` validation **40056986898 FAILED** at the newly added eleventh `checkedBalance` assertion because synthetic fixture omitted `transactions` and `audit` arrays required by the actual engine.
