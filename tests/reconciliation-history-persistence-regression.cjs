@@ -258,3 +258,68 @@ test('Observed check edit and exact undo restore differences; checkAudit records
   assert.equal(restored.checkAudit.length,2);
   assert.equal(JSON.stringify(base),before);
 });
+
+
+// ISSUE #2 — independent cross-account safety invariant and repeated-edit
+// characterization. This test uses only synthetic data and the active WEB
+// financial model. It does not authorize an income audit-offset formula.
+function withIndependentAccount() {
+  const s=threeChecks();
+  s.accounts.push({id:'cash',name:'Synthetic cash',kind:'cash',date:'2026-10-01',opening:5000});
+  s.balanceChecks.push(
+    {id:'b1',accountId:'cash',observed:4900,date:'2026-10-13',order:4000},
+    {id:'b2',accountId:'cash',observed:4800,date:'2026-10-16',order:4000}
+  );
+  return s;
+}
+const otherDifferences=s=>Array.from(rec.checkRows(s,'cash'),c=>[c.id,c.difference]);
+const otherBalances=s=>['2026-10-13','2026-10-16'].map(d=>rec.checkedBalance(s,'cash',d));
+
+test('Income edits and undo on ING never alter independent cash account checks (#2 safety)',()=>{
+  const base=withIndependentAccount();
+  const before=JSON.stringify(base);
+  const b=otherDifferences(base),balances=otherBalances(base);
+  const staged=stage(base);
+  assert.deepEqual(otherDifferences(staged),b);
+  assert.deepEqual(otherBalances(staged),balances);
+  const income=staged.transactions.find(t=>t.id==='income');
+  const up=model.saveTransaction(staged,{...income,amount:300},today);
+  const further=model.saveTransaction(up,{
+    ...up.transactions.find(t=>t.id==='income'),amount:400
+  },today);
+  const undone=model.saveTransaction(further,{
+    ...further.transactions.find(t=>t.id==='income'),amount:200
+  },today);
+  for (const state of [up,further,undone]) {
+    assert.deepEqual(otherDifferences(state),b);
+    assert.deepEqual(otherBalances(state),balances);
+    assert.deepEqual(Array.from(state.balanceChecks.filter(c=>c.accountId==='cash'),c=>c.observed),[4900,4800]);
+  }
+  assert.equal(JSON.stringify(base),before);
+  assert.equal(undone.audit.length,3);
+  assert.equal(undone.transactions.find(t=>t.id==='income').amount,200);
+  const store=storage();
+  vault.saveWebVault(store,undone,randomBytes);
+  const reloaded=vault.loadWebVault(store);
+  assert.deepEqual(otherDifferences(reloaded),b);
+  assert.deepEqual(otherBalances(reloaded),balances);
+  assert.equal(reloaded.audit.length,3);
+});
+
+test('Repeated 200→300→400→200 income edit keeps observed anchors and persists engine output (#2 characterization)',()=>{
+  const base=stage(threeChecks()),observed=base.balanceChecks.map(c=>c.observed);
+  const snapshots=[base],steps=[300,400,200];
+  for (const amount of steps) {
+    const previous=snapshots.at(-1),income=previous.transactions.find(t=>t.id==='income');
+    snapshots.push(model.saveTransaction(previous,{...income,amount},today));
+  }
+  assert.deepEqual(snapshots.map(s=>s.transactions.find(t=>t.id==='income').amount),[200,300,400,200]);
+  assert.deepEqual(snapshots.map(s=>s.audit.length),[0,1,2,3]);
+  for (const state of snapshots) assert.deepEqual(state.balanceChecks.map(c=>c.observed),observed);
+  const outputs=snapshots.map(threeDifferences);
+  console.log('CHARACTERIZATION #2 repeated income differences (cents): '+JSON.stringify(outputs));
+  const store=storage();vault.saveWebVault(store,snapshots.at(-1),randomBytes);
+  assert.deepEqual(threeDifferences(vault.loadWebVault(store)),outputs.at(-1));
+  // The exact later-check difference is deliberately NOT asserted as desired
+  // accounting behavior; issue #2 requires an approved financial contract.
+});
