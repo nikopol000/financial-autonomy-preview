@@ -146,3 +146,61 @@ test('Failed payload update preserves previously saved ledger and does not expos
   assert.equal(reloaded.transactions.length,0);
   assert.equal(difference(reloaded),-500);
 });
+
+
+// CHARACTERIZATION ONLY (#2): active financial semantics are NOT approved.
+// Real module 207 currently applies the most recent income-audit offset to
+// each later observed check. A void followed by an undo is not an involution
+// for those later checks, despite the original transaction being restored.
+test('Three observed checks: income void then undo leaves a +200 drift on later checks (contract unresolved)',()=>{
+  const s=initial();
+  s.balanceChecks.push(
+    {id:'c2',accountId:'ing',observed:9400,date:'2026-10-14',order:3000},
+    {id:'c3',accountId:'ing',observed:9000,date:'2026-10-16',order:3000}
+  );
+  const originalObserved=Array.from(s.balanceChecks,c=>c.observed);
+  const staged=stage(s);
+  assert.deepEqual(['c1','c2','c3'].map(id=>difference(staged,id)),[0,-100,-400]);
+  const income=staged.transactions.find(t=>t.id==='income');
+  const voided=model.saveTransaction(staged,{...income,voided:true},today);
+  assert.deepEqual(['c1','c2','c3'].map(id=>difference(voided,id)),[200,-300,-600]);
+  const restored=model.saveTransaction(voided,{
+    ...voided.transactions.find(t=>t.id==='income'),voided:false
+  },today);
+  assert.equal(restored.transactions.length,2);
+  assert.equal(restored.transactions.find(t=>t.id==='income').voided,false);
+  assert.equal(restored.audit.length,2);
+  assert.deepEqual(Array.from(restored.balanceChecks,c=>c.observed),originalObserved);
+  // c1 returns to zero, but later differences do NOT return to their baseline.
+  // These numbers are observations of the existing engine, NOT desired values.
+  assert.deepEqual(['c1','c2','c3'].map(id=>difference(restored,id)),[0,100,-200]);
+  assert.deepEqual(
+    ['c1','c2','c3'].map(id=>rec.checkedBalance(restored,'ing',
+      restored.balanceChecks.find(c=>c.id===id).date)),
+    [9500,9600,9200]
+  );
+  const store=storage();
+  vault.saveWebVault(store,restored,randomBytes);
+  const reloaded=vault.loadWebVault(store);
+  assert.equal(reloaded.audit.length,2);
+  assert.deepEqual(['c1','c2','c3'].map(id=>difference(reloaded,id)),[0,100,-200]);
+  assert.deepEqual(Array.from(reloaded.balanceChecks,c=>c.observed),originalObserved);
+});
+
+test('Three observed checks: expense edit and exact reversal retain baseline later differences',()=>{
+  const s=initial();
+  s.balanceChecks.push(
+    {id:'c2',accountId:'ing',observed:9400,date:'2026-10-14',order:3000},
+    {id:'c3',accountId:'ing',observed:9000,date:'2026-10-16',order:3000}
+  );
+  const staged=stage(s);
+  const expense=staged.transactions.find(t=>t.id==='expense');
+  const edited=model.saveTransaction(staged,{...expense,amount:600},today);
+  assert.deepEqual(['c1','c2','c3'].map(id=>difference(edited,id)),[-100,-100,-400]);
+  const restored=model.saveTransaction(edited,{
+    ...edited.transactions.find(t=>t.id==='expense'),amount:700
+  },today);
+  assert.deepEqual(['c1','c2','c3'].map(id=>difference(restored,id)),[0,-100,-400]);
+  assert.equal(restored.transactions.length,2);
+  assert.equal(restored.audit.length,2);
+});
