@@ -158,7 +158,7 @@ test('Three observed checks: income void then undo leaves a +200 drift on later 
     {id:'c2',accountId:'ing',observed:9400,date:'2026-10-14',order:3000},
     {id:'c3',accountId:'ing',observed:9000,date:'2026-10-16',order:3000}
   );
-  const originalObserved=s.balanceChecks.map(c=>c.observed);
+  const originalObserved=Array.from(s.balanceChecks,c=>c.observed);
   const staged=stage(s);
   assert.deepEqual(['c1','c2','c3'].map(id=>difference(staged,id)),[0,-100,-400]);
   const income=staged.transactions.find(t=>t.id==='income');
