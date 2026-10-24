@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 same-day card order and #25 card credit discovery
+
+- DONE: [PR #24](https://github.com/nikopol000/financial-autonomy-preview/pull/24), merged `18d68905`; two actual-bundle synthetic tests for same-day card transfer order relative to two observed checks, edit/void/undo, 4 audit entries, mocked-vault reload and overpayment 25 RON on 20 RON card debt (negative 5 RON liability, net worth conserved). **Characterization only**, no formula or financial contract approved.
+- VERIFIED: candidate [CI 40114718086](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40114718086) SUCCESS (both named PASS), merged-main [CI 40114763009](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40114763009) SUCCESS, Pages [40114762984](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40114762984) SUCCESS; separate Pages build/deploy [40114762689](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40114762689) pending terminal confirmation. Vercel `dpl_DmdL5NXwYd5j63vhgztrbRfaJ95v` READY exact merge SHA and alias; interactive browser/iPhone unverified.
+- BACKLOG: #25 opened (card overpayment semantics DISCOVERY/decision gate); #17 UI-copy strings mapped to modules 307/308/331/217 with copy-only recommendation in issue comment; #2 linked-income audit offset BLOCKED awaiting explicit contract; #14 budget perspectives DISCOVERY/NOT APPROVED; #4 browser/two-tab open; #1 residual vault/browser acceptance.
+- NEXT FIRST: verify Pages build/deploy terminal outcome; then independent synthetic multi-transfer/check ordering audit or meaningful #17 microcopy UX release only with tests/immutable version/diagnostic/CI/Vercel/browser as accessible. No cosmetic bump, no actual financial data, encrypted backup, iOS or stable-source edits.
+
+
 ## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 credit-card/overdraft transfer-source audit
 
 - DONE: [PR #23](https://github.com/nikopol000/financial-autonomy-preview/pull/23) test-only merged `0411740d`; three synthetic actual-v18.41 engine regressions for card→cash source switching to overdraft and back, card→card-b source switch and void/unvoid, observed check differences, owned-minus-liabilities invariants, audit/persistence, and invalid credit sources fail closed.

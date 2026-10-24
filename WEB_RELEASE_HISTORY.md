@@ -1,5 +1,12 @@
 # Financial Autonomy — Web Premium Release History
 
+## Test-only checkpoint — 2026-10-24 — same-day credit transfer ordering, NO NEW WEB RELEASE
+
+- [PR #24](https://github.com/nikopol000/financial-autonomy-preview/pull/24) merged `18d68905`; two new actual-engine synthetic regressions. Payment order 2000/3500/5000 relative to cash/card checks 3000/4000 gives distinct, deterministic check differences; edit/void/restoration and mocked-vault persistence pass. Existing model permits 25 RON payment on 20 RON card debt, creating **−5 RON signed liability**; tracked as unapproved [financial contract issue #25](https://github.com/nikopol000/financial-autonomy-preview/issues/25). #2 linked-income historical contract remains open; #14 budget perspectives still analysis-only.
+- Candidate [CI 40114718086](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40114718086) SUCCESS with both named tests; main [CI 40114763009](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40114763009) SUCCESS, Pages [40114762984](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40114762984) SUCCESS, Pages build [40114762689](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40114762689) pending terminal verification; Vercel `dpl_DmdL5NXwYd5j63vhgztrbRfaJ95v` READY exact merge SHA with primary alias. Browser/iPhone/served header unverified.
+- Product **v18.41 unchanged**: no new bundle, index/diagnostic version, financial formula, real data, backup, stable source or iOS modification. Issue #17 terminology mapped to UI modules for a future meaningful copy-only change; no cosmetic build created.
+
+
 ## v18.41 — 2026-10-24 — opening-date chronology protection; PR/main CI, Pages and Vercel verified; browser OPEN
 
 - Continued from v18.40 and inspected the actual bundled `checkedBalance` engine. Synthetic history with an account expense and debt repayment showed that moving opening dates past those transactions silently excludes their effects (account 30→100 and debt 350→400 in the isolated real-engine probe, keeping the same opening values). This is a reproducible financial-history integrity risk.
