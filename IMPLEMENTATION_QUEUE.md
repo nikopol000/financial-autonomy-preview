@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 mixed transfer/checkAudit/income audit
+
+- DONE: test-only [PR #19](https://github.com/nikopol000/financial-autonomy-preview/pull/19), merged `5fa58577`. Actual v18.41 model with synthetic ING/cash checks and 3 RON transfer: combined balance conserved, cash checks unaffected by ING income edits, checkAudit 94→93→94 RON fully reversible; linked income 2→3→2 RON still drifts both later ING differences by -1 RON. Mocked-vault reload persists characterization. Documented approval alternatives in issue #2; **not a financial fix**.
+- VERIFIED: candidate CI **40092087588 SUCCESS**, merged CI **40092121835 SUCCESS**, Pages **40092121844 / 40092121576 SUCCESS**, Vercel production `dpl_3zfE1Znr4bsBfKjDMrKgsFm9VvPW` **READY** on merge SHA. Version/bundle/diagnostic remain **18.41**. No iOS, stable source, formulas, user data, backup or product release.
+- BLOCKED: #2 needs approved observed-anchor/offset/exact-undo contract; #4 browser/two-tab/DEMO/iPhone not proven (Vercel authorized fetch 403). #14 budget modes remain DISCOVERY/NOT APPROVED. #17 terminology discovery remains open.
+- NEXT FIRST: test synthetic transfer correction/void with multiple checks, inspect whether audit offset leaks across source/destination; no formula edits before approved contract. Retry browser acceptance only with authorized access; periodically evaluate #17/#14.
+
+
 ## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 repeated income audit and cross-account isolation, #17 copy analysis
 
 - DONE: [PR #18](https://github.com/nikopol000/financial-autonomy-preview/pull/18) test-only synthetic financial model: linked income 2→3→4→2 RON changes ING three-check differences [0,-1,-4] → [-1,0,-3] → [-2,0,-3] → [0,-3,-6] RON; independent cash account's two observed checks, differences and balances are unchanged after edits and mocked-vault reload. Current-engine characterization only; exact undo drift unresolved, NOT approved formula.
