@@ -381,3 +381,71 @@ test('Transfer between checked accounts and checkAudit reversal isolate cash whi
   assert.equal(loaded.audit.length,2);
   assert.equal(JSON.stringify(original),originalJSON);
 });
+
+
+// ISSUE #2 — synthetic cross-account transfer correction/void characterization.
+// These are conservation and exact-state-reversal checks against the active
+// financial engine, not approval to change historical check-audit formulas.
+test('Transfer 300→500→300 and void→restore across two checked accounts conserve money and restore check differences (#2)',()=>{
+  const original=withIndependentAccount(), originalJSON=JSON.stringify(original);
+  const staged=stage(original), dateOfTransfer='2026-10-15';
+  const total=s=>rec.checkedBalance(s,'ing',dateOfTransfer)+
+    rec.checkedBalance(s,'cash',dateOfTransfer);
+  const baselineTotal=total(staged);
+  const transfer=model.saveTransaction(staged,{
+    id:'transfer-correction',name:'Synthetic transfer',kind:'transfer',
+    amount:300,date:dateOfTransfer,accountId:'ing',destinationId:'cash',
+    details:[],financialRole:'transfer'
+  },today);
+  const ingBaseline=threeDifferences(transfer);
+  const cashBaseline=otherDifferences(transfer);
+  const checkedBaseline=[
+    rec.checkedBalance(transfer,'ing',dateOfTransfer),
+    rec.checkedBalance(transfer,'cash',dateOfTransfer)
+  ];
+  const observed=Array.from(transfer.balanceChecks,c=>[c.id,c.observed]);
+  assert.equal(total(transfer),baselineTotal,'Transfer must not mint or destroy owned money');
+  assert.equal(transfer.audit.length,0);
+
+  const edit=model.saveTransaction(transfer,{
+    ...transfer.transactions.find(t=>t.id==='transfer-correction'),amount:500
+  },today);
+  assert.equal(edit.audit.at(-1).action,'Corectare');
+  assert.equal(edit.audit.at(-1).before.amount,300);
+  assert.equal(total(edit),baselineTotal);
+  assert.equal(rec.checkedBalance(edit,'ing',dateOfTransfer),checkedBaseline[0]-200);
+  assert.equal(rec.checkedBalance(edit,'cash',dateOfTransfer),checkedBaseline[1]+200);
+  const undoEdit=model.saveTransaction(edit,{
+    ...edit.transactions.find(t=>t.id==='transfer-correction'),amount:300
+  },today);
+  assert.equal(total(undoEdit),baselineTotal);
+  assert.deepEqual(threeDifferences(undoEdit),ingBaseline);
+  assert.deepEqual(otherDifferences(undoEdit),cashBaseline);
+
+  const voided=model.saveTransaction(undoEdit,{
+    ...undoEdit.transactions.find(t=>t.id==='transfer-correction'),voided:true
+  },today);
+  assert.equal(voided.audit.at(-1).action,'Anulare');
+  assert.equal(total(voided),baselineTotal);
+  assert.equal(rec.checkedBalance(voided,'ing',dateOfTransfer),checkedBaseline[0]+300);
+  assert.equal(rec.checkedBalance(voided,'cash',dateOfTransfer),checkedBaseline[1]-300);
+  const restored=model.saveTransaction(voided,{
+    ...voided.transactions.find(t=>t.id==='transfer-correction'),voided:false
+  },today);
+  assert.equal(restored.audit.length,4);
+  assert.equal(restored.transactions.length,3);
+  assert.equal(restored.transactions.find(t=>t.id==='transfer-correction').amount,300);
+  assert.equal(restored.transactions.find(t=>t.id==='transfer-correction').voided,false);
+  assert.equal(total(restored),baselineTotal);
+  assert.deepEqual(threeDifferences(restored),ingBaseline);
+  assert.deepEqual(otherDifferences(restored),cashBaseline);
+  assert.deepEqual(Array.from(restored.balanceChecks,c=>[c.id,c.observed]),observed);
+  assert.equal(JSON.stringify(original),originalJSON);
+
+  const store=storage();vault.saveWebVault(store,restored,randomBytes);
+  const reloaded=vault.loadWebVault(store);
+  assert.equal(reloaded.audit.length,4);
+  assert.deepEqual(threeDifferences(reloaded),ingBaseline);
+  assert.deepEqual(otherDifferences(reloaded),cashBaseline);
+  assert.equal(total(reloaded),baselineTotal);
+});
