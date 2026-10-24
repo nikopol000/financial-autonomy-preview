@@ -1,3 +1,10 @@
+## WEB checkpoint 2026-10-25 — v18.44 unchanged; #29 read-denial + #35 orphan-key discovery
+
+- DONE: test-only [PR #34](https://github.com/nikopol000/financial-autonomy-preview/pull/34) merged `746436185caed92c23b4705900c660bdb29cc880`; four marker read/permission/corruption cases **fail closed**; one explicitly **KNOWN UNSAFE** initial-save orphan-key characterization. Opened [#35](https://github.com/nikopol000/financial-autonomy-preview/issues/35) for separate P1 analysis. No vault fix or browser acceptance claimed.
+- VERIFIED: candidate [CI 40140940605](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40140940605) SUCCESS, **36/36** bundled AES-GCM synthetic tests, release guard and JS syntax PASS. Vercel production `dpl_EFnqeHTUsQzRXBjvKyNMafq1DqrF` READY on exact merge SHA. Merged-main CI/Pages and real browser still unverified.
+- DISCOVERY: `docs/PREMIUM_BENCHMARK_20261025.md` documents official YNAB/Monarch features and selected community feedback, extracting source/plan/credit clarity principles. #14 budget perspectives remain **NOT APPROVED**, with no formulas/modes implemented; #17 UX remains open. #2/#25 financial contracts blocked.
+- NEXT FIRST: real-browser two-tab/permission/reset acceptance for #29/#4; if browser inaccessible, #35 fault-matrix/recovery design without silent key deletion. Then resume #17 incremental UX only with release tests. Preserve local-only, backup, actual data and iOS.
+
 ## WEB checkpoint 2026-10-25 — v18.44 reset journal merged (#29)
 
 - DONE: [PR #32](https://github.com/nikopol000/financial-autonomy-preview/pull/32), merge `fe49400c78a46fbc7d7a261e8296b50f507a7fd1`, implements an explicit committed reset marker and resumable cleanup under Web Locks. Immutable WEB **18.44** bundle, HTML/build and diagnostic synchronized; previous 18.43 preserved. The committed reset is destructive by user intent; incomplete cleanup does not silently reload or restore old data. `docs/RESET_JOURNAL_CONTRACT.md` details protocol and limitations.
