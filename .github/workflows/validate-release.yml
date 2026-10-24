@@ -19,6 +19,8 @@ jobs:
         run: |
           BUNDLE=$(python3 -c "import re,pathlib; print(re.search(r'<script src=\"/financial-autonomy-preview/([^\"?]+)',pathlib.Path('index.html').read_text()).group(1))")
           node --check "$BUNDLE"
+      - name: Romanian budget copy immutable-release regression
+        run: node tests/budget-copy-regression.cjs
       - name: Accessibility shell and unchanged financial engine
         run: node tests/shell-regression.cjs
       - name: Verify v18.22 candidate reconciliation independently of active release
