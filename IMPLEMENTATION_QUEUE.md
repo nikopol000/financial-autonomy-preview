@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 credit-card/overdraft transfer-source audit
+
+- DONE: [PR #23](https://github.com/nikopol000/financial-autonomy-preview/pull/23) test-only merged `0411740d`; three synthetic actual-v18.41 engine regressions for card→cash source switching to overdraft and back, card→card-b source switch and void/unvoid, observed check differences, owned-minus-liabilities invariants, audit/persistence, and invalid credit sources fail closed.
+- VERIFIED: candidate [40109823829](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40109823829) SUCCESS (3 named PASS), merged-main [40109878018](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40109878018) SUCCESS, Pages [40109878045](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40109878045) and [40109877753](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40109877753) SUCCESS; Vercel `dpl_ELCP9rcQ81hQjgusLecLhQGuA5Jc` READY production on exact merge SHA, primary alias confirmed. No browser proof.
+- PRODUCT: unchanged v18.41, no bundle/index/diagnostic/financial formulas/user data/encrypted backup/iOS/source main changes. #2 historical income contract BLOCKED, #14 budget perspectives DISCOVERY/NOT APPROVED, #4 browser/two-tab pending, #17 copy analysis nonurgent.
+- NEXT FIRST: synthetic same-day ordering of credit-source transfers vs observed checks; void/edit persistence and card overpayment edge; if no safety defect, independent #17 UX audit. Keep issue #14 unimplemented until explicit approval. No cosmetic version bump.
+
+
 ## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 transfer SOURCE reassignment
 
 - DONE: test-only [PR #22](https://github.com/nikopol000/financial-autonomy-preview/pull/22) merged `feea4d2b`; two real bundled-model synthetic regressions verify 3 RON source ING→savings→cash→ING (moving destination appropriately), two checked observations per account, net-worth conservation including card liability, exact restoration, audit persistence and zero-mutation invalid-source/chronology refusals.

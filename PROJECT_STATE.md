@@ -1,5 +1,15 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-24 — v18.41 UNCHANGED; credit-card/overdraft transfer-source audit
+
+- START HEAD: `4b9c60e20f6d9af584a0e55df910850d810939cf`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, `docs/WEB_VISUAL_REVIEW.md`, open issues #17/#14/#4/#2/#1, real active v18.41 module 205/207 and test harness.
+- DONE: test-only [PR #23](https://github.com/nikopol000/financial-autonomy-preview/pull/23) merged `0411740da4c4220b29363bcffcccef9fd03f9d8d`. Three actual-bundle synthetic regressions: 300 bani credit-card→cash and source card→overdraft→card; card→card-b and source card→overdraft→card, void/unvoid; observed anchors, two checks per entity, net owned money minus card/overdraft liability, audit entries, mocked-vault reload; invalid/loan/dual-source/same-source/pre-opening edits fail without mutation. No new financial semantics approved.
+- VERIFIED: candidate [Actions 40109823829](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40109823829) SUCCESS with three named tests PASS in job logs; merged-main [Actions 40109878018](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40109878018) SUCCESS; Pages [40109878045](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40109878045) and [40109877753](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40109877753) SUCCESS; Vercel production `dpl_ELCP9rcQ81hQjgusLecLhQGuA5Jc` READY exact merge SHA with `financial-autonomy-preview.vercel.app` alias. Issue #2 comment [6386411987](https://github.com/nikopol000/financial-autonomy-preview/issues/2#issuecomment-6386411987) updated.
+- VERSION/SAFETY: no product code, index, diagnostic, formulas, actual data, backup, source main or iOS changed; active bundle remains **18.41**. Browser/iPhone and two-tab interaction remain **UNVERIFIED**, not inferred from Vercel READY.
+- BLOCKED: #2 retroactive linked-income audit offsets require explicit financial contract; #14 budget perspectives DISCOVERY ONLY and not authorized for implementation. #4 browser/two-tab and #17 budget microcopy remain open.
+- NEXT FIRST: audit same-day ordering of card/overdraft transfers and observed checks with synthetic data, edit/void and persistence; examine card overpayment without inventing financial semantics. If a reproducible safety bug appears, test-first fix; otherwise advance an independent UX discovery (#17) and retry authorized browser review. No cosmetic release.
+
+
 ## CURRENT WEB checkpoint — 2026-10-24 — v18.41 UNCHANGED; transfer SOURCE reassignment tested
 
 - START HEAD: `6a515f24c62bd65eceb1b5005f6c08073ba77118`. Read mandatory AGENTS, RELEASE_PROCESS, PROJECT_STATE, IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, `docs/WEB_VISUAL_REVIEW.md`, and all open issues #17/#14/#4/#2/#1. Rechecked actual bundled v18.41 financial-model regression harness.
