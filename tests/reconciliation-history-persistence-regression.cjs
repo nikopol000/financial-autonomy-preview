@@ -555,3 +555,79 @@ test('Invalid transfer reassignment rejects both destinations, unknown/same acco
   assert.equal(toCash.audit.length,0);
   assert.equal(toCash.transactions.length,1);
 });
+
+
+// ISSUE #2 — transfer SOURCE reassignment with independently checked accounts.
+// Real bundled v18.41 engine; these tests characterize current behavior only.
+test('Reassign transfer source ING→savings→cash→ING: independent checks, net worth and persisted exact undo (#2)',()=>{
+  const original=reassignmentFixture(),originalJSON=JSON.stringify(original);
+  const baselineNetWorth=reassignmentNetWorth(original);
+  const row={
+    id:'source-reassigned',name:'Synthetic source correction',kind:'transfer',
+    amount:300,date:'2026-10-15',accountId:'ing',
+    destinationId:'cash',details:[],financialRole:'transfer'
+  };
+  const fromIng=model.saveTransaction(original,row,today);
+  const observed=Array.from(fromIng.balanceChecks,c=>[c.id,c.observed]);
+  assert.deepEqual(reassignmentBalances(fromIng),[9200,5200,2900,2000]);
+  const fromSavings=model.saveTransaction(fromIng,{
+    ...fromIng.transactions.find(t=>t.id===row.id),accountId:'savings'
+  },today);
+  assert.deepEqual(reassignmentBalances(fromSavings),[9500,5200,2600,2000]);
+  assert.deepEqual(reassignmentDifferences(fromSavings),[
+    [-500,-100],[-100,-400],[-100,200],[0,0]
+  ]);
+  // Moving both ends in one correction is not an income or expense.
+  const fromCash=model.saveTransaction(fromSavings,{
+    ...fromSavings.transactions.find(t=>t.id===row.id),
+    accountId:'cash',destinationId:'savings'
+  },today);
+  assert.deepEqual(reassignmentBalances(fromCash),[9500,4600,3200,2000]);
+  assert.deepEqual(reassignmentDifferences(fromCash),[
+    [-500,-100],[-100,200],[-100,-400],[0,0]
+  ]);
+  for(const state of [fromIng,fromSavings,fromCash])
+    assert.equal(reassignmentNetWorth(state),baselineNetWorth);
+  const restored=model.saveTransaction(fromCash,{
+    ...fromCash.transactions.find(t=>t.id===row.id),
+    accountId:'ing',destinationId:'cash'
+  },today);
+  assert.deepEqual(reassignmentBalances(restored),reassignmentBalances(fromIng));
+  assert.deepEqual(reassignmentDifferences(restored),reassignmentDifferences(fromIng));
+  assert.deepEqual(Array.from(restored.balanceChecks,c=>[c.id,c.observed]),observed);
+  assert.equal(restored.transactions.length,1);
+  assert.equal(restored.audit.length,3);
+  assert.equal(reassignmentNetWorth(restored),baselineNetWorth);
+  assert.equal(JSON.stringify(original),originalJSON);
+  const store=storage();vault.saveWebVault(store,restored,randomBytes);
+  const loaded=vault.loadWebVault(store);
+  assert.deepEqual(reassignmentBalances(loaded),reassignmentBalances(fromIng));
+  assert.deepEqual(reassignmentDifferences(loaded),reassignmentDifferences(fromIng));
+  assert.equal(loaded.audit.length,3);
+});
+
+test('Invalid transfer source reassignment rejects unknown, same destination, card debt and later-opened account without mutation (#2)',()=>{
+  const original=reassignmentFixture();
+  original.accounts.push({
+    id:'late',name:'Late synthetic account',kind:'current',
+    opening:1000,date:'2026-10-16'
+  });
+  const toCash=model.saveTransaction(original,{
+    id:'source-guard',name:'Synthetic source guard',kind:'transfer',
+    amount:300,date:'2026-10-15',accountId:'ing',
+    destinationId:'cash',details:[],financialRole:'transfer'
+  },today);
+  const before=JSON.stringify(toCash),row=toCash.transactions[0];
+  for(const patch of [
+    {accountId:'missing'},
+    {accountId:'cash'},
+    {accountId:'card'},
+    {accountId:'late'},
+    {accountId:'savings',date:'2026-09-30'}
+  ]) {
+    assert.throws(()=>model.saveTransaction(toCash,{...row,...patch},today));
+    assert.equal(JSON.stringify(toCash),before,'Rejected source edit must not mutate ledger');
+  }
+  assert.equal(toCash.transactions.length,1);
+  assert.equal(toCash.audit.length,0);
+});
