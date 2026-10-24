@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 three-check income undo drift (test-only, contract BLOCKED)
+
+- DONE: read real HEAD, mandatory docs, visual review and all open issues; audited actual bundled module 205 saveTransaction + module 207 checkRows/checkedBalance. Two new real-engine synthetic tests via PR **#15** characterize historical income void/undo across **three** observations and contrast reversible expense edits. The same restored 2 RON income leaves later check differences **+2 RON** from original despite identical stored observations; mocked-vault reload preserves it. **This is NOT an approved target formula.**
+- VERIFIED: PR head `3f496420` Actions **40080665407 SUCCESS**; merged main `05016707` Actions **40080707475 SUCCESS**, Pages **40080707502 / 40080707047 SUCCESS**; Vercel **dpl_EkcuGgn8zUfcVW1CoWWxy5VqF9eL READY** exact SHA and primary alias. Earlier candidate CI failed only due cross-realm test-array assertions and was fixed before merge. **No product release**: immutable bundle/index/diagnostic still v18.41; no formulas, data, vault, iOS or stable-source edits.
+- OPEN: #2 requires explicit financial contract on audit offsets and undo invariance before a fix; #4 browser/two-tab/DEMO/iPhone acceptance not proven. #14 remains DISCOVERY only, no budget formulas or modes approved. Browser SSO must not be bypassed.
+- NEXT FIRST: independent synthetic audit of historical income amount/date edits and repeated check-audit corrections, then contract proposal with worked numbers for #2; authorized browser checks when accessible. Pick a separate nonurgent UX issue periodically after critical work, without cosmetic builds.
+
 ## WEB checkpoint 2026-10-24 — v18.41 unchanged; #14 DISCOVERY documented (NOT APPROVED)
 
 - Completed static inspection of active modules 207/210/219/220, budget-window/daily/coverage behavior, check anchoring and staged reconciliation; researched Actual Budget/Monarch official documentation and anecdotal YNAB/Actual user reports.
