@@ -3,10 +3,18 @@
 // No browser or real user storage is accessed.
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const vm = require('node:vm');
 const html = fs.readFileSync('index.html','utf8');
 const path = html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=/)?.[1];
 assert.ok(path, 'Active WEB bundle missing');
 const source = fs.readFileSync(path,'utf8');
+const recAt=source.indexOf('Object.defineProperty(_e,"comparePoint"');
+const recStart=source.lastIndexOf('__d(function(',recAt);
+const recEnd=source.indexOf('},207,[]);',recAt);
+assert.ok(recAt>=0&&recStart>=0&&recEnd>recStart,'Real financial balance engine module missing');
+const rec={};
+vm.runInNewContext('('+source.slice(recStart+4,recEnd+1)+')')({},()=>{},()=>{},null,{},rec,[]);
+assert.equal(typeof rec.checkedBalance,'function');
 assert.ok(source.includes('N&&(0,m.jsx)(t.default,{accessibilityRole:"alert"'),
   'Editor error state is not exposed as an accessible alert');
 assert.ok(source.includes('secondary:!0,disabled:R,onPress:async()=>{if(R||!v)return;'),
@@ -58,7 +66,7 @@ function fixture(needle,{fail=false,invalid=false,balance=0,kind='account'}={}) 
   const handler=new Function('v','x','e','d','o','O','b','h','R','I','Y',
     'return ('+extractHandler(needle)+')')
     (v,kind,state,d,o,O,b,h,false,I,Y);
-  return {press:handler,get error(){return error},get busy(){return busy},
+  return {press:handler,initial:state,get error(){return error},get busy(){return busy},
     get closed(){return closed},get writes(){return writes},
     get attempted(){return attempted}};
 }
@@ -130,6 +138,15 @@ async function test(name,fn) {
     assert.match(f.error,/Invalid synthetic amount/);assert.equal(f.writes,0);
     assert.equal(f.closed,0);assert.equal(f.busy,false);
   });
-  console.log(passed+'/10 Editor save-error regression tests passed');
-  if(passed!==10)process.exitCode=1;
+  await test('Actual bundled balance engine uses corrected debt principal, not account money',async()=>{
+    const f=fixture(correction,{kind:'debt'});
+    assert.equal(rec.checkedBalance(f.initial,'synthetic-debt','2026-10-24'),400);
+    assert.equal(rec.checkedBalance(f.initial,'synthetic-account','2026-10-24'),100);
+    await f.press();
+    assert.equal(rec.checkedBalance(f.attempted,'synthetic-debt','2026-10-24'),200);
+    assert.equal(rec.checkedBalance(f.attempted,'synthetic-account','2026-10-24'),100);
+    assert.equal(rec.checkedBalance(f.initial,'synthetic-debt','2026-10-24'),400);
+  });
+  console.log(passed+'/11 Editor save-error regression tests passed');
+  if(passed!==11)process.exitCode=1;
 })().catch(err=>{console.error(err);process.exitCode=1});
