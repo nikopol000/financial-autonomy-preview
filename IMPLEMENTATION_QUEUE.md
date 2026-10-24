@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.42 immutable Romanian budget UI release (#17 partial)
+
+- DONE: [PR #26](https://github.com/nikopol000/financial-autonomy-preview/pull/26), preview main merge `0ff67cc15`; 9 user-facing budget labels/explanations translated to plain Romanian. New immutable bundle, index and diagnostic **18.42**; `tests/budget-copy-regression.cjs` ensures only 9 UI literals + diagnostic metadata differ from v18.41, so engine/storage/financial calculations are byte-identical. #17 remains OPEN for other technical copy and mobile acceptance.
+- VERIFIED: candidate [CI 40118795856](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40118795856) SUCCESS (named budget copy PASS, release guard, JS syntax and suites); merged [CI 40118848527](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40118848527) SUCCESS; Pages [40118848502](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40118848502) and [40118848450](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40118848450) SUCCESS; Vercel `dpl_LLzobo99PaUMNSeD5hpdAv25bDP4` READY exact merge SHA and primary alias. Earlier pending Pages `40114762689` ultimately CANCELLED; subsequent runs SUCCESS. No real browser/iPhone served-header verification.
+- SAFETY: no financial formulas, real data, encrypted vault, backend, stable source or iOS edits. #14 budget perspectives still DISCOVERY, NOT APPROVED; #2 historical linked-income and #25 card overpayment require explicit financial contracts; #1/#4 cross-tab and browser acceptance still open.
+- NEXT FIRST: authorized browser narrow iPhone light/dark and served v18.42 header, then prioritize #1/#4 cross-tab data safety and #2/#25 contract analysis. Periodically choose independent #17/onboarding UX refinement with real test evidence; no cosmetic-only version bumps.
+
+
 ## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 same-day card order and #25 card credit discovery
 
 - DONE: [PR #24](https://github.com/nikopol000/financial-autonomy-preview/pull/24), merged `18d68905`; two actual-bundle synthetic tests for same-day card transfer order relative to two observed checks, edit/void/undo, 4 audit entries, mocked-vault reload and overpayment 25 RON on 20 RON card debt (negative 5 RON liability, net worth conserved). **Characterization only**, no formula or financial contract approved.
