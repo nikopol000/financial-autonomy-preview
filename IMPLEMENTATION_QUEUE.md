@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.43 published; #17 UI terminology follow-up
+
+- DONE: [PR #28](https://github.com/nikopol000/financial-autonomy-preview/pull/28), merged `be998f2afa2b3a48e337daaa201d8f03ffc82b89`: 10 exact-context user-visible Romanian label/explanation changes, immutable WEB **18.43** JS, HTML build key, diagnostic version/name. No changes to internal period identifiers, formulas, financial roles, encrypted vault, backend, real data or iOS.
+- VERIFIED: candidate [40128375341](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40128375341), merged-main [40128416903](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40128416903), Pages [40128416831](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40128416831) and [40128416263](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40128416263) all **SUCCESS**; Vercel `dpl_3baZeRtztBnuhpto3pZMLVp8knro` **READY** on exact merge SHA, primary alias. New `tests/budget-copy-followup-regression.cjs` proves byte-for-byte only 10 UI substitutions + diagnostic metadata from v18.42. Final checkpoint commit status to be rechecked separately.
+- OPEN: #17 actual served UI and narrow iPhone light/dark/populated/accessibility acceptance; #4 two-tab browser/Web Locks; #1 Pages race history; #2 and #25 financial contract decisions. #14 is DISCOVERY/NOT APPROVED with existing research/alternatives/examples in `docs/BUDGET_PERSPECTIVES_DISCOVERY.md`; do not implement perspectives or change financial formulas.
+- NEXT FIRST: check final HEAD CI/Pages/Vercel, then real browser acceptance if authorized; otherwise independent synthetic vault import/reset safety audit. Maintain periodic nonurgent UX review, avoid cosmetic release without verified product change.
+
+
 ## WEB checkpoint 2026-10-24 — v18.42 unchanged; #4 vault reset/save race test coverage
 
 - DONE: [PR #27](https://github.com/nikopol000/financial-autonomy-preview/pull/27), merged `9a42b1b8`. Actual v18.42 AES-GCM module regression increased **19 → 22** tests: concurrent reset→stale save (no resurrection), concurrent save→stale reset (no deletion), and valid ciphertext changed during decrypt (load rejects, stale write blocked, explicit reload succeeds). Characterization/protection of existing behavior only, no product code/financial engine change.
