@@ -1,5 +1,17 @@
 # Financial Autonomy — Project State
 
+## CURRENT WEB checkpoint — 2026-10-25 — v18.43 unchanged; P1 partial reset deletion audit (#29)
+
+- START HEAD: `0632363c1de75a4b3e5fdb2e3ed59e40c111e532`; read actual main, AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, `docs/WEB_VISUAL_REVIEW.md` (root `WEB_VISUAL_REVIEW.md` does not exist), open issues #25/#17/#14/#4/#2/#1, active v18.43 bundle modules 309/310, synthetic AES-GCM test harness, and #14 discovery research. No iOS work.
+- DONE: independent safety audit identified that `clearWebVault` removes ciphertext then key in two separate localStorage operations. A fault on second removal can irrecoverably strand key without ciphertext even with Web Locks. Opened [issue #29](https://github.com/nikopol000/financial-autonomy-preview/issues/29) with evidence and recovery design alternatives. [PR #30](https://github.com/nikopol000/financial-autonomy-preview/pull/30) squash merged `f4249267f5c20beeec9ae230ec45f8be527557ef`: two **characterization-only** synthetic fault-injection tests, including an explicitly named **KNOWN UNSAFE** case. No reset fix claimed.
+- VERIFIED: candidate [CI 40132935804](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40132935804) **SUCCESS**, named fault-injection cases PASS, 24/24 real bundled AES-GCM/cross-tab synthetic tests PASS, `check_release.py` v18.43 and JS syntax PASS. Vercel production `dpl_7ogvKE4cTfvkuua5wTHZRD93QV3B` **READY** on exact merge SHA with primary alias. Final merged-main CI and Pages workflows **not independently confirmed** at this checkpoint; do not infer them from candidate CI or Vercel.
+- UNVERIFIED: protected served HTML/header, real browser two-tab Web Locks, iPhone light/dark/populated/accessibility acceptance. Browser URL inaccessible to available fetch. #4 remains OPEN. #29 is a conditional fault-injection failure, **not** an observed real user data-loss incident.
+- NONURGENT: independently reviewed #17 empty-budget-state proposal using historical `docs/WEB_VISUAL_REVIEW.md` (observed v18.21 desktop only), commented without claiming v18.43 reproduction; recheck actual current UI before implementation. #14 budget perspectives remain DISCOVERY/NOT APPROVED; #2 historical income and #25 overpayment remain contract-gated.
+- SAFETY: active product **18.43** unchanged; no bundle/index/diagnostic, financial formulas, real user data, encrypted backup, backend, telemetry, stable source or iOS modifications.
+- NEXT FIRST: design a failure-recoverable/transactional vault reset for #29 with deterministic exceptions at every storage operation; test no resurrection after completed reset and recovery after interrupted reset before any product change. Verify final merged CI/Pages and Vercel exact SHA; browser smoke when accessible. Do not implement #14 without explicit contract approval.
+
+
+
 ## CURRENT WEB checkpoint — 2026-10-24 — v18.43 Romanian budget copy follow-up (#17 partial)
 
 - START HEAD: `a29447466a8c3d5bcfda8f292e9f9eed3a26c8c6`; read actual HEAD, AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, `docs/WEB_VISUAL_REVIEW.md`, active v18.42 bundle, all open issues (#25/#17/#14/#4/#2/#1), issue comments and budget discovery document. No iOS work.
