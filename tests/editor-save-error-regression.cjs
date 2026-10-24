@@ -50,7 +50,7 @@ function fixture(needle,{fail=false,invalid=false,balance=0,kind='account'}={}) 
   const account={id:'synthetic-account',name:'Synthetic account',opening:100,date:'2026-10-01'};
   const debt={id:'synthetic-debt',name:'Synthetic debt',amount:400,payment:50,kind:'loan',date:'2026-10-01'};
   const v=kind==='debt'?debt:account;
-  const state={accounts:[account],debts:[debt]};
+  const state={accounts:[account],debts:[debt],transactions:[],audit:[]};
   const d={accountBalance:()=>balance,debtBalance:()=>balance};
   const parse=()=>{if(invalid)throw Error('Invalid synthetic amount');return 200};
   const o={today:()=> '2026-10-24',signedMoney:parse,money:parse};
