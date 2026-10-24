@@ -758,3 +758,91 @@ test('Invalid credit source/destination edits reject without mutating checked le
   assert.equal(active.audit.length,0);
   assert.equal(active.transactions.length,1);
 });
+
+
+//
+// ISSUE #2 — same-day ordering and card overpayment characterization.
+// Existing v18.41 engine only; NO approval of negative card liability semantics.
+function sameDayCardFixture() {
+  const s=model.emptyState('2026-10-01');
+  s.accounts.push({
+    id:'cash',name:'Synthetic cash',kind:'cash',date:'2026-10-01',opening:5000
+  });
+  s.debts.push({
+    id:'card',name:'Synthetic card',kind:'card',date:'2026-10-01',
+    amount:2000,payment:0,limit:10000,day:1
+  });
+  s.balanceChecks.push(
+    {id:'cash-early',accountId:'cash',date:'2026-10-15',order:3000,observed:4900},
+    {id:'card-early',accountId:'card',date:'2026-10-15',order:4000,observed:2000},
+    {id:'cash-later',accountId:'cash',date:'2026-10-16',order:3000,observed:4800},
+    {id:'card-later',accountId:'card',date:'2026-10-16',order:4000,observed:1900}
+  );
+  return s;
+}
+const sameDayCardRow=(amount,order)=>({
+  id:'synthetic-payment',name:'Synthetic card repayment',kind:'transfer',
+  amount,order,date:'2026-10-15',accountId:'cash',
+  destinationCreditId:'card',details:[],financialRole:'transfer'
+});
+const sameDayChecks=s=>['cash','card'].map(id=>
+  Array.from(rec.checkRows(s,id),r=>r.difference));
+const sameDayBalances=s=>['cash','card'].map(id=>
+  rec.checkedBalance(s,id,'2026-10-15'));
+
+test('Same-day card payment before/between/after observed checks preserves point order and exact edit/void undo (#2)',()=>{
+  const fixture=sameDayCardFixture(),unchanged=JSON.stringify(fixture);
+  const observations=Array.from(fixture.balanceChecks,c=>[c.id,c.observed]);
+  const cases=[
+    {order:2000,balances:[4900,2000],checks:[[200,-100],[300,-100]]},
+    {order:3500,balances:[4600,2000],checks:[[-100,200],[300,-100]]},
+    {order:5000,balances:[4600,1700],checks:[[-100,200],[0,200]]}
+  ];
+  for(const scenario of cases) {
+    const active=model.saveTransaction(fixture,sameDayCardRow(300,scenario.order),today);
+    assert.deepEqual(sameDayBalances(active),scenario.balances);
+    assert.deepEqual(sameDayChecks(active),scenario.checks);
+    const changed=model.saveTransaction(active,{...active.transactions[0],amount:500},today);
+    const restored=model.saveTransaction(changed,{...changed.transactions[0],amount:300},today);
+    const voided=model.saveTransaction(restored,{...restored.transactions[0],voided:true},today);
+    const unvoided=model.saveTransaction(voided,{...voided.transactions[0],voided:false},today);
+    assert.deepEqual(sameDayChecks(restored),scenario.checks);
+    assert.deepEqual(sameDayChecks(unvoided),scenario.checks);
+    assert.deepEqual(sameDayBalances(unvoided),scenario.balances);
+    assert.deepEqual(Array.from(unvoided.balanceChecks,c=>[c.id,c.observed]),observations);
+    assert.equal(unvoided.audit.length,4);
+    assert.equal(unvoided.transactions.length,1);
+    assert.equal(unvoided.transactions[0].order,scenario.order);
+    const store=storage();vault.saveWebVault(store,unvoided,randomBytes);
+    const reloaded=vault.loadWebVault(store);
+    assert.deepEqual(sameDayChecks(reloaded),scenario.checks);
+    assert.deepEqual(sameDayBalances(reloaded),scenario.balances);
+    assert.equal(reloaded.audit.length,4);
+  }
+  assert.equal(JSON.stringify(fixture),unchanged);
+});
+
+test('Card overpayment 25 RON against 20 RON debt yields negative liability in current engine: contract NOT approved (#2)',()=>{
+  const original=sameDayCardFixture(),before=JSON.stringify(original);
+  const net=s=>sameDayBalances(s)[0]-sameDayBalances(s)[1];
+  const baseNet=net(original);
+  const active=model.saveTransaction(original,sameDayCardRow(2500,5000),today);
+  // CHARACTERIZATION: the existing model allows -500 bani card liability.
+  // This is not a product decision about refunds, card credit, or available cash.
+  assert.deepEqual(sameDayBalances(active),[2400,-500]);
+  assert.deepEqual(sameDayChecks(active),[[-100,2400],[0,2400]]);
+  assert.equal(net(active),baseNet,'A card credit must not mint owned money');
+  const voided=model.saveTransaction(active,{...active.transactions[0],voided:true},today);
+  assert.deepEqual(sameDayBalances(voided),sameDayBalances(original));
+  const restored=model.saveTransaction(voided,{...voided.transactions[0],voided:false},today);
+  assert.deepEqual(sameDayBalances(restored),sameDayBalances(active));
+  assert.deepEqual(sameDayChecks(restored),sameDayChecks(active));
+  assert.equal(net(restored),baseNet);
+  assert.deepEqual(Array.from(restored.balanceChecks,c=>[c.id,c.observed]),
+    Array.from(original.balanceChecks,c=>[c.id,c.observed]));
+  const store=storage();vault.saveWebVault(store,restored,randomBytes);
+  const loaded=vault.loadWebVault(store);
+  assert.deepEqual(sameDayBalances(loaded),[2400,-500]);
+  assert.deepEqual(sameDayChecks(loaded),sameDayChecks(active));
+  assert.equal(JSON.stringify(original),before);
+});
