@@ -272,7 +272,7 @@ function withIndependentAccount() {
   );
   return s;
 }
-const otherDifferences=s=>rec.checkRows(s,'cash').map(c=>[c.id,c.difference]);
+const otherDifferences=s=>Array.from(rec.checkRows(s,'cash'),c=>[c.id,c.difference]);
 const otherBalances=s=>['2026-10-13','2026-10-16'].map(d=>rec.checkedBalance(s,'cash',d));
 
 test('Income edits and undo on ING never alter independent cash account checks (#2 safety)',()=>{
