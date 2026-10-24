@@ -40,6 +40,8 @@ jobs:
         run: node tests/reconciliation-batch-regression.cjs
       - name: Reconciliation editor UI and guarded persistence
         run: node tests/reconciliation-ui-regression.cjs
+      - name: Editor save error handling for account close and opening correction
+        run: node tests/editor-save-error-regression.cjs
       - name: Reconciliation history reload void and persistence regression
         run: node tests/reconciliation-history-persistence-regression.cjs
       - name: Isolated demo eligibility fail-closed contract
