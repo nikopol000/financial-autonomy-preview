@@ -15,6 +15,13 @@ assert.ok(recAt>=0&&recStart>=0&&recEnd>recStart,'Real financial balance engine 
 const rec={};
 vm.runInNewContext('('+source.slice(recStart+4,recEnd+1)+')')({},()=>{},()=>{},null,{},rec,[]);
 assert.equal(typeof rec.checkedBalance,'function');
+const dateAt=source.indexOf('_e.validDate=r');
+const dateStart=source.lastIndexOf('__d(function(',dateAt);
+const dateEnd=source.indexOf('},204,[]);',dateAt);
+assert.ok(dateAt>=0&&dateStart>=0&&dateEnd>dateStart,'Real date validator module missing');
+const dateApi={};
+vm.runInNewContext('('+source.slice(dateStart+4,dateEnd+1)+')')({},()=>{},()=>{},null,{},dateApi,[]);
+assert.equal(typeof dateApi.validDate,'function');
 assert.ok(source.includes('N&&(0,m.jsx)(t.default,{accessibilityRole:"alert"'),
   'Editor error state is not exposed as an accessible alert');
 assert.ok(source.includes('secondary:!0,disabled:R,onPress:async()=>{if(R||!v)return;'),
@@ -46,15 +53,15 @@ function extractHandler(needle) {
   throw Error('Unclosed handler: '+needle);
 }
 
-function fixture(needle,{fail=false,invalid=false,balance=0,kind='account'}={}) {
+function fixture(needle,{fail=false,invalid=false,balance=0,kind='account',date='2026-10-24'}={}) {
   const account={id:'synthetic-account',name:'Synthetic account',opening:100,date:'2026-10-01'};
   const debt={id:'synthetic-debt',name:'Synthetic debt',amount:400,payment:50,kind:'loan',date:'2026-10-01'};
   const v=kind==='debt'?debt:account;
-  const state={accounts:[account],debts:[debt],transactions:[],audit:[]};
+  const state={started:'2026-10-01',accounts:[account],debts:[debt],transactions:[],audit:[]};
   const d={accountBalance:()=>balance,debtBalance:()=>balance};
   const parse=()=>{if(invalid)throw Error('Invalid synthetic amount');return 200};
-  const o={today:()=> '2026-10-24',signedMoney:parse,money:parse};
-  const Y={opening:'2',date:'2026-10-24'};
+  const o={today:()=> '2026-10-24',validDate:dateApi.validDate,signedMoney:parse,money:parse};
+  const Y={opening:'2',date};
   let error='',busy=false,closed=0,writes=0,attempted;
   const O=value=>{error=value};
   const I=value=>{busy=value};
@@ -147,6 +154,23 @@ async function test(name,fn) {
     assert.equal(rec.checkedBalance(f.attempted,'synthetic-account','2026-10-24'),100);
     assert.equal(rec.checkedBalance(f.initial,'synthetic-debt','2026-10-24'),400);
   });
-  console.log(passed+'/11 Editor save-error regression tests passed');
-  if(passed!==11)process.exitCode=1;
+  for(const kind of ['account','debt']) {
+    await test(kind+' opening correction rejects impossible calendar date before persistence',async()=>{
+      const f=fixture(correction,{kind,date:'2026-02-30'});await f.press();
+      assert.match(f.error,/Data soldului inițial/);
+      assert.equal(f.writes,0);assert.equal(f.closed,0);assert.equal(f.busy,false);
+    });
+    await test(kind+' opening correction rejects date before ledger start',async()=>{
+      const f=fixture(correction,{kind,date:'2026-09-30'});await f.press();
+      assert.match(f.error,/perioada evidenței/);
+      assert.equal(f.writes,0);assert.equal(f.closed,0);assert.equal(f.busy,false);
+    });
+    await test(kind+' opening correction rejects future date',async()=>{
+      const f=fixture(correction,{kind,date:'2026-10-25'});await f.press();
+      assert.match(f.error,/perioada evidenței/);
+      assert.equal(f.writes,0);assert.equal(f.closed,0);assert.equal(f.busy,false);
+    });
+  }
+  console.log(passed+'/17 Editor save-error regression tests passed');
+  if(passed!==17)process.exitCode=1;
 })().catch(err=>{console.error(err);process.exitCode=1});
