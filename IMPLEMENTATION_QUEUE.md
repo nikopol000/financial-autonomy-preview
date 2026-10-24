@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.38 ACTIVE; two account editor save-error paths fixed
+
+- DONE: PR **#9**, candidate `34f1a16b`, preview merge `41f11eae`. Corrected account/debt close/reopen and opening-balance correction UI handlers so stale-tab/storage save rejection is caught and displayed in the existing accessible modal alert; modal closes only after successful save. Pending action is disabled and error/busy state is reset. Immutable bundle and HTML/build/diagnostic **18.38**. No financial formula, actual user data, stable source or iOS changes.
+- VERIFIED: candidate Actions **40052721701 SUCCESS**, main Actions **40052749802 SUCCESS**, Pages **40052749763 / 40052749590 SUCCESS**, Vercel production **dpl_BhsXudiq5rTJpawgrQXb2Rn9kW8H READY** for exact merge SHA and primary alias. Six synthetic Editor handler tests PASS in CI, existing reconciliation/AES-GCM/DEMO suites remain green; syntax and release checks PASS.
+- OPEN: Vercel SSO prevents independent interactive browser acceptance; no real two-tab/mobile proof. Issue #4 remains open, issue #2 financial semantics contract-gated.
+- NEXT FIRST: authorized browser test of stale close/correction errors, reload/retry, DEMO isolation and multiple-row reconciliation. If blocked, audit remaining unhandled save promises in WEB UI and add tests before any substantive next release. Do not touch iOS.
+
+
 ## WEB checkpoint 2026-10-24 — v18.37 ACTIVE; reconciliation peek prevents stale revision blessing
 
 - DONE: PR **#8** candidate `dae49e55`, merge `9a5dfbb5`. Fixed a real stale-write guard bypass: reconciliation preflight no longer calls `R.load()` (which refreshes writable revision while React state may remain old); it calls read-only `R.peek()` that validates the vault without updating write authorization. Immutable bundle and HTML/build/diagnostic **18.37**; DEMO remains memory-only. No financial formula, real user data, stable source or iOS changes.

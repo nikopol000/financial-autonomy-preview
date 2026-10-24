@@ -1,5 +1,12 @@
 # Financial Autonomy — Web Premium Release History
 
+## v18.38 — 2026-10-24 — account editor save failures displayed instead of unhandled rejection; CI/Pages/Vercel PASS; browser OPEN
+
+- Audited v18.37 WEB Editor: closing/reopening accounts/debts and correcting opening balances bypassed normal save error handling. A stale encrypted-vault write rejection could be unhandled and fail without an accessible modal error. Immutable v18.38 `_expo/static/js/web/index-v01838-editor-save-errors-20261024.js` catches errors in both actions, exposes the existing alert, disables while pending and only closes on confirmed persistence. No accounting formula, real data, stable source or iOS change.
+- PR **#9** candidate `34f1a16b`, Actions **40052721701 SUCCESS**; merged preview main `41f11eaec19257cd753ae59605c46b23f102e0a6`, main Actions **40052749802 SUCCESS**, Pages **40052749763 / 40052749590 SUCCESS**. Six synthetic actual-handler regressions PASS plus existing CI, syntax and release checks. Metadata/build, diagnostic JSON and filename **18.38** independently confirmed. Vercel production **dpl_BhsXudiq5rTJpawgrQXb2Rn9kW8H READY** for exact merge SHA, primary alias.
+- LIMIT: Vercel SSO protected; no interactive browser/mobile/two-tab acceptance evidence. Issue #4 remains OPEN; historical financial semantics issue #2 contract-gated. NEXT: authorized synthetic browser verification of stale-save error visibility and reload/retry, then audit other save handlers. Rollback to v18.37 would restore silent/unhandled Editor save failures.
+
+
 ## v18.37 — 2026-10-24 — reconciliation preflight does not refresh writable vault revision; CI/Pages/Vercel PASS; browser OPEN
 
 - Actual v18.36 reconciliation editor used `R.load()` to compare draft with latest encrypted state, unintentionally refreshing the tab's writable revision even when the draft was stale. A subsequent unrelated editor could save old React state over another tab's new transaction. Immutable v18.37 `_expo/static/js/web/index-v01837-reconciliation-peek-20261024.js` adds a stable authenticated **read-only `R.peek()`** and changes reconciliation preflight to use it. Existing intentional `R.load()` refresh, Web Locks, fail-closed no-lock behavior and DEMO in-memory isolation remain. No accounting formula, user data or iOS modifications.
