@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.42 unchanged; #4 vault reset/save race test coverage
+
+- DONE: [PR #27](https://github.com/nikopol000/financial-autonomy-preview/pull/27), merged `9a42b1b8`. Actual v18.42 AES-GCM module regression increased **19 → 22** tests: concurrent reset→stale save (no resurrection), concurrent save→stale reset (no deletion), and valid ciphertext changed during decrypt (load rejects, stale write blocked, explicit reload succeeds). Characterization/protection of existing behavior only, no product code/financial engine change.
+- VERIFIED: candidate [40123501567](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40123501567) and merged [40123539540](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40123539540) **SUCCESS**, both 22/22 named AES-GCM synthetic PASS; Pages [40123539550](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40123539550) and [40123539462](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40123539462) SUCCESS; Vercel `dpl_GpPjnyyLbnAQGz3hyEj4uHTzVCKj` READY exact merge SHA and primary alias. Browser two-tab/iPhone/served-header not verified.
+- SAFETY: active index, immutable bundle, diagnostic remain **18.42**; no real data, backup, formulas, backend, telemetry, source stable main or iOS touched. #4 OPEN pending actual browser; #14 DISCOVERY/NOT APPROVED; #2/#25 contract-gated. Nonurgent #17 remaining visible `Primary`/`Additional`/`Custom` strings mapped and documented; no UI change yet.
+- NEXT FIRST: authorized browser two-tab/HTTPS/Web Locks and v18.42 iPhone light/dark acceptance; otherwise synthetic import/reset guard audit. Periodically implement independently approved UI copy-only #17 with immutable release + tests, without touching #14 financial perspectives.
+
+
 ## WEB checkpoint 2026-10-24 — v18.42 immutable Romanian budget UI release (#17 partial)
 
 - DONE: [PR #26](https://github.com/nikopol000/financial-autonomy-preview/pull/26), preview main merge `0ff67cc15`; 9 user-facing budget labels/explanations translated to plain Romanian. New immutable bundle, index and diagnostic **18.42**; `tests/budget-copy-regression.cjs` ensures only 9 UI literals + diagnostic metadata differ from v18.41, so engine/storage/financial calculations are byte-identical. #17 remains OPEN for other technical copy and mobile acceptance.
