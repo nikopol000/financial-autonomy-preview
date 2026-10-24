@@ -284,6 +284,28 @@ async function test(name,fn) {
     assert.deepEqual(s.data,before);
     assert.equal(s.writes,writes);
   });
-  console.log(passed+'/15 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==15)process.exitCode=1;
+  await test('Read-only capability follows the actual Web Locks save gate without storage writes',async()=>{
+    const s=storage();vault.saveWebVault(s,sample(),random);
+    const supported=realTab(s,{locks:serialLocks()}),unsupported=realTab(s),invalid=realTab(s,{locks:{}});
+    const before=clone(s.data),writes=s.writes;
+    assert.equal(supported.canWriteReal(),true);
+    assert.equal(unsupported.canWriteReal(),false);
+    assert.equal(invalid.canWriteReal(),false);
+    await supported.load();await unsupported.load();await invalid.load();
+    assert.deepEqual(s.data,before);assert.equal(s.writes,writes);
+    const demoStorage=storage(),demo=realTab(demoStorage);
+    await demo.load();
+    assert.equal(demo.isDemo(),true);
+    assert.equal(demo.canWriteReal(),false);
+    assert.equal(demoStorage.writes,0);
+  });
+  await test('Actual WEB UI shows pre-edit read-only warning only for real mode without Web Locks',()=>{
+    assert.match(source,/e&&!R\.isDemo\(\)&&!R\.canWriteReal\(\)&&\(0,k\.jsxs\)\(d\.default/);
+    assert.match(source,/MOD DOAR CITIRE · SALVAREA BLOCATĂ/);
+    assert.match(source,/Nu începe editări aici/);
+    assert.match(source,/tranzacțiile, reconcilierea și resetarea nu se pot salva/);
+    assert.match(source,/accessibilityRole:"alert",style:\[he\.banner,\{borderWidth:2,borderColor:"#D97706"/);
+  });
+  console.log(passed+'/17 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==17)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
