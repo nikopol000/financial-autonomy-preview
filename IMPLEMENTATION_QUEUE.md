@@ -1,5 +1,12 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.39 ACTIVE; debt principal opening correction fixed
+
+- DONE: audited real v18.38 Editor and identified that debt opening correction used `v.opening` (undefined on debt records) and wrote `accounts` rather than `debts[].amount`. Released immutable v18.39 through **PR #10**, candidate `a80f8f66`, merge `7733062d`; corrected debt principal prefill/target, preserved account behavior and all existing save-error guards. No formula, real data, iOS or stable source change.
+- VERIFIED: candidate Actions **40056843745 SUCCESS** (10/10 Editor synthetic tests and full configured release/syntax/financial/demo suites). Main bundle/HTML/build/diagnostic **18.39** independently re-fetched. Follow-up `2fc822f8` adds an eleventh real bundled `checkedBalance` test; separate V8 engine execution confirms debt balance 400→200 and account 100→100. Vercel production **dpl_3QHECQewpEsEU12496TQRBH9R9Y7 READY** on test commit with primary alias.
+- OPEN: merged-main and test-only CI/Pages terminal evidence not accessible through the current commit workflow lookup; new 11th test CI result unconfirmed. Vercel SSO still blocks interactive browser/two-tab/mobile acceptance. Issue #4 remains open; issue #2 historical reconciliation semantics requires contract.
+- NEXT FIRST: obtain main Actions/Pages and 11th-test CI evidence; authorized synthetic browser verify debt correction, stale failure, demo isolation, multi-row reconciliation. If browser blocked, audit other editor mutations and date guards with real-engine synthetic tests; no cosmetic version bump and no iOS edits.
+
 ## WEB checkpoint 2026-10-24 — v18.38 ACTIVE; two account editor save-error paths fixed
 
 - DONE: PR **#9**, candidate `34f1a16b`, preview merge `41f11eae`. Corrected account/debt close/reopen and opening-balance correction UI handlers so stale-tab/storage save rejection is caught and displayed in the existing accessible modal alert; modal closes only after successful save. Pending action is disabled and error/busy state is reset. Immutable bundle and HTML/build/diagnostic **18.38**. No financial formula, actual user data, stable source or iOS changes.
