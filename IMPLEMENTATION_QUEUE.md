@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.37 ACTIVE; reconciliation peek prevents stale revision blessing
+
+- DONE: PR **#8** candidate `dae49e55`, merge `9a5dfbb5`. Fixed a real stale-write guard bypass: reconciliation preflight no longer calls `R.load()` (which refreshes writable revision while React state may remain old); it calls read-only `R.peek()` that validates the vault without updating write authorization. Immutable bundle and HTML/build/diagnostic **18.37**; DEMO remains memory-only. No financial formula, real user data, stable source or iOS changes.
+- VERIFIED: candidate Actions **40048498255 SUCCESS**, main Actions **40048528692 SUCCESS**, Pages **40048528712 / 40048527424 SUCCESS**, Vercel **dpl_9eHWh1yjfGkCnroaathXUEqTukjA READY** for exact merge SHA and primary alias. Bundled AES-GCM/cross-tab **19/19 PASS**, including stale preflight zero-write and valid reload/DEMO paths; release consistency and syntax PASS. Initial candidate Actions **40048457848 FAILED** on outdated UI test mock, fixed before promotion.
+- OPEN: Vercel protected browser/share fetch still 403; actual UI, two-tab and mobile acceptance not independently verified. Issue #4 remains open; issue #2 historical reconciliation contract not approved.
+- NEXT FIRST: synthetic browser acceptance for v18.37 and visible error/reload flow; if blocked, audit remaining save handlers for stale React snapshot paths and add independent synthetic UI tests before any next meaningful release. Do not touch iOS.
+
+
 ## WEB checkpoint 2026-10-24 — v18.36 ACTIVE; unsupported-browser read-only warning
 
 - DONE: PR **#7** candidate `479fec45`, merge `3c44eb74`; immutable v18.36 adds an accessible amber **MOD DOAR CITIRE** warning above real financial editing when Web Locks is unavailable. Platform exposes a read-only capability probe matching the existing fail-closed write policy. DEMO stays memory-only and is excluded; no accounting, user data or iOS changes.

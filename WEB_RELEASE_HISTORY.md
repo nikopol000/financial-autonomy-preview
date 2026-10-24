@@ -1,5 +1,12 @@
 # Financial Autonomy — Web Premium Release History
 
+## v18.37 — 2026-10-24 — reconciliation preflight does not refresh writable vault revision; CI/Pages/Vercel PASS; browser OPEN
+
+- Actual v18.36 reconciliation editor used `R.load()` to compare draft with latest encrypted state, unintentionally refreshing the tab's writable revision even when the draft was stale. A subsequent unrelated editor could save old React state over another tab's new transaction. Immutable v18.37 `_expo/static/js/web/index-v01837-reconciliation-peek-20261024.js` adds a stable authenticated **read-only `R.peek()`** and changes reconciliation preflight to use it. Existing intentional `R.load()` refresh, Web Locks, fail-closed no-lock behavior and DEMO in-memory isolation remain. No accounting formula, user data or iOS modifications.
+- PR **#8** candidate `dae49e55` Actions **40048498255 SUCCESS**, merged preview main **`9a5dfbb5`** Actions **40048528692 SUCCESS**; Pages **40048528712 / 40048527424 SUCCESS**. Bundled real AES-GCM/cross-tab suite **19/19 PASS**, including stale preflight refusal without writes and valid refresh/DEMO behavior. Release/syntax and diagnostic JSON/download name **18.37** verified. Vercel production **dpl_9eHWh1yjfGkCnroaathXUEqTukjA READY** on exact merge SHA and primary alias. Earlier candidate Actions **40048457848 FAILED** on old UI test mock, repaired before merge.
+- LIMIT: protected Vercel fetch/share link **403**; no independent interactive browser/header, two-tab or iPhone viewport evidence. Issue #4 remains open for browser acceptance, issue #2 for agreed reconciliation semantics. NEXT: browser acceptance with synthetic data, otherwise independent audit of remaining UI save paths. Rollback to v18.36 would reintroduce the stale-revision blessing path; prefer forward correction.
+
+
 ## v18.36 — 2026-10-24 — proactive no-Web-Locks read-only warning; CI/Pages/Vercel PASS; browser OPEN
 
 - v18.35 protected stored data from no-lock concurrent overwrites but only warned after a failed save. New immutable v18.36 `_expo/static/js/web/index-v01836-no-lock-readonly-warning-20261024.js` adds an accessible amber real-mode **MOD DOAR CITIRE** banner before editing when `navigator.locks.request` is unavailable. The existing fail-closed save/reset and stale-revision checks remain unchanged; DEMO remains memory-only and is excluded from the warning. HTML/build, diagnostic JSON and diagnostic export filename are synchronized to **18.36**. No financial formula, user data or iOS changes.
