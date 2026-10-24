@@ -267,8 +267,8 @@ function withIndependentAccount() {
   const s=threeChecks();
   s.accounts.push({id:'cash',name:'Synthetic cash',kind:'cash',date:'2026-10-01',opening:5000});
   s.balanceChecks.push(
-    {id:'b1',accountId:'cash',observed:4900,date:'2026-10-13',order:3000},
-    {id:'b2',accountId:'cash',observed:4800,date:'2026-10-16',order:3000}
+    {id:'b1',accountId:'cash',observed:4900,date:'2026-10-13',order:4000},
+    {id:'b2',accountId:'cash',observed:4800,date:'2026-10-16',order:4000}
   );
   return s;
 }
