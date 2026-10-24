@@ -1,5 +1,13 @@
 # Financial Autonomy — Implementation Queue
 
+## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 transfer SOURCE reassignment
+
+- DONE: test-only [PR #22](https://github.com/nikopol000/financial-autonomy-preview/pull/22) merged `feea4d2b`; two real bundled-model synthetic regressions verify 3 RON source ING→savings→cash→ING (moving destination appropriately), two checked observations per account, net-worth conservation including card liability, exact restoration, audit persistence and zero-mutation invalid-source/chronology refusals.
+- VERIFIED: candidate [40105523680](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40105523680) SUCCESS with both named PASS; main [40105553240](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40105553240) SUCCESS; Pages [40105553228](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40105553228) / [40105552557](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40105552557) SUCCESS; Vercel `dpl_6TpTyGRrcEfCqaWM2aVF3feGGQGD` READY exact merge SHA and primary alias. No product release: active index/bundle/diagnostic **18.41** unchanged; no formula, user data, backup, stable source or iOS edits. Interactive browser unverified.
+- BLOCKED: #2 historical linked-income audit offset/undo contract; #4 browser two-tab/DEMO/iPhone; #14 DISCOVERY budget modes not approved. #17 copy analysis remains nonurgent.
+- NEXT FIRST: inspect credit-card-origin transfer support and historical chronology; write a deterministic safety regression where existing semantics are established. If no defect, do not bump version. Periodically advance #17 analysis without changing #14 formulas.
+
+
 ## WEB checkpoint 2026-10-24 — v18.41 unchanged; #2 transfer destination and card liability
 
 - DONE: [PR #21](https://github.com/nikopol000/financial-autonomy-preview/pull/21) test-only merged `58baa121`. Synthetic checked accounts ING/cash/savings and card liability: transfer destination cash→savings→card→cash preserves owned-minus-debt net worth, account-specific check differences, unchanged observed anchors and exact reversal; three audit entries and mocked-vault reload. Invalid double/unknown/same-account destinations and pre-opening edit fail closed with zero mutation.
