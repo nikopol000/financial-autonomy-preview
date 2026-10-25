@@ -55,3 +55,15 @@ The explicit-reset journal in v18.44 protects deletion intent but does not make 
 ## Decision / next
 
 **Do not ship a v2 vault based only on this analysis.** First build a synthetic prototype of the single-record approach with a precise v1 coexistence contract and failure matrix, then review it against #4/#29 and run real-browser tests where authorized. Existing key-only footprints remain blocked, not erased. Product version remains 18.44; this document and tests are not a release.
+
+## Isolated single-record proof of concept — 2026-10-25 (PR #39)
+
+A **research-only** test harness `tests/vault-v2-first-write-prototype.cjs` now imports the active immutable WEB AES-GCM implementation (module 311) and wraps it in a hypothetical `v2` single-key localStorage envelope. The prototype is not imported by the application and has **no migration, reset, production save or UI integration**. The key material remains in same-origin localStorage beside ciphertext, as in v1; this is a write-atomicity experiment, **not** stronger encryption.
+
+The prototype's proposed first-write commit is one `setItem(v2, JSON.stringify({v:2,key,payload}))` after successful encryption and validation. Its read path fails closed if **any** legacy v1 key/payload footprint or reset marker exists, including damaged and incomplete states. Existing v2 records must authenticate and validate before overwrite; raw-record revision equality is checked before writing. This comparison is **not** a replacement for Web Locks.
+
+Synthetic cases in CI cover first-write roundtrip with the real bundled AES-GCM module; quota and SecurityError denial with zero partial records and explicit retry; denied reads; complete/key-only/payload-only v1; committed/unknown reset markers; malformed/tampered v2; stale revision; repeat-save nonce; and dual authority. The dual-authority case invokes the **actual current WEB v18.44 vault writer** after the hypothetical v2 commit. It can still create v1 key+payload because the older writer knows nothing about the new v2 key. The prototype then correctly refuses to choose an authority, but this is **a release-blocking coexistence hazard** rather than a solved old-tab problem.
+
+**Unresolved before shipping:** define how a cached v1 tab is fenced *before* a new v2 first write (or defer v2 activation until an explicit migration barrier); prove no old-tab write or silent split brain; integrate reset journal, revision fingerprints, demo eligibility, import/export, and legacy read-only path; test browser Web Locks, reload, interruption, and all failure points. LocalStorage's per-call behavior does not guarantee power-loss durability. No live v2 rollout or v1 auto-deletion is approved.
+
+Test execution status must be confirmed from the final PR/head CI and documented in the checkpoint. WEB remains **v18.44**.
