@@ -24,9 +24,8 @@ for (const [before,after] of edits) {
   expected=expected.replace(before,after);
 }
 assert.equal(actual,expected,'Unexpected non-copy difference in immutable WEB v18.46');
-const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18[.]46"/);
-assert.ok(html.includes('_expo/static/js/web/index-v01846-blocked-vault-nondestructive-copy-20261025.js?build=18.46.1'));
+// Archived v18.46 bundle remains immutable after later active releases.
+// Active index.html is checked by scripts/check_release.py and the newest release guard.
 assert.match(actual,/version:"18[.]46"/);
 assert.match(actual,/financial-autonomy-diagnostic-unic-v18[.]46[.]json/);
 console.log('PASS: v18.46 differs from immutable v18.45 only in two blocked-vault warnings and diagnostic metadata');
