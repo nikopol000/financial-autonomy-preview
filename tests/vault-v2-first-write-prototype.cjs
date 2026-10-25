@@ -402,3 +402,85 @@ test('KNOWN UNSAFE staging: direct old-v1 reset removes fence after activation',
   assert.throws(()=>recoverStaged(s),/Legacy v1 footprint/);
   // Remains a release blocker; no safe automatic reconciliation.
 });
+
+
+/*
+ * Actual active WEB platform module 309, rather than calling module 310
+ * directly. These are Node VM simulated tabs with a cooperating Web Locks
+ * scheduler, NOT interactive browser tests. The hypothetical stage/fence
+ * writes are deliberately outside the legacy platform's revision contract:
+ * old v18.44 tabs cannot inspect a storage key that did not exist in v18.44.
+ */
+function oldPlatformTab(s,locks) {
+  const g={
+    localStorage:s,location:{href:'https://example.test/?fa_real=1'},
+    history:{state:null,replaceState(){}},
+    navigator:{locks},
+    crypto:{getRandomValues:a=>crypto.webcrypto.getRandomValues(a),
+      randomUUID:()=>crypto.randomUUID()}
+  };
+  const matches=[...bundle.matchAll(new RegExp('\\},309,\\[([^\\]]*)\\]\\);','g'))];
+  assert.equal(matches.length,1,'Actual platform module 309 must be unique');
+  const match=matches[0],start=bundle.lastIndexOf('__d(function(',match.index);
+  assert.ok(start>=0,'Platform factory missing');
+  const factory=vm.runInNewContext(
+    '('+bundle.slice(start+4,match.index+1)+')',
+    {...sandbox,globalThis:g,URL,Blob});
+  const deps=match[1]?match[1].split(',').map(Number):[];
+  const mod={exports:{}};
+  factory(g,id=>id===205?model:legacyVault,()=>{},null,mod,mod.exports,deps);
+  return mod.exports;
+}
+function oldWebLocks() {
+  let tail=Promise.resolve(),requests=0;
+  return {get requests(){return requests},
+    request(name,opts,fn){
+      assert.equal(name,'financial-autonomy.preview.vault.v1');
+      assert.equal(opts.mode,'exclusive');
+      requests++;
+      const next=tail.then(fn);
+      tail=next.catch(()=>{});
+      return next;
+    }
+  };
+}
+test('KNOWN UNSAFE actual platform 309: old tab save after stage-only creates v1 dual authority despite Web Locks',async()=>{
+  const s=store(),locks=oldWebLocks(),old=oldPlatformTab(s,locks);
+  assert.deepEqual(JSON.parse(JSON.stringify(await old.load())),ledger());
+  const staged=stageFirst(s,ledger());
+  const next=ledger();next.transactions.push({id:'legacy-saved-after-stage'});
+  await old.save(next);
+  assert.ok(locks.requests>=1,'Actual old platform acquired a Web Lock');
+  assert.equal(s.getItem(STAGE),staged);
+  assert.ok(s.getItem(V1_KEY));assert.ok(s.getItem(V1_PAYLOAD));
+  const before=JSON.stringify(s.data),writes=s.writes;
+  assert.throws(()=>recoverStaged(s),/Legacy v1 footprint/);
+  assert.equal(JSON.stringify(s.data),before);assert.equal(s.writes,writes);
+});
+test('KNOWN UNSAFE actual platform 309: explicit old reset after stage-only leaves stage, then prototype recovery resurrects it',async()=>{
+  const s=store(),locks=oldWebLocks(),old=oldPlatformTab(s,locks);
+  await old.load();
+  const pending=ledger();pending.transactions.push({id:'staged-before-intentional-reset'});
+  const staged=stageFirst(s,pending);
+  await old.resetData(); // Actual platform 309 + actual journal module 310.
+  assert.ok(locks.requests>=1);
+  assert.equal(s.getItem(RESET),null,'Actual reset clears its committed marker');
+  assert.equal(s.getItem(V1_KEY),null);assert.equal(s.getItem(V1_PAYLOAD),null);
+  assert.equal(s.getItem(STAGE),staged,'Old reset does not know research stage');
+  // This is the UNSAFE candidate behavior, NOT a feature or approved recovery:
+  assert.deepEqual(recoverStaged(s),pending);
+  assert.equal(s.getItem(V2),staged);
+});
+test('Actual platform 309 stale save and reset are rejected after stage plus legacy fence',async()=>{
+  const s=store(),locks=oldWebLocks(),old=oldPlatformTab(s,locks);
+  await old.load();
+  stageFirst(s,ledger());
+  s.setItem(V1_KEY,RESEARCH_FENCE);
+  const before=JSON.stringify(s.data),writes=s.writes;
+  await assert.rejects(old.save(ledger()),/altă filă|Reîncarcă/i);
+  await assert.rejects(old.resetData(),/altă filă|Reîncarcă/i);
+  assert.equal(JSON.stringify(s.data),before);assert.equal(s.writes,writes);
+  const newlyOpened=oldPlatformTab(s,locks);
+  await assert.rejects(newlyOpened.load(),/invalid|Cheia/i);
+  assert.equal(JSON.stringify(s.data),before);assert.equal(s.writes,writes);
+});
