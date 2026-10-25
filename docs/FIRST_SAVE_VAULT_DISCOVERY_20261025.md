@@ -67,3 +67,22 @@ Synthetic cases in CI cover first-write roundtrip with the real bundled AES-GCM 
 **Unresolved before shipping:** define how a cached v1 tab is fenced *before* a new v2 first write (or defer v2 activation until an explicit migration barrier); prove no old-tab write or silent split brain; integrate reset journal, revision fingerprints, demo eligibility, import/export, and legacy read-only path; test browser Web Locks, reload, interruption, and all failure points. LocalStorage's per-call behavior does not guarantee power-loss durability. No live v2 rollout or v1 auto-deletion is approved.
 
 Test execution status must be confirmed from the final PR/head CI and documented in the checkpoint. WEB remains **v18.44**.
+
+## Cached v18.44 tab fencing — six synthetic direct-module cases (research only)
+
+The actual active v18.44 module 310 rejects a non-hex legacy key before saving. Its clearWebVault operation knows only the v1 key, v1 payload and reset marker. Platform module 309 additionally requires a Web Lock and matching revision for real mutations. The new tests invoke module 310 directly and deliberately bypass platform 309: they characterize module capabilities and counterexamples, NOT actual browser UI exploits.
+
+A hypothetical invalid-key legacy fence blocks the actual v18.44 loader/writer without writes. However, **fence first, then v2** can strand an unsaved pending ledger if interrupted between writes. **V2 first, then fence** permits the legacy writer to create dual authority in that interval. Direct legacy clearWebVault can remove the fence without knowing about v2, but the actual platform revision guard may prevent a stale UI reset; that browser scenario is unverified. A denied fence write leaves no new record.
+
+The six test cases cover: (1) v1 read/write refusal on invalid-key sentinel; (2) fence-before-v2 blocking legacy writes after commit while the existing v2 prototype still rejects the sentinel; (3) KNOWN UNSAFE crash after fence before v2 (no encrypted pending state); (4) KNOWN UNSAFE v2 before fence (split authority); (5) KNOWN UNSAFE direct v1 reset removing the fence (platform bypassed); (6) denied fence write with zero footprint. These are synthetic cases using the real v18.44 AES-GCM and vault modules. CI status must be checked separately.
+
+### Alternatives and release blockers
+
+- **Single legacy fence then v2 commit:** insufficient; the pending first ledger is not recoverable after a crash between operations.
+- **V2 commit then legacy fence:** insufficient; a cached v1 writer can produce two independent copies.
+- **Encrypted staging record, then legacy fence, then v2 activation:** investigate next. Stage a full authenticated ledger before altering v1 footprints. On crash after staging, preserve staging; if v1 appeared meanwhile, detect conflict and fail closed without choosing a copy. On crash after fencing, recover from the authenticated stage. Do not delete staging until canonical v2 authentication and the old-tab contract are proven.
+- **Compatibility-first v1 rollout:** teach the new v1 writer about a future v2 marker before enabling v2, but never assume cached v18.44 tabs have reloaded. A physical legacy-write barrier and recovery for interrupted barrier operations are still necessary.
+
+Do not reuse RESET_MARKER for migration: the existing committed-v1 value instructs the legacy reset journal to delete the vault. Do not silently erase key-only/payload-only footprints or call the hypothetical fence a safe fix.
+
+Before shipping: test every read/write/remove failure, stale and concurrent tabs through actual platform Web Locks/revisions, direct legacy reset risk, demo eligibility, import/export/backup, and real-browser reload. A passing KNOWN UNSAFE test confirms a risk, not a protection. WEB stays v18.44; no formula, budget perspective #14, real data, backup format or iOS changes.

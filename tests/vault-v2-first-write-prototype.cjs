@@ -179,3 +179,66 @@ test('KNOWN BLOCKER: actual WEB v18.44 v1 writer creates dual authority after v2
   assert.equal(JSON.stringify(s.data),before);assert.equal(s.writes,writes);
   // Until old-tab fencing/migration is specified, DO NOT ship this prototype.
 });
+
+
+/*
+ * Cached-v1-tab fencing research, not a production migration implementation.
+ * This intentionally calls the ACTUAL v18.44 module 310. The platform's
+ * Web Locks and revision checks are NOT simulated here; direct module calls
+ * demonstrate why a storage fence alone cannot be treated as a complete
+ * protocol. Do not copy the marker or these steps into a shipped bundle.
+ */
+const RESEARCH_FENCE='FA_V2_RESEARCH_FENCE_NOT_A_REAL_KEY';
+test('RESEARCH: malformed legacy-key sentinel makes actual v18.44 v1 load and save fail closed',()=>{
+  const s=store({[V1_KEY]:RESEARCH_FENCE}),before=JSON.stringify(s.data);
+  assert.throws(()=>legacyVault.loadWebVault(s),/invalid|Cheia/i);
+  assert.throws(()=>legacyVault.saveWebVault(s,ledger(),rand),/invalid|Cheia/i);
+  assert.equal(s.writes,0);assert.equal(JSON.stringify(s.data),before);
+});
+test('RESEARCH: fence before v2 commit blocks direct legacy v1 writer after commit',()=>{
+  const s=store(),state=ledger();
+  s.setItem(V1_KEY,RESEARCH_FENCE);
+  const key=rand(32);
+  s.setItem(V2,JSON.stringify({v:2,key:Buffer.from(key).toString('hex'),
+    payload:aes.seal(JSON.stringify(state),key,rand)}));
+  const before=JSON.stringify(s.data),writes=s.writes;
+  assert.throws(()=>legacyVault.saveWebVault(s,ledger(),rand),/invalid|Cheia/i);
+  assert.equal(JSON.stringify(s.data),before);assert.equal(s.writes,writes);
+  // Existing v2 prototype refuses even a deliberate fence; it is NOT ready.
+  assert.throws(()=>readV2(s),/Legacy v1 footprint/);
+});
+test('KNOWN UNSAFE: crash after fence but before v2 commit strands an unsaved first ledger',()=>{
+  const s=store(),pending=ledger();pending.transactions.push({id:'not-yet-committed'});
+  // Simulate interruption at the only point after the first storage write.
+  s.setItem(V1_KEY,RESEARCH_FENCE);
+  assert.equal(s.getItem(V2),null);
+  assert.equal(s.getItem(V1_PAYLOAD),null);
+  assert.throws(()=>legacyVault.saveWebVault(s,pending,rand),/invalid|Cheia/i);
+  assert.throws(()=>readV2(s),/Legacy v1 footprint/);
+  assert.ok(!JSON.stringify(s.data).includes('not-yet-committed'));
+  // There is no encrypted copy of pending data; silent retry with an empty
+  // state would falsely imply that the first write had been committed.
+});
+test('KNOWN UNSAFE: v2-first commit without fence permits legacy writer split brain',()=>{
+  const s=store();writeV2(s,ledger());
+  legacyVault.saveWebVault(s,ledger(),rand);
+  assert.ok(s.getItem(V2));assert.ok(s.getItem(V1_KEY));assert.ok(s.getItem(V1_PAYLOAD));
+  assert.throws(()=>readV2(s),/Legacy v1 footprint/);
+});
+test('KNOWN UNSAFE direct-module reset can remove a proposed fence while leaving v2',()=>{
+  const s=store();writeV2(s,ledger());s.setItem(V1_KEY,RESEARCH_FENCE);
+  // Direct legacy module call bypasses real platform Web Locks/revision gate.
+  // It is a capability/failure-model test, NOT a reproduced old-tab UI reset.
+  legacyVault.clearWebVault(s);
+  assert.equal(s.getItem(V1_KEY),null);assert.equal(s.getItem(V1_PAYLOAD),null);
+  assert.ok(s.getItem(V2),'legacy clear knows nothing about the v2 record');
+  legacyVault.saveWebVault(s,ledger(),rand);
+  assert.ok(s.getItem(V1_KEY));assert.ok(s.getItem(V1_PAYLOAD));
+  assert.throws(()=>readV2(s),/Legacy v1 footprint/);
+});
+test('RESEARCH: failed fence write leaves no new record and v2 must not start',()=>{
+  const s=store({}, {denyWrite:k=>k===V1_KEY});
+  assert.throws(()=>s.setItem(V1_KEY,RESEARCH_FENCE),/QuotaExceededError/);
+  assert.equal(s.getItem(V1_KEY),null);assert.equal(s.getItem(V2),null);
+  assert.equal(s.writes,0);
+});
