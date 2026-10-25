@@ -6,6 +6,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
+const crypto = require('node:crypto');
 const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -15,6 +16,37 @@ const RESET = 'financial-autonomy.preview.reset.v1';
 const PASSWORD = 'SyntheticBrowserBackup!2026';
 const prefix = '/financial-autonomy-preview/';
 const mime = {'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.svg':'image/svg+xml','.woff2':'font/woff2','.ico':'image/x-icon'};
+
+// One deliberately populated, synthetic v4 ledger. The independent Node AES-GCM
+// writer is consumed by the ACTUAL browser vault reader, testing interoperability.
+// These names and amounts are fixtures, never user data.
+function syntheticLedger() {
+  const date = new Date().toISOString().slice(0,10);
+  return {
+    version:4,names:[],nameChanges:[],rolesEffectiveFrom:date,
+    balanceChecks:[],checkAudit:[],currency:'RON',started:date,
+    accounts:[{id:'synthetic-checking-browser',name:'Cont sintetic browser',kind:'current',opening:123456,date}],
+    incomes:[],expenses:[],debts:[],recurring:[],
+    transactions:[{id:'synthetic-expense-browser',name:'Cheltuială sintetică browser',
+      kind:'expense',accountId:'synthetic-checking-browser',amount:1250,date,details:[]}],
+    monthPlans:[{month:date.slice(0,7),budgets:[],expenses:[],debtPayments:[],contribution:0}],
+    goals:[],plans:[],reviews:{},audit:[]
+  };
+}
+function encryptSyntheticLedger(state) {
+  const key=crypto.randomBytes(32),nonce=crypto.randomBytes(12);
+  const cipher=crypto.createCipheriv('aes-256-gcm',key,nonce);
+  const data=Buffer.concat([cipher.update(JSON.stringify(state),'utf8'),cipher.final(),cipher.getAuthTag()]);
+  return {key:key.toString('hex'),payload:JSON.stringify({v:1,nonce:nonce.toString('hex'),data:data.toString('hex')}),reset:null};
+}
+function decryptBrowserVault(bytes) {
+  const envelope=JSON.parse(bytes.payload);
+  assert.equal(envelope.v,1);
+  const raw=Buffer.from(envelope.data,'hex');
+  const decipher=crypto.createDecipheriv('aes-256-gcm',Buffer.from(bytes.key,'hex'),Buffer.from(envelope.nonce,'hex'));
+  decipher.setAuthTag(raw.subarray(-16));
+  return JSON.parse(Buffer.concat([decipher.update(raw.subarray(0,-16)),decipher.final()]).toString('utf8'));
+}
 
 function serve(req,res) {
   const pathname = new URL(req.url, 'http://localhost').pathname;
@@ -135,6 +167,61 @@ async function run() {
     assert.deepEqual(await vaultBytes(source),{key:null,payload:null,reset:null},'Exporting profile must stay isolated');
     assert.deepEqual(await vaultBytes(orphan),beforeOrphan,'Blocked profile must stay byte-identical');
     console.log('PASS Chromium mobile: wrong password no-write, validated file picker, explicit restore, reload, isolated profiles');
+    // Populate an independent, disposable browser origin with one account and
+    // one expense, then let the actual application load/decrypt/validate it.
+    // Unlike addInitScript, this seed is written ONCE and cannot mask reload bugs.
+    const populatedContext=await browser.newContext({acceptDownloads:true,viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'dark'});
+    const populated=await populatedContext.newPage();activePage=populated;
+    await openReal(populated,url);
+    const fixture=syntheticLedger(),seed=encryptSyntheticLedger(fixture);
+    await populated.evaluate(([key,payload,seed])=>{
+      localStorage.setItem(key,seed.key);
+      localStorage.setItem(payload,seed.payload);
+    },[KEY,PAYLOAD,seed]);
+    await openReal(populated,url);
+    await populated.getByText(/^autonomie$/i).first().waitFor({state:'visible',timeout:20000});
+    assert.deepEqual(await vaultBytes(populated),seed,'Loading the populated fixture must not rewrite its ciphertext');
+    await toolsScreen(populated);
+    const populatedPasswords=populated.locator('input[type="password"]');
+    assert.ok(await populatedPasswords.count()>=2);
+    await populatedPasswords.nth(0).fill(PASSWORD);
+    await populatedPasswords.nth(1).fill(PASSWORD);
+    const [populatedDownload]=await Promise.all([
+      populated.waitForEvent('download',{timeout:60000}),
+      populated.getByText('Exportă backup criptat',{exact:true}).click()
+    ]);
+    const populatedBackup=await fs.promises.readFile(await populatedDownload.path());
+    assert.ok(!populatedBackup.toString('utf8').includes('Cont sintetic browser'),'Account name must not leak in password backup');
+    assert.ok(!populatedBackup.toString('utf8').includes('Cheltuială sintetică browser'),'Expense name must not leak in password backup');
+    assert.deepEqual(await vaultBytes(populated),seed,'Export must not rewrite populated source vault');
+    console.log('PASS Chromium dark mobile: real bundle loads one synthetic account and expense; password export leaves ciphertext intact');
+
+    const populatedTargetContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'light'});
+    const populatedTarget=await populatedTargetContext.newPage();activePage=populatedTarget;
+    await openReal(populatedTarget,url);
+    await toolsScreen(populatedTarget);
+    const targetPassword=populatedTarget.locator('input[type="password"]').first();
+    await targetPassword.fill(PASSWORD);
+    await filePicker(populatedTarget,populatedBackup);
+    await populatedTarget.getByText(/Backup valid: 1 conturi și 1 operațiuni/).waitFor({state:'visible',timeout:60000});
+    assert.deepEqual(await vaultBytes(populatedTarget),{key:null,payload:null,reset:null},'Validating populated backup must not write');
+    await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).click();
+    await populatedTarget.getByText('Backup restaurat.',{exact:true}).waitFor({state:'visible',timeout:20000});
+    const populatedRestored=await vaultBytes(populatedTarget);
+    const decrypted=decryptBrowserVault(populatedRestored);
+    assert.equal(decrypted.accounts.length,1);
+    assert.equal(decrypted.transactions.length,1);
+    assert.equal(decrypted.accounts[0].id,fixture.accounts[0].id);
+    assert.equal(decrypted.accounts[0].opening,123456);
+    assert.equal(decrypted.transactions[0].id,fixture.transactions[0].id);
+    assert.equal(decrypted.transactions[0].amount,1250);
+    assert.equal(decrypted.transactions[0].accountId,fixture.accounts[0].id);
+    await openReal(populatedTarget,url);
+    await populatedTarget.getByText(/^autonomie$/i).first().waitFor({state:'visible',timeout:20000});
+    assert.deepEqual(await vaultBytes(populatedTarget),populatedRestored,'Populated restored vault must persist byte-identically across reload');
+    assert.deepEqual(await vaultBytes(populated),seed,'Populated source must remain byte-identical after target restore');
+    assert.deepEqual(await vaultBytes(orphan),beforeOrphan,'Orphan profile must remain byte-identical after populated restore');
+    console.log('PASS Chromium light mobile: real UI validates 1 account/1 expense, restores encrypted ledger, reloads and isolates profiles');
   } catch(error) {
     if(activePage) {
       try {
