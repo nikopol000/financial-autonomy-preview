@@ -468,6 +468,67 @@ async function run() {
     assert.deepEqual(await vaultBytes(readPage),readSeed,'Read permission recovery must not rewrite data');
     console.log('PASS Chromium storage read denied: load/save fail closed; restored permission reads original ledger without writes');
 
+
+    // Reset-marker READ denial is distinct from a payload read fault. A denied
+    // marker read must not be interpreted as an absent marker, nor permit a
+    // save/reset to proceed. No real user profile is involved.
+    await readPage.evaluate(reset=>{
+      const original=Storage.prototype.getItem;
+      Storage.prototype.getItem=function(name){
+        if(name===reset)throw new DOMException('Synthetic reset journal read denied','SecurityError');
+        return original.call(this,name);
+      };
+      window.__restoreResetRead=()=>{Storage.prototype.getItem=original};
+    },RESET);
+    const resetReadDenied=await readPage.evaluate(async state=>{
+      const result={};
+      for(const [name,action] of [
+        ['load',()=>window.__r(309).load()],
+        ['save',()=>window.__r(309).save(state)],
+        ['reset',()=>window.__r(309).resetData()]
+      ]){
+        try{await action();result[name]='UNEXPECTED_SUCCESS'}
+        catch(error){result[name]=String(error.message)}
+      }
+      return result;
+    },readState);
+    assert.match(resetReadDenied.load,/Synthetic reset journal read denied/);
+    assert.match(resetReadDenied.save,/Synthetic reset journal read denied/);
+    assert.match(resetReadDenied.reset,/Synthetic reset journal read denied/);
+    await readPage.evaluate(()=>window.__restoreResetRead());
+    assert.deepEqual(await vaultBytes(readPage),readSeed,'Denied journal reads must not write/delete encrypted bytes');
+    assert.equal((await readPage.evaluate(async()=>window.__r(309).load())).transactions.length,1);
+    assert.deepEqual(await vaultBytes(readPage),readSeed,'Permission recovery must not rewrite the vault');
+    console.log('PASS Chromium reset journal read denied: load/save/reset fail closed; permission recovery preserves ciphertext');
+
+    // A future-version, corrupt or otherwise unknown reset marker is NOT an
+    // instruction to erase the vault. The current version must preserve it
+    // byte-for-byte and refuse load/save/reset until a compatible reader exists.
+    await readPage.evaluate(reset=>localStorage.setItem(reset,'future-or-corrupt-marker-v9'),RESET);
+    const unknownBefore=await vaultBytes(readPage);
+    assert.equal(unknownBefore.reset,'future-or-corrupt-marker-v9');
+    const unknownMarker=await readPage.evaluate(async state=>{
+      const result={};
+      for(const [name,action] of [
+        ['load',()=>window.__r(309).load()],
+        ['save',()=>window.__r(309).save(state)],
+        ['reset',()=>window.__r(309).resetData()]
+      ]){
+        try{await action();result[name]='UNEXPECTED_SUCCESS'}
+        catch(error){result[name]=String(error.message)}
+      }
+      return result;
+    },readState);
+    assert.match(unknownMarker.load,/Marcaj de resetare necunoscut/);
+    assert.match(unknownMarker.save,/Resetarea locală este în curs/);
+    assert.match(unknownMarker.reset,/Resetarea locală este în curs/);
+    assert.deepEqual(await vaultBytes(readPage),unknownBefore,'Unknown journal must never delete or rewrite the vault');
+    await openReal(readPage,url);
+    await readPage.getByText('Datele locale nu pot fi deschise',{exact:true}).waitFor({state:'visible'});
+    assert.deepEqual(await vaultBytes(readPage),unknownBefore,'Unknown journal must remain intact after a real reload');
+    assert.deepEqual(await vaultBytes(populated),seed,'Unknown journal must not affect another browser profile');
+    console.log('PASS Chromium unknown reset journal: load/save/reset refuse, reload retains marker and encrypted ledger');
+
     // The known first-save flaw is a characterization, NOT a repair: if the
     // first payload write fails, the key remains and reload must refuse to
     // create a new ledger. Never auto-delete the ambiguous orphan key.
