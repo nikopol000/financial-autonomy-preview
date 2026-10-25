@@ -65,6 +65,10 @@ async function audit(browser,url,width,scheme){
     await page.getByText(/Alimente DEMO · TEST/).first().waitFor({state:'visible',timeout:10000});
     await page.getByRole('button',{name:'După fereastră'}).click();
     await page.getByRole('button',{name:'După buget'}).click();
+    assert.equal(await page.getByText(/Primary/).count(),0,
+      'Populated budget page must not expose English Primary terminology');
+    assert.ok(await page.getByText(/Lunar · principală/).count()>=1,
+      'Primary monthly window must be clearly labeled in Romanian');
     const normal=await page.evaluate(()=>{
       const root=document.documentElement;
       return {viewport:innerWidth,documentScrollWidth:root.scrollWidth,
