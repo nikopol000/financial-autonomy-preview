@@ -1,5 +1,5 @@
 'use strict';
-// WEB v18.46 blocked-vault visual/accessibility audit against the ACTUAL app.
+// WEB v18.47 blocked-vault visual/accessibility audit against the ACTUAL app.
 // Research/test only. Synthetic storage, disposable localhost contexts, no writes
 // to any real user profile, no financial data, no product UX activation.
 const assert = require('node:assert/strict');
