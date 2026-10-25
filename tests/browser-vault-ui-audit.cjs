@@ -32,16 +32,40 @@ function serve(req,res) {
   });
 }
 async function snapshot(page) {
-  return page.evaluate(keys=>keys.map(k=>localStorage.getItem(k)),[KEY,PAYLOAD,RESET]);
+  return page.evaluate(keys=>keys.map(k=>window.__vaultAuditRawGet?window.__vaultAuditRawGet(k):localStorage.getItem(k)),[KEY,PAYLOAD,RESET]);
 }
-async function audit(browser,url,{width,scheme,unknownReset=false}) {
+async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=false}) {
   const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:2,
     isMobile:true,hasTouch:true,colorScheme:scheme,reducedMotion:'reduce'});
   // The only seeded bytes are deliberately invalid synthetic placeholders.
-  await context.addInitScript(({key,reset,unknownReset})=>{
+  await context.addInitScript(({key,payload,reset,unknownReset,deniedRead})=>{
     localStorage.setItem(key,'a'.repeat(64));
     if(unknownReset)localStorage.setItem(reset,'synthetic-unknown-reset-v99');
-  },{key:KEY,reset:RESET,unknownReset});
+    if(deniedRead){
+      const rawGet=Storage.prototype.getItem;
+      const rawSet=Storage.prototype.setItem;
+      const rawRemove=Storage.prototype.removeItem;
+      window.__vaultAuditRawGet=k=>rawGet.call(localStorage,k);
+      window.__vaultAuditWriteCalls=[];
+      // Inject a real SecurityError at the reset-journal read boundary.
+      // Do not alter stored bytes or interfere with non-vault preferences.
+      Storage.prototype.getItem=function(k){
+        if(this===localStorage&&k===reset)
+          throw new DOMException('Synthetic reset read denied','SecurityError');
+        return rawGet.call(this,k);
+      };
+      Storage.prototype.setItem=function(k,v){
+        if(this===localStorage&&[key,payload,reset].includes(String(k)))
+          window.__vaultAuditWriteCalls.push(['set',String(k)]);
+        return rawSet.call(this,k,v);
+      };
+      Storage.prototype.removeItem=function(k){
+        if(this===localStorage&&[key,payload,reset].includes(String(k)))
+          window.__vaultAuditWriteCalls.push(['remove',String(k)]);
+        return rawRemove.call(this,k);
+      };
+    }
+  },{key:KEY,payload:PAYLOAD,reset:RESET,unknownReset,deniedRead});
   const page=await context.newPage();
   try {
     await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
@@ -81,12 +105,16 @@ async function audit(browser,url,{width,scheme,unknownReset=false}) {
       outline:getComputedStyle(el).outlineStyle,outlineWidth:getComputedStyle(el).outlineWidth}));
     // React Native Web may delegate focus to a child; report without falsely
     // claiming keyboard/screen-reader certification.
-    const label=(unknownReset?'unknown-reset-':'key-only-')+width+'-'+scheme;
+    const label=(deniedRead?'denied-reset-read-':unknownReset?'unknown-reset-':'key-only-')+width+'-'+scheme;
     await page.screenshot({path:path.join(OUT,label+'.png'),fullPage:true});
     await retry.click();
     await title.waitFor({state:'visible',timeout:10000});
     assert.deepEqual(await snapshot(page),before,'Retry must preserve all original bytes');
-    const result={case:label,viewport:width,theme:scheme,unknownReset,
+    const vaultWrites=await page.evaluate(()=>window.__vaultAuditWriteCalls||[]);
+    if(deniedRead)assert.deepEqual(vaultWrites,[],
+      'Denied reset-marker reads must never cause vault writes or deletions');
+    const result={case:label,viewport:width,theme:scheme,unknownReset,deniedRead,
+      vaultWriteCalls:vaultWrites.length,
       retryTarget:{width:box.width,height:box.height},visual,focus,
       retryPreservedBytes:true,destructiveControls:0};
     console.log('PASS blocked WEB mobile UI '+label+'; target '+Math.round(box.width)+'x'+Math.round(box.height));
@@ -105,9 +133,10 @@ async function main() {
     for(const width of [320,390])for(const scheme of ['light','dark'])
       results.push(await audit(browser,url,{width,scheme}));
     results.push(await audit(browser,url,{width:390,scheme:'dark',unknownReset:true}));
+    results.push(await audit(browser,url,{width:390,scheme:'light',deniedRead:true}));
     fs.writeFileSync(path.join(OUT,'audit.json'),JSON.stringify({
       product:'WEB 18.45',origin:'localhost synthetic-only',results},null,2));
-    console.log('PASS 5/5 actual Chromium blocked-vault UI states; screenshots + audit.json saved');
+    console.log('PASS 6/6 actual Chromium blocked-vault UI states; screenshots + audit.json saved');
   } finally {
     if(browser)await browser.close();
     await new Promise(resolve=>server.close(resolve));
