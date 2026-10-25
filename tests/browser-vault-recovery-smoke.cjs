@@ -89,7 +89,7 @@ async function run() {
     const sourceContext=await browser.newContext({acceptDownloads:true,viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'light'});
     const source=await sourceContext.newPage();activePage=source;
     await openReal(source,url);
-    await source.getByText('Autonomie',{exact:true}).first().waitFor({state:'visible',timeout:20000});
+    await source.getByText(/^autonomie$/i).first().waitFor({state:'visible',timeout:20000});
     assert.deepEqual(await vaultBytes(source),{key:null,payload:null,reset:null});
     await toolsScreen(source);
     const passwords=source.locator('input[type="password"]');
@@ -112,7 +112,7 @@ async function run() {
     const targetContext=await browser.newContext({acceptDownloads:true,viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'light'});
     const target=await targetContext.newPage();activePage=target;
     await openReal(target,url);
-    await target.getByText('Autonomie',{exact:true}).first().waitFor({state:'visible',timeout:20000});
+    await target.getByText(/^autonomie$/i).first().waitFor({state:'visible',timeout:20000});
     await toolsScreen(target);
     const restorePassword=target.locator('input[type="password"]').first();
     await restorePassword.fill('IncorrectBrowserPassword!');
@@ -130,7 +130,7 @@ async function run() {
     assert.ok(restored.payload && restored.payload.length>50);
     assert.equal(restored.reset,null);
     await openReal(target,url);
-    await target.getByText('Autonomie',{exact:true}).first().waitFor({state:'visible',timeout:20000});
+    await target.getByText(/^autonomie$/i).first().waitFor({state:'visible',timeout:20000});
     assert.deepEqual(await vaultBytes(target),restored,'Restored ciphertext must survive reload without rewrite');
     assert.deepEqual(await vaultBytes(source),{key:null,payload:null,reset:null},'Exporting profile must stay isolated');
     assert.deepEqual(await vaultBytes(orphan),beforeOrphan,'Blocked profile must stay byte-identical');
