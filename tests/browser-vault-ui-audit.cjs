@@ -73,6 +73,13 @@ async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=fal
     await title.waitFor({state:'visible',timeout:30000});
     const guidance=page.getByText(/Nu șterge datele site-ului și nu reseta aplicația/);
     await guidance.waitFor({state:'visible',timeout:10000});
+    if(!unknownReset&&!deniedRead){
+      const banner=page.getByText(/Cheia locală există, dar datele criptate lipsesc/).first();
+      await banner.waitFor({state:'visible',timeout:10000});
+      assert.match(await banner.innerText(),/Nu vom șterge cheia și nu vom crea automat date noi/);
+      assert.equal(await page.getByText(/folosește resetarea explicită|până la resetarea explicită/i).count(),0,
+        'Blocked-vault warning must never suggest reset as recovery');
+    }
     const retry=page.getByRole('button',{name:'Reîncearcă deschiderea'});
     await retry.waitFor({state:'visible',timeout:10000});
     const before=await snapshot(page);

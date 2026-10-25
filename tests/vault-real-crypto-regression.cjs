@@ -613,7 +613,7 @@ async function test(name,fn) {
     assert.throws(()=>vault.saveWebVault(failing,sample(),random),/nu a putut salva/);
     assert.match(backing.getItem(KEY),/^[0-9a-f]{64}$/);
     assert.equal(backing.getItem(PAYLOAD),null);
-    assert.throws(()=>vault.loadWebVault(backing),/Cheia locală există fără datele criptate/);
+    assert.throws(()=>vault.loadWebVault(backing),/Cheia locală există, dar datele criptate lipsesc/);
     const before=clone(backing.data),writes=backing.writes;
     assert.throws(()=>vault.saveWebVault(backing,sample(),random),/Salvarea este blocată/);
     assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
@@ -665,7 +665,7 @@ async function test(name,fn) {
     await assert.rejects(b.save(bState),/altă filă|Reîncarcă/i);
     assert.deepEqual(backing.data,before);
     assert.equal(backing.writes,writes);
-    await assert.rejects(realTab(backing,{locks}).load(),/Cheia locală există fără datele criptate/);
+    await assert.rejects(realTab(backing,{locks}).load(),/Cheia locală există, dar datele criptate lipsesc/);
   });
 
   await test('Blocked vault landing retains visible non-destructive guidance and retry',()=>{
@@ -685,7 +685,7 @@ async function test(name,fn) {
     const missingCiphertext=storage({[KEY]:orphanKey}); // indistinguishable from externally lost payload
     for(const store of [first,missingCiphertext]){
       const before=clone(store.data),writes=store.writes;
-      assert.throws(()=>vault.loadWebVault(store),/Cheia locală există fără datele criptate/);
+      assert.throws(()=>vault.loadWebVault(store),/Cheia locală există, dar datele criptate lipsesc/);
       assert.throws(()=>vault.saveWebVault(store,sample(),random),/Salvarea este blocată/);
       assert.deepEqual(store.data,before);assert.equal(store.writes,writes);
     }
@@ -694,7 +694,7 @@ async function test(name,fn) {
   await test('A separate clean synthetic storage can accept validated state without touching blocked KEY-only storage',async()=>{
     const orphan=storage({[KEY]:Buffer.from(random(32)).toString('hex')});
     const orphanBefore=clone(orphan.data),orphanWrites=orphan.writes;
-    assert.throws(()=>vault.loadWebVault(orphan),/Cheia locală există fără datele criptate/);
+    assert.throws(()=>vault.loadWebVault(orphan),/Cheia locală există, dar datele criptate lipsesc/);
     // This represents a state already decrypted and validated from a separately
     // held backup; it does NOT exercise password decryption or browser-profile UI.
     const independentlyValidated=clone(sample());
@@ -706,12 +706,12 @@ async function test(name,fn) {
     assert.deepEqual(clone(await realTab(clean,{locks}).load()),independentlyValidated);
     assert.deepEqual(orphan.data,orphanBefore);
     assert.equal(orphan.writes,orphanWrites);
-    assert.throws(()=>vault.loadWebVault(orphan),/Cheia locală există fără datele criptate/);
+    assert.throws(()=>vault.loadWebVault(orphan),/Cheia locală există, dar datele criptate lipsesc/);
   });
   await test('Real password-encrypted backup restores into independent clean storage; blocked original remains byte-identical',async()=>{
     const original=storage({[KEY]:Buffer.from(random(32)).toString('hex')});
     const originalBefore=clone(original.data),originalWrites=original.writes;
-    assert.throws(()=>vault.loadWebVault(original),/Cheia locală există fără datele criptate/);
+    assert.throws(()=>vault.loadWebVault(original),/Cheia locală există, dar datele criptate lipsesc/);
     const password='Synthetic-Backup-2026!';
     const synthetic=sample();
     const backupText=await crypt.backup(synthetic,password,random);
@@ -734,7 +734,7 @@ async function test(name,fn) {
     assert.deepEqual(clone(await realTab(clean,{locks}).load()),synthetic);
     assert.deepEqual(original.data,originalBefore);
     assert.equal(original.writes,originalWrites);
-    assert.throws(()=>vault.loadWebVault(original),/Cheia locală există fără datele criptate/);
+    assert.throws(()=>vault.loadWebVault(original),/Cheia locală există, dar datele criptate lipsesc/);
   });
   console.log(passed+'/43 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
   if(passed!==43)process.exitCode=1;

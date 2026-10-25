@@ -28,9 +28,7 @@ for(const [before,after] of edits){
   expected=expected.replace(before,after);
 }
 assert.equal(actual,expected,'Unexpected engine, vault, backup or UI change outside blocked-state copy');
-const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18[.]45"/);
-assert.ok(html.includes('_expo/static/js/web/index-v01845-blocked-vault-guidance-20261025.js?build=18.45.1'));
+// Historical immutable v18.45 regression: do not require v18.45 to remain active.
 assert.match(actual,/version:"18[.]45"/);
 assert.match(actual,/financial-autonomy-diagnostic-unic-v18[.]45[.]json/);
 console.log('PASS: v18.45 differs from immutable v18.44 only in blocked-state UI and diagnostic metadata');
