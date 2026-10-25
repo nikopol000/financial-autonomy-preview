@@ -1,3 +1,11 @@
+## CURRENT WEB checkpoint — 2026-10-25 — Chromium audit artifact provenance regression (test only)
+
+- START real main HEAD `caa77093b54cd0245f62aedd0fd3057ea8ea8b84`; mandatory WEB files and eight open issues read in prior same execution. PR #75 merged research-only #14 contract, candidate release CI 40228812730 SUCCESS; no financial approval.
+- Found test evidence defect: `tests/browser-vault-ui-audit.cjs` still wrote `product: 'WEB 18.46'` to `audit.json` even though `index.html` now points to immutable WEB 18.47. Previous 6/6 browser PASS is real, but **artifact version label was stale**; do not cite that label as proof of which bundle was exercised.
+- Test-only fix: derive product version and bundle reference from active `index.html`; assert HTML version format, bundle filename version token, build cache key and referenced file existence before browser launch; include exact bundle in artifact. This prevents future stale evidence labels. No application/index/diagnostic change, no release bump, no vault/financial code, real data, backup, iOS or stable source edits. PR CI and merge must be verified before claiming integrated.
+- Production gate remains BLOCKED: latest Vercel production READY `a885afdd...` WEB 18.45; exact WEB 18.47 product `e830d0f3...` still Vercel failure `build-rate-limit`. #35 remains P1 OPEN, #17 mobile populated budgets unverified, #14 discovery only.
+- NEXT FIRST: verify this test PR Chromium CI and merge, then check Vercel exact 18.47 deployment again and continue P1 #35 fault/old-tab compatibility. Do not claim live 18.47 without exact SHA/alias/served browser evidence.
+
 ## CURRENT WEB checkpoint — 2026-10-25 — financial DISCOVERY #14 and exact production gate (no product change)
 
 - **START:** verified real GitHub main HEAD `0432ef342a91b8a2212d26de5e8e24d982bd2781`, reviewed AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, `docs/WEB_VISUAL_REVIEW.md` (not root), current index/immutable WEB 18.47 JS, all eight open issues including #14/#17/#35. This batch touches WEB research/continuity only, never iOS.
