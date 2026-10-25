@@ -690,6 +690,23 @@ async function test(name,fn) {
     }
     assert.deepEqual(first.data,missingCiphertext.data);
   });
-  console.log(passed+'/41 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==41)process.exitCode=1;
+  await test('A separate clean synthetic storage can accept validated state without touching blocked KEY-only storage',async()=>{
+    const orphan=storage({[KEY]:Buffer.from(random(32)).toString('hex')});
+    const orphanBefore=clone(orphan.data),orphanWrites=orphan.writes;
+    assert.throws(()=>vault.loadWebVault(orphan),/Cheia locală există fără datele criptate/);
+    // This represents a state already decrypted and validated from a separately
+    // held backup; it does NOT exercise password decryption or browser-profile UI.
+    const independentlyValidated=clone(sample());
+    model.validateState(independentlyValidated);
+    const clean=storage(),locks=serialLocks();
+    const app=realTab(clean,{locks});
+    assert.deepEqual(clone(await app.load()),empty());
+    await app.save(independentlyValidated);
+    assert.deepEqual(clone(await realTab(clean,{locks}).load()),independentlyValidated);
+    assert.deepEqual(orphan.data,orphanBefore);
+    assert.equal(orphan.writes,orphanWrites);
+    assert.throws(()=>vault.loadWebVault(orphan),/Cheia locală există fără datele criptate/);
+  });
+  console.log(passed+'/42 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==42)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
