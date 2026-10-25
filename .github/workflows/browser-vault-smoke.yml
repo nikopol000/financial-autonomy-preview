@@ -6,6 +6,7 @@ on:
       - '_expo/static/js/web/**'
       - 'tests/browser-vault-recovery-smoke.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
+      - 'tests/browser-populated-budget-audit.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
     branches: [main]
@@ -34,6 +35,16 @@ jobs:
         run: node tests/browser-vault-recovery-smoke.cjs
       - name: Audit actual blocked WEB mobile UI in light/dark (synthetic-only)
         run: node tests/browser-vault-ui-audit.cjs
+      - name: Audit populated demo budgets at 320/390px light/dark and CSS zoom stress
+        run: node tests/browser-populated-budget-audit.cjs
+      - name: Retain synthetic-only populated budget screenshots and geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-populated-budget-audit
+          path: artifacts/browser-populated-budget/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Retain synthetic-only mobile UI screenshots and geometry
         if: always()
         uses: actions/upload-artifact@v4
