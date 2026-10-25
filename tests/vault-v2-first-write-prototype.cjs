@@ -419,7 +419,7 @@ function oldPlatformTab(s,locks) {
     crypto:{getRandomValues:a=>crypto.webcrypto.getRandomValues(a),
       randomUUID:()=>crypto.randomUUID()}
   };
-  const matches=[...bundle.matchAll(/\\},309,\\[([^\\]]*)\\]\\);/g)];
+  const matches=[...bundle.matchAll(new RegExp('\\},309,\\[([^\\]]*)\\]\\);','g'))];
   assert.equal(matches.length,1,'Actual platform module 309 must be unique');
   const match=matches[0],start=bundle.lastIndexOf('__d(function(',match.index);
   assert.ok(start>=0,'Platform factory missing');
