@@ -666,6 +666,30 @@ async function test(name,fn) {
     assert.equal(backing.writes,writes);
     await assert.rejects(realTab(backing,{locks}).load(),/Cheia locală există fără datele criptate/);
   });
-  console.log(passed+'/39 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==39)process.exitCode=1;
+
+  await test('Blocked vault landing retains visible non-destructive guidance and retry',()=>{
+    assert.ok(source.includes('O?"Datele locale nu pot fi deschise"'), 'Blocked state needs an explicit heading');
+    assert.ok(source.includes('Nu șterge datele site-ului și nu reseta aplicația.'), 'No destructive recovery advice');
+    assert.ok(source.includes('această pagină nu poate restaura datele cât timp seiful este blocat.'), 'No misleading backup-restore promise');
+    assert.ok(source.includes('O?"Reîncearcă deschiderea"'), 'Retry should only reload vault');
+    assert.ok(source.includes('e&&(0,k.jsx)(h.Button,{label:"\\xcenchide mesajul"'), 'Blocked error cannot be dismissed as if resolved');
+  });
+  await test('Orphan key has ambiguous provenance; attempted backup-state save remains fail-closed',()=>{
+    const first=storage(),flaky={
+      getItem:k=>first.getItem(k),setItem(k,v){if(k===PAYLOAD)throw Error('QuotaExceededError');first.setItem(k,v)},
+      removeItem:k=>first.removeItem(k),key:i=>first.key(i),get length(){return first.length}
+    };
+    assert.throws(()=>vault.saveWebVault(flaky,sample(),random),/nu a putut salva/);
+    const orphanKey=first.getItem(KEY);
+    const missingCiphertext=storage({[KEY]:orphanKey}); // indistinguishable from externally lost payload
+    for(const store of [first,missingCiphertext]){
+      const before=clone(store.data),writes=store.writes;
+      assert.throws(()=>vault.loadWebVault(store),/Cheia locală există fără datele criptate/);
+      assert.throws(()=>vault.saveWebVault(store,sample(),random),/Salvarea este blocată/);
+      assert.deepEqual(store.data,before);assert.equal(store.writes,writes);
+    }
+    assert.deepEqual(first.data,missingCiphertext.data);
+  });
+  console.log(passed+'/41 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==41)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
