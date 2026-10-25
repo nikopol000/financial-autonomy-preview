@@ -23,8 +23,8 @@ const model = {
     assert.ok(value && value.version === 4, 'Invalid synthetic ledger version');
     for (const field of ['accounts','transactions','balanceChecks'])
       assert.ok(Array.isArray(value[field]), 'Invalid synthetic '+field);
-  }
-    return value;,
+    return value;
+  },
   saveTransaction: (state,row) => ({...state,transactions:[...state.transactions,row]})
 };
 const sandbox = {
