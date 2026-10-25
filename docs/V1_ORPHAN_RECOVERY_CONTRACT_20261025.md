@@ -60,3 +60,9 @@ Inspected immutable `_expo/static/js/web/index-v01845-blocked-vault-guidance-202
 ## Next exact action
 
 Run release guard, JavaScript syntax and the full synthetic suite in CI; verify merged HEAD. Then perform disposable-profile real-browser restore/blocked-state checks when interactive browser tooling is available. Keep issue #35 OPEN and version 18.45 unchanged (research-only).
+
+## 2026-10-25 verified synthetic password-backup round-trip (research continuation)
+
+[PR #53](https://github.com/nikopol000/financial-autonomy-preview/pull/53) merged at `4dba64e8d07bcc118a8965cac5a0ed690619caa8`. A new Node-VM test runs the **actual active v18.45 bundled** password backup code (PBKDF2-SHA256 600,000 rounds + AES-GCM), not a fake already-decrypted backup. It exports synthetic v4 financial data, checks the portable envelope and absence of plaintext, rejects a wrong password and ciphertext tampering, restores with the correct password, and saves/reloads the validated ledger through the real platform/vault code into independent clean synthetic storage. The blocked KEY-only original retains identical bytes and zero writes. Candidate [CI 40178837777](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40178837777) SUCCESS with **43/43** bundled tests PASS; initial candidate 40178803520 failed on test-harness syntax and was fixed before merge.
+
+**Boundary:** this validates the actual crypto implementation and synthetic storage separation, **not** real browser profile isolation, file-picker UI, password entry in the Settings screen, storage permissions, or iPhone light/dark. No automatic in-place restore or deletion is safe to infer. Next acceptance remains a real-browser disposable-profile flow with a synthetic encrypted backup, plus blocked original-profile retry/permission/two-tab tests. #35 stays OPEN and WEB 18.45 unchanged.
