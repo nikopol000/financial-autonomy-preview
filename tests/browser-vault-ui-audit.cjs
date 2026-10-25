@@ -143,7 +143,28 @@ async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=fal
     return result;
   } finally {await context.close();}
 }
+function activeReleaseIdentity() {
+  // Audit artifacts must describe the exact immutable release served by this
+  // localhost test, never a manually copied version from a previous run.
+  const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
+  const version=html.match(/<meta name="financial-autonomy-version" content="([^"]+)"/)?.[1];
+  const src=html.match(/<script src="([^"]+)" defer><\/script>/)?.[1];
+  assert.ok(version && /^\d+\.\d+$/.test(version),'Missing valid active HTML release version');
+  assert.ok(src,'Missing active HTML bundle reference');
+  const parsed=new URL(src,'http://localhost');
+  assert.ok(parsed.pathname.startsWith(PREFIX),'Bundle must use preview prefix');
+  const token='v0'+version.replace('.','');
+  assert.ok(parsed.pathname.includes('index-'+token+'-'),
+    'Active immutable bundle filename must match HTML version');
+  const build=parsed.searchParams.get('build');
+  assert.ok(build && (build===version || build.startsWith(version+'.')),
+    'Bundle cache key must match HTML version');
+  assert.ok(fs.existsSync(path.resolve(ROOT,parsed.pathname.slice(PREFIX.length))),
+    'Referenced immutable bundle must exist on disk');
+  return {version,bundle:src};
+}
 async function main() {
+  const release=activeReleaseIdentity();
   fs.mkdirSync(OUT,{recursive:true});
   const server=http.createServer(serve);
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -163,7 +184,7 @@ async function main() {
         'Actual '+width+'px app light/dark screenshots must not be byte-identical');
     }
     fs.writeFileSync(path.join(OUT,'audit.json'),JSON.stringify({
-      product:'WEB 18.46',origin:'localhost synthetic-only',results},null,2));
+      product:'WEB '+release.version,bundle:release.bundle,origin:'localhost synthetic-only',results},null,2));
     console.log('PASS 6/6 actual Chromium blocked-vault UI states; real auto-theme light/dark differentiated at 320/390px');
   } finally {
     if(browser)await browser.close();
