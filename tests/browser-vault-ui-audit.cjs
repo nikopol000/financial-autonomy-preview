@@ -1,5 +1,5 @@
 'use strict';
-// WEB v18.45 blocked-vault visual/accessibility audit against the ACTUAL app.
+// WEB v18.46 blocked-vault visual/accessibility audit against the ACTUAL app.
 // Research/test only. Synthetic storage, disposable localhost contexts, no writes
 // to any real user profile, no financial data, no product UX activation.
 const assert = require('node:assert/strict');
@@ -68,9 +68,19 @@ async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=fal
   },{key:KEY,payload:PAYLOAD,reset:RESET,unknownReset,deniedRead});
   const page=await context.newPage();
   try {
+    // The app's default appearance is AUTO based on local time in Romania,
+    // not the browser's prefers-color-scheme. A colorScheme-only emulation
+    // previously produced byte-identical light/dark screenshots. Freeze Date
+    // to noon vs midnight without freezing timers or changing vault storage.
+    await page.clock.setFixedTime(new Date(scheme==='light'
+      ? '2026-06-15T12:00:00Z' : '2026-06-15T00:00:00Z'));
     await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
     const title=page.getByText('Datele locale nu pot fi deschise',{exact:true});
     await title.waitFor({state:'visible',timeout:30000});
+    await page.waitForFunction(expected=>document.documentElement.style.colorScheme===expected,
+      scheme,{timeout:10000});
+    const appColorScheme=await page.evaluate(()=>document.documentElement.style.colorScheme);
+    assert.equal(appColorScheme,scheme,'The actual app palette must use the requested theme');
     const guidance=page.getByText(/Nu șterge datele site-ului și nu reseta aplicația/);
     await guidance.waitFor({state:'visible',timeout:10000});
     if(!unknownReset&&!deniedRead){
@@ -120,7 +130,9 @@ async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=fal
     const vaultWrites=await page.evaluate(()=>window.__vaultAuditWriteCalls||[]);
     if(deniedRead)assert.deepEqual(vaultWrites,[],
       'Denied reset-marker reads must never cause vault writes or deletions');
-    const result={case:label,viewport:width,theme:scheme,unknownReset,deniedRead,
+    const result={case:label,viewport:width,theme:scheme,appColorScheme,
+      simulatedTimeUTC:scheme==='light'?'2026-06-15T12:00:00Z':'2026-06-15T00:00:00Z',
+      unknownReset,deniedRead,
       vaultWriteCalls:vaultWrites.length,
       retryTarget:{width:box.width,height:box.height},visual,focus,
       retryPreservedBytes:true,destructiveControls:0};
@@ -141,9 +153,15 @@ async function main() {
       results.push(await audit(browser,url,{width,scheme}));
     results.push(await audit(browser,url,{width:390,scheme:'dark',unknownReset:true}));
     results.push(await audit(browser,url,{width:390,scheme:'light',deniedRead:true}));
+    for(const width of [320,390]){
+      const light=fs.readFileSync(path.join(OUT,'key-only-'+width+'-light.png'));
+      const dark=fs.readFileSync(path.join(OUT,'key-only-'+width+'-dark.png'));
+      assert.ok(!light.equals(dark),
+        'Actual '+width+'px app light/dark screenshots must not be byte-identical');
+    }
     fs.writeFileSync(path.join(OUT,'audit.json'),JSON.stringify({
-      product:'WEB 18.45',origin:'localhost synthetic-only',results},null,2));
-    console.log('PASS 6/6 actual Chromium blocked-vault UI states; screenshots + audit.json saved');
+      product:'WEB 18.46',origin:'localhost synthetic-only',results},null,2));
+    console.log('PASS 6/6 actual Chromium blocked-vault UI states; real auto-theme light/dark differentiated at 320/390px');
   } finally {
     if(browser)await browser.close();
     await new Promise(resolve=>server.close(resolve));
