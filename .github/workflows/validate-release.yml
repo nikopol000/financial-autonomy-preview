@@ -60,6 +60,8 @@ jobs:
         run: node tests/blocked-vault-guidance-bundle-regression.cjs
       - name: Verify immutable v18.46 safe blocked-vault copy changed no financial logic
         run: node tests/blocked-vault-safe-copy-bundle-regression.cjs
+      - name: Verify immutable v18.47 automatic light/dark palette changes only visual code
+        run: node tests/auto-theme-bundle-regression.cjs
       - name: Bundled AES-GCM synthetic vault persistence and OpenSSL interop
         run: node tests/vault-real-crypto-regression.cjs
       - name: Research-only v2 atomic first-write prototype (not production)
