@@ -45,7 +45,7 @@ test('Fresh browser is the only uninitialized vault state', () => {
 });
 test('Orphan encryption key never silently initializes a new ledger', () => {
   const s = storage({ [KEY]: 'a'.repeat(64) });
-  assert.throws(() => api.loadWebVault(s), /Cheia locală există fără datele criptate/);
+  assert.throws(() => api.loadWebVault(s), /Cheia locală există, dar datele criptate lipsesc/);
   assert.equal(s.writes, 0);
 });
 test('Existing encrypted payload with missing key remains blocked', () => {
@@ -66,7 +66,7 @@ test('Storage permission errors never fall back to an empty ledger', () => {
 });
 test('Explicit clearing of both keys permits a fresh start', () => {
   const s = storage({ [KEY]: 'a'.repeat(64) });
-  assert.throws(() => api.loadWebVault(s), /Cheia locală există fără datele criptate/);
+  assert.throws(() => api.loadWebVault(s), /Cheia locală există, dar datele criptate lipsesc/);
   s.removeItem(KEY);
   assert.equal(api.loadWebVault(s), fresh);
 });
@@ -119,7 +119,7 @@ test('Failed initial payload write leaves a guarded orphan instead of silent ove
   assert.throws(() => api.saveWebVault(s, saved, randomBytes), /nu a putut salva/);
   assert.equal(s.data[KEY], 'b'.repeat(64));
   assert.equal(s.data[PAYLOAD], undefined);
-  assert.throws(() => api.loadWebVault(s), /Cheia locală există fără datele criptate/);
+  assert.throws(() => api.loadWebVault(s), /Cheia locală există, dar datele criptate lipsesc/);
   const writesBeforeRetry = s.writes;
   assert.throws(() => api.saveWebVault(s, saved, randomBytes), /Salvarea este blocată/);
   assert.equal(s.writes, writesBeforeRetry);
