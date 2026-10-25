@@ -117,3 +117,29 @@ Three additional **synthetic Node VM tests** instantiate the **actual immutable 
 **Decision:** DO NOT ship staging/fence/v2 automatic activation. A safe protocol must prevent an old tab's intentional reset from being undone even when the old reset leaves no durable tombstone that the new client understands. It must also prevent old saves between staging and fencing, and handle a crash before the fence without losing the pending ledger. The present old-tab format has no awareness of STAGE/V2; a future reader cannot infer reset intent from an absent old marker. A compatibility-first rollout cannot assume cached v18.44 tabs disappear on deployment. Prefer retaining v1 with explicit, non-destructive error/recovery UX while evaluating a genuinely compatible protocol.
 
 **Next acceptance:** verify these same transitions with two real browser tabs and actual Web Locks, including reset, reload, stale service-worker/cached code, denied storage, and interruptions; evaluate durable reset-intent/epoch semantics and safe rollback. A passing `KNOWN UNSAFE` characterization is evidence of a **blocker**, not a passing security guarantee. Product version stays 18.44; no change to financial formulas, #14 modes, real data, backup format, backend, telemetry or iOS.
+
+
+## Conservative quarantine proof for ambiguous stage-only recovery — 2026-10-25 (candidate)
+
+**Scope:** research-only extension to `tests/vault-v2-first-write-prototype.cjs`; no WEB product/storage change. The existing `recoverStaged` deliberately demonstrates the **unsafe** alternative. The new `recoverFencedStage` is a *counterexample prevention policy*, not a deployable migration.
+
+### Indistinguishability and trade-off
+
+Two histories produce **identical storage bytes** for a cached v18.44 tab:
+
+- **A — interrupted first save:** the new client writes an authenticated encrypted `STAGE`, then crashes before placing the legacy-key fence. A pending transaction is recoverable from the stage.
+- **B — intentional reset:** after the same `STAGE` write, the cached v18.44 client runs its actual `platform.resetData()` under Web Locks. It deletes its v1 key, payload and committed reset marker, but it never touches `STAGE`. The result is byte-identical to A.
+
+Any recovery algorithm that reads only those surviving keys **cannot distinguish A from B**. Automatically activating `STAGE` restores pending data in A but **resurrects intentionally deleted data in B**. Automatically discarding `STAGE` respects B but loses the only recoverable encrypted copy in A. A new-only epoch/tombstone cannot fix B if the old client never writes or preserves it. Web Locks do not solve ambiguity after a crash releases the lock.
+
+**Conservative rule:** treat stage-only (no fence) as **QUARANTINED**, preserve the encrypted bytes, refuse automatic v2 activation and refuse silent deletion. Treat a valid authenticated `STAGE` plus intact legacy fence, no v1 payload, no reset marker and no conflicting v2 as *potentially recoverable* under the hypothetical protocol. A failed v2 write retains stage/fence for a retry. Any corrupt record, denied read, missing fence or competing authority fails closed with zero recovery writes. This rule prevents automatic resurrection in the demonstrated case; it **does not solve availability** for an interrupted stage-only first save.
+
+### What must happen before any shipping implementation
+
+1. Keep the current v1 protocol in production. A safe automatic cross-version migration cannot be asserted while cached v18.44 clients can reset without leaving a durable marker understood by new clients.
+2. If v2 is ever pursued, design a **compatibility-first release** that all active clients can honor, a reset-intent barrier that survives relevant interruptions, and a lifecycle for retiring old clients; prove the actual reset/write order and platform Web Locks with two browser tabs. Do not assume a release deploy invalidates already open tabs.
+3. For ambiguous stage-only records, specify **explicit user-facing recovery** (e.g. explain that the app cannot tell an interrupted save from an earlier reset; offer safe backup/export and a user-controlled decision) rather than silently restoring or erasing data. Do not expose decrypted financial data to logs, telemetry or external services.
+4. Evaluate the simpler product alternative: retain v1 and improve error/recovery UX for orphan key/payload states, without migrating vault storage at all. No automatic orphan deletion.
+5. Validate denied reads/writes/removes, reset during a crash, repeated reload, stale revisions, old clients without Web Locks, and actual browser/iPhone behavior before any release. Browser/OS power-loss durability remains unproven.
+
+**Tests added in candidate:** eight synthetic quarantine/ambiguity/old-platform reset, fenced activation/retry, tamper/conflict and denied-read scenarios, using actual bundled AES-GCM and v18.44 platform modules. CI outcome and exact total must be recorded only after the candidate run. **WEB v18.44 remains unchanged; issue #14 is still DISCOVERY / NOT APPROVED.**
