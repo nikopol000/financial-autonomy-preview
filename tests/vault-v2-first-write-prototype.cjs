@@ -10,7 +10,7 @@ const vm = require('node:vm');
 const crypto = require('node:crypto');
 
 const html = fs.readFileSync('index.html','utf8');
-const bundlePath = html.match(/<script src="\\/financial-autonomy-preview\\/([^"?]+\\.js)\\?build=/)?.[1];
+const bundlePath = html.match(new RegExp('<script src="/financial-autonomy-preview/([^"?]+[.]js)[?]build='))?.[1];
 assert.ok(bundlePath, 'Active immutable bundle path required');
 const bundle = fs.readFileSync(bundlePath,'utf8');
 const sandbox = {Uint8Array,Uint16Array,Uint32Array,Int32Array,ArrayBuffer,DataView,
