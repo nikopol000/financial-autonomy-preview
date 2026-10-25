@@ -1,3 +1,11 @@
+## CURRENT WEB checkpoint — 2026-10-25 — v18.45 unchanged; #35 password-backup round-trip tested
+
+- DONE: [PR #53](https://github.com/nikopol000/financial-autonomy-preview/pull/53) merged `4dba64e8d07bcc118a8965cac5a0ed690619caa8`; **43/43** real-bundle AES-GCM/cross-tab synthetic tests PASS in [CI 40178837777](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40178837777). Verified actual 600k-round password backup export, wrong-password/tamper rejection and correct restore into separate synthetic storage while original KEY-only footprint remains unchanged. Earlier CI failed on test-harness syntax and was corrected.
+- P1 #35 STILL OPEN: test does not prove browser profile/file picker or same-origin repair. Preserve blocked storage, never auto-delete orphan key or overwrite; real browser disposable-profile password restore, reload/permission/two-tab/iPhone acceptance is first unfinished step. #4/#29 browser tests remain pending.
+- P2 #17 static audit: obsolete English budget labels absent in active v18.45 bundle; actual narrow iPhone/light-dark/populated accessibility remains unverified. #14 budget perspectives remain **DISCOVERY / NOT APPROVED**, no formulas/modes; #2/#25 financial contract gates unchanged.
+- RELEASE: WEB 18.45 unchanged, no product bundle/index/diagnostic update, no real data, backup format, iOS or stable source touched. Merged-main CI/Pages and final docs HEAD deployment unverified; Vercel production last confirmed READY on prior product v18.45 commit.
+- NEXT FIRST: check final main CI/Pages, obtain real browser evidence on disposable synthetic profiles and backup picker; if browser inaccessible, extend non-destructive fault matrix without claiming end-to-end acceptance. No version bump for docs/tests.
+
 ## CURRENT WEB checkpoint — 2026-10-25 — v18.45 unchanged; #35 contract + 42/42 CI
 
 - DONE: [PR #51](https://github.com/nikopol000/financial-autonomy-preview/pull/51) merged `97edc94681d1bfb25c7d88c22513bdd51f51eac1`; recovery contract doc and one clean synthetic storage isolation test. Candidate [CI 40175335621](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40175335621) SUCCESS, **42/42** bundled vault tests PASS. #35 updated; #14 received nonurgent numerical double-counting analysis, **no budget mode/formula implementation**.
