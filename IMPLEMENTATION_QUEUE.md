@@ -1,9 +1,9 @@
-## CURRENT WEB checkpoint — 2026-10-25 — v18.45 research-only #35 recovery isolation
+## CURRENT WEB checkpoint — 2026-10-25 — v18.45 unchanged; #35 contract + 42/42 CI
 
-- IN PROGRESS (research): preservation-first v1 blocked-vault recovery contract in `docs/V1_ORPHAN_RECOVERY_CONTRACT_20261025.md`; independent clean-profile restoration is the proposed user-controlled alternative to dangerous same-origin deletion. Synthetic Node VM test for isolated clean storage added (expected **42** tests; CI pending). **No same-profile replacement or automatic orphan deletion authorized.**
-- PRIORITY P1 #35 OPEN: KEY-only provenance remains ambiguous (failed first save vs externally lost ciphertext); current blocked page has no backup import. Need real browser disposable-profile backup/password round-trip, Web Locks and iPhone light/dark/accessibility checks. #4/#29 browser verification also open.
-- NONURGENT: #14 budget perspective contract stays analysis-only, no formula implementation; #17 visual/mobile acceptance remains open. #2/#25 financial semantics not approved.
-- RELEASE: product remains **18.45**; no new immutable bundle because this batch changes tests/docs only. Candidate CI and final HEAD/Pages/Vercel checks pending. NEXT FIRST: verify candidate CI, merge if successful, update issue/checkpoint with exact evidence; do not claim browser acceptance.
+- DONE: [PR #51](https://github.com/nikopol000/financial-autonomy-preview/pull/51) merged `97edc94681d1bfb25c7d88c22513bdd51f51eac1`; recovery contract doc and one clean synthetic storage isolation test. Candidate [CI 40175335621](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40175335621) SUCCESS, **42/42** bundled vault tests PASS. #35 updated; #14 received nonurgent numerical double-counting analysis, **no budget mode/formula implementation**.
+- P1 #35 OPEN: no automatic orphan deletion or in-place backup replacement. Proposed separate clean-profile recovery needs an external verified encrypted backup and real-browser proof; original blocked footprint must remain intact. #29/#4 real-browser verification outstanding.
+- DEPLOYMENT: product version remains **18.45**, no new bundle/index/diagnostic. Vercel primary still READY on prior v18.45 product commit; docs-only final HEAD deployment not proven because preview build-rate-limit. Main Actions/Pages and browser acceptance unverified.
+- NEXT FIRST: inspect merged-main CI/Pages, test actual disposable-profile password-backup restoration, blocked-state retry, two tabs and iPhone light/dark; no iOS changes. #2/#25 semantics still require explicit approval.
 
 ## CURRENT WEB checkpoint — 2026-10-25 — v18.45 published, #35 non-destructive UX only
 
