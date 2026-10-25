@@ -41,9 +41,16 @@ function vaultBytes(page) {
 }
 async function openReal(page,url) {
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
-  const start = page.getByText('Deschide aplicația',{exact:true});
-  await start.waitFor({state:'visible',timeout:25000});
-  await start.click();
+  // Existing v18.45 sessions can auto-open on mount. A blocked vault displays
+  // its error directly; a fresh vault may instead show the launch button.
+  await page.waitForFunction(()=> {
+    const body=document.body?.innerText||'';
+    return body.includes('Deschide aplicația') ||
+      body.includes('Datele locale nu pot fi deschise') ||
+      body.includes('Autonomie');
+  },{timeout:25000});
+  const start=page.getByText('Deschide aplicația',{exact:true});
+  if(await start.isVisible())await start.click();
 }
 async function toolsScreen(page) {
   await page.getByRole('tab',{name:/Mai mult/}).click();
