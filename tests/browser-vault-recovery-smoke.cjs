@@ -44,11 +44,11 @@ async function openReal(page,url) {
   // Existing v18.45 sessions can auto-open on mount. A blocked vault displays
   // its error directly; a fresh vault may instead show the launch button.
   await page.waitForFunction(()=> {
-    const body=document.body?.innerText||'';
-    return body.includes('Deschide aplicația') ||
-      body.includes('Datele locale nu pot fi deschise') ||
-      body.includes('Autonomie');
-  },{timeout:25000});
+    const body=(document.body?.innerText||'').toLocaleLowerCase('ro');
+    return body.includes('deschide aplicația') ||
+      body.includes('datele locale nu pot fi deschise') ||
+      body.includes('autonomie');
+  },null,{timeout:25000});
   const start=page.getByText('Deschide aplicația',{exact:true});
   if(await start.isVisible())await start.click();
 }
