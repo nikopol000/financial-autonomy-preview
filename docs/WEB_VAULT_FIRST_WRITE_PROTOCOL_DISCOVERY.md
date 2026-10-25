@@ -2,6 +2,17 @@
 
 **Status: RESEARCH / NOT APPROVED FOR PRODUCT ACTIVATION.** Scope: WEB preview only, issue #35, with #29 reset and #4 concurrency as dependencies. Active immutable product v18.45 remains unchanged. This document is a decision record and test contract, **not** a migration or a claim of physical durability.
 
+## Real-browser cross-version evidence — 2026-10-25, F08/F09
+
+[PR #64](https://github.com/nikopol000/financial-autonomy-preview/pull/64), merged `b974cd74008852c6b41bcee811c6825903b5bb39`, extends the disposable localhost Chromium suite using the **actual cached WEB v18.45 module 309 in two same-origin tabs**. [Chromium candidate CI 40204815626](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40204815626) SUCCESS with **19/19 named cases** (17 pre-existing + 2 new); [release CI 40204815634](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40204815634) SUCCESS. No product v2 reader or migration was activated.
+
+- **F08 (reset intent ambiguity, observed):** after a test-only encrypted STAGE write, an already-open legacy tab executes its real `resetData()`. It deletes its own v1 journal and leaves the unrecognized STAGE untouched. The resulting stage-only storage footprint is byte-identical to a hypothetical interruption immediately after staging. A new reader **cannot infer** whether a reset occurred; it must quarantine stage-only and must **not** automatically replay ciphertext.
+- **F09 (dual authority, observed):** after a test-only single-record v2 footprint is written, the already-open legacy tab successfully saves its real AES-GCM v1 KEY/PAYLOAD pair. Both survive. Any future reader must preserve both and block automatic selection/merge; a test-only read-only contract oracle asserts this policy but **is not shipped code**.
+- **Scope and limits:** tests use actual Chromium localStorage/Web Locks, synthetic ledger, mobile-sized viewport, and localhost; not Safari iPhone, production origin, browser power-loss durability, or an approved migration. The two added tests establish concrete counterexamples to transparent v2 rollout, **not** a fix for the existing KEY-only first-save defect.
+- **Deployment evidence:** Vercel `dpl_9egvq9wfLNSx3bqoLma1C6p8VTfg` READY on exact merge SHA, primary alias assigned; public served UI/header unverified. Main-branch Actions/Pages terminal status not independently confirmed.
+
+**Decision:** continue v18.45 fail-closed v1 behavior; reject automatic STAGE replay and dual-authority reconciliation. Next investigate an explicit, non-destructive user recovery/conflict contract and browser/Safari acceptance. Keep issue #35 open.
+
 ## Verified starting point
 
 - Actual WEB module 310, `saveWebVault`: first save writes `financial-autonomy.preview.key.v1` then `financial-autonomy.preview.payload.v1`. A failed payload write can leave KEY-only; the current reader refuses to replace it.
