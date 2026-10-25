@@ -222,6 +222,148 @@ async function run() {
     assert.deepEqual(await vaultBytes(populated),seed,'Populated source must remain byte-identical after target restore');
     assert.deepEqual(await vaultBytes(orphan),beforeOrphan,'Orphan profile must remain byte-identical after populated restore');
     console.log('PASS Chromium light mobile: real UI validates 1 account/1 expense, restores encrypted ledger, reloads and isolates profiles');
+
+    // Two real Chromium tabs on the SAME origin. These calls go through the
+    // actual bundled platform module 309, including its revision guard and
+    // navigator.locks, rather than a simulated lock or synthetic Node storage.
+    const tabsContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'dark'});
+    const tabA=await tabsContext.newPage();activePage=tabA;
+    await openReal(tabA,url);
+    const tabSeed=encryptSyntheticLedger(syntheticLedger());
+    await tabA.evaluate(([key,payload,seed])=>{
+      localStorage.setItem(key,seed.key);
+      localStorage.setItem(payload,seed.payload);
+    },[KEY,PAYLOAD,tabSeed]);
+    await openReal(tabA,url);
+    const tabB=await tabsContext.newPage();activePage=tabB;
+    await openReal(tabB,url);
+    const loadedA=await tabA.evaluate(async()=>window.__r(309).load());
+    const loadedB=await tabB.evaluate(async()=>window.__r(309).load());
+    assert.equal(loadedA.transactions.length,1);
+    assert.equal(loadedB.transactions.length,1);
+    assert.equal(await tabA.evaluate(()=>typeof navigator.locks?.request),'function','Chromium must expose real Web Locks');
+    const addSyntheticExpense=(state,id)=>{
+      const next=structuredClone(state);
+      next.transactions.push({id,name:'Browser multi-tab synthetic expense',kind:'expense',
+        accountId:'synthetic-checking-browser',amount:250,date:state.started,details:[]});
+      return next;
+    };
+    const a1=addSyntheticExpense(loadedA,'tab-a-1');
+    await tabA.evaluate(async state=>window.__r(309).save(state),a1);
+    const savedA=await vaultBytes(tabA);
+    assert.equal(decryptBrowserVault(savedA).transactions.length,2);
+    const bStale=await tabB.evaluate(async state=>{
+      try {await window.__r(309).save(state);return 'UNEXPECTED_SAVE'}
+      catch(error){return String(error.message)}
+    },addSyntheticExpense(loadedB,'tab-b-stale'));
+    assert.match(bStale,/altă filă/,'Stale tab must receive a clear conflict');
+    assert.deepEqual(await vaultBytes(tabB),savedA,'Rejected stale tab must make zero writes');
+    const a2=addSyntheticExpense(a1,'tab-a-2');
+    await tabA.evaluate(async state=>window.__r(309).save(state),a2);
+    assert.equal(decryptBrowserVault(await vaultBytes(tabA)).transactions.length,3,
+      'Same tab must be allowed a second save after updating its revision');
+    await openReal(tabB,url);
+    const bFresh=await tabB.evaluate(async()=>window.__r(309).load());
+    assert.equal(bFresh.transactions.length,3);
+    await tabB.evaluate(async state=>window.__r(309).save(state),
+      addSyntheticExpense(bFresh,'tab-b-fresh'));
+    const savedB=await vaultBytes(tabB);
+    assert.equal(decryptBrowserVault(savedB).transactions.length,4);
+    const staleReset=await tabA.evaluate(async()=>{
+      try {await window.__r(309).resetData();return 'UNEXPECTED_RESET'}
+      catch(error){return String(error.message)}
+    });
+    assert.match(staleReset,/altă filă/,'Stale reset must not erase another tab’s work');
+    assert.deepEqual(await vaultBytes(tabA),savedB);
+    console.log('PASS Chromium same-origin two tabs: stale save/reset reject with zero writes; repeat and refreshed saves preserve all transactions');
+
+    // Hold the ACTUAL Web Lock in tab A, then request a save in tab B.
+    // Its ciphertext must remain byte-identical until the lock is released.
+    await openReal(tabA,url);
+    await tabA.evaluate(async()=>window.__r(309).load());
+    await openReal(tabB,url);
+    const bBeforeLock=await tabB.evaluate(async()=>window.__r(309).load());
+    await tabA.evaluate(()=>{
+      window.__faLockHeld=false;
+      window.__faLockError=null;
+      navigator.locks.request('financial-autonomy.preview.vault.v1',{mode:'exclusive'},async()=>{
+        window.__faLockHeld=true;
+        await new Promise(resolve=>{window.__faReleaseLock=resolve});
+      }).catch(error=>{window.__faLockError=String(error)});
+    });
+    await tabA.waitForFunction(()=>window.__faLockHeld===true,{timeout:10000});
+    await tabB.evaluate(state=>{
+      window.__faSaveResult='pending';
+      window.__r(309).save(state).then(
+        ()=>{window.__faSaveResult='saved'},
+        error=>{window.__faSaveResult='error:'+error.message}
+      );
+    },addSyntheticExpense(bBeforeLock,'tab-b-after-lock'));
+    await new Promise(resolve=>setTimeout(resolve,250));
+    assert.equal(await tabB.evaluate(()=>window.__faSaveResult),'pending',
+      'Save should wait for the exclusive Web Lock');
+    assert.deepEqual(await vaultBytes(tabB),savedB,'Queued save must not write before acquiring lock');
+    await tabA.evaluate(()=>window.__faReleaseLock());
+    await tabB.waitForFunction(()=>window.__faSaveResult!=='pending',null,{timeout:15000});
+    assert.equal(await tabB.evaluate(()=>window.__faSaveResult),'saved');
+    const afterLock=await vaultBytes(tabB);
+    assert.equal(decryptBrowserVault(afterLock).transactions.length,5);
+    assert.equal(await tabA.evaluate(()=>window.__faLockError),null);
+    console.log('PASS Chromium Web Locks: second tab waits, then commits authenticated ledger after exclusive lock release');
+
+    // A browser lacking Web Locks must reject BOTH save and reset without
+    // touching the real encrypted pair. Restore the browser API afterward.
+    await tabB.evaluate(()=>Object.defineProperty(navigator,'locks',{configurable:true,value:undefined}));
+    const noLock=await tabB.evaluate(async state=>{
+      const result={};
+      try {await window.__r(309).save(state);result.save='UNEXPECTED_SAVE'}
+      catch(error){result.save=String(error.message)}
+      try {await window.__r(309).resetData();result.reset='UNEXPECTED_RESET'}
+      catch(error){result.reset=String(error.message)}
+      return result;
+    },addSyntheticExpense(bBeforeLock,'tab-b-no-lock'));
+    assert.match(noLock.save,/Web Locks/);
+    assert.match(noLock.reset,/Web Locks/);
+    assert.deepEqual(await vaultBytes(tabB),afterLock,'No-Web-Locks fallback must never write');
+    await tabB.evaluate(()=>{delete navigator.locks});
+    console.log('PASS Chromium missing Web Locks: save and reset fail closed without changing encrypted data');
+
+    // Deliberately interrupt the SECOND reset deletion (KEY) in tab A.
+    // The committed reset marker must survive, and a real reload must finish
+    // the intentional deletion without reviving the old transactions.
+    await openReal(tabA,url);
+    await tabA.evaluate(async()=>window.__r(309).load());
+    await tabA.evaluate(key=>{
+      const original=Storage.prototype.removeItem;
+      Storage.prototype.removeItem=function(name){
+        if(name===key)throw new DOMException('Synthetic key removal denied','SecurityError');
+        return original.call(this,name);
+      };
+      window.__faRestoreRemove=()=>{Storage.prototype.removeItem=original};
+    },KEY);
+    const interrupted=await tabA.evaluate(async()=>{
+      try {await window.__r(309).resetData();return 'UNEXPECTED_RESET'}
+      catch(error){return String(error.message)}
+    });
+    assert.match(interrupted,/Resetarea a fost întreruptă/);
+    const interruptedBytes=await vaultBytes(tabA);
+    assert.equal(interruptedBytes.reset,'committed-v1');
+    assert.equal(interruptedBytes.payload,null);
+    assert.match(interruptedBytes.key,/^[0-9a-f]{64}$/);
+    await tabA.evaluate(()=>window.__faRestoreRemove());
+    await openReal(tabA,url);
+    await tabA.evaluate(async()=>window.__r(309).load());
+    const erased={key:null,payload:null,reset:null};
+    assert.deepEqual(await vaultBytes(tabA),erased,'Reload must finish committed reset and remove journal');
+    const staleAfterReset=await tabB.evaluate(async state=>{
+      try {await window.__r(309).save(state);return 'UNEXPECTED_SAVE'}
+      catch(error){return String(error.message)}
+    },addSyntheticExpense(bBeforeLock,'tab-b-after-reset'));
+    assert.match(staleAfterReset,/altă filă/);
+    assert.deepEqual(await vaultBytes(tabA),erased,'Stale tab must not resurrect data after reset');
+    assert.deepEqual(await vaultBytes(orphan),beforeOrphan,'Independent orphan profile must remain untouched');
+    assert.deepEqual(await vaultBytes(populated),seed,'Independent populated source profile must remain untouched');
+    console.log('PASS Chromium interrupted committed reset: reload completes deletion, stale tab cannot resurrect ledger, other profiles unchanged');
   } catch(error) {
     if(activePage) {
       try {
