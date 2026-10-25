@@ -364,6 +364,142 @@ async function run() {
     assert.deepEqual(await vaultBytes(orphan),beforeOrphan,'Independent orphan profile must remain untouched');
     assert.deepEqual(await vaultBytes(populated),seed,'Independent populated source profile must remain untouched');
     console.log('PASS Chromium interrupted committed reset: reload completes deletion, stale tab cannot resurrect ledger, other profiles unchanged');
+
+    // Fault matrix uses only fresh, disposable Chromium contexts and the
+    // actual bundled vault/platform modules. No browser user profile is reused.
+    const faultContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'light'});
+    const faultPage=await faultContext.newPage();activePage=faultPage;
+    await openReal(faultPage,url);
+    const faultSeed=encryptSyntheticLedger(syntheticLedger());
+    await faultPage.evaluate(([key,payload,seed])=>{
+      localStorage.setItem(key,seed.key);
+      localStorage.setItem(payload,seed.payload);
+    },[KEY,PAYLOAD,faultSeed]);
+    await openReal(faultPage,url);
+    await faultPage.evaluate(async()=>window.__r(309).load());
+    assert.deepEqual(await vaultBytes(faultPage),faultSeed);
+
+    // Denied journal commit must not start deleting either encrypted entry.
+    await faultPage.evaluate(reset=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(name,value){
+        if(name===reset)throw new DOMException('Synthetic reset marker write denied','SecurityError');
+        return original.call(this,name,value);
+      };
+      window.__restoreFaultSet=()=>{Storage.prototype.setItem=original};
+    },RESET);
+    const markerDenied=await faultPage.evaluate(async()=>{
+      try{await window.__r(309).resetData();return 'UNEXPECTED_RESET'}
+      catch(error){return String(error.message)}
+    });
+    assert.match(markerDenied,/Synthetic reset marker write denied/);
+    await faultPage.evaluate(()=>window.__restoreFaultSet());
+    assert.deepEqual(await vaultBytes(faultPage),faultSeed,
+      'Marker write failure must leave original key/payload byte-identical and no reset marker');
+    await openReal(faultPage,url);
+    await faultPage.evaluate(async()=>window.__r(309).load());
+    assert.deepEqual(await vaultBytes(faultPage),faultSeed,'Marker failure reload must retain encrypted ledger');
+    console.log('PASS Chromium reset marker write denied: fail closed, zero deletion, reload retains authenticated ledger');
+
+    // Denied FIRST deletion after a committed journal must preserve ciphertext
+    // until a later reload completes the intentional reset.
+    await faultPage.evaluate(payload=>{
+      const original=Storage.prototype.removeItem;
+      Storage.prototype.removeItem=function(name){
+        if(name===payload)throw new DOMException('Synthetic payload deletion denied','SecurityError');
+        return original.call(this,name);
+      };
+      window.__restoreFaultRemove=()=>{Storage.prototype.removeItem=original};
+    },PAYLOAD);
+    const payloadDenied=await faultPage.evaluate(async()=>{
+      try{await window.__r(309).resetData();return 'UNEXPECTED_RESET'}
+      catch(error){return String(error.message)}
+    });
+    assert.match(payloadDenied,/Resetarea a fost întreruptă/);
+    const pendingReset=await vaultBytes(faultPage);
+    assert.equal(pendingReset.reset,'committed-v1');
+    assert.equal(pendingReset.key,faultSeed.key);
+    assert.equal(pendingReset.payload,faultSeed.payload);
+    await faultPage.evaluate(()=>window.__restoreFaultRemove());
+    await openReal(faultPage,url);
+    await faultPage.evaluate(async()=>window.__r(309).load());
+    const cleared={key:null,payload:null,reset:null};
+    assert.deepEqual(await vaultBytes(faultPage),cleared);
+    await faultPage.evaluate(async()=>window.__r(309).resetData());
+    assert.deepEqual(await vaultBytes(faultPage),cleared,'Repeated reset must be idempotent');
+    await openReal(faultPage,url);
+    await faultPage.evaluate(async()=>window.__r(309).load());
+    assert.deepEqual(await vaultBytes(faultPage),cleared);
+    console.log('PASS Chromium payload removal denied: committed journal survives, reload completes reset, repeated reset idempotent');
+
+    // Read permission faults must block both loading and saving; no attempt to
+    // guess whether ciphertext was removed or to rewrite it is permitted.
+    const readContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'dark'});
+    const readPage=await readContext.newPage();activePage=readPage;
+    await openReal(readPage,url);
+    const readSeed=encryptSyntheticLedger(syntheticLedger());
+    await readPage.evaluate(([key,payload,seed])=>{
+      localStorage.setItem(key,seed.key);
+      localStorage.setItem(payload,seed.payload);
+    },[KEY,PAYLOAD,readSeed]);
+    await openReal(readPage,url);
+    const readState=await readPage.evaluate(async()=>window.__r(309).load());
+    await readPage.evaluate(payload=>{
+      const original=Storage.prototype.getItem;
+      Storage.prototype.getItem=function(name){
+        if(name===payload)throw new DOMException('Synthetic localStorage read denied','SecurityError');
+        return original.call(this,name);
+      };
+      window.__restoreFaultGet=()=>{Storage.prototype.getItem=original};
+    },PAYLOAD);
+    const readDenied=await readPage.evaluate(async state=>{
+      const result={};
+      try{await window.__r(309).load();result.load='UNEXPECTED_LOAD'}
+      catch(error){result.load=String(error.message)}
+      try{await window.__r(309).save(state);result.save='UNEXPECTED_SAVE'}
+      catch(error){result.save=String(error.message)}
+      return result;
+    },readState);
+    assert.match(readDenied.load,/Synthetic localStorage read denied/);
+    assert.match(readDenied.save,/Synthetic localStorage read denied/);
+    await readPage.evaluate(()=>window.__restoreFaultGet());
+    assert.deepEqual(await vaultBytes(readPage),readSeed,'Read-denied load/save must never mutate ciphertext');
+    assert.equal((await readPage.evaluate(async()=>window.__r(309).load())).transactions.length,1);
+    assert.deepEqual(await vaultBytes(readPage),readSeed,'Read permission recovery must not rewrite data');
+    console.log('PASS Chromium storage read denied: load/save fail closed; restored permission reads original ledger without writes');
+
+    // The known first-save flaw is a characterization, NOT a repair: if the
+    // first payload write fails, the key remains and reload must refuse to
+    // create a new ledger. Never auto-delete the ambiguous orphan key.
+    const firstContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'light'});
+    const firstPage=await firstContext.newPage();activePage=firstPage;
+    await openReal(firstPage,url);
+    const firstState=await firstPage.evaluate(async()=>window.__r(309).load());
+    assert.deepEqual(await vaultBytes(firstPage),cleared);
+    await firstPage.evaluate(payload=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(name,value){
+        if(name===payload)throw new DOMException('Synthetic first payload quota failure','QuotaExceededError');
+        return original.call(this,name,value);
+      };
+      window.__restoreFirstSet=()=>{Storage.prototype.setItem=original};
+    },PAYLOAD);
+    const firstError=await firstPage.evaluate(async state=>{
+      try{await window.__r(309).save(state);return 'UNEXPECTED_SAVE'}
+      catch(error){return String(error.message)}
+    },firstState);
+    assert.match(firstError,/nu a putut salva datele local/);
+    await firstPage.evaluate(()=>window.__restoreFirstSet());
+    const orphanAfterFirst=await vaultBytes(firstPage);
+    assert.match(orphanAfterFirst.key,/^[0-9a-f]{64}$/);
+    assert.equal(orphanAfterFirst.payload,null);
+    assert.equal(orphanAfterFirst.reset,null);
+    await openReal(firstPage,url);
+    await firstPage.getByText('Datele locale nu pot fi deschise',{exact:true}).waitFor({state:'visible'});
+    assert.deepEqual(await vaultBytes(firstPage),orphanAfterFirst);
+    assert.deepEqual(await vaultBytes(orphan),beforeOrphan,'Independent blocked profile must stay untouched');
+    assert.deepEqual(await vaultBytes(populated),seed,'Independent populated profile must stay untouched');
+    console.log('PASS Chromium KNOWN UNSAFE first-save payload quota fault: orphan key persists; reload blocks instead of overwriting');
   } catch(error) {
     if(activePage) {
       try {
