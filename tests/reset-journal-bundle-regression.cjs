@@ -21,7 +21,6 @@ assert.equal(
   'Unexpected non-vault financial engine, UI, schema or backup change'
 );
 assert.match(current,/financial-autonomy\.preview\.reset\.v1/);
-const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18\.44"/);
-assert.ok(html.includes('_expo/static/js/web/index-v01844-reset-journal-20261025.js?build=18.44.1'));
-console.log('PASS: v18.44 only platform/vault reset journal and diagnostic metadata changed');
+// Archived v18.44 remains immutable after later releases. Active release is checked separately.
+assert.ok(fs.existsSync('_expo/static/js/web/index-v01844-reset-journal-20261025.js'));
+console.log('PASS: archived v18.44 only platform/vault reset journal and diagnostic metadata changed');
