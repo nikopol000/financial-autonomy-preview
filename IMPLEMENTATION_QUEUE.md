@@ -1,3 +1,10 @@
+## CURRENT WEB execution queue — 2026-10-25 — fix stale Chromium audit artifact version (test only)
+
+- **FIRST:** validate/merge test-only PR correcting `tests/browser-vault-ui-audit.cjs` audit.json product label (stale 18.46 while active HTML is 18.47). Read HTML version, immutable JS filename, build key and bundle existence; record exact bundle in audit artifact. CI pending until verified. No WEB version bump or product change.
+- **BLOCKED release gate:** Vercel exact v18.47 main product SHA `e830d0f3...` failure `build-rate-limit`; production READY remains v18.45 `a885afdd...`. No quota bypass or false publication claim.
+- **P1 #35 OPEN:** preserve data; do not auto-delete orphan KEY, replay STAGE or pick a ledger authority. Continue synthetic old-tab/reset and denied-storage tests. **P2 #17:** populated budgets light/dark + 200% text still unverified. **#14:** PR #75 merged research only, financial contract not approved.
+- **NEXT:** verify Chromium CI, merge checkpoint, then return to #35 and exact production status. No iOS/stable source, real data, encrypted backup or financial formulas touched.
+
 ## CURRENT WEB execution queue — 2026-10-25 — #14 researched, v18.47 Vercel still quota-blocked
 
 - **START:** verified real main HEAD `0432ef342a91b8a2212d26de5e8e24d982bd2781`; read AGENTS, RELEASE_PROCESS, PROJECT_STATE, IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, `docs/WEB_VISUAL_REVIEW.md` (root path absent), actual v18.47 index/bundle, and all eight open issues. WEB only.
