@@ -242,3 +242,163 @@ test('RESEARCH: failed fence write leaves no new record and v2 must not start',(
   assert.equal(s.getItem(V1_KEY),null);assert.equal(s.getItem(V2),null);
   assert.equal(s.writes,0);
 });
+
+
+/*
+ * Issue #35: encrypted staging -> legacy v1 fence -> recoverable v2 activation.
+ * ISOLATED RESEARCH ONLY. Not called by WEB; NOT a migration implementation.
+ * This intentionally keeps STAGE and the v1 fence after activation: deleting
+ * either without a fully specified cached-tab/reset contract is unsafe.
+ */
+const STAGE='financial-autonomy.preview.stage-research.v2';
+function stagedEnvelope(s) {
+  const raw=s.getItem(STAGE);
+  if(raw===null)throw Error('Missing encrypted stage: fail closed');
+  let env;
+  try{env=JSON.parse(raw)}catch{throw Error('Malformed stage: fail closed')}
+  if(!env||env.v!==2||typeof env.key!=='string'||!/^[0-9a-f]{64}$/.test(env.key)||
+    typeof env.payload!=='string'||Object.keys(env).sort().join(',')!=='key,payload,v')
+    throw Error('Invalid stage envelope: fail closed');
+  let state;
+  try{state=JSON.parse(aes.unseal(env.payload,new Uint8Array(Buffer.from(env.key,'hex'))))}
+  catch{throw Error('Stage authentication failed: fail closed')}
+  if(!state||state.version!==4||!Array.isArray(state.accounts)||
+    !Array.isArray(state.transactions)||!Array.isArray(state.balanceChecks))
+    throw Error('Stage ledger validation failed: fail closed');
+  return {raw,state};
+}
+function stageFirst(s,state) {
+  // Preflight is NOT atomic with a cached old-tab writer. Requires an actual
+  // origin-wide Web Lock/revision contract before any product integration.
+  if(s.getItem(RESET)!==null||s.getItem(V1_KEY)!==null||
+     s.getItem(V1_PAYLOAD)!==null||s.getItem(V2)!==null||
+     s.getItem(STAGE)!==null)
+    throw Error('Preexisting vault/reset/stage: fail closed');
+  if(!state||state.version!==4||!Array.isArray(state.accounts)||
+     !Array.isArray(state.transactions)||!Array.isArray(state.balanceChecks))
+    throw Error('Invalid staged ledger');
+  const key=rand(32),raw=JSON.stringify({v:2,key:Buffer.from(key).toString('hex'),
+    payload:aes.seal(JSON.stringify(state),key,rand)});
+  s.setItem(STAGE,raw); // first recoverable encrypted commit; no plaintext.
+  return raw;
+}
+function recoverStaged(s) {
+  const {raw,state}=stagedEnvelope(s); // authenticate BEFORE mutations
+  if(s.getItem(RESET)!==null)throw Error('Reset marker conflicts with stage');
+  const oldKey=s.getItem(V1_KEY),oldPayload=s.getItem(V1_PAYLOAD);
+  if(oldPayload!==null||(oldKey!==null&&oldKey!==RESEARCH_FENCE))
+    throw Error('Legacy v1 footprint conflicts with stage');
+  const active=s.getItem(V2);
+  if(active!==null&&active!==raw)
+    throw Error('Different active v2 record conflicts with stage');
+  if(active!==null&&oldKey!==RESEARCH_FENCE)
+    throw Error('Active v2 without legacy fence: fail closed');
+  if(oldKey===null) {
+    // Crash before fencing is recoverable because STAGE contains the ledger.
+    s.setItem(V1_KEY,RESEARCH_FENCE);
+  }
+  // Crash after fencing is recoverable. A failed V2 write preserves STAGE.
+  if(active===null)s.setItem(V2,raw);
+  return state;
+}
+
+test('RESEARCH staging: encrypted stage is recoverable before legacy fence',()=>{
+  const s=store(),pending=ledger();pending.transactions.push({id:'staged-only'});
+  const raw=stageFirst(s,pending);
+  assert.equal(s.writes,1);assert.equal(s.getItem(V1_KEY),null);
+  assert.equal(s.getItem(V2),null);
+  assert.ok(!raw.includes('staged-only'),'stage must not expose transaction plaintext');
+  assert.deepEqual(stagedEnvelope(s).state,pending);
+  assert.deepEqual(recoverStaged(s),pending);
+  assert.equal(s.getItem(V1_KEY),RESEARCH_FENCE);
+  assert.equal(s.getItem(V2),raw);
+  assert.equal(s.getItem(STAGE),raw);
+  assert.throws(()=>legacyVault.saveWebVault(s,ledger(),rand),/invalid|Cheia/i);
+});
+test('RESEARCH staging: crash after fence before activation resumes from authenticated stage',()=>{
+  const s=store(),pending=ledger();pending.transactions.push({id:'after-fence'});
+  const raw=stageFirst(s,pending);s.setItem(V1_KEY,RESEARCH_FENCE);
+  assert.equal(s.getItem(V2),null);
+  assert.deepEqual(recoverStaged(s),pending);
+  assert.equal(s.getItem(V2),raw);
+});
+test('RESEARCH staging: crash after activation is idempotent and keeps fence/stage',()=>{
+  const s=store();const raw=stageFirst(s,ledger());
+  recoverStaged(s);const writes=s.writes;
+  assert.deepEqual(recoverStaged(s),ledger());
+  assert.equal(s.writes,writes);assert.equal(s.getItem(V2),raw);
+  assert.equal(s.getItem(STAGE),raw);assert.equal(s.getItem(V1_KEY),RESEARCH_FENCE);
+});
+test('RESEARCH staging: stage write denied leaves no footprint, explicit retry works',()=>{
+  let denied=true;const s=store({}, {denyWrite:k=>denied&&k===STAGE});
+  assert.throws(()=>stageFirst(s,ledger()),/QuotaExceededError/);
+  assert.equal(s.writes,0);assert.deepEqual(s.data,{});
+  denied=false;stageFirst(s,ledger());assert.deepEqual(recoverStaged(s),ledger());
+});
+test('RESEARCH staging: fence write denied preserves encrypted stage for retry',()=>{
+  let denied=true;const s=store({}, {denyWrite:k=>denied&&k===V1_KEY});
+  const raw=stageFirst(s,ledger());
+  assert.throws(()=>recoverStaged(s),/QuotaExceededError/);
+  assert.equal(s.getItem(V1_KEY),null);assert.equal(s.getItem(V2),null);
+  assert.equal(s.getItem(STAGE),raw);assert.equal(s.writes,1);
+  denied=false;assert.deepEqual(recoverStaged(s),ledger());
+});
+test('RESEARCH staging: v2 activation denied preserves encrypted stage and fence',()=>{
+  let denied=true;const s=store({}, {denyWrite:k=>denied&&k===V2});
+  const raw=stageFirst(s,ledger());
+  assert.throws(()=>recoverStaged(s),/QuotaExceededError/);
+  assert.equal(s.getItem(V1_KEY),RESEARCH_FENCE);
+  assert.equal(s.getItem(V2),null);assert.equal(s.getItem(STAGE),raw);
+  denied=false;assert.deepEqual(recoverStaged(s),ledger());
+});
+test('RESEARCH staging: tampered stage fails closed before fence/activation writes',()=>{
+  const s=store();stageFirst(s,ledger());
+  const env=JSON.parse(s.data[STAGE]);env.key='a'.repeat(64);
+  s.data[STAGE]=JSON.stringify(env);const writes=s.writes;
+  assert.throws(()=>recoverStaged(s),/authentication/);
+  assert.equal(s.writes,writes);assert.equal(s.getItem(V1_KEY),null);
+  assert.equal(s.getItem(V2),null);
+});
+test('RESEARCH staging: cached v1 write after staging creates conflict; preserve both',()=>{
+  const s=store();const raw=stageFirst(s,ledger());
+  legacyVault.saveWebVault(s,ledger(),rand);
+  const before=JSON.stringify(s.data),writes=s.writes;
+  assert.throws(()=>recoverStaged(s),/Legacy v1 footprint/);
+  assert.equal(s.getItem(STAGE),raw);assert.equal(JSON.stringify(s.data),before);
+  assert.equal(s.writes,writes);
+  // This is an UNSOLVED old-tab race, not an acceptable production state.
+});
+test('RESEARCH staging: payload-only or key-only legacy footprint blocks recovery',()=>{
+  for(const key of [V1_KEY,V1_PAYLOAD]){
+    const s=store();stageFirst(s,ledger());
+    s.data[key]='external-or-partial';
+    const writes=s.writes;
+    assert.throws(()=>recoverStaged(s),/Legacy v1 footprint/);
+    assert.equal(s.writes,writes);assert.equal(s.getItem(V2),null);
+  }
+});
+test('RESEARCH staging: unknown/committed reset marker blocks activation',()=>{
+  for(const marker of ['committed-v1','invalid']){
+    const s=store();stageFirst(s,ledger());s.data[RESET]=marker;
+    const writes=s.writes;
+    assert.throws(()=>recoverStaged(s),/Reset marker/);
+    assert.equal(s.writes,writes);assert.equal(s.getItem(V2),null);
+  }
+});
+test('RESEARCH staging: denied stage read fails closed with zero recovery writes',()=>{
+  let denied=false;const s=store({}, {denyRead:k=>denied&&k===STAGE});
+  stageFirst(s,ledger());const writes=s.writes;denied=true;
+  assert.throws(()=>recoverStaged(s),/SecurityError/);
+  assert.equal(s.writes,writes);assert.equal(s.getItem(V2),null);
+});
+test('KNOWN UNSAFE staging: direct old-v1 reset removes fence after activation',()=>{
+  const s=store();stageFirst(s,ledger());recoverStaged(s);
+  legacyVault.clearWebVault(s); // direct module bypasses platform lock/revision
+  assert.equal(s.getItem(V1_KEY),null);assert.ok(s.getItem(STAGE));
+  const writes=s.writes;
+  assert.throws(()=>recoverStaged(s),/without legacy fence/);
+  assert.equal(s.writes,writes);
+  legacyVault.saveWebVault(s,ledger(),rand);
+  assert.throws(()=>recoverStaged(s),/Legacy v1 footprint/);
+  // Remains a release blocker; no safe automatic reconciliation.
+});
