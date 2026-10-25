@@ -619,6 +619,50 @@ async function run() {
     await openReal(firstPage,url);
     await firstPage.getByText('Datele locale nu pot fi deschise',{exact:true}).waitFor({state:'visible'});
     assert.deepEqual(await vaultBytes(firstPage),orphanAfterFirst);
+
+    // #35: a second ACTUAL tab opening after the first payload-write failure
+    // must not mistake KEY-only for a fresh vault. Neither retrying the first
+    // tab nor saving the stale pre-failure state from tab B may repair/delete
+    // the ambiguous key. This is a regression guard, NOT a recovery fix.
+    const orphanSibling=await firstContext.newPage();activePage=orphanSibling;
+    await openReal(orphanSibling,url);
+    await orphanSibling.getByText('Datele locale nu pot fi deschise',{exact:true})
+      .waitFor({state:'visible',timeout:15000});
+    await orphanSibling.evaluate(keys=>{
+      const originalSet=Storage.prototype.setItem;
+      const originalRemove=Storage.prototype.removeItem;
+      window.__orphanSiblingVaultWrites=[];
+      Storage.prototype.setItem=function(name,value){
+        if(keys.includes(String(name)))window.__orphanSiblingVaultWrites.push(['set',String(name)]);
+        return originalSet.call(this,name,value);
+      };
+      Storage.prototype.removeItem=function(name){
+        if(keys.includes(String(name)))window.__orphanSiblingVaultWrites.push(['remove',String(name)]);
+        return originalRemove.call(this,name);
+      };
+    },[KEY,PAYLOAD,RESET]);
+    const siblingAttempt=await orphanSibling.evaluate(async state=>{
+      const result={};
+      try{await window.__r(309).load();result.load='UNEXPECTED_LOAD'}
+      catch(error){result.load=String(error.message)}
+      try{await window.__r(309).save(state);result.save='UNEXPECTED_SAVE'}
+      catch(error){result.save=String(error.message)}
+      return result;
+    },firstState);
+    assert.match(siblingAttempt.load,/Cheia locală există|datele criptate lipsesc/);
+    assert.match(siblingAttempt.save,/Salvarea este blocată/);
+    assert.deepEqual(await orphanSibling.evaluate(()=>window.__orphanSiblingVaultWrites),[],
+      'Second tab must not write/delete KEY, PAYLOAD or RESET on failed retry');
+    assert.deepEqual(await vaultBytes(orphanSibling),orphanAfterFirst,
+      'Second tab must preserve the exact original orphan bytes');
+    await firstPage.getByText('Reîncearcă deschiderea',{exact:true}).click();
+    await firstPage.getByText('Datele locale nu pot fi deschise',{exact:true})
+      .waitFor({state:'visible'});
+    assert.deepEqual(await vaultBytes(firstPage),orphanAfterFirst,
+      'First tab UI retry must not clear the key while another tab is blocked');
+    assert.deepEqual(await vaultBytes(orphanSibling),orphanAfterFirst);
+    console.log('PASS Chromium #35 two real tabs: failed first payload write remains quarantined; sibling load/save and first-tab retry preserve all vault bytes');
+
     assert.deepEqual(await vaultBytes(orphan),beforeOrphan,'Independent blocked profile must stay untouched');
     assert.deepEqual(await vaultBytes(populated),seed,'Independent populated profile must stay untouched');
     console.log('PASS Chromium KNOWN UNSAFE first-save payload quota fault: orphan key persists; reload blocks instead of overwriting');
