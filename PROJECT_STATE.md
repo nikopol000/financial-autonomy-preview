@@ -1,3 +1,11 @@
+## CURRENT WEB checkpoint — 2026-10-25 — v18.45 unchanged; #35 clean-profile recovery contract candidate
+
+- START main HEAD: `d671fc8421bd2c707229bc6040b48b1ce7d3a797`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md (root absent), open issues #35/#29/#25/#17/#14/#4/#2/#1, active index.html and v18.45 modules 309–311/328.
+- RESEARCH CANDIDATE: `docs/V1_ORPHAN_RECOVERY_CONTRACT_20261025.md` documents why KEY-only provenance cannot be inferred, why blocked-page Settings import is unavailable, and a preservation-first, **separate clean-profile** backup recovery option. New Node-VM characterization in `tests/vault-real-crypto-regression.cjs` checks isolated clean-storage persistence while the original KEY-only footprint remains unchanged (41→42 planned tests). This is **not** actual backup-password/browser-profile validation and does not fix #35.
+- VERIFICATION: GitHub candidate CI, release guard, test results, merged HEAD and Pages/Vercel **PENDING** at this checkpoint; do not report success until observed. No interactive browser/iPhone verification.
+- SAFETY: WEB product still **18.45**; no bundle/index/diagnostic, formula, storage format, backup format, real financial data, backend, telemetry, iOS or stable-source changes. #14 remains DISCOVERY/NOT APPROVED; #2/#25 require user-approved financial contracts.
+- NEXT FIRST: run CI on candidate, correct any regression, merge only after checks; verify merged HEAD/CI and update issue #35. Next browser check must use disposable clean profile + synthetic encrypted backup; preserve blocked original. If browser unavailable, explicitly leave acceptance open.
+
 ## CURRENT WEB checkpoint — 2026-10-25 — v18.45 blocked-vault guidance (issue #35 still OPEN)
 
 - START HEAD: `41b6c63b85d0e1c37a88edf43df02d43b8a4635c`. Read actual main HEAD, AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, `docs/WEB_VISUAL_REVIEW.md` (root path absent), open GitHub issues including #35/#29/#4/#14/#17, active index.html, immutable WEB bundle and prior discovery.

@@ -1,3 +1,10 @@
+## CURRENT WEB checkpoint — 2026-10-25 — v18.45 research-only #35 recovery isolation
+
+- IN PROGRESS (research): preservation-first v1 blocked-vault recovery contract in `docs/V1_ORPHAN_RECOVERY_CONTRACT_20261025.md`; independent clean-profile restoration is the proposed user-controlled alternative to dangerous same-origin deletion. Synthetic Node VM test for isolated clean storage added (expected **42** tests; CI pending). **No same-profile replacement or automatic orphan deletion authorized.**
+- PRIORITY P1 #35 OPEN: KEY-only provenance remains ambiguous (failed first save vs externally lost ciphertext); current blocked page has no backup import. Need real browser disposable-profile backup/password round-trip, Web Locks and iPhone light/dark/accessibility checks. #4/#29 browser verification also open.
+- NONURGENT: #14 budget perspective contract stays analysis-only, no formula implementation; #17 visual/mobile acceptance remains open. #2/#25 financial semantics not approved.
+- RELEASE: product remains **18.45**; no new immutable bundle because this batch changes tests/docs only. Candidate CI and final HEAD/Pages/Vercel checks pending. NEXT FIRST: verify candidate CI, merge if successful, update issue/checkpoint with exact evidence; do not claim browser acceptance.
+
 ## CURRENT WEB checkpoint — 2026-10-25 — v18.45 published, #35 non-destructive UX only
 
 - DONE: [PR #49](https://github.com/nikopol000/financial-autonomy-preview/pull/49) merged at `1dcae20dff8fd3aa0dfd36125a73c47c0bfc2838`. Blocked-vault screen now shows a truthful warning not to delete local site data/reset, retains the error until retry, and states that backup restoration is **not** available on the blocked page. This does not fix the KEY-only orphan condition. Immutable bundle, index metadata and diagnostic updated to **18.45**; financial engine and encrypted storage unchanged.
