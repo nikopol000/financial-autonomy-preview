@@ -622,6 +622,80 @@ async function run() {
     assert.deepEqual(await vaultBytes(orphan),beforeOrphan,'Independent blocked profile must stay untouched');
     assert.deepEqual(await vaultBytes(populated),seed,'Independent populated profile must stay untouched');
     console.log('PASS Chromium KNOWN UNSAFE first-save payload quota fault: orphan key persists; reload blocks instead of overwriting');
+
+    // F08/F09: test-only v2 candidate versus two ACTUAL v18.45 browser tabs.
+    // The v2 keys below are research fixtures, NOT an application migration.
+    // Both observations must BLOCK automatic recovery: an older tab does not
+    // know these keys and its Web Lock does not protect a new schema by itself.
+    const STAGE_RESEARCH='financial-autonomy.preview.stage-research.v2';
+    const V2_RESEARCH='financial-autonomy.preview.atomic-prototype.v2';
+    const researchSnapshot=page=>page.evaluate(keys=>{
+      const [key,payload,reset,stage,v2]=keys;
+      return {key:localStorage.getItem(key),payload:localStorage.getItem(payload),
+        reset:localStorage.getItem(reset),stage:localStorage.getItem(stage),
+        v2:localStorage.getItem(v2)};
+    },[KEY,PAYLOAD,RESET,STAGE_RESEARCH,V2_RESEARCH]);
+    // This is a read-only contract oracle for the hypothetical reader,
+    // deliberately NOT exported into or invoked by the product.
+    const researchDecision=bytes=>{
+      if(bytes.key!==null||bytes.payload!==null||bytes.reset!==null)
+        return 'QUARANTINE_LEGACY_OR_RESET_CONFLICT';
+      if(bytes.stage!==null&&bytes.v2===null)
+        return 'QUARANTINE_AMBIGUOUS_STAGE_ONLY';
+      return 'NO_AUTOMATIC_RECOVERY_AUTHORIZED';
+    };
+
+    // F08: v18.45 tab loaded before a hypothetical new tab staged encrypted
+    // data. Its real resetData() can succeed, remove its own reset marker,
+    // and leave the unrecognized STAGE intact. That is indistinguishable from
+    // a crash just after staging: stage-only MUST NOT auto-activate.
+    const resetCoexistContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'dark'});
+    const oldResetTab=await resetCoexistContext.newPage();activePage=oldResetTab;
+    await openReal(oldResetTab,url);
+    await oldResetTab.evaluate(async()=>window.__r(309).load());
+    const newStageTab=await resetCoexistContext.newPage();activePage=newStageTab;
+    await openReal(newStageTab,url);
+    const stageFixture=encryptSyntheticLedger(syntheticLedger());
+    const stagedRaw=JSON.stringify({v:2,key:stageFixture.key,payload:stageFixture.payload});
+    await newStageTab.evaluate(([name,value])=>localStorage.setItem(name,value),[STAGE_RESEARCH,stagedRaw]);
+    const stageOnlyCrash=await researchSnapshot(newStageTab);
+    assert.deepEqual(stageOnlyCrash,{key:null,payload:null,reset:null,stage:stagedRaw,v2:null});
+    assert.equal(researchDecision(stageOnlyCrash),'QUARANTINE_AMBIGUOUS_STAGE_ONLY');
+    await oldResetTab.evaluate(async()=>window.__r(309).resetData());
+    const afterOldReset=await researchSnapshot(newStageTab);
+    assert.deepEqual(afterOldReset,stageOnlyCrash,
+      'A real old-tab intentional reset leaves the same durable keys as a stage-only crash');
+    assert.equal(researchDecision(afterOldReset),'QUARANTINE_AMBIGUOUS_STAGE_ONLY');
+    await openReal(newStageTab,url);
+    assert.deepEqual(await researchSnapshot(newStageTab),stageOnlyCrash,
+      'Reload must not silently promote the unrecognized staged ciphertext');
+    console.log('PASS Chromium F08 research: real cached v18.45 reset leaves ambiguous stage-only bytes; quarantine required, no resurrection');
+
+    // F09: a real cached v18.45 tab can save a v1 encrypted ledger after a
+    // hypothetical v2 single-record commit. The candidate's reader MUST
+    // detect both authorities and refuse silent selection or merging.
+    const splitContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'light'});
+    const oldWriterTab=await splitContext.newPage();activePage=oldWriterTab;
+    await openReal(oldWriterTab,url);
+    await oldWriterTab.evaluate(async()=>window.__r(309).load());
+    const newRecordTab=await splitContext.newPage();activePage=newRecordTab;
+    await openReal(newRecordTab,url);
+    const v2Fixture=encryptSyntheticLedger(syntheticLedger());
+    const v2Raw=JSON.stringify({v:2,key:v2Fixture.key,payload:v2Fixture.payload});
+    await newRecordTab.evaluate(([name,value])=>localStorage.setItem(name,value),[V2_RESEARCH,v2Raw]);
+    const beforeOldWrite=await researchSnapshot(newRecordTab);
+    assert.equal(beforeOldWrite.key,null);assert.equal(beforeOldWrite.payload,null);
+    await oldWriterTab.evaluate(async state=>window.__r(309).save(state),syntheticLedger());
+    const split=await researchSnapshot(newRecordTab);
+    assert.equal(split.v2,v2Raw,'Legacy writer must not mutate the unknown research v2 record');
+    assert.match(split.key,/^[0-9a-f]{64}$/);
+    assert.ok(split.payload?.length>50);
+    assert.equal(decryptBrowserVault(split).transactions.length,1);
+    assert.equal(researchDecision(split),'QUARANTINE_LEGACY_OR_RESET_CONFLICT');
+    const unchanged=await researchSnapshot(newRecordTab);
+    assert.deepEqual(unchanged,split,'Read-only conflict detection must never modify either authority');
+    console.log('PASS Chromium F09 research: real cached v18.45 writer creates v1 beside v2; preserve both and quarantine split authority');
+
   } catch(error) {
     if(activePage) {
       try {
