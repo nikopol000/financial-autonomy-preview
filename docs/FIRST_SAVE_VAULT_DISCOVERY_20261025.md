@@ -1,0 +1,57 @@
+# WEB P1 #35 — first encrypted save: fault model and recovery alternatives
+
+Date: 2026-10-25. Status: **DISCOVERY / TESTS ONLY**. Reference: WEB v18.44, active immutable module 310 and platform module 309. This document is not an authorization to change vault storage format or silently remove stored data.
+
+## Verified code path
+
+On a first real-mode save, `saveWebVault` checks the reset marker, reads `PAYLOAD`, reads `KEY`, validates the new ledger, creates a random 32-byte key, seals an AES-GCM ciphertext, then executes `setItem(KEY, hexKey)` followed by `setItem(PAYLOAD, sealed)`. Both are independent localStorage operations. If the second operation throws, a key-only footprint remains. Subsequent load/save deliberately reject it. A user may still have a backup, but the current code cannot establish whether the orphan key was created by a failed first save or by loss of a previously valid ciphertext. **Never infer that key-only means safe to delete.**
+
+The explicit-reset journal in v18.44 protects deletion intent but does not make initial creation atomic. Web Locks serialize cooperating tabs, not two-key localStorage writes or power-loss durability. Browser/OS crash behavior has not been tested. No real-user incident is evidenced.
+
+## Failure states and safe policy
+
+| State at read | Current behavior | Required invariant |
+| --- | --- | --- |
+| no key, no payload, no reset marker | empty state; first save permitted under Web Lock | no fabricated ledger, no silent persistence in demo |
+| valid key + authenticated payload | load and validate | never overwrite without current revision and Web Lock |
+| key only | load/save refuse | no automatic deletion or new vault; preserve backup recovery |
+| payload only | load/save refuse | no automatic key replacement; preserve ciphertext |
+| invalid key or tampered ciphertext | refuse | no mutation, no fallback to empty |
+| committed reset marker | finish explicit deletion under lock | never resurrect old ledger; unknown marker fails closed |
+| getItem denied or Web Locks unavailable | refuse real mutation | zero writes; retry only after access restored |
+| first KEY write denied | first save fails before writing any pair | a subsequent deliberate retry may succeed |
+| first PAYLOAD write denied after KEY succeeds | **KNOWN UNSAFE** orphan key | fail closed; recovery contract needed |
+| another tab has stale empty revision after orphan appears | refuse stale write | do not overwrite orphan or create new data |
+
+`tests/vault-real-crypto-regression.cjs` now adds three deterministic synthetic cases: first-key-write denial + retry, payload-only fail-closed, and stale second tab after orphan creation. These complement the existing key-only characterization. They do **not** demonstrate real-browser atomicity.
+
+## Alternatives
+
+**A. Reverse the write order (payload then key): reject.** It merely moves the irrecoverable half-commit to a payload-only state. The random AES key may be lost when the page terminates.
+
+**B. Keep two keys and auto-delete an orphan after failure: reject.** A key-only footprint is indistinguishable from previously existing data whose ciphertext was externally removed. Silent deletion can make recovery harder. A temporary in-memory flag is lost on reload.
+
+**C. First-write staging marker with two-key finalization: conditional.** Could store enough authenticated recovery material to finish a first write after reload, but requires a crash-safe staging protocol, key/nonce integrity, explicit stale-tab revision inclusion, cleanup semantics, and proof that old data are not mistaken for a new initialization. A staging marker without recovery material only introduces a third non-atomic write.
+
+**D. Single atomic localStorage record for newly initialized vaults: recommended research direction.** Store versioned AES key material and ciphertext together in one serialized envelope under a new key, with one `setItem` as the first commit point. It retains the current same-origin threat model: the existing key already lives in localStorage, so this is **not** password-based encryption or a security upgrade. A per-key localStorage operation is synchronous and treated as indivisible at the API level, but browser durability/power-loss guarantees are not implied. A failed write must leave no new record and permit a clean retry. Keep the existing v1 pair readable without destructive migration.
+
+## Migration hazards to solve before implementation
+
+1. Prefer a strictly validated v2 record only after authenticating/decrypting it; never interpret corrupt v2 as empty or silently fall back to v1.
+2. If v1 exists, do not migrate by deleting v1 first. A staged v2 write plus preserved v1 rollback can create **dual-authority** and stale-tab problems; define which copy is canonical, when the old pair may be removed, and how older deployed tabs are blocked from writing v1 after v2 becomes authoritative.
+3. Update the platform revision fingerprint, reset marker cleanup, demo eligibility, backup/import flows and cross-tab guards together. Test mixed v1/v2/partial/corrupt states and browsers with cached older bundles. A new storage key must not bypass fail-closed detection of legacy footprints.
+4. Consider a read-only v1 compatibility path until a separately verified migration protocol is approved. Do not assume changing the active bundle makes every open tab upgrade immediately.
+5. Preserve AES-GCM nonce uniqueness, validation, zeroization, existing encrypted backup file format and no-backend/local-only architecture.
+
+## Proposed acceptance matrix before a product release
+
+- Fresh v2: first write success, denied write, quota exception, reload, repeated save, correct AES-GCM authentication and independent decryption.
+- Legacy v1: read, save, reset, interrupted reset, partial v1, unknown reset marker, corrupted key/ciphertext, and explicit backup restore; no silent migration/data loss.
+- Dual v1/v2: old tab vs new tab, stale revisions, writes during migration, failure after v2 commit, deletion/cleanup denied, and reopening an old cached bundle.
+- Fault injection at **every** get/set/remove operation; read permission revoked and restored; no Web Locks; interrupted reload; demo isolation; import/export parity.
+- No plaintext financial records in storage, no credit-as-cash accounting changes, no #14 budget modes, no iOS or stable source edits.
+- CI/release guard/JS syntax and immutable versioned bundle, then actual browser two-tab/iPhone light/dark smoke. Vercel READY is not browser proof.
+
+## Decision / next
+
+**Do not ship a v2 vault based only on this analysis.** First build a synthetic prototype of the single-record approach with a precise v1 coexistence contract and failure matrix, then review it against #4/#29 and run real-browser tests where authorized. Existing key-only footprints remain blocked, not erased. Product version remains 18.44; this document and tests are not a release.
