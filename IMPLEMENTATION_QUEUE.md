@@ -1,3 +1,13 @@
+## WEB checkpoint 2026-10-25 — v18.44 unchanged; #35 first-save recovery investigation
+
+- DONE: [PR #37](https://github.com/nikopol000/financial-autonomy-preview/pull/37) squash merged `3d04d7eee669064a8c909b98112bb314c3efe6f9`; three synthetic AES-GCM first-write/partial-storage/stale-tab cases added, **39/39** candidate tests PASS in [CI 40145265337](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40145265337). `docs/FIRST_SAVE_VAULT_DISCOVERY_20261025.md` documents alternatives, crash/fault matrix and v1/v2 migration risks. #35 updated. This is **characterization/discovery**, not a shipped fix.
+- VERIFIED: merged-main [CI 40145309699](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40145309699), Pages [40145309698](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40145309698) and [40145309272](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40145309272) SUCCESS; Vercel production `dpl_4KY1EsBVEtfa8gErqMTAKFny5sUP` READY exact merge SHA and primary alias. Served browser/header/iPhone unverified.
+- OPEN P1 #35: KEY-only orphan after failed initial PAYLOAD write still blocks load/save; never auto-delete or overwrite. Research single-record first-write with legacy v1/old-tab coexistence, auth/nonce and reset-journal compatibility. Test in isolation and require browser acceptance before versioned release.
+- OPEN P1 #29/#4: authorized real-browser two-tab and interrupted reset/permission recovery still unverified; do not conflate synthetic tests or Vercel READY with browser proof.
+- NONURGENT #14: budget perspectives remain **DISCOVERY / NOT APPROVED**; no new formulas or modes. #17 iPhone light/dark/populated UX remains open; benchmark already documented. #2/#25 require explicit financial contract decisions.
+- SAFETY: WEB **18.44 unchanged**, no bundle/index/diagnostic, real financial data, encrypted backup format, backend, telemetry, source stable or iOS changes.
+- NEXT FIRST: verify checkpoint-docs merge CI/Pages/Vercel exact SHA; prototype #35 atomic first-write + dual-authority fault matrix without publishing a vault-format change; retry real browser acceptance when authorized. No cosmetic version bump.
+
 ## WEB checkpoint 2026-10-25 — v18.44 unchanged; #29 read-denial + #35 orphan-key discovery
 
 - DONE: test-only [PR #34](https://github.com/nikopol000/financial-autonomy-preview/pull/34) merged `746436185caed92c23b4705900c660bdb29cc880`; four marker read/permission/corruption cases **fail closed**; one explicitly **KNOWN UNSAFE** initial-save orphan-key characterization. Opened [#35](https://github.com/nikopol000/financial-autonomy-preview/issues/35) for separate P1 analysis. No vault fix or browser acceptance claimed.
