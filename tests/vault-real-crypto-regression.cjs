@@ -617,6 +617,55 @@ async function test(name,fn) {
     assert.throws(()=>vault.saveWebVault(backing,sample(),random),/Salvarea este blocată/);
     assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
   });
-  console.log(passed+'/36 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==36)process.exitCode=1;
+
+  await test('First vault key-write denial leaves no partial vault; later retry succeeds',()=>{
+    const backing=storage();
+    let deny=true;
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(deny&&k===KEY)throw Error('SecurityError: key write denied');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    assert.throws(()=>vault.saveWebVault(flaky,sample(),random),/nu a putut salva/);
+    assert.equal(backing.getItem(KEY),null);
+    assert.equal(backing.getItem(PAYLOAD),null);
+    assert.equal(backing.writes,0);
+    deny=false;
+    vault.saveWebVault(flaky,sample(),random);
+    assert.deepEqual(clone(vault.loadWebVault(backing)),sample());
+    assert.equal(backing.writes,2);
+  });
+  await test('Payload-only storage footprint blocks load and save without mutation',()=>{
+    const backing=storage();
+    vault.saveWebVault(backing,sample(),random);
+    const payload=backing.getItem(PAYLOAD);
+    const broken=storage({[PAYLOAD]:payload});
+    const before=clone(broken.data),writes=broken.writes;
+    assert.throws(()=>vault.loadWebVault(broken),/cheia lor lipsește/i);
+    assert.throws(()=>vault.saveWebVault(broken,sample(),random),/Nu suprascriem automat/i);
+    assert.deepEqual(broken.data,before);
+    assert.equal(broken.writes,writes);
+  });
+  await test('Orphan key from first-save failure blocks stale second tab without writes',async()=>{
+    const backing=storage(),locks=serialLocks();
+    const a=realTab(backing,{locks}),b=realTab(backing,{locks});
+    const aState=clone(await a.load()),bState=clone(await b.load());
+    let failPayload=true;
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(failPayload&&k===PAYLOAD)throw Error('QuotaExceededError');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    assert.throws(()=>vault.saveWebVault(flaky,aState,random),/nu a putut salva/);
+    failPayload=false;
+    const before=clone(backing.data),writes=backing.writes;
+    await assert.rejects(b.save(bState),/altă filă|Reîncarcă/i);
+    assert.deepEqual(backing.data,before);
+    assert.equal(backing.writes,writes);
+    await assert.rejects(realTab(backing,{locks}).load(),/Cheia locală există fără datele criptate/);
+  });
+  console.log(passed+'/39 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==39)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
