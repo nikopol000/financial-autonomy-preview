@@ -1,0 +1,40 @@
+name: Chromium WEB vault and backup acceptance
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - '_expo/static/js/web/**'
+      - 'tests/browser-vault-recovery-smoke.cjs'
+      - '.github/workflows/browser-vault-smoke.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - '_expo/static/js/web/**'
+      - 'tests/browser-vault-recovery-smoke.cjs'
+      - '.github/workflows/browser-vault-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  browser-vault-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Chromium test runner
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Real Chromium local-only encrypted backup and blocked-vault smoke
+        run: node tests/browser-vault-recovery-smoke.cjs
+      - name: Retain synthetic-only failure screenshot
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-vault-smoke-failure
+          path: browser-vault-smoke-failure.png
+          if-no-files-found: ignore
+          retention-days: 3
