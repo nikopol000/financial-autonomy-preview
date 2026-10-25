@@ -1,3 +1,10 @@
+## CURRENT WEB execution queue — 2026-10-25 — #35 existing-ciphertext denial proven, no recovery yet
+
+- **DONE TEST-ONLY:** [PR #79](https://github.com/nikopol000/financial-autonomy-preview/pull/79) merged `ae4af19e9731efcf1bf77156af340b93f710e271`. Corrected #77 Chromium denied-PAYLOAD-read cases to pre-seed existing opaque synthetic ciphertext; retry leaves original KEY/PAYLOAD/RESET bytes unchanged, zero vault writes. Chromium CI `40233757007` and release CI `40233756995` SUCCESS, 8/8 mobile cases PASS. No product release/version change.
+- **RELEASE:** WEB 18.47 latest Vercel production READY `dpl_E7T1X6o4gXdCW78AMng7FqpFESMg` on prior main `3d119120...`, primary alias; public served HTML/bundle/header/Safari remain unverified. Do not claim deployment of newest test/docs commit or first-write fix.
+- **FIRST UNFINISHED:** investigate #35 ambiguous KEY-only first write and reset/old-tab collisions, with explicit non-destructive recovery contract and synthetic fault tests before changing vault protocol. #17 populated budget mobile UX and 200% text remains unverified. #14 discovery only; user must approve financial semantics before modes/formulas.
+- **GUARDS:** no changes to real data, encrypted backups, formulas, iOS, source stable main, backend/telemetry/bank sync. Next product release requires immutable bundle, metadata/diagnostic sync, tests, CI, exact Vercel SHA, public browser verification.
+
 ## CURRENT WEB execution queue — 2026-10-25 — #35 payload-read denial tested; Vercel READY but served-browser gate open
 
 - **DONE TEST-ONLY:** PR #77 merged main `3d1191200ee42d9d764bf2a7a130f92f1b74866b`. Actual WEB 18.47 Chromium fault injection at encrypted PAYLOAD read: 8/8 mobile blocked-vault UI cases PASS, zero vault writes and retry preserves original bytes. Chromium CI `40233487154` and release CI `40233487177` SUCCESS; no version bump or product change.
