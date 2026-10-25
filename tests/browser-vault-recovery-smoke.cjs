@@ -529,6 +529,67 @@ async function run() {
     assert.deepEqual(await vaultBytes(populated),seed,'Unknown journal must not affect another browser profile');
     console.log('PASS Chromium unknown reset journal: load/save/reset refuse, reload retains marker and encrypted ledger');
 
+
+    // A denied first KEY write must not create a partial vault. Once storage
+    // permission is restored, the same synthetic state can be saved normally.
+    const firstKeyContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'light'});
+    const firstKeyPage=await firstKeyContext.newPage();activePage=firstKeyPage;
+    await openReal(firstKeyPage,url);
+    const firstKeyState=await firstKeyPage.evaluate(async()=>window.__r(309).load());
+    await firstKeyPage.evaluate(key=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(name,value){
+        if(name===key)throw new DOMException('Synthetic first key write denied','QuotaExceededError');
+        return original.call(this,name,value);
+      };
+      window.__restoreKeyWrite=()=>{Storage.prototype.setItem=original};
+    },KEY);
+    const firstKeyError=await firstKeyPage.evaluate(async state=>{
+      try{await window.__r(309).save(state);return 'UNEXPECTED_SAVE'}
+      catch(error){return String(error.message)}
+    },firstKeyState);
+    assert.match(firstKeyError,/nu a putut salva datele local/);
+    await firstKeyPage.evaluate(()=>window.__restoreKeyWrite());
+    assert.deepEqual(await vaultBytes(firstKeyPage),{key:null,payload:null,reset:null});
+    await openReal(firstKeyPage,url);
+    const retryState=await firstKeyPage.evaluate(async()=>window.__r(309).load());
+    await firstKeyPage.evaluate(async state=>window.__r(309).save(state),retryState);
+    const firstKeyRetried=await vaultBytes(firstKeyPage);
+    assert.match(firstKeyRetried.key,/^[0-9a-f]{64}$/);
+    assert.equal(decryptBrowserVault(firstKeyRetried).transactions.length,0);
+    console.log('PASS Chromium first KEY write denied: no partial vault, permission recovery allows authenticated retry');
+
+    // Storage may write the ciphertext and THEN throw. The caller receives an
+    // error but must never delete its key on the assumption that no payload
+    // was committed. Reload must decrypt the committed synthetic pair.
+    const writeThenThrowContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'dark'});
+    const writeThenThrowPage=await writeThenThrowContext.newPage();activePage=writeThenThrowPage;
+    await openReal(writeThenThrowPage,url);
+    const writeThenThrowState=await writeThenThrowPage.evaluate(async()=>window.__r(309).load());
+    await writeThenThrowPage.evaluate(payload=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(name,value){
+        const result=original.call(this,name,value);
+        if(name===payload)throw new DOMException('Synthetic payload wrote then threw','QuotaExceededError');
+        return result;
+      };
+      window.__restoreWriteThenThrow=()=>{Storage.prototype.setItem=original};
+    },PAYLOAD);
+    const afterWriteError=await writeThenThrowPage.evaluate(async state=>{
+      try{await window.__r(309).save(state);return 'UNEXPECTED_SAVE'}
+      catch(error){return String(error.message)}
+    },writeThenThrowState);
+    assert.match(afterWriteError,/nu a putut salva datele local/);
+    await writeThenThrowPage.evaluate(()=>window.__restoreWriteThenThrow());
+    const committedDespiteError=await vaultBytes(writeThenThrowPage);
+    assert.match(committedDespiteError.key,/^[0-9a-f]{64}$/);
+    assert.ok(committedDespiteError.payload?.length>50);
+    await openReal(writeThenThrowPage,url);
+    assert.equal((await writeThenThrowPage.evaluate(async()=>window.__r(309).load())).transactions.length,0);
+    assert.deepEqual(await vaultBytes(writeThenThrowPage),committedDespiteError,
+      'A successful write followed by an exception must not cause destructive rollback');
+    console.log('PASS Chromium first payload write-then-throw: reported failure but committed encrypted pair survives reload');
+
     // The known first-save flaw is a characterization, NOT a repair: if the
     // first payload write fails, the key remains and reload must refuse to
     // create a new ledger. Never auto-delete the ambiguous orphan key.
