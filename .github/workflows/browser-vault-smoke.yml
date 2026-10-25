@@ -5,6 +5,7 @@ on:
       - 'index.html'
       - '_expo/static/js/web/**'
       - 'tests/browser-vault-recovery-smoke.cjs'
+      - 'tests/browser-vault-ui-audit.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
     branches: [main]
@@ -12,6 +13,7 @@ on:
       - 'index.html'
       - '_expo/static/js/web/**'
       - 'tests/browser-vault-recovery-smoke.cjs'
+      - 'tests/browser-vault-ui-audit.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
   contents: read
@@ -30,6 +32,16 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Real Chromium local-only encrypted backup and blocked-vault smoke
         run: node tests/browser-vault-recovery-smoke.cjs
+      - name: Audit actual blocked WEB mobile UI in light/dark (synthetic-only)
+        run: node tests/browser-vault-ui-audit.cjs
+      - name: Retain synthetic-only mobile UI screenshots and geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-vault-ui-audit
+          path: artifacts/browser-vault-ui/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Retain synthetic-only failure screenshot
         if: failure()
         uses: actions/upload-artifact@v4
