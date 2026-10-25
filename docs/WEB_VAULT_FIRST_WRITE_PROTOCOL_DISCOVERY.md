@@ -15,7 +15,7 @@
 2. Never infer that a reset was authorized from a staged first-write record. A reset can be committed by a legacy tab that does not understand the new record. **Do not automatically resurrect ciphertext after an intentional reset.**
 3. Preserve every existing encrypted byte until a new state is independently validated and the transition has an unambiguous authorization. Never treat available credit as owned cash; no financial formula or schema change is part of this work.
 4. Web Locks serialize **cooperating** tabs only. A new tab cannot prove that an older tab is absent; BroadcastChannel/presence heartbeats are advisory and may miss suspended/background tabs.
-5. An exception from `localStorage.setItem` is not proof that the value was not written; test *write-then-throw* as well as *throw-before-write*. `getItem`/journal reads may also throw. Physical power loss and browser storage eviction remain distinct from injected API faults.
+5. The Web Storage specification requires each native `setItem`/`removeItem` call to be atomic **with respect to failure**. A test shim that writes and then throws is an **adversarial, non-spec-conforming wrapper**, useful for checking that recovery code never destroys a key based only on a caught exception; it is **not** evidence that browsers normally behave this way. Multi-key sequences still are not transactions. `getItem`/journal reads may throw due to access policy. Physical power loss and browser eviction are distinct from injected API faults.
 6. A migration cannot silently choose between diverging legacy and new records. Preserve both, fail closed, expose a recovery decision path with explicit provenance and a verified backup. Do not silently merge transactions.
 
 ## Alternatives evaluated
@@ -41,7 +41,7 @@ This is an **experiment direction**, not approval to activate a new vault format
 | --- | --- | --- |
 | F01 | Fresh; KEY write throws before mutation | No KEY/PAYLOAD; retry possible after permission recovery. |
 | F02 | Fresh; PAYLOAD write throws before mutation | Current v1 KEY-only is preserved/blocked; never auto-delete. |
-| F03 | Fresh; PAYLOAD writes successfully **then throws** | Reload decrypts the valid pair; no rollback of KEY. |
+| F03 | Adversarial patched Storage wrapper: PAYLOAD writes **then throws** (outside native Web Storage failure contract) | Reload decrypts the valid pair; no destructive rollback of KEY. This is defense-in-depth, **not a browser-conformance claim**. |
 | F04 | Existing authenticated pair; any read fails | No mutation, no replacement, permission recovery returns same ledger. |
 | F05 | Existing pair; unknown reset marker | Load/save/reset blocked; marker and encrypted bytes preserved after reload. |
 | F06 | Existing pair; reset-marker read denied | Load/save/reset blocked, zero writes; permission recovery safe. |
@@ -52,6 +52,12 @@ This is an **experiment direction**, not approval to activate a new vault format
 | F11 | No Web Locks / denied storage / quota / corrupt ciphertext | Fail closed; no destructive fallback or guessed initialization. |
 | F12 | Wrong-password, tampered backup, separate clean profile | No writes on invalid backup; explicit confirmed restore survives reload; original profile untouched. |
 | F13 | Browser crash / power loss / eviction | Separate real-browser/durability investigation; do not claim proven from fault injection. |
+
+## Primary platform references
+
+- [WHATWG HTML — Web Storage](https://html.spec.whatwg.org/multipage/webstorage.html): native Storage API and quota/access behavior; individual operations, not multi-key transactions.
+- [W3C Web Storage Second Edition](https://www.w3.org/TR/2021/SPSD-webstorage-20210128/): explicit per-operation atomicity on failure and no required physical disk flush. Cited for the precise limitation of injected write-then-throw shims.
+- [MDN — Web Locks API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API): named same-origin locks coordinate scripts that actually request the lock; not an automatic mutex for legacy code.
 
 ## Decision and continuation
 
