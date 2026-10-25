@@ -36,7 +36,7 @@ async function snapshot(page) {
 }
 async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=false}) {
   const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:2,
-    isMobile:true,hasTouch:true,colorScheme:scheme,reducedMotion:'reduce'});
+    isMobile:true,hasTouch:true,colorScheme:scheme,timezoneId:'Europe/Bucharest',reducedMotion:'reduce'});
   // The only seeded bytes are deliberately invalid synthetic placeholders.
   await context.addInitScript(({key,payload,reset,unknownReset,deniedRead})=>{
     localStorage.setItem(key,'a'.repeat(64));
@@ -77,6 +77,9 @@ async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=fal
     await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
     const title=page.getByText('Datele locale nu pot fi deschise',{exact:true});
     await title.waitFor({state:'visible',timeout:30000});
+    const themeState=await page.evaluate(()=>({now:new Date().toString(),
+      mode:document.documentElement.style.colorScheme,body:getComputedStyle(document.body).backgroundColor}));
+    console.log('AUDIT actual app theme '+scheme+' '+JSON.stringify(themeState));
     await page.waitForFunction(expected=>document.documentElement.style.colorScheme===expected,
       scheme,{timeout:10000});
     const appColorScheme=await page.evaluate(()=>document.documentElement.style.colorScheme);
