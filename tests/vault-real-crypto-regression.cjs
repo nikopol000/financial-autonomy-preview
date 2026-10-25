@@ -23,6 +23,7 @@ const model = {
     assert.ok(value && value.version === 4, 'Invalid synthetic ledger version');
     for (const field of ['accounts','transactions','balanceChecks'])
       assert.ok(Array.isArray(value[field]), 'Invalid synthetic '+field);
+    return value;
   },
   saveTransaction: (state,row) => ({...state,transactions:[...state.transactions,row]})
 };
@@ -707,6 +708,34 @@ async function test(name,fn) {
     assert.equal(orphan.writes,orphanWrites);
     assert.throws(()=>vault.loadWebVault(orphan),/Cheia locală există fără datele criptate/);
   });
-  console.log(passed+'/42 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==42)process.exitCode=1;
+  await test('Real password-encrypted backup restores into independent clean storage; blocked original remains byte-identical',async()=>{
+    const original=storage({[KEY]:Buffer.from(random(32)).toString('hex')});
+    const originalBefore=clone(original.data),originalWrites=original.writes;
+    assert.throws(()=>vault.loadWebVault(original),/Cheia locală există fără datele criptate/);
+    const password='Synthetic-Backup-2026!';
+    const synthetic=sample();
+    const backupText=await crypt.backup(synthetic,password,random);
+    const envelope=JSON.parse(backupText);
+    assert.equal(envelope.format,'FinancialAutonomy');
+    assert.equal(envelope.version,1);
+    assert.equal(envelope.iterations,600000);
+    assert.ok(!backupText.includes('synthetic-checking'));
+    await assert.rejects(crypt.restore(backupText,'Incorrect-Password-2026'),/Parolă greșită|backup deteriorat/);
+    const tampered={...envelope,data:(envelope.data[0]==='0'?'1':'0')+envelope.data.slice(1)};
+    await assert.rejects(crypt.restore(JSON.stringify(tampered),password),/Parolă greșită|backup deteriorat/);
+    assert.deepEqual(original.data,originalBefore);
+    assert.equal(original.writes,originalWrites);
+    const restored=clone(await crypt.restore(backupText,password));
+    assert.deepEqual(restored,synthetic);
+    const clean=storage(),locks=serialLocks();
+    const first=realTab(clean,{locks});
+    assert.deepEqual(clone(await first.load()),empty());
+    await first.save(restored);
+    assert.deepEqual(clone(await realTab(clean,{locks}).load()),synthetic);
+    assert.deepEqual(original.data,originalBefore);
+    assert.equal(original.writes,originalWrites);
+    assert.throws(()=>vault.loadWebVault(original),/Cheia locală există fără datele criptate/);
+  });
+  console.log(passed+'/43 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==43)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
