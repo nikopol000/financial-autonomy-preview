@@ -484,3 +484,121 @@ test('Actual platform 309 stale save and reset are rejected after stage plus leg
   await assert.rejects(newlyOpened.load(),/invalid|Cheia/i);
   assert.equal(JSON.stringify(s.data),before);assert.equal(s.writes,writes);
 });
+
+
+/*
+ * #35 follow-up: conservative staged-v2 quarantine, RESEARCH ONLY.
+ * Unlike recoverStaged above (which deliberately demonstrates a dangerous
+ * auto-resurrection), a stage without a legacy fence is AMBIGUOUS:
+ * (a) crash after staging, or (b) intentional reset by a cached v18.44 tab.
+ * The old reset removes its own marker, so these cases have the same durable
+ * storage footprint. No new reader can reconstruct erased intent from it.
+ *
+ * This proof of a safe default is NOT a deployable migration: the fence can
+ * still be removed by direct legacy module calls, browser acceptance is
+ * outstanding, and staging under Web Locks is not wired into the product.
+ */
+function inspectFencedStage(s) {
+  const {raw,state}=stagedEnvelope(s); // authenticate before any mutation
+  if(s.getItem(RESET)!==null)throw Error('Reset marker: quarantine stage');
+  const key=s.getItem(V1_KEY),payload=s.getItem(V1_PAYLOAD);
+  if(payload!==null||(key!==null&&key!==RESEARCH_FENCE))
+    throw Error('Conflicting legacy v1 authority: quarantine stage');
+  // Critical: NEVER auto-create a fence from a stage-only footprint after
+  // reload. It may have survived a user's intentional old-tab reset.
+  if(key!==RESEARCH_FENCE)
+    throw Error('Ambiguous stage-only after crash or old-tab reset: quarantine');
+  const active=s.getItem(V2);
+  if(active!==null&&active!==raw)
+    throw Error('Conflicting active v2: quarantine stage');
+  return {raw,state,needsActivation:active===null};
+}
+function recoverFencedStage(s) {
+  const candidate=inspectFencedStage(s);
+  if(candidate.needsActivation)s.setItem(V2,candidate.raw);
+  return candidate.state;
+}
+
+test('SAFE DEFAULT: stage-only crash is quarantined, even with valid authenticated data',()=>{
+  const s=store(),pending=ledger();pending.transactions.push({id:'unsaved-stage'});
+  const stage=stageFirst(s,pending),before=JSON.stringify(s.data),writes=s.writes;
+  assert.throws(()=>recoverFencedStage(s),/Ambiguous stage-only/);
+  assert.equal(s.writes,writes);assert.equal(JSON.stringify(s.data),before);
+  assert.equal(s.getItem(STAGE),stage);assert.equal(s.getItem(V2),null);
+});
+test('SAFE DEFAULT: actual old-platform reset after stage-only cannot trigger auto-resurrection',async()=>{
+  const s=store(),locks=oldWebLocks(),old=oldPlatformTab(s,locks);
+  await old.load();
+  const pending=ledger();pending.transactions.push({id:'intentionally-cleared'});
+  const stage=stageFirst(s,pending);
+  await old.resetData(); // actual bundled 309/310, not a mock reset
+  const before=JSON.stringify(s.data),writes=s.writes;
+  assert.equal(s.getItem(RESET),null);
+  assert.throws(()=>recoverFencedStage(s),/Ambiguous stage-only/);
+  assert.equal(s.getItem(V2),null);assert.equal(s.getItem(STAGE),stage);
+  assert.equal(s.writes,writes);assert.equal(JSON.stringify(s.data),before);
+});
+test('SAFE DEFAULT: crash-before-fence and reset-after-stage have indistinguishable footprints',async()=>{
+  const pending=ledger();pending.transactions.push({id:'ambiguous'});
+  const crashed=store(),reset=store(),old=oldPlatformTab(reset,oldWebLocks());
+  await old.load();
+  stageFirst(crashed,pending);stageFirst(reset,pending);
+  await old.resetData();
+  assert.deepEqual(reset.data,crashed.data);
+  assert.throws(()=>recoverFencedStage(crashed),/Ambiguous stage-only/);
+  assert.throws(()=>recoverFencedStage(reset),/Ambiguous stage-only/);
+  // Without a durable reset epoch known to old clients, automatic recovery
+  // cannot both preserve the crashed first save and honor the old-tab reset.
+});
+test('SAFE DEFAULT: fenced authenticated stage can activate and retry idempotently',()=>{
+  const s=store(),pending=ledger();pending.transactions.push({id:'fenced'});
+  const stage=stageFirst(s,pending);
+  s.setItem(V1_KEY,RESEARCH_FENCE); // hypothetical same-lock first-write path
+  assert.deepEqual(recoverFencedStage(s),pending);
+  assert.equal(s.getItem(V2),stage);
+  const writes=s.writes;
+  assert.deepEqual(recoverFencedStage(s),pending);assert.equal(s.writes,writes);
+});
+test('SAFE DEFAULT: denied v2 activation retains fenced encrypted stage for retry',()=>{
+  let deny=true;
+  const s=store({}, {denyWrite:k=>deny&&k===V2});
+  const stage=stageFirst(s,ledger());s.setItem(V1_KEY,RESEARCH_FENCE);
+  const writes=s.writes;
+  assert.throws(()=>recoverFencedStage(s),/QuotaExceededError/);
+  assert.equal(s.writes,writes);assert.equal(s.getItem(V2),null);
+  assert.equal(s.getItem(STAGE),stage);assert.equal(s.getItem(V1_KEY),RESEARCH_FENCE);
+  deny=false;assert.deepEqual(recoverFencedStage(s),ledger());
+});
+test('SAFE DEFAULT: lost fence after direct old reset blocks activation without deleting stage',()=>{
+  const s=store();const stage=stageFirst(s,ledger());
+  s.setItem(V1_KEY,RESEARCH_FENCE);
+  legacyVault.clearWebVault(s); // direct old module, bypasses platform guard
+  const before=JSON.stringify(s.data),writes=s.writes;
+  assert.throws(()=>recoverFencedStage(s),/Ambiguous stage-only/);
+  assert.equal(s.getItem(STAGE),stage);assert.equal(s.getItem(V2),null);
+  assert.equal(s.writes,writes);assert.equal(JSON.stringify(s.data),before);
+});
+test('SAFE DEFAULT: corrupted stage, conflicting legacy pair and reset marker fail closed',()=>{
+  for(const variant of ['tampered','legacy','reset','different-v2']){
+    const s=store();stageFirst(s,ledger());s.setItem(V1_KEY,RESEARCH_FENCE);
+    if(variant==='tampered'){
+      const env=JSON.parse(s.data[STAGE]);env.key='a'.repeat(64);
+      s.data[STAGE]=JSON.stringify(env);
+    }else if(variant==='legacy')s.data[V1_PAYLOAD]='unrelated';
+    else if(variant==='reset')s.data[RESET]='unknown';
+    else s.data[V2]='unrelated';
+    const before=JSON.stringify(s.data),writes=s.writes;
+    assert.throws(()=>recoverFencedStage(s),/authentication|Conflicting|Reset marker/i);
+    assert.equal(s.writes,writes);assert.equal(JSON.stringify(s.data),before);
+  }
+});
+test('SAFE DEFAULT: denied read of fence, stage or reset marker cannot mutate',()=>{
+  for(const denied of [STAGE,V1_KEY,RESET,V2]){
+    let fail=false;
+    const s=store({}, {denyRead:k=>fail&&k===denied});
+    stageFirst(s,ledger());s.setItem(V1_KEY,RESEARCH_FENCE);
+    const before=JSON.stringify(s.data),writes=s.writes;fail=true;
+    assert.throws(()=>recoverFencedStage(s),/SecurityError/);
+    assert.equal(s.writes,writes);assert.equal(JSON.stringify(s.data),before);
+  }
+});
