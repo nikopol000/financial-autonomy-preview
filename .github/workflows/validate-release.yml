@@ -56,6 +56,8 @@ jobs:
         run: node tests/vault-corrupt-save-regression.cjs
       - name: Verify v18.44 reset-journal release changes only vault and platform
         run: node tests/reset-journal-bundle-regression.cjs
+      - name: Verify immutable v18.45 blocked-vault guidance changed no financial logic
+        run: node tests/blocked-vault-guidance-bundle-regression.cjs
       - name: Bundled AES-GCM synthetic vault persistence and OpenSSL interop
         run: node tests/vault-real-crypto-regression.cjs
       - name: Research-only v2 atomic first-write prototype (not production)
