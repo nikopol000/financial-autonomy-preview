@@ -38,12 +38,16 @@ const RESET='financial-autonomy.preview.reset.v1';
 const V2='financial-autonomy.preview.atomic-prototype.v2'; // NOT a production storage key
 const rand=n=>new Uint8Array(crypto.randomBytes(n));
 const ledger=()=>({version:4,accounts:[],transactions:[],balanceChecks:[]});
+const model={validateState(s){assert.ok(s&&s.version===4);},migrate(s){this.validateState(s);return s;},emptyState:ledger};
+modules.set(204,{validateState:model.validateState});
+modules.set(205,model);
+const legacyVault=bundled(310); // actual current WEB v1 writer, no v2 awareness
 function store(initial={},fault={}) {
   const data={...initial};
   let writes=0;
   return {data,get writes(){return writes},
     getItem(k){if(fault.denyRead?.(k))throw Error('SecurityError: read '+k);return Object.hasOwn(data,k)?data[k]:null;},
-    setItem(k,v){if(fault.denyWrite?.(k))throw Error('QuotaExceededError: write '+k);data[k]=String(v);writes++;},
+    setItem(k,v){if(fault.denyWrite?.(k))throw Error((fault.writeError||'QuotaExceededError')+': write '+k);data[k]=String(v);writes++;},
     removeItem(k){if(fault.denyRemove?.(k))throw Error('SecurityError: remove '+k);delete data[k];writes++;}
   };
 }
@@ -104,8 +108,8 @@ test('quota failure on first v2 write leaves no orphan and permits deliberate re
   deny=false;writeV2(s,ledger());assert.deepEqual(readV2(s).state,ledger());
 });
 test('SecurityError on first v2 write leaves no key or ciphertext',()=>{
-  const s=store({}, {denyWrite:k=>k===V2});
-  assert.throws(()=>writeV2(s,ledger()),/QuotaExceededError/);
+  const s=store({}, {denyWrite:k=>k===V2,writeError:'SecurityError'});
+  assert.throws(()=>writeV2(s,ledger()),/SecurityError/);
   assert.deepEqual(s.data,{});assert.equal(s.writes,0);
 });
 test('denied v2 read fails closed with zero writes',()=>{
@@ -164,12 +168,11 @@ test('same-tab subsequent save reuses key but uses a new authenticated nonce',()
   assert.notEqual(JSON.parse(a.payload).nonce,JSON.parse(b.payload).nonce);
   assert.equal(s.writes,2);assert.deepEqual(readV2(s).state,next);
 });
-test('KNOWN BLOCKER: cached v1 writer can create dual authority after v2 commit',()=>{
+test('KNOWN BLOCKER: actual WEB v18.44 v1 writer creates dual authority after v2 commit',()=>{
   const s=store();writeV2(s,ledger());
-  // Simulates a cached v18.44 tab unaware of V2, NOT a browser reproduction.
-  const legacyKey=rand(32);
-  s.setItem(V1_KEY,Buffer.from(legacyKey).toString('hex'));
-  s.setItem(V1_PAYLOAD,aes.seal(JSON.stringify(ledger()),legacyKey,rand));
+  // Real immutable v18.44 module 310, not a browser/cached-tab reproduction.
+  legacyVault.saveWebVault(s,ledger(),rand);
+  assert.equal(s.writes,3);
   const before=JSON.stringify(s.data),writes=s.writes;
   assert.throws(()=>readV2(s),/Legacy v1 footprint/);
   assert.throws(()=>writeV2(s,ledger()),/Legacy v1 footprint/);
