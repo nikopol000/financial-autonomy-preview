@@ -1,3 +1,11 @@
+## CURRENT WEB execution queue — 2026-10-25 — #35 payload-read denial tested; Vercel READY but served-browser gate open
+
+- **DONE TEST-ONLY:** PR #77 merged main `3d1191200ee42d9d764bf2a7a130f92f1b74866b`. Actual WEB 18.47 Chromium fault injection at encrypted PAYLOAD read: 8/8 mobile blocked-vault UI cases PASS, zero vault writes and retry preserves original bytes. Chromium CI `40233487154` and release CI `40233487177` SUCCESS; no version bump or product change.
+- **RELEASE GATE:** Vercel `dpl_E7T1X6o4gXdCW78AMng7FqpFESMg` READY, target production, exact merged main SHA, primary alias. Public served HTML/header/bundle and Safari interactive behavior **NOT verified**; older product SHA `e830d0f3` still had quota failure. Do not conflate READY with public browser acceptance.
+- **FIRST UNFINISHED:** verify public-served 18.47 if possible; P1 #35 design and test explicit non-destructive recovery for ambiguous KEY-only without resurrecting reset data or choosing between old/new tab authority. Do not auto-delete keys, replay STAGE, change vault format or declare defect fixed.
+- **P2 #17:** static v18.47 English-label recheck complete; next real populated synthetic budgets on 320/390 light/dark and 200% text/keyboard, then copy-only UX if supported by evidence. **DISCOVERY #14:** financial alternatives and numeric examples documented, but no approved contract, no new modes or formulas.
+- **GUARDS:** local-only, no telemetry/backend/bank sync, no real data/backup mutations, no iOS/stable source edits. Version stays WEB **18.47** until actual product changes with immutable bundle and release checks.
+
 ## CURRENT WEB execution queue — 2026-10-25 — fix stale Chromium audit artifact version (test only)
 
 - **FIRST:** validate/merge test-only PR correcting `tests/browser-vault-ui-audit.cjs` audit.json product label (stale 18.46 while active HTML is 18.47). Read HTML version, immutable JS filename, build key and bundle existence; record exact bundle in audit artifact. CI pending until verified. No WEB version bump or product change.
