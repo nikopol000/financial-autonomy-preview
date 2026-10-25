@@ -58,6 +58,8 @@ jobs:
         run: node tests/reset-journal-bundle-regression.cjs
       - name: Bundled AES-GCM synthetic vault persistence and OpenSSL interop
         run: node tests/vault-real-crypto-regression.cjs
+      - name: Research-only v2 atomic first-write prototype (not production)
+        run: node --test tests/vault-v2-first-write-prototype.cjs
       - name: Isolated memory-only demo session and real financial model
         run: node tests/demo-session-regression.cjs
       - name: Active isolated demo WEB integration regression
