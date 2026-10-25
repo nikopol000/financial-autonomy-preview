@@ -57,11 +57,18 @@ async function audit(browser,url,width,scheme){
     await page.getByRole('button',{name:'Salvează configurația'}).click();
     await page.getByText('Alimente DEMO · TEST',{exact:true}).waitFor({state:'visible',timeout:10000});
     const englishPrimaryRow=await page.getByText(/Primary ·/).count();
+    const romanianPrimaryRow=await page.getByText(/Perioada principală ·/).count();
+    assert.equal(englishPrimaryRow,0,'Visible Finanțe budget row must not use English Primary');
+    assert.ok(romanianPrimaryRow>=1,'Visible Finanțe budget row must use Romanian label');
     await page.getByRole('tab',{name:'Mai mult'}).click();
     await page.getByText('Bugete',{exact:true}).last().click();
     await page.getByText(/Alimente DEMO · TEST/).first().waitFor({state:'visible',timeout:10000});
     await page.getByRole('button',{name:'După fereastră'}).click();
     await page.getByRole('button',{name:'După buget'}).click();
+    assert.equal(await page.getByText(/Primary/).count(),0,
+      'Populated budget page must not expose English Primary terminology');
+    assert.ok(await page.getByText(/Lunar · principală/).count()>=1,
+      'Primary monthly window must be clearly labeled in Romanian');
     const normal=await page.evaluate(()=>{
       const root=document.documentElement;
       return {viewport:innerWidth,documentScrollWidth:root.scrollWidth,
