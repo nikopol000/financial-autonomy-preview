@@ -40,6 +40,9 @@ async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=fal
   // The only seeded bytes are deliberately invalid synthetic placeholders.
   await context.addInitScript(({key,payload,reset,unknownReset,deniedRead,deniedPayloadRead})=>{
     localStorage.setItem(key,'a'.repeat(64));
+    // Existing ciphertext is intentionally opaque synthetic bytes; the injected
+    // SecurityError prevents parsing and must never lead to overwrite/deletion.
+    if(deniedPayloadRead)localStorage.setItem(payload,'synthetic-ciphertext-preserve-exactly');
     if(unknownReset)localStorage.setItem(reset,'synthetic-unknown-reset-v99');
     if(deniedRead||deniedPayloadRead){
       const rawGet=Storage.prototype.getItem;
@@ -97,7 +100,7 @@ async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=fal
     await retry.waitFor({state:'visible',timeout:10000});
     const before=await snapshot(page);
     assert.equal(before[0],'a'.repeat(64));
-    assert.equal(before[1],null);
+    assert.equal(before[1],deniedPayloadRead?'synthetic-ciphertext-preserve-exactly':null);
     assert.equal(before[2],unknownReset?'synthetic-unknown-reset-v99':null);
     assert.equal(await page.getByRole('button',{name:/șterge|resetează|înlocuiește/i}).count(),0,
       'Blocked state must not offer a destructive button');
@@ -177,8 +180,8 @@ async function main() {
       results.push(await audit(browser,url,{width,scheme}));
     results.push(await audit(browser,url,{width:390,scheme:'dark',unknownReset:true}));
     results.push(await audit(browser,url,{width:390,scheme:'light',deniedRead:true}));
-    // An inaccessible encrypted payload must fail closed even when a key exists.
-    // Check both palettes and keep the exact original key/payload/reset bytes.
+    // An inaccessible existing encrypted payload must fail closed even when a key exists.
+    // Check both palettes and keep the exact original key/ciphertext/reset bytes.
     results.push(await audit(browser,url,{width:320,scheme:'light',deniedPayloadRead:true}));
     results.push(await audit(browser,url,{width:390,scheme:'dark',deniedPayloadRead:true}));
     for(const width of [320,390]){
