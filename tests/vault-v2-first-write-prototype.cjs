@@ -542,7 +542,10 @@ test('SAFE DEFAULT: crash-before-fence and reset-after-stage have indistinguisha
   const pending=ledger();pending.transactions.push({id:'ambiguous'});
   const crashed=store(),reset=store(),old=oldPlatformTab(reset,oldWebLocks());
   await old.load();
-  stageFirst(crashed,pending);stageFirst(reset,pending);
+  const sameEncryptedStage=stageFirst(crashed,pending);
+  // Reuse the EXACT ciphertext/key/nonce to model the same pre-crash state.
+  // Two independent AES-GCM seals would differ even for identical ledgers.
+  reset.data[STAGE]=sameEncryptedStage;
   await old.resetData();
   assert.deepEqual(reset.data,crashed.data);
   assert.throws(()=>recoverFencedStage(crashed),/Ambiguous stage-only/);
