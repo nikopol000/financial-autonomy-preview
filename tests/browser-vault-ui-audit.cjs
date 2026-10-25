@@ -34,24 +34,24 @@ function serve(req,res) {
 async function snapshot(page) {
   return page.evaluate(keys=>keys.map(k=>window.__vaultAuditRawGet?window.__vaultAuditRawGet(k):localStorage.getItem(k)),[KEY,PAYLOAD,RESET]);
 }
-async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=false}) {
+async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=false,deniedPayloadRead=false}) {
   const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:2,
     isMobile:true,hasTouch:true,colorScheme:scheme,timezoneId:'Europe/Bucharest',reducedMotion:'reduce'});
   // The only seeded bytes are deliberately invalid synthetic placeholders.
-  await context.addInitScript(({key,payload,reset,unknownReset,deniedRead})=>{
+  await context.addInitScript(({key,payload,reset,unknownReset,deniedRead,deniedPayloadRead})=>{
     localStorage.setItem(key,'a'.repeat(64));
     if(unknownReset)localStorage.setItem(reset,'synthetic-unknown-reset-v99');
-    if(deniedRead){
+    if(deniedRead||deniedPayloadRead){
       const rawGet=Storage.prototype.getItem;
       const rawSet=Storage.prototype.setItem;
       const rawRemove=Storage.prototype.removeItem;
       window.__vaultAuditRawGet=k=>rawGet.call(localStorage,k);
       window.__vaultAuditWriteCalls=[];
-      // Inject a real SecurityError at the reset-journal read boundary.
+      // Inject a SecurityError at one selected vault read boundary (reset or ciphertext).
       // Do not alter stored bytes or interfere with non-vault preferences.
       Storage.prototype.getItem=function(k){
-        if(this===localStorage&&k===reset)
-          throw new DOMException('Synthetic reset read denied','SecurityError');
+        if(this===localStorage&&((deniedRead&&k===reset)||(deniedPayloadRead&&k===payload)))
+          throw new DOMException('Synthetic vault read denied','SecurityError');
         return rawGet.call(this,k);
       };
       Storage.prototype.setItem=function(k,v){
@@ -65,7 +65,7 @@ async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=fal
         return rawRemove.call(this,k);
       };
     }
-  },{key:KEY,payload:PAYLOAD,reset:RESET,unknownReset,deniedRead});
+  },{key:KEY,payload:PAYLOAD,reset:RESET,unknownReset,deniedRead,deniedPayloadRead});
   const page=await context.newPage();
   try {
     // The app's default appearance is AUTO based on local time in Romania,
@@ -86,7 +86,7 @@ async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=fal
     assert.equal(appColorScheme,scheme,'The actual app palette must use the requested theme');
     const guidance=page.getByText(/Nu șterge datele site-ului și nu reseta aplicația/);
     await guidance.waitFor({state:'visible',timeout:10000});
-    if(!unknownReset&&!deniedRead){
+    if(!unknownReset&&!deniedRead&&!deniedPayloadRead){
       const banner=page.getByText(/Cheia locală există, dar datele criptate lipsesc/).first();
       await banner.waitFor({state:'visible',timeout:10000});
       assert.match(await banner.innerText(),/Nu vom șterge cheia și nu vom crea automat date noi/);
@@ -125,17 +125,17 @@ async function audit(browser,url,{width,scheme,unknownReset=false,deniedRead=fal
       outline:getComputedStyle(el).outlineStyle,outlineWidth:getComputedStyle(el).outlineWidth}));
     // React Native Web may delegate focus to a child; report without falsely
     // claiming keyboard/screen-reader certification.
-    const label=(deniedRead?'denied-reset-read-':unknownReset?'unknown-reset-':'key-only-')+width+'-'+scheme;
+    const label=(deniedRead?'denied-reset-read-':deniedPayloadRead?'denied-payload-read-':unknownReset?'unknown-reset-':'key-only-')+width+'-'+scheme;
     await page.screenshot({path:path.join(OUT,label+'.png'),fullPage:true});
     await retry.click();
     await title.waitFor({state:'visible',timeout:10000});
     assert.deepEqual(await snapshot(page),before,'Retry must preserve all original bytes');
     const vaultWrites=await page.evaluate(()=>window.__vaultAuditWriteCalls||[]);
-    if(deniedRead)assert.deepEqual(vaultWrites,[],
-      'Denied reset-marker reads must never cause vault writes or deletions');
+    if(deniedRead||deniedPayloadRead)assert.deepEqual(vaultWrites,[],
+      'Denied vault reads must never cause vault writes or deletions');
     const result={case:label,viewport:width,theme:scheme,appColorScheme,
       simulatedTimeUTC:scheme==='light'?'2026-06-15T12:00:00Z':'2026-06-15T00:00:00Z',
-      unknownReset,deniedRead,
+      unknownReset,deniedRead,deniedPayloadRead,
       vaultWriteCalls:vaultWrites.length,
       retryTarget:{width:box.width,height:box.height},visual,focus,
       retryPreservedBytes:true,destructiveControls:0};
@@ -177,6 +177,10 @@ async function main() {
       results.push(await audit(browser,url,{width,scheme}));
     results.push(await audit(browser,url,{width:390,scheme:'dark',unknownReset:true}));
     results.push(await audit(browser,url,{width:390,scheme:'light',deniedRead:true}));
+    // An inaccessible encrypted payload must fail closed even when a key exists.
+    // Check both palettes and keep the exact original key/payload/reset bytes.
+    results.push(await audit(browser,url,{width:320,scheme:'light',deniedPayloadRead:true}));
+    results.push(await audit(browser,url,{width:390,scheme:'dark',deniedPayloadRead:true}));
     for(const width of [320,390]){
       const light=fs.readFileSync(path.join(OUT,'key-only-'+width+'-light.png'));
       const dark=fs.readFileSync(path.join(OUT,'key-only-'+width+'-dark.png'));
@@ -185,7 +189,7 @@ async function main() {
     }
     fs.writeFileSync(path.join(OUT,'audit.json'),JSON.stringify({
       product:'WEB '+release.version,bundle:release.bundle,origin:'localhost synthetic-only',results},null,2));
-    console.log('PASS 6/6 actual Chromium blocked-vault UI states; real auto-theme light/dark differentiated at 320/390px');
+    console.log('PASS 8/8 actual Chromium blocked-vault UI states; real auto-theme light/dark differentiated at 320/390px');
   } finally {
     if(browser)await browser.close();
     await new Promise(resolve=>server.close(resolve));
