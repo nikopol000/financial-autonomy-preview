@@ -262,11 +262,11 @@ async function makeLiveOrphanWithCapturedCiphertext(s,l){
   assert.equal(typeof ciphertext,'string');
   assert.match(s.getItem(KEY),/^[0-9a-f]{64}$/);
   assert.equal(s.getItem(PAYLOAD),null);
-  return {handle:{key:s.getItem(KEY),payload:ciphertext,epoch:s.getItem(RESET)},value};
+  return {handle:{live:true,key:s.getItem(KEY),payload:ciphertext,epoch:s.getItem(RESET)},value};
 }
 function retryCapturedCiphertextUnderLock(s,l,handle){
   return l.request('financial-autonomy.preview.vault.v1',{mode:'exclusive'},()=>{
-    if(!handle||typeof handle.key!=='string'||typeof handle.payload!=='string')
+    if(!handle||handle.live!==true||typeof handle.key!=='string'||typeof handle.payload!=='string')
       throw Error('No live in-memory proof: fail closed');
     const epoch=s.getItem(RESET),key=s.getItem(KEY),payload=s.getItem(PAYLOAD);
     if(!/^idle-v2:[0-9a-f]{32}$/.test(epoch??'')||epoch!==handle.epoch||
@@ -351,4 +351,34 @@ test('RESEARCH #35 real WEB: read denial and lost live handle fail closed, no re
   await assert.rejects(retryCapturedCiphertextUnderLock(s,l,null),/No live in-memory proof/);
   await assert.rejects(newTab(s,l).load(),/Cheia locală există/i);
   assert.deepEqual(s.data,snapshot);assert.equal(s.writes,writes);
+});
+
+test('RESEARCH #35 expired in-memory retry handle after pagehide never writes orphan vault',async()=>{
+  // Simulate a conservative pagehide/lifecycle boundary. This is a test-only
+  // token, NOT a browser lifecycle listener or shipped recovery feature.
+  const s=store(),l=locks();await resetToIdle(s,l);
+  const {handle}=await makeLiveOrphanWithCapturedCiphertext(s,l);
+  const before=clone(s.data),writes=s.writes;
+  handle.live=false;handle.payload=null;
+  await assert.rejects(retryCapturedCiphertextUnderLock(s,l,handle),/No live in-memory proof/);
+  assert.deepEqual(s.data,before);assert.equal(s.writes,writes);
+  await assert.rejects(newTab(s,l).load(),/Cheia locală există/i);
+  assert.deepEqual(s.data,before);assert.equal(s.writes,writes);
+});
+
+test('RESEARCH #35 lifecycle invalidation while Web Lock is queued rejects before any write',async()=>{
+  const s=store(),l=locks();await resetToIdle(s,l);
+  const {handle}=await makeLiveOrphanWithCapturedCiphertext(s,l);
+  let release;
+  const gate=new Promise(resolve=>{release=resolve});
+  const holding=l.request('financial-autonomy.preview.vault.v1',{mode:'exclusive'},()=>gate);
+  const queued=retryCapturedCiphertextUnderLock(s,l,handle);
+  // A pagehide-like event invalidates the still-live operation before it
+  // acquires the lock; the guard MUST execute INSIDE the lock callback.
+  handle.live=false;handle.payload=null;
+  const before=clone(s.data),writes=s.writes;
+  release();await holding;
+  await assert.rejects(queued,/No live in-memory proof/);
+  assert.deepEqual(s.data,before);assert.equal(s.writes,writes);
+  await assert.rejects(newTab(s,l).load(),/Cheia locală există/i);
 });
