@@ -804,6 +804,105 @@ async function run() {
     assert.deepEqual(await vaultBytes(boundedPage),boundedCommitted);
     console.log('PASS Chromium #35 RESEARCH ONLY: real Web Locks + actual WEB 18.50 AES-GCM bounded live-handle retry after reset; reload decrypts, no product recovery shipped');
 
+
+    // #35 RESEARCH ONLY: a queued hypothetical first-write retry must never
+    // survive REAL Chromium page navigation while another tab owns the Web
+    // Lock. The handle and lifecycle listener exist only in this test, NOT
+    // in WEB 18.50. This is browser lifecycle evidence, not a product fix.
+    const lifecycleContext=await browser.newContext({viewport:{width:390,height:844},
+      isMobile:true,hasTouch:true,colorScheme:'dark'});
+    const lifecyclePage=await lifecycleContext.newPage();activePage=lifecyclePage;
+    await openReal(lifecyclePage,url);
+    const lifecycleEpoch=await lifecyclePage.evaluate(async reset=>{
+      const api=window.__r(309);await api.load();await api.resetData();
+      return localStorage.getItem(reset);
+    },RESET);
+    assert.match(lifecycleEpoch,/^idle-v2:[0-9a-f]{32}$/);
+    await openReal(lifecyclePage,url);
+    const lifecycleFault=await lifecyclePage.evaluate(async ({key,payload,reset})=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(name,value){
+        if(this===localStorage&&name===payload){
+          window.__lifeHandle={key:localStorage.getItem(key),payload:String(value),
+            epoch:localStorage.getItem(reset),live:true};
+          throw new DOMException('Synthetic lifecycle payload denied','QuotaExceededError');
+        }
+        return original.call(this,name,value);
+      };
+      try{
+        const api=window.__r(309),state=await api.load();
+        try{await api.save(state);return 'UNEXPECTED_SUCCESS'}
+        catch(error){return String(error.message)}
+      }finally{Storage.prototype.setItem=original}
+    },{key:KEY,payload:PAYLOAD,reset:RESET});
+    assert.match(lifecycleFault,/nu a putut salva datele local/i);
+    const lifecycleOrphan=await vaultBytes(lifecyclePage);
+    assert.match(lifecycleOrphan.key,/^[0-9a-f]{64}$/);
+    assert.equal(lifecycleOrphan.payload,null);
+    assert.equal(lifecycleOrphan.reset,lifecycleEpoch);
+    await lifecyclePage.evaluate(()=>{
+      window.addEventListener('pagehide',()=>{
+        window.__lifeHandle.live=false;
+        sessionStorage.setItem('__faSyntheticPagehideSeen','yes');
+      },{once:true});
+    });
+    const lockHolder=await lifecycleContext.newPage();activePage=lockHolder;
+    await openReal(lockHolder,url);
+    await lockHolder.evaluate(()=>{
+      window.__lifeLockHeld=false;
+      navigator.locks.request('financial-autonomy.preview.vault.v1',
+        {mode:'exclusive'},async()=>{
+          window.__lifeLockHeld=true;
+          await new Promise(resolve=>{window.__lifeReleaseLock=resolve});
+        }).catch(error=>{window.__lifeLockError=String(error)});
+    });
+    await lockHolder.waitForFunction(()=>window.__lifeLockHeld===true,null,{timeout:10000});
+    await lifecyclePage.evaluate(({key,payload,reset})=>{
+      window.__lifeRetryStatus='pending';
+      navigator.locks.request('financial-autonomy.preview.vault.v1',
+        {mode:'exclusive'},()=>{
+          const h=window.__lifeHandle;
+          if(!h?.live)throw Error('Expired page lifecycle: fail closed');
+          const current={key:localStorage.getItem(key),
+            payload:localStorage.getItem(payload),epoch:localStorage.getItem(reset)};
+          if(current.key!==h.key||current.epoch!==h.epoch||current.payload!==null)
+            throw Error('Changed authority: fail closed');
+          const shadow={getItem(name){
+            if(name===key)return h.key;
+            if(name===payload)return h.payload;
+            if(name===reset)return h.epoch;
+            return null;
+          }};
+          window.__r(310).loadWebVault(shadow);
+          localStorage.setItem(payload,h.payload);
+        }).then(()=>{window.__lifeRetryStatus='UNEXPECTED_COMMIT'},
+          error=>{window.__lifeRetryStatus='rejected:'+String(error)});
+    },{key:KEY,payload:PAYLOAD,reset:RESET});
+    await lockHolder.waitForFunction(async()=>{
+      const state=await navigator.locks.query();
+      return state.pending.some(lock=>lock.name==='financial-autonomy.preview.vault.v1');
+    },null,{timeout:10000});
+    assert.deepEqual(await vaultBytes(lockHolder),lifecycleOrphan,
+      'Queued hypothetical retry must not write before lock acquisition');
+    await lifecyclePage.goto('about:blank',{waitUntil:'load',timeout:15000});
+    await lockHolder.evaluate(()=>window.__lifeReleaseLock());
+    await lockHolder.waitForFunction(async()=>{
+      const state=await navigator.locks.query();
+      return !state.held.some(lock=>lock.name==='financial-autonomy.preview.vault.v1')&&
+        !state.pending.some(lock=>lock.name==='financial-autonomy.preview.vault.v1');
+    },null,{timeout:15000});
+    assert.deepEqual(await vaultBytes(lockHolder),lifecycleOrphan,
+      'Navigating away while retry waits for Web Lock must not commit ciphertext');
+    await openReal(lifecyclePage,url);
+    assert.equal(await lifecyclePage.evaluate(()=>
+      sessionStorage.getItem('__faSyntheticPagehideSeen')),'yes',
+      'Chromium must have fired real pagehide during navigation');
+    await lifecyclePage.getByText('Datele locale nu pot fi deschise',{exact:true})
+      .waitFor({state:'visible',timeout:15000});
+    assert.deepEqual(await vaultBytes(lifecyclePage),lifecycleOrphan,
+      'After pagehide/reload, ambiguous KEY-only must remain quarantined byte-for-byte');
+    console.log('PASS Chromium #35 RESEARCH ONLY: real pagehide navigation cancels queued Web Lock retry; KEY-only stays byte-identical and blocked after reload');
+
     // #35: Nonconforming Storage write-then-throw after PAYLOAD has already
     // committed. This is a fault-injection characterization, NOT native
     // localStorage's usual atomic setItem behavior and NOT shipped recovery.
