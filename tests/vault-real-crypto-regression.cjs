@@ -672,7 +672,8 @@ async function test(name,fn) {
   await test('Blocked vault landing retains visible non-destructive guidance and retry',()=>{
     assert.ok(source.includes('O?"Datele locale nu pot fi deschise"'), 'Blocked state needs an explicit heading');
     assert.ok(source.includes('Nu șterge datele site-ului și nu reseta aplicația.'), 'No destructive recovery advice');
-    assert.ok(source.includes('această pagină nu poate restaura datele cât timp seiful este blocat.'), 'No misleading backup-restore promise');
+    assert.ok(source.includes('reîncercarea deschiderii nu le poate recrea.'), 'Retry cannot recreate missing ciphertext');
+    assert.ok(source.includes('Acest ecran nu poate restaura un backup.'), 'No misleading backup-restore promise');
     assert.ok(source.includes('O?"Reîncearcă deschiderea"'), 'Retry should only reload vault');
     assert.ok(source.includes('e&&!R.canRetryFirstSave()&&(0,k.jsx)(h.Button,{label:"\\xcenchide mesajul"'), 'Pending first-save retry must not be dismissed; blocked landing remains protected');
   });
