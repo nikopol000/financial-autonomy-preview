@@ -1,3 +1,11 @@
+## CURRENT WEB execution queue — 2026-10-26 — WEB 18.53 copy-only candidate
+
+- **IN PROGRESS #17 + #35 SAFE UX:** candidate `feat/web-1853-vault-clarity-20261026`, bundle commit `8a817871c6f8aa1d4db09f39586c41145346b4e2`, activation commit `baa47f3d4c28a25aecc12dc91c5fdf0bb262683a`. Only three Romanian `Custom` validation messages and blocked-vault informational copy change; new immutable WEB 18.53 diagnostic/index synchronized. No financial logic/storage mutation.
+- **FIRST UNFINISHED:** run and inspect release validation `scripts/check_release.py`, `node --check`, relevant tests via CI. Merge only after success; then exact-main CI/Pages, Vercel READY and served UI/Safari verification if permitted. If blocked, preserve candidate and document precise blocker, never claim published.
+- **P1 #35 STILL OPEN:** no post-reload recovery of KEY-only without provenance. Do not auto-delete KEY, reset or overwrite data. Next research migration-safe single-record commit and accessibility in blocked state.
+- **DISCOVERY:** #14 planned budget vs shared owned cash vs remaining days needs explicit financial-contract approval before implementation. #85 Safari 200% zoom/VoiceOver unverified; #17 visible mobile copy needs actual browser acceptance.
+- **SCOPE:** local-only; no iOS, stable source, actual ledger, encrypted backup, financial formulas, backend, accounts, telemetry or bank connection changes.
+
 ## CURRENT WEB execution queue — 2026-10-26 — #35 KEY-only provenance proof; WEB 18.52 unchanged
 
 - **DONE TEST/RESEARCH P1 #35:** [PR #123](https://github.com/nikopol000/financial-autonomy-preview/pull/123), merged main `d55cd63e67f05a06b2b759bb10a05cb83c56bf67`; active WEB 18.52 real AES-GCM test harness now 11/11 PASS in [candidate Release 40375073388](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40375073388). Identical persistent KEY-only/reset state arises from interrupted first PAYLOAD write or from externally missing PAYLOAD after authenticated commit; fresh-tab load/save/retry fail closed with **zero writes**. Formal contract/UX alternatives in `docs/WEB_KEY_ONLY_PROVENANCE_ANALYSIS_20261026.md`. #35 OPEN. No product release/version bump.
