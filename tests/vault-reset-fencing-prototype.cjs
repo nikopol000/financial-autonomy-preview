@@ -22,7 +22,7 @@ const copy = value => JSON.parse(JSON.stringify(value));
 const ledger = () => ({version:4,accounts:[],transactions:[],balanceChecks:[]});
 const model = {
   emptyState:ledger,
-  migrate(value){this.validateState(value);return value;},
+  migrate(value){model.validateState(value);return value;},
   validateState(value){
     assert.equal(value?.version,4);
     for(const k of ['accounts','transactions','balanceChecks'])
