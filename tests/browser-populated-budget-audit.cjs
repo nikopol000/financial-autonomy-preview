@@ -57,7 +57,7 @@ async function navFootprint(page){
       const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
       let node;
       while((node=walker.nextNode())){
-        if(node.textContent.trim().replace(/\u00ad/g,'')!==label)continue;
+        if(node.textContent.trim().replace(/\u00ad/g,'')!==(label==='Înregistrează'?'Adaugă':label))continue;
         const range=document.createRange();
         range.selectNodeContents(node);
         const rect=range.getBoundingClientRect();
