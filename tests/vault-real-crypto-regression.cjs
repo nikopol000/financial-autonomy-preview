@@ -736,6 +736,63 @@ async function test(name,fn) {
     assert.equal(original.writes,originalWrites);
     assert.throws(()=>vault.loadWebVault(original),/Cheia locală există, dar datele criptate lipsesc/);
   });
-  console.log(passed+'/43 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==43)process.exitCode=1;
+  await test('F03 adversarial payload write-then-throw preserves authenticated first-save ciphertext',()=>{
+    // Deliberately NONCONFORMING Storage shim: native setItem failure is atomic.
+    // This checks that a caught error never justifies deleting the new key.
+    const backing=storage();
+    const nonconforming={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){
+        backing.setItem(k,v);
+        if(k===PAYLOAD)throw Error('Injected nonconforming write-then-throw');
+      },
+      removeItem:k=>backing.removeItem(k),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const state=sample();
+    assert.throws(()=>vault.saveWebVault(nonconforming,state,random),/nu a putut salva/);
+    assert.equal(backing.writes,2);
+    assert.match(backing.getItem(KEY),/^[0-9a-f]{64}$/);
+    assert.ok(backing.getItem(PAYLOAD));
+    const before=clone(backing.data),writes=backing.writes;
+    assert.deepEqual(clone(vault.loadWebVault(backing)),state);
+    assert.deepEqual(backing.data,before);
+    assert.equal(backing.writes,writes);
+  });
+  await test('F06 unreadable reset marker plus KEY-only first-save failure stays quarantined',async()=>{
+    const backing=storage();
+    const firstWrite={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){
+        if(k===PAYLOAD)throw Error('QuotaExceededError: injected payload denial');
+        backing.setItem(k,v);
+      },
+      removeItem:k=>backing.removeItem(k),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    assert.throws(()=>vault.saveWebVault(firstWrite,sample(),random),/nu a putut salva/);
+    assert.ok(backing.getItem(KEY));
+    assert.equal(backing.getItem(PAYLOAD),null);
+    let denyMarker=true;
+    const gated={
+      getItem(k){
+        if(denyMarker&&k===RESET)throw Error('SecurityError: reset marker read denied');
+        return backing.getItem(k);
+      },
+      setItem:(...args)=>backing.setItem(...args),
+      removeItem:(...args)=>backing.removeItem(...args),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const before=clone(backing.data),writes=backing.writes;
+    await assert.rejects(realTab(gated,{locks:serialLocks()}).load(),/SecurityError/);
+    assert.throws(()=>vault.loadWebVault(gated),/SecurityError/);
+    assert.deepEqual(backing.data,before);
+    assert.equal(backing.writes,writes);
+    denyMarker=false;
+    await assert.rejects(realTab(gated,{locks:serialLocks()}).load(),/Cheia locală există, dar datele criptate lipsesc/);
+    assert.deepEqual(backing.data,before);
+    assert.equal(backing.writes,writes);
+  });
+  console.log(passed+'/45 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==45)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
