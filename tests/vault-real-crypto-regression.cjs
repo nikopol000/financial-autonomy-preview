@@ -793,6 +793,27 @@ async function test(name,fn) {
     assert.deepEqual(backing.data,before);
     assert.equal(backing.writes,writes);
   });
-  console.log(passed+'/45 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==45)process.exitCode=1;
+  await test('KNOWN UNSAFE: empty-vault ABA after another tab saves and resets permits stale real-tab write',async()=>{
+    // The revision currently tracks KEY/PAYLOAD/RESET bytes only. A completed
+    // reset deletes all three, so empty -> populated -> reset looks identical
+    // to a stale tab that loaded the original empty vault. This PASS is a
+    // CHARACTERIZATION OF UNSAFE BEHAVIOR, not a safety guarantee.
+    const backing=storage(),locks=serialLocks();
+    const stale=realTab(backing,{locks}),actor=realTab(backing,{locks});
+    const staleEmpty=clone(await stale.load());
+    await actor.load();
+    await actor.save(sample());
+    assert.ok(backing.getItem(KEY)&&backing.getItem(PAYLOAD));
+    await actor.resetData();
+    assert.equal(backing.getItem(KEY),null);
+    assert.equal(backing.getItem(PAYLOAD),null);
+    assert.equal(backing.getItem(RESET),null);
+    const writes=backing.writes;
+    staleEmpty.transactions.push({id:'stale-after-reset-aba',kind:'income',amount:777});
+    await stale.save(staleEmpty);
+    assert.equal(backing.writes,writes+2);
+    assert.ok(vault.loadWebVault(backing).transactions.some(t=>t.id==='stale-after-reset-aba'));
+  });
+  console.log(passed+'/46 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==46)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
