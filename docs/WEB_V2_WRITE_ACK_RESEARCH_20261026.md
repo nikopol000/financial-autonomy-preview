@@ -21,6 +21,8 @@ The v2 prototype also tests an **interleaved compare-then-set without Web Locks*
 
 A single localStorage record eliminates the *two-key torn write*, but does not provide an atomic compare-and-swap. **Required production contract:** all real ledger save/reset/migration transitions must acquire the same origin-wide exclusive Web Lock before reading/validating the expected revision and writing; if Web Locks are unavailable, fail closed with a visible read-only explanation. Recheck the revision **inside** the lock. This serializes cooperating current tabs only: cached legacy clients, direct module calls and external storage deletion remain separate unresolved threats. Do not silently merge transactions or treat the single-record format as sufficient to close #4 or #35.
 
+**Verification (candidate only):** [Release CI 40408953368](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40408953368) SUCCESS, named interleaved `KNOWN UNSAFE` test PASS and **47/47** v2 prototype tests PASS (0 failures). [PR #131](https://github.com/nikopol000/financial-autonomy-preview/pull/131) merged as `4a7961c963c103d2754b7498f3919fa4309a7d25`. This confirms the deterministic hazard, not a fixed race or an actual browser incident. Exact merged-main CI/Pages and Vercel served browser are separate verification gates.
+
 ## Unresolved blockers before any migration
 
 1. **Cached legacy writers and split-brain:** existing v1 tabs may create KEY/PAYLOAD while a new v2 record exists. A reset/epoch fence must prevent this without reviving data after an intentional reset; see existing `vault-v2-first-write-prototype.cjs` and `vault-reset-fencing-prototype.cjs` unsafe characterizations.
