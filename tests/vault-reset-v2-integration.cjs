@@ -234,3 +234,121 @@ test('P1 #35: denied RESET read on post-reset first save rejects before any writ
   await assert.rejects(b.save(empty()),/SecurityError/);
   assert.deepEqual(s.data,snapshot);assert.equal(s.writes,writes);
 });
+
+
+/*
+ * RESEARCH ONLY (#35): same-live-session first-write retry with the ACTUAL
+ * WEB 18.50 module 309/310/311 encryption and exclusive lock path.
+ *
+ * This is a test-only proof-of-concept, NOT a production recovery function.
+ * A pending ciphertext handle exists only because this test intercepts the
+ * original active-bundle PAYLOAD setItem call before its injected failure.
+ * An arbitrary KEY-only vault after reload provides NO such authority.
+ * Native Storage atomicity, power-loss durability and real Safari are not
+ * proven. Never delete a KEY, replay a reset, or silently migrate a vault.
+ */
+async function makeLiveOrphanWithCapturedCiphertext(s,l){
+  const a=newTab(s,l),value=empty();
+  value.transactions.push({id:'synthetic-retry-only',kind:'expense',amount:17});
+  await a.load();
+  const original=s.setItem.bind(s);
+  let ciphertext=null;
+  s.setItem=(k,v)=>{
+    if(k===PAYLOAD){ciphertext=String(v);throw Error('Synthetic PAYLOAD quota failure')}
+    return original(k,v);
+  };
+  try{await assert.rejects(a.save(value),/nu a putut salva/i)}
+  finally{s.setItem=original}
+  assert.equal(typeof ciphertext,'string');
+  assert.match(s.getItem(KEY),/^[0-9a-f]{64}$/);
+  assert.equal(s.getItem(PAYLOAD),null);
+  return {handle:{key:s.getItem(KEY),payload:ciphertext,epoch:s.getItem(RESET)},value};
+}
+function retryCapturedCiphertextUnderLock(s,l,handle){
+  return l.request('financial-autonomy.preview.vault.v1',{mode:'exclusive'},()=>{
+    if(!handle||typeof handle.key!=='string'||typeof handle.payload!=='string')
+      throw Error('No live in-memory proof: fail closed');
+    const epoch=s.getItem(RESET),key=s.getItem(KEY),payload=s.getItem(PAYLOAD);
+    if(!/^idle-v2:[0-9a-f]{32}$/.test(epoch??'')||epoch!==handle.epoch||
+       key!==handle.key||(payload!==null&&payload!==handle.payload))
+      throw Error('Changed vault authority: fail closed');
+    // Authenticate the exact captured bytes using the REAL bundled vault
+    // before allowing any write, not a synthetic encryption replacement.
+    const isolated=store({[KEY]:handle.key,[PAYLOAD]:handle.payload,[RESET]:handle.epoch});
+    const value=clone(newVault.loadWebVault(isolated));
+    if(payload===handle.payload)return {status:'already-committed',value};
+    s.setItem(PAYLOAD,handle.payload);
+    if(s.getItem(RESET)!==handle.epoch||s.getItem(KEY)!==handle.key||
+       s.getItem(PAYLOAD)!==handle.payload)
+      throw Error('Post-retry mismatch: fail closed');
+    return {status:'committed-on-retry',value};
+  });
+}
+async function resetToIdle(s,l){
+  const a=newTab(s,l);await a.load();await a.resetData();isIdle(s);
+}
+
+test('RESEARCH #35 real WEB 18.50 AES-GCM: bounded post-reset orphan retry restores exact captured ciphertext',async()=>{
+  const s=store(),l=locks();await resetToIdle(s,l);
+  const {handle,value}=await makeLiveOrphanWithCapturedCiphertext(s,l);
+  const cached=oldTab(s,l),before=s.writes;
+  await assert.rejects(cached.load(),/Marcaj de resetare necunoscut/i);
+  await assert.rejects(newTab(s,l).load(),/Cheia locală există/i);
+  assert.equal(s.writes,before);
+  const r=await retryCapturedCiphertextUnderLock(s,l,handle);
+  assert.equal(r.status,'committed-on-retry');
+  assert.deepEqual(r.value,value);
+  assert.deepEqual(clone(newVault.loadWebVault(s)),value);
+  assert.deepEqual(clone(await newTab(s,l).load()),value);
+  await assert.rejects(cached.save(empty()),/Resetarea locală|Reîncarcă/i);
+  assert.equal(s.getItem(RESET),handle.epoch);
+});
+
+test('RESEARCH #35 real WEB: changed reset epoch or key forbids retry with zero writes',async()=>{
+  for(const changed of ['epoch','pending','key']){
+    const s=store(),l=locks();await resetToIdle(s,l);
+    const {handle}=await makeLiveOrphanWithCapturedCiphertext(s,l);
+    if(changed==='epoch')s.setItem(RESET,'idle-v2:'+'b'.repeat(32));
+    if(changed==='pending')s.setItem(RESET,'pending-v2:'+'c'.repeat(32));
+    if(changed==='key')s.setItem(KEY,'f'.repeat(64));
+    const snapshot=clone(s.data),writes=s.writes;
+    await assert.rejects(retryCapturedCiphertextUnderLock(s,l,handle),/Changed vault authority/);
+    assert.deepEqual(s.data,snapshot);assert.equal(s.writes,writes);
+  }
+});
+
+test('RESEARCH #35 real WEB: competing ciphertext and tampered pending ciphertext never overwrite',async()=>{
+  for(const changed of ['external-payload','tampered-handle']){
+    const s=store(),l=locks();await resetToIdle(s,l);
+    const {handle}=await makeLiveOrphanWithCapturedCiphertext(s,l);
+    if(changed==='external-payload')s.setItem(PAYLOAD,'another-ciphertext');
+    else handle.payload=handle.payload.slice(0,-1)+'!';
+    const snapshot=clone(s.data),writes=s.writes;
+    await assert.rejects(retryCapturedCiphertextUnderLock(s,l,handle));
+    assert.deepEqual(s.data,snapshot);assert.equal(s.writes,writes);
+  }
+});
+
+test('RESEARCH #35 real WEB: denied retry write retains orphan and later bounded retry succeeds',async()=>{
+  const s=store(),l=locks();await resetToIdle(s,l);
+  const {handle,value}=await makeLiveOrphanWithCapturedCiphertext(s,l);
+  const snapshot=clone(s.data),writes=s.writes;
+  s.fault.write=k=>k===PAYLOAD;
+  await assert.rejects(retryCapturedCiphertextUnderLock(s,l,handle),/QuotaExceededError/);
+  assert.deepEqual(s.data,snapshot);assert.equal(s.writes,writes);
+  s.fault.write=null;
+  assert.equal((await retryCapturedCiphertextUnderLock(s,l,handle)).status,'committed-on-retry');
+  assert.deepEqual(clone(newVault.loadWebVault(s)),value);
+});
+
+test('RESEARCH #35 real WEB: read denial and lost live handle fail closed, no recovery after reload',async()=>{
+  const s=store(),l=locks();await resetToIdle(s,l);
+  const {handle}=await makeLiveOrphanWithCapturedCiphertext(s,l);
+  const snapshot=clone(s.data),writes=s.writes;
+  s.fault.read=k=>k===RESET;
+  await assert.rejects(retryCapturedCiphertextUnderLock(s,l,handle),/SecurityError/);
+  s.fault.read=null;
+  await assert.rejects(retryCapturedCiphertextUnderLock(s,l,null),/No live in-memory proof/);
+  await assert.rejects(newTab(s,l).load(),/Cheia locală există/i);
+  assert.deepEqual(s.data,snapshot);assert.equal(s.writes,writes);
+});
