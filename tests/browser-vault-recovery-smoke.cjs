@@ -602,7 +602,7 @@ async function run() {
     const firstPage=await firstContext.newPage();activePage=firstPage;
     await openReal(firstPage,url);
     const firstState=await firstPage.evaluate(async()=>window.__r(309).load());
-    assert.deepEqual(await vaultBytes(firstPage),cleared);
+    assert.deepEqual(await vaultBytes(firstPage),{key:null,payload:null,reset:null});
     await firstPage.evaluate(payload=>{
       const original=Storage.prototype.setItem;
       Storage.prototype.setItem=function(name,value){
