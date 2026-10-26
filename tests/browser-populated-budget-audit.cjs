@@ -3,6 +3,7 @@
 // Disposable localhost Chromium contexts only. No real vault, backup or financial formula changes.
 // 200% CSS zoom is a layout stress approximation, NOT iOS Dynamic Type certification.
 const assert=require('node:assert/strict');
+require('./web-v1849-nav-regression.cjs');
 const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
@@ -56,7 +57,7 @@ async function navFootprint(page){
       const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
       let node;
       while((node=walker.nextNode())){
-        if(node.textContent.trim()!==label)continue;
+        if(node.textContent.trim().replace(/\u00ad/g,'')!==(label==='Înregistrează'?'Adaugă':label))continue;
         const range=document.createRange();
         range.selectNodeContents(node);
         const rect=range.getBoundingClientRect();
@@ -112,6 +113,8 @@ async function audit(browser,url,width,scheme){
     assert.ok(await page.getByText(/Lunar · principală/).count()>=1,
       'Primary monthly window must be clearly labeled in Romanian');
     const navNormal=await navFootprint(page);
+    assert.deepEqual(navNormal.textOverlapPairs,[], 'Navigation text must not overlap at normal size');
+    assert.deepEqual(navNormal.textOutsideHitTarget,[], 'Navigation labels must fit their hit targets at normal size');
     const normal=await page.evaluate(()=>{
       const root=document.documentElement;
       return {viewport:innerWidth,documentScrollWidth:root.scrollWidth,
@@ -123,18 +126,36 @@ async function audit(browser,url,width,scheme){
     await page.evaluate(()=>{document.documentElement.style.zoom='200%';});
     await page.screenshot({path:path.join(OUT,'populated-budget-'+label+'-csszoom200.png'),fullPage:true});
     const navZoom=await navFootprint(page);
+    assert.deepEqual(navZoom.textOverlapPairs,[], 'Navigation labels must not overlap at 200% CSS zoom');
+    assert.deepEqual(navZoom.textOutsideHitTarget,[], 'Navigation labels must fit hit targets at 200% CSS zoom');
     const zoom=await page.evaluate(()=>({
       viewport:innerWidth,documentScrollWidth:document.documentElement.scrollWidth,
       rootZoom:getComputedStyle(document.documentElement).zoom,
       visibleText:document.body.innerText.slice(0,1800)
     }));
+    // A real browser at 200% zoom has fewer layout CSS pixels, unlike root CSS zoom.
+    // Half-width layout is an additional proxy, not a Safari/Dynamic Type certification.
+    await page.evaluate(()=>{document.documentElement.style.zoom='';});
+    await page.setViewportSize({width:Math.floor(width/2),height:844});
+    await page.waitForTimeout(150);
+    const navNarrow=await navFootprint(page);
+    assert.deepEqual(navNarrow.textOverlapPairs,[], 'Narrow layout navigation must not overlap');
+    assert.deepEqual(navNarrow.textOutsideHitTarget,[], 'Narrow layout navigation labels must stay within targets');
+    const narrowRows=new Set(navNarrow.tabs.map(t=>Math.round(t.hitTarget.y))).size;
+    assert.ok(narrowRows>=2,'Extremely narrow navigation must wrap into at least two rows');
+    await page.screenshot({path:path.join(OUT,'populated-budget-'+label+'-half-width.png'),fullPage:true});
+    for(const name of ['Acasă','Finanțe','Înregistrează','Istoric','Mai mult']){
+      const tab=page.getByRole('tab',{name,exact:true});
+      await tab.click();
+      assert.equal(await tab.getAttribute('aria-selected'),'true','Destination must remain operable: '+name);
+    }
     const footprint=await page.evaluate(keys=>keys.map(k=>localStorage.getItem(k)),VAULT_KEYS);
     assert.deepEqual(footprint,[null,null,null],'Demo must not create encrypted vault entries');
     assert.ok(normal.bodyText.includes('Alimente DEMO · TEST'),'Configured budget must render in the real UI');
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
       limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
-      normal:{...normal,navigation:navNormal},zoom:{...zoom,navigation:navZoom},encryptedVaultUntouched:true};
+      normal:{...normal,navigation:navNormal},zoom:{...zoom,navigation:navZoom},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,rows:narrowRows},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
       '; zoom200 scrollWidth='+zoom.documentScrollWidth+
       '; nav text overlaps='+navZoom.textOverlapPairs.length+
