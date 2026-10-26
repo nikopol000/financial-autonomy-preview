@@ -4,7 +4,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const old=fs.readFileSync('_expo/static/js/web/index-v01848-finances-budget-primary-label-20261026.js','utf8');
-const actual=fs.readFileSync('_expo/static/js/web/index-v01849-responsive-nav-zoom-20261026.js','utf8');
+const actual=fs.readFileSync('_expo/static/js/web/index-v01849-responsive-nav-zoom-r2-20261026.js','utf8');
 const edits=[
   [
     "style:[he.nav,be&&{width:168,flexDirection:\"column\",borderTopWidth:0,borderRightWidth:1,gap:12,paddingTop:24}]",
@@ -25,6 +25,10 @@ const edits=[
   [
     "version:\"18.48\"",
     "version:\"18.49\""
+  ],
+  [
+    "financial-autonomy-diagnostic-unic-v18.48.json",
+    "financial-autonomy-diagnostic-unic-v18.49.json"
   ]
 ];
 let expected=old;
@@ -35,5 +39,5 @@ for(const [before,after] of edits){
 assert.equal(actual,expected,'Unexpected WEB 18.49 change outside navigation and diagnostic version');
 const html=fs.readFileSync('index.html','utf8');
 assert.match(html,/name="financial-autonomy-version" content="18[.]49"/);
-assert.ok(html.includes('index-v01849-responsive-nav-zoom-20261026.js?build=18.49.1'));
+assert.ok(html.includes('index-v01849-responsive-nav-zoom-r2-20261026.js?build=18.49.2'));
 console.log('PASS immutable WEB 18.49 nav-only diff; financial engine and encrypted vault unchanged');
