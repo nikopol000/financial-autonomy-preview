@@ -7,7 +7,7 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const crypto=require('node:crypto');
 const html=fs.readFileSync('index.html','utf8');
-const active=html.match(/<script src="\\/financial-autonomy-preview\\/([^"?]+\\.js)\\?build=/)?.[1];
+const active=html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=/)?.[1];
 assert.ok(active&&active.includes('v01850'),'Expected WEB 18.50 candidate');
 const current=fs.readFileSync(active,'utf8');
 const legacy=fs.readFileSync('_expo/static/js/web/index-v01849-responsive-nav-wrap-r3-20261026.js','utf8');
@@ -22,7 +22,7 @@ const model={
 };
 const context={Uint8Array,Uint16Array,Uint32Array,Int32Array,ArrayBuffer,DataView,TextDecoder,TextEncoder,Buffer,console,setTimeout,clearTimeout,URL,Blob,globalThis:{crypto:crypto.webcrypto}};
 function factory(bundle,id,ctx=context){
-  const re=new RegExp('\\\\},'+id+',\\\\[([^\\\\]]*)\\\\]\\\\);','g');
+  const re=new RegExp('\\},'+id+',\\[([^\\]]*)\\]\\);','g');
   const matches=[...bundle.matchAll(re)];
   assert.equal(matches.length,1,'Metro module '+id+' unique');
   const at=matches[0].index,start=bundle.lastIndexOf('__d(function(',at);
