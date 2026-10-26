@@ -804,6 +804,56 @@ async function run() {
     assert.deepEqual(await vaultBytes(boundedPage),boundedCommitted);
     console.log('PASS Chromium #35 RESEARCH ONLY: real Web Locks + actual WEB 18.50 AES-GCM bounded live-handle retry after reset; reload decrypts, no product recovery shipped');
 
+    // #35: Nonconforming Storage write-then-throw after PAYLOAD has already
+    // committed. This is a fault-injection characterization, NOT native
+    // localStorage's usual atomic setItem behavior and NOT shipped recovery.
+    // A reported save error must not be mistaken for absent ciphertext.
+    const committedFaultContext=await browser.newContext({viewport:{width:390,height:844},
+      isMobile:true,hasTouch:true,colorScheme:'light'});
+    const committedFaultPage=await committedFaultContext.newPage();activePage=committedFaultPage;
+    await openReal(committedFaultPage,url);
+    const committedFaultEpoch=await committedFaultPage.evaluate(async reset=>{
+      const api=window.__r(309);await api.load();await api.resetData();
+      return localStorage.getItem(reset);
+    },RESET);
+    assert.match(committedFaultEpoch,/^idle-v2:[0-9a-f]{32}$/);
+    await openReal(committedFaultPage,url);
+    const committedFaultResult=await committedFaultPage.evaluate(async payload=>{
+      const original=Storage.prototype.setItem;
+      let injected=false;
+      Storage.prototype.setItem=function(name,value){
+        if(this===localStorage&&name===payload&&!injected){
+          injected=true;
+          original.call(this,name,value);
+          throw new DOMException('Synthetic write committed before error','UnknownError');
+        }
+        return original.call(this,name,value);
+      };
+      try{
+        const api=window.__r(309),state=await api.load();
+        try{await api.save(state);return {error:'UNEXPECTED_SUCCESS',injected}}
+        catch(error){return {error:String(error.message),injected}}
+      }finally{Storage.prototype.setItem=original}
+    },PAYLOAD);
+    assert.equal(committedFaultResult.injected,true);
+    assert.match(committedFaultResult.error,/nu a putut salva datele local/i);
+    const committedFaultBytes=await vaultBytes(committedFaultPage);
+    assert.equal(committedFaultBytes.reset,committedFaultEpoch);
+    assert.match(committedFaultBytes.key,/^[0-9a-f]{64}$/);
+    assert.ok(committedFaultBytes.payload?.length>50);
+    assert.equal(decryptBrowserVault(committedFaultBytes).version,4);
+    const committedFaultSibling=await committedFaultContext.newPage();
+    activePage=committedFaultSibling;
+    await openReal(committedFaultSibling,url);
+    const committedFaultRead=await committedFaultSibling.evaluate(async()=>window.__r(309).load());
+    assert.equal(committedFaultRead.version,4);
+    assert.deepEqual(await vaultBytes(committedFaultSibling),committedFaultBytes,
+      'An error after PAYLOAD commit must not trigger cleanup or rewrite on another tab');
+    await openReal(committedFaultPage,url);
+    assert.equal((await committedFaultPage.evaluate(async()=>window.__r(309).load())).version,4);
+    assert.deepEqual(await vaultBytes(committedFaultPage),committedFaultBytes);
+    console.log('PASS Chromium #35 RESEARCH ONLY: PAYLOAD write-then-throw leaves authenticated ciphertext readable after reload; no auto-cleanup or duplicate write');
+
     // F08/F09: test-only v2 candidate versus two ACTUAL v18.45 browser tabs.
     // The v2 keys below are research fixtures, NOT an application migration.
     // Both observations must BLOCK automatic recovery: an older tab does not
