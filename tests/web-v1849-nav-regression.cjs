@@ -4,7 +4,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const old=fs.readFileSync('_expo/static/js/web/index-v01848-finances-budget-primary-label-20261026.js','utf8');
-const actual=fs.readFileSync('_expo/static/js/web/index-v01849-responsive-nav-zoom-r2-20261026.js','utf8');
+const actual=fs.readFileSync('_expo/static/js/web/index-v01849-responsive-nav-wrap-r3-20261026.js','utf8');
 const edits=[
   [
     "style:[he.nav,be&&{width:168,flexDirection:\"column\",borderTopWidth:0,borderRightWidth:1,gap:12,paddingTop:24}]",
@@ -29,6 +29,42 @@ const edits=[
   [
     "financial-autonomy-diagnostic-unic-v18.48.json",
     "financial-autonomy-diagnostic-unic-v18.49.json"
+  ],
+  [
+    "style:[he.header,ge&&{paddingHorizontal:16,paddingVertical:10}]",
+    "style:[he.header,ge&&{paddingHorizontal:12,paddingVertical:10,flexWrap:\"wrap\"}]"
+  ],
+  [
+    "style:{flexDirection:\"row\",alignItems:\"center\",gap:12,flex:1},children:[!ge",
+    "style:{flexDirection:\"row\",alignItems:\"center\",gap:12,flex:1,minWidth:120},children:[!ge"
+  ],
+  [
+    "children:\"BANII T\\u0102I. DIREC\\u021aIA TA. \\xb7 v0\"+",
+    "children:\"v0\"+"
+  ],
+  [
+    "style:[he.banner,{borderWidth:2,borderColor:pe.accent,gap:8}]",
+    "style:[he.banner,{borderWidth:2,borderColor:pe.accent,gap:8},ge&&{padding:12}]"
+  ],
+  [
+    "children:\"Exemple pentru explorare. Modificările rămân doar în memorie; backupul, diagnosticul, importul și ștergerea datelor sunt blocate.\"",
+    "children:\"Date fictive, doar în memorie. Backupul, diagnosticul, importul și ștergerea datelor sunt blocate.\""
+  ],
+  [
+    "label:\"Ieși din demo / Începe cu date reale\"",
+    "label:\"Ieși din demo\""
+  ],
+  [
+    "style:[he.nav,je<240&&!be&&{flexWrap:\"wrap\",justifyContent:\"center\",padding:4,gap:4},be&&{width:168,flexDirection:\"column\",borderTopWidth:0,borderRightWidth:1,gap:12,paddingTop:24}]",
+    "style:[he.nav,!be&&{flexWrap:\"wrap\"},be&&{width:168,flexDirection:\"column\",borderTopWidth:0,borderRightWidth:1,gap:12,paddingTop:24}]"
+  ],
+  [
+    "style:[he.navItem,je<240&&!be&&{flex:0,width:\"30%\",minWidth:0,minHeight:56,paddingHorizontal:1},be&&{flex:0,flexDirection:\"row\",justifyContent:\"flex-start\",paddingHorizontal:12,gap:12}",
+    "style:[he.navItem,!be&&{minWidth:56},be&&{flex:0,flexDirection:\"row\",justifyContent:\"flex-start\",paddingHorizontal:12,gap:12}"
+  ],
+  [
+    "\"\\xcenregistreaz\\u0103\":\"\\xcenregis\\xad treaz\\u0103\"",
+    "\"\\xcenregistreaz\\u0103\":\"Adaugă\""
   ]
 ];
 let expected=old;
@@ -39,5 +75,5 @@ for(const [before,after] of edits){
 assert.equal(actual,expected,'Unexpected WEB 18.49 change outside navigation and diagnostic version');
 const html=fs.readFileSync('index.html','utf8');
 assert.match(html,/name="financial-autonomy-version" content="18[.]49"/);
-assert.ok(html.includes('index-v01849-responsive-nav-zoom-r2-20261026.js?build=18.49.2'));
+assert.ok(html.includes('index-v01849-responsive-nav-wrap-r3-20261026.js?build=18.49.3'));
 console.log('PASS immutable WEB 18.49 nav-only diff; financial engine and encrypted vault unchanged');
