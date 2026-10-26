@@ -145,6 +145,31 @@ async function test(name,fn){try{await fn();count++;console.log('PASS',name)}cat
     await assert.rejects(t.api.retryFirstSave(),/nu mai este disponibilă/);
     assert.equal(s.writes,before);assert.equal(s.getItem(KEY),key);assert.equal(s.getItem(PAYLOAD),null);
   });
+  await test('Cross-tab vault storage events revoke volatile retry without any writes',async()=>{
+    // Storage events arrive in other tabs, not the tab performing the write.
+    // Any vault authority change (or clear) must revoke the captured first-save envelope.
+    for(const key of [KEY,PAYLOAD,RESET,null]){
+      const s=memoryStorage(),t=tab(s);await t.api.load();
+      s.fault('before',PAYLOAD);await assert.rejects(t.api.save(synthetic()),/Prima salvare/);
+      s.clearFault();const before=s.writes,snapshot=clone(s.data);
+      assert.equal(t.api.canRetryFirstSave(),true);
+      t.emit('storage',{key});
+      assert.equal(t.api.canRetryFirstSave(),false,'Vault storage event must revoke retry for '+String(key));
+      await assert.rejects(t.api.retryFirstSave(),/nu mai este disponibilă/);
+      assert.equal(s.writes,before,'No writes after storage event for '+String(key));
+      assert.deepEqual(s.data,snapshot,'No vault mutation after storage event for '+String(key));
+    }
+  });
+  await test('Unrelated cross-tab storage event does not revoke a valid first-save retry',async()=>{
+    const s=memoryStorage(),t=tab(s);await t.api.load();
+    s.fault('before',PAYLOAD);await assert.rejects(t.api.save(synthetic()),/Prima salvare/);
+    s.clearFault();
+    t.emit('storage',{key:'unrelated.synthetic.preference'});
+    assert.equal(t.api.canRetryFirstSave(),true,'Unrelated storage must not revoke the live handle');
+    assert.deepEqual(clone(await t.api.retryFirstSave()),synthetic());
+    assert.deepEqual(clone(await t.api.load()),synthetic());
+    assert.equal(t.api.canRetryFirstSave(),false,'Successful retry consumes the handle');
+  });
   await test('Queued lock + pagehide expires handle before callback without writes',async()=>{
     const s=memoryStorage();
     let release;const gate=new Promise(resolve=>{release=resolve});
@@ -164,6 +189,6 @@ async function test(name,fn){try{await fn();count++;console.log('PASS',name)}cat
     await assert.rejects(t.api.retryFirstSave(),/SecurityError/);
     assert.equal(s.writes,before);
   });
-  console.log(count+'/8 WEB bounded first-save synthetic integration tests passed');
-  if(count!==8)process.exitCode=1;
+  console.log(count+'/10 WEB bounded first-save synthetic integration tests passed');
+  if(count!==10)process.exitCode=1;
 })().catch(err=>{console.error(err);process.exitCode=1});
