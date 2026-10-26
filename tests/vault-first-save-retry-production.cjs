@@ -189,6 +189,37 @@ async function test(name,fn){try{await fn();count++;console.log('PASS',name)}cat
     await assert.rejects(t.api.retryFirstSave(),/SecurityError/);
     assert.equal(s.writes,before);
   });
-  console.log(count+'/10 WEB bounded first-save synthetic integration tests passed');
-  if(count!==10)process.exitCode=1;
+  await test('KEY-only reload cannot distinguish failed first save from deleted authenticated ciphertext',async()=>{
+    const s=memoryStorage(),live=tab(s);await live.api.load();
+    s.fault('before',PAYLOAD);
+    await assert.rejects(live.api.save(synthetic()),/Prima salvare/);
+    s.clearFault();
+    const orphanSnapshot=clone(s.data);
+    assert.ok(orphanSnapshot[KEY]&& !Object.hasOwn(orphanSnapshot,PAYLOAD));
+    const afterFailure=tab(s),beforeFailure=s.writes;
+    assert.equal(afterFailure.api.canRetryFirstSave(),false);
+    await assert.rejects(afterFailure.api.load());
+    await assert.rejects(afterFailure.api.save(synthetic()));
+    await assert.rejects(afterFailure.api.retryFirstSave(),/nu mai este disponibilă/);
+    assert.equal(s.writes,beforeFailure,'Failed first-save reload must not write');
+    assert.deepEqual(s.data,orphanSnapshot);
+
+    // The original live tab still has the only bounded authority to commit.
+    assert.deepEqual(clone(await live.api.retryFirstSave()),synthetic());
+    assert.ok(s.getItem(PAYLOAD),'A complete authenticated ciphertext was committed');
+    assert.deepEqual(clone(await tab(s).api.load()),synthetic());
+    // External deletion after a real successful save yields IDENTICAL observable
+    // KEY/RESET/PAYLOAD values to the interrupted first-save history above.
+    s.removeItem(PAYLOAD);
+    assert.deepEqual(s.data,orphanSnapshot,'The two histories must be observationally identical');
+    const afterLoss=tab(s),beforeLoss=s.writes;
+    assert.equal(afterLoss.api.canRetryFirstSave(),false);
+    await assert.rejects(afterLoss.api.load());
+    await assert.rejects(afterLoss.api.save(synthetic()));
+    await assert.rejects(afterLoss.api.retryFirstSave(),/nu mai este disponibilă/);
+    assert.equal(s.writes,beforeLoss,'Externally missing ciphertext must not be overwritten');
+    assert.deepEqual(s.data,orphanSnapshot,'Original key and reset epoch remain byte-identical');
+  });
+  console.log(count+'/11 WEB bounded first-save synthetic integration tests passed');
+  if(count!==11)process.exitCode=1;
 })().catch(err=>{console.error(err);process.exitCode=1});
