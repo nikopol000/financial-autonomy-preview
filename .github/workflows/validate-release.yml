@@ -70,6 +70,8 @@ jobs:
         run: node --test tests/vault-v2-first-write-prototype.cjs
       - name: Research-only read-only recovery conflict UX contract (not production)
         run: node --test tests/vault-recovery-conflict-contract.cjs
+      - name: Research-only reset epoch fencing against legacy WEB tabs (not production)
+        run: node --test tests/vault-reset-fencing-prototype.cjs
       - name: Isolated memory-only demo session and real financial model
         run: node tests/demo-session-regression.cjs
       - name: Active isolated demo WEB integration regression
