@@ -74,6 +74,7 @@ for(const [before,after] of edits){
 }
 assert.equal(actual,expected,'Unexpected WEB 18.49 change outside navigation and diagnostic version');
 const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18[.]49"/);
-assert.ok(html.includes('index-v01849-responsive-nav-wrap-r3-20261026.js?build=18.49.3'));
+// Historical immutable diff stays valid after later releases become active.
+if(html.includes('name="financial-autonomy-version" content="18.49"'))
+  assert.ok(html.includes('index-v01849-responsive-nav-wrap-r3-20261026.js?build=18.49.3'));
 console.log('PASS immutable WEB 18.49 nav-only diff; financial engine and encrypted vault unchanged');
