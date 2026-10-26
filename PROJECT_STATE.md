@@ -1,3 +1,11 @@
+## CURRENT WEB checkpoint — 2026-10-26 — #35 Chromium PASS, PR #114 merge tool unavailable
+
+- **REAL HEAD:** `dac0710ea0a8b97a0cfd27d177763484a7449253`; mandatory AGENTS, RELEASE_PROCESS, PROJECT_STATE, IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW and `docs/WEB_VISUAL_REVIEW.md` reviewed, plus open GitHub issues. Root WEB_VISUAL_REVIEW.md does not exist.
+- **CANDIDATE VERIFIED:** [PR #114](https://github.com/nikopol000/financial-autonomy-preview/pull/114), head `def164a9f4fba8789914c350334678ffafe4d897`; [Chromium 40331131693](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40331131693) and [Release 40331131719](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40331131719) **SUCCESS**. Chromium job 121600533563 explicitly logged **PASS real pagehide navigation cancels queued Web Lock retry; KEY-only stays byte-identical and blocked after reload**. This is actual browser lifecycle research with a test-only retry handle, not shipped recovery.
+- **BLOCKED MERGE:** GitHub merge action timed out then returned internal errors; PR remained OPEN on subsequent read. Auto-merge is not enabled for this repository. No merged-main CI/Pages or Vercel/served-browser verification claimed. Do not bypass access.
+- **FIRST UNFINISHED:** retry ordinary PR #114 merge when connector recovers, verify exact merged-main SHA and Release/Chromium/Pages, update issue #35 and queue. Then production-safe first-save uncertain-commit UX/state machine. #35 remains OPEN, KEY-only after reload remains ambiguous. No automatic deletion/replay/reset resurrection.
+- **NONURGENT:** #14 DISCOVERY financial contract only, no budget modes/formulas without explicit approval; #17/#85 mobile/accessibility pending. WEB 18.50 unchanged, no iOS, real ledger, encrypted backup, backend/accounts/telemetry/bank sync or stable-source changes.
+
 ## CURRENT WEB checkpoint — 2026-10-26 — #35 real Chromium pagehide/Web Lock test candidate, awaiting browser CI
 
 - **START HEAD:** `9d6cdb2d6fd85345689523297a995f37e1685060`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, `docs/WEB_VISUAL_REVIEW.md`, open issues including #35/#14/#17/#85 and actual WEB 18.50 browser harness. No iOS access or changes.
