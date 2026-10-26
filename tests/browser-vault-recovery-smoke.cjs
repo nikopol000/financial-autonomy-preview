@@ -672,6 +672,95 @@ async function run() {
     assert.deepEqual(await vaultBytes(populated),seed,'Independent populated profile must stay untouched');
     console.log('PASS Chromium KNOWN UNSAFE first-save payload quota fault: orphan key persists; reload blocks instead of overwriting');
 
+    // #35 RESEARCH ONLY: exercise a hypothetical same-live-tab retry in REAL
+    // Chromium with the active WEB 18.50 platform, AES-GCM and navigator.locks.
+    // This interception is TEST-ONLY. The shipped app does NOT capture a retry
+    // handle or offer recovery. A KEY-only orphan after reload is ambiguous.
+    const boundedContext=await browser.newContext({viewport:{width:390,height:844},
+      isMobile:true,hasTouch:true,colorScheme:'dark'});
+    const boundedPage=await boundedContext.newPage();activePage=boundedPage;
+    await openReal(boundedPage,url);
+    const boundedEpoch=await boundedPage.evaluate(async reset=>{
+      const api=window.__r(309);
+      await api.load();await api.resetData();
+      return localStorage.getItem(reset);
+    },RESET);
+    assert.match(boundedEpoch,/^idle-v2:[0-9a-f]{32}$/);
+    assert.deepEqual(await vaultBytes(boundedPage),{key:null,payload:null,reset:boundedEpoch});
+    await openReal(boundedPage,url);
+    await boundedPage.evaluate(({key,payload,reset})=>{
+      const original=Storage.prototype.setItem;
+      window.__restoreBoundedSet=()=>{Storage.prototype.setItem=original};
+      Storage.prototype.setItem=function(name,value){
+        if(this===localStorage&&name===payload){
+          window.__boundedHandle={key:localStorage.getItem(key),payload:String(value),
+            epoch:localStorage.getItem(reset)};
+          throw new DOMException('Synthetic first PAYLOAD denied','QuotaExceededError');
+        }
+        return original.call(this,name,value);
+      };
+    },{key:KEY,payload:PAYLOAD,reset:RESET});
+    const boundedError=await boundedPage.evaluate(async()=>{
+      const api=window.__r(309),state=await api.load();
+      try{await api.save(state);return 'UNEXPECTED_SUCCESS'}
+      catch(error){return String(error.message)}
+    });
+    assert.match(boundedError,/nu a putut salva datele local/i);
+    await boundedPage.evaluate(()=>window.__restoreBoundedSet());
+    const boundedOrphan=await vaultBytes(boundedPage);
+    assert.match(boundedOrphan.key,/^[0-9a-f]{64}$/);
+    assert.equal(boundedOrphan.payload,null);
+    assert.equal(boundedOrphan.reset,boundedEpoch);
+    const sibling=await boundedContext.newPage();activePage=sibling;
+    await openReal(sibling,url);
+    const siblingBlocked=await sibling.evaluate(async()=>{
+      try{await window.__r(309).load();return 'UNEXPECTED_SUCCESS'}
+      catch(error){return String(error.message)}
+    });
+    assert.match(siblingBlocked,/Cheia locală există|datele criptate lipsesc/i);
+    assert.deepEqual(await vaultBytes(sibling),boundedOrphan,
+      'Sibling tab must not initialize or overwrite KEY-only orphan');
+    const boundedResult=await boundedPage.evaluate(async ({key,payload,reset})=>{
+      const h=window.__boundedHandle;
+      if(!h||typeof navigator.locks?.request!=='function')
+        throw Error('Missing real Web Locks or live ciphertext handle');
+      return navigator.locks.request('financial-autonomy.preview.vault.v1',
+        {mode:'exclusive'},()=>{
+          const current={key:localStorage.getItem(key),payload:localStorage.getItem(payload),
+            epoch:localStorage.getItem(reset)};
+          if(!/^idle-v2:[0-9a-f]{32}$/.test(current.epoch??'')||
+             current.epoch!==h.epoch||current.key!==h.key||current.payload!==null)
+            throw Error('Changed authority: fail closed');
+          const shadow={getItem(name){
+            if(name===key)return h.key;
+            if(name===payload)return h.payload;
+            if(name===reset)return h.epoch;
+            return null;
+          }};
+          // The actual WEB 18.50 vault authenticates captured ciphertext
+          // before the only permitted write, under the actual browser lock.
+          const state=window.__r(310).loadWebVault(shadow);
+          localStorage.setItem(payload,h.payload);
+          if(localStorage.getItem(key)!==h.key||
+             localStorage.getItem(payload)!==h.payload||
+             localStorage.getItem(reset)!==h.epoch)
+            throw Error('Post-retry revision mismatch');
+          return {version:state.version,transactionCount:state.transactions.length};
+        });
+    },{key:KEY,payload:PAYLOAD,reset:RESET});
+    assert.equal(boundedResult.version,4);
+    assert.equal(boundedResult.transactionCount,0);
+    const boundedCommitted=await vaultBytes(boundedPage);
+    assert.equal(boundedCommitted.key,boundedOrphan.key);
+    assert.equal(boundedCommitted.reset,boundedEpoch);
+    assert.ok(boundedCommitted.payload?.length>50);
+    assert.equal(decryptBrowserVault(boundedCommitted).version,4);
+    await openReal(boundedPage,url);
+    const boundedReload=await boundedPage.evaluate(async()=>window.__r(309).load());
+    assert.equal(boundedReload.version,4);
+    assert.deepEqual(await vaultBytes(boundedPage),boundedCommitted);
+    console.log('PASS Chromium #35 RESEARCH ONLY: real Web Locks + actual WEB 18.50 AES-GCM bounded live-handle retry after reset; reload decrypts, no product recovery shipped');
+
     // F08/F09: test-only v2 candidate versus two ACTUAL v18.45 browser tabs.
     // The v2 keys below are research fixtures, NOT an application migration.
     // Both observations must BLOCK automatic recovery: an older tab does not
