@@ -56,7 +56,7 @@ async function navFootprint(page){
       const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
       let node;
       while((node=walker.nextNode())){
-        if(node.textContent.trim()!==label)continue;
+        if(node.textContent.trim().replace(/\u00ad/g,'')!==label)continue;
         const range=document.createRange();
         range.selectNodeContents(node);
         const rect=range.getBoundingClientRect();
@@ -112,6 +112,8 @@ async function audit(browser,url,width,scheme){
     assert.ok(await page.getByText(/Lunar · principală/).count()>=1,
       'Primary monthly window must be clearly labeled in Romanian');
     const navNormal=await navFootprint(page);
+    assert.deepEqual(navNormal.textOverlapPairs,[], 'Navigation text must not overlap at normal size');
+    assert.deepEqual(navNormal.textOutsideHitTarget,[], 'Navigation labels must fit their hit targets at normal size');
     const normal=await page.evaluate(()=>{
       const root=document.documentElement;
       return {viewport:innerWidth,documentScrollWidth:root.scrollWidth,
@@ -123,6 +125,8 @@ async function audit(browser,url,width,scheme){
     await page.evaluate(()=>{document.documentElement.style.zoom='200%';});
     await page.screenshot({path:path.join(OUT,'populated-budget-'+label+'-csszoom200.png'),fullPage:true});
     const navZoom=await navFootprint(page);
+    assert.deepEqual(navZoom.textOverlapPairs,[], 'Navigation labels must not overlap at 200% CSS zoom');
+    assert.deepEqual(navZoom.textOutsideHitTarget,[], 'Navigation labels must fit hit targets at 200% CSS zoom');
     const zoom=await page.evaluate(()=>({
       viewport:innerWidth,documentScrollWidth:document.documentElement.scrollWidth,
       rootZoom:getComputedStyle(document.documentElement).zoom,
