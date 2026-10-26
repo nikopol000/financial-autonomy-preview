@@ -70,3 +70,13 @@ Rejected without an entirely new financial contract. It would silently rewrite i
 ## Deployment state at research time
 
 GitHub main contains WEB 18.47, but Vercel production last independently reported READY for v18.45 `a885afdd94ccb33a819f6291cf22fbdfc2b99ff2`. The v18.47 product commit `e830d0f33f459d1280310c567610e6d1d0caae24` has Vercel combined status **failure / build-rate-limit**. No new product version or bundle was created by this document.
+
+
+## 26 October 2026 — active WEB 18.50 code-level refresh (DISCOVERY only)
+
+Verified against the actual immutable `index-v01850-durable-reset-epoch-r2-20261026.js` referenced by `index.html`, not against the older v18.47 snapshot:
+
+- Dashboard module 215 still passes `plannedDaily:I.allowance` and `safeDaily:Math.min(I.allowance,T.safeDaily??0)` to module 218 `BudgetDashboard`. Module 218 renders both as numeric `spentToday / daily` bars labeled `Buget azi` and `Sigur azi`; it does **not** receive a coverage-status reason. Consequently, an **unavailable** `T.safeDaily` is displayed through a numeric **0** fallback. This is a code-path observation, **not** a verified iPhone/browser screenshot or proof of a specific user's state.
+- This is a **distinct semantic/UX risk**: `0 RON` can mean a calculated lack of headroom or simply missing prerequisites. Do not silently equate them in a future perspective. The new mode contract should explicitly distinguish `unavailable`, `zero`, and `negative/shortfall` with a visible explanation and no credit-as-cash.
+- The budget engine remains separate from `availableMoney` and `coverage`; no evidence authorizes copying a shared cash ceiling into every category. Preserve original period and limit.
+- **Contract gate still closed:** no `safeDaily` fallback, UI mode, or financial formula changed in this research. Before implementation, decide whether an unavailable safe pace should be shown as `Indisponibil` rather than `0 RON`, and specify how a category's own window and the next-income horizon coexist. Add real-engine and populated mobile light/dark tests after approval.
