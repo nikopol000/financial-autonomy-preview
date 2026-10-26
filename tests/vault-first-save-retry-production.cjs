@@ -70,15 +70,17 @@ function locks(){
 }
 function tab(storage,lock=locks()){
   const handlers=new Map();
+  const documentHandlers=new Map();
+  const document={visibilityState:'visible',addEventListener(name,fn){const list=documentHandlers.get(name)||[];list.push(fn);documentHandlers.set(name,list)}};
   const globalThis={
-    localStorage:storage,navigator:{locks:lock},location:{href:'https://example.test/?fa_real=1'},
+    document,localStorage:storage,navigator:{locks:lock},location:{href:'https://example.test/?fa_real=1'},
     history:{state:null,replaceState(){}},
     crypto:{getRandomValues:bytes=>crypto.webcrypto.getRandomValues(bytes),randomUUID:()=>crypto.randomUUID()},
     addEventListener(name,fn){const list=handlers.get(name)||[];list.push(fn);handlers.set(name,list)}
   };
   const {fn,deps}=factory(309,{...sandbox,globalThis,URL,Blob});
   const api={};fn(globalThis,id=>id===205?model:vault,()=>{},null,{exports:api},api,deps);
-  return {api,emit(name,event={}){for(const fn of handlers.get(name)||[])fn(event)}};
+  return {api,emit(name,event={}){for(const fn of handlers.get(name)||[])fn(event)},emitDocument(name,state){document.visibilityState=state;for(const fn of documentHandlers.get(name)||[])fn({type:name,bubbles:false})}};
 }
 let count=0;
 async function test(name,fn){try{await fn();count++;console.log('PASS',name)}catch(err){console.error('FAIL',name,err.stack||err);process.exitCode=1}}
@@ -132,6 +134,17 @@ async function test(name,fn){try{await fn();count++;console.log('PASS',name)}cat
     await assert.rejects(t.api.retryFirstSave(),/nu mai este disponibilă/);
     assert.equal(s.writes,before);assert.equal(s.getItem(KEY),key);assert.equal(s.getItem(PAYLOAD),null);
   });
+  await test('Document visibilitychange (non-bubbling) invalidates retry when tab is hidden',async()=>{
+    const s=memoryStorage(),t=tab(s);await t.api.load();
+    s.fault('before',PAYLOAD);await assert.rejects(t.api.save(synthetic()),/Prima salvare/);
+    s.clearFault();const before=s.writes,key=s.getItem(KEY);
+    assert.equal(t.api.canRetryFirstSave(),true);
+    // Real browsers dispatch visibilitychange on document; it does not bubble to window.
+    t.emitDocument('visibilitychange','hidden');
+    assert.equal(t.api.canRetryFirstSave(),false,'Hidden document must revoke volatile retry authority');
+    await assert.rejects(t.api.retryFirstSave(),/nu mai este disponibilă/);
+    assert.equal(s.writes,before);assert.equal(s.getItem(KEY),key);assert.equal(s.getItem(PAYLOAD),null);
+  });
   await test('Queued lock + pagehide expires handle before callback without writes',async()=>{
     const s=memoryStorage();
     let release;const gate=new Promise(resolve=>{release=resolve});
@@ -151,6 +164,6 @@ async function test(name,fn){try{await fn();count++;console.log('PASS',name)}cat
     await assert.rejects(t.api.retryFirstSave(),/SecurityError/);
     assert.equal(s.writes,before);
   });
-  console.log(count+'/7 WEB 18.51 bounded first-save synthetic integration tests passed');
-  if(count!==7)process.exitCode=1;
+  console.log(count+'/8 WEB bounded first-save synthetic integration tests passed');
+  if(count!==8)process.exitCode=1;
 })().catch(err=>{console.error(err);process.exitCode=1});
