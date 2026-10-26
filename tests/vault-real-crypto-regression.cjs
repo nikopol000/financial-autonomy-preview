@@ -423,12 +423,12 @@ async function test(name,fn) {
     const tab=realTab(failing,{locks:serialLocks()});const stale=clone(await tab.load());
     await assert.rejects(tab.resetData(),/Resetarea a fost întreruptă/);
     assert.equal(backing.writes,writes+1);
-    assert.equal(backing.getItem(RESET),'committed-v1');
+    assert.match(backing.getItem(RESET),/^pending-v2:[0-9a-f]{32}$/);
     assert.equal(backing.getItem(KEY),before[KEY]);assert.equal(backing.getItem(PAYLOAD),before[PAYLOAD]);
     assert.throws(()=>vault.loadWebVault(backing),/Resetarea locală/);
     await assert.rejects(tab.save(stale),/Resetarea locală|Reîncarcă/);
     assert.deepEqual(clone(await realTab(backing,{locks:serialLocks()}).load()),empty());
-    assert.equal(backing.getItem(RESET),null);assert.equal(backing.getItem(KEY),null);assert.equal(backing.getItem(PAYLOAD),null);
+    assert.match(backing.getItem(RESET),/^idle-v2:[0-9a-f]{32}$/);assert.equal(backing.getItem(KEY),null);assert.equal(backing.getItem(PAYLOAD),null);
   });
   await test('Reset: second deletion failure strands key temporarily but reload finishes committed reset',async()=>{
     const backing=storage();vault.saveWebVault(backing,sample(),random);
@@ -442,27 +442,28 @@ async function test(name,fn) {
     const tab=realTab(failing,{locks:serialLocks()});const stale=clone(await tab.load());
     await assert.rejects(tab.resetData(),/Resetarea a fost întreruptă/);
     assert.equal(deletes,2);assert.equal(backing.writes,writes+2);
-    assert.equal(backing.getItem(RESET),'committed-v1');
+    assert.match(backing.getItem(RESET),/^pending-v2:[0-9a-f]{32}$/);
     assert.equal(backing.getItem(KEY),before[KEY]);assert.equal(backing.getItem(PAYLOAD),null);
     assert.throws(()=>vault.loadWebVault(backing),/Resetarea locală/);
     await assert.rejects(tab.save(stale),/Resetarea locală|Reîncarcă/);
     assert.deepEqual(clone(await realTab(backing,{locks:serialLocks()}).load()),empty());
-    assert.equal(backing.getItem(RESET),null);assert.equal(backing.getItem(KEY),null);
+    assert.match(backing.getItem(RESET),/^idle-v2:[0-9a-f]{32}$/);assert.equal(backing.getItem(KEY),null);
   });
-  await test('Reset: final marker deletion failure never resurrects deleted ledger',async()=>{
+  await test('Reset: final idle marker write failure never resurrects deleted ledger',async()=>{
     const backing=storage();vault.saveWebVault(backing,sample(),random);
     const failing={
-      getItem:k=>backing.getItem(k),setItem:(...args)=>backing.setItem(...args),
-      removeItem(k){if(k===RESET)throw Error('Injected final marker deletion failure');backing.removeItem(k)},
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(k===RESET&&String(v).startsWith('idle-v2:'))throw Error('Injected final marker write failure');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),
       key:i=>backing.key(i),get length(){return backing.length}
     };
     const tab=realTab(failing,{locks:serialLocks()});await tab.load();
     await assert.rejects(tab.resetData(),/Resetarea a fost întreruptă/);
-    assert.equal(backing.getItem(RESET),'committed-v1');
+    assert.match(backing.getItem(RESET),/^pending-v2:[0-9a-f]{32}$/);
     assert.equal(backing.getItem(KEY),null);assert.equal(backing.getItem(PAYLOAD),null);
     assert.throws(()=>vault.loadWebVault(backing),/Resetarea locală/);
     assert.deepEqual(clone(await realTab(backing,{locks:serialLocks()}).load()),empty());
-    assert.equal(backing.getItem(RESET),null);
+    assert.match(backing.getItem(RESET),/^idle-v2:[0-9a-f]{32}$/);
   });
   await test('Reset: failed first recovery can be retried without changing commit intent',async()=>{
     const backing=storage();vault.saveWebVault(backing,sample(),random);
@@ -475,10 +476,10 @@ async function test(name,fn) {
     const tab=realTab(flaky,{locks:serialLocks()});await tab.load();
     await assert.rejects(tab.resetData(),/Resetarea a fost întreruptă/);
     await assert.rejects(realTab(flaky,{locks:serialLocks()}).load(),/Storage unavailable/);
-    assert.equal(backing.getItem(RESET),'committed-v1');
+    assert.match(backing.getItem(RESET),/^pending-v2:[0-9a-f]{32}$/);
     fail=false;
     assert.deepEqual(clone(await realTab(flaky,{locks:serialLocks()}).load()),empty());
-    assert.equal(backing.getItem(RESET),null);
+    assert.match(backing.getItem(RESET),/^idle-v2:[0-9a-f]{32}$/);
   });
   await test('Reset: pending marker blocks stale writer even when ciphertext pair remains unchanged',async()=>{
     const backing=storage();vault.saveWebVault(backing,sample(),random);
@@ -520,7 +521,7 @@ async function test(name,fn) {
     const locks=serialLocks(),stale=realTab(backing,{locks}),reset=realTab(backing,{locks});
     const old=clone(await stale.load());await reset.load();
     await reset.resetData();
-    assert.equal(backing.getItem(RESET),null);
+    assert.match(backing.getItem(RESET),/^idle-v2:[0-9a-f]{32}$/);
     const fresh=realTab(backing,{locks}),emptyState=clone(await fresh.load());
     emptyState.transactions.push({id:'post-reset-new',kind:'income',amount:321});
     await fresh.save(emptyState);
@@ -587,7 +588,7 @@ async function test(name,fn) {
     assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
     deny=false;
     assert.deepEqual(clone(await realTab(flaky,{locks}).load()),empty());
-    assert.equal(backing.getItem(RESET),null);
+    assert.match(backing.getItem(RESET),/^idle-v2:[0-9a-f]{32}$/);
     assert.equal(backing.getItem(KEY),null);assert.equal(backing.getItem(PAYLOAD),null);
     await assert.rejects(stale.save(staleState),/altă filă|Reîncarcă/);
   });
@@ -793,11 +794,7 @@ async function test(name,fn) {
     assert.deepEqual(backing.data,before);
     assert.equal(backing.writes,writes);
   });
-  await test('KNOWN UNSAFE: empty-vault ABA after another tab saves and resets permits stale real-tab write',async()=>{
-    // The revision currently tracks KEY/PAYLOAD/RESET bytes only. A completed
-    // reset deletes all three, so empty -> populated -> reset looks identical
-    // to a stale tab that loaded the original empty vault. This PASS is a
-    // CHARACTERIZATION OF UNSAFE BEHAVIOR, not a safety guarantee.
+  await test('FIXED: durable reset epoch rejects empty-vault ABA stale save without writes',async()=>{
     const backing=storage(),locks=serialLocks();
     const stale=realTab(backing,{locks}),actor=realTab(backing,{locks});
     const staleEmpty=clone(await stale.load());
@@ -807,12 +804,16 @@ async function test(name,fn) {
     await actor.resetData();
     assert.equal(backing.getItem(KEY),null);
     assert.equal(backing.getItem(PAYLOAD),null);
-    assert.equal(backing.getItem(RESET),null);
-    const writes=backing.writes;
+    assert.match(backing.getItem(RESET),/^idle-v2:[0-9a-f]{32}$/);
+    const before=clone(backing.data),writes=backing.writes;
     staleEmpty.transactions.push({id:'stale-after-reset-aba',kind:'income',amount:777});
-    await stale.save(staleEmpty);
-    assert.equal(backing.writes,writes+2);
-    assert.ok(vault.loadWebVault(backing).transactions.some(t=>t.id==='stale-after-reset-aba'));
+    await assert.rejects(stale.save(staleEmpty),/altă filă|Reîncarcă/i);
+    assert.equal(backing.writes,writes);
+    assert.deepEqual(backing.data,before);
+    const fresh=realTab(backing,{locks}),loaded=clone(await fresh.load());
+    loaded.transactions.push({id:'post-reset-valid',kind:'income',amount:123});
+    await fresh.save(loaded);
+    assert.ok(vault.loadWebVault(backing).transactions.some(t=>t.id==='post-reset-valid'));
   });
   console.log(passed+'/46 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
   if(passed!==46)process.exitCode=1;
