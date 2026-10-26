@@ -1,3 +1,11 @@
+## CURRENT WEB execution queue — 2026-10-26 — #35 PR #114 Chromium verified, merge pending
+
+- **VERIFIED CANDIDATE:** [PR #114](https://github.com/nikopol000/financial-autonomy-preview/pull/114) `def164a9f4fba8789914c350334678ffafe4d897`, [Chromium 40331131693](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40331131693) SUCCESS with named real `pagehide`/queued Web Lock PASS in job logs; [release 40331131719](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40331131719) SUCCESS. No product recovery shipped.
+- **FIRST UNFINISHED / TRANSIENT:** PR #114 remained OPEN after merge action timeout/internal errors. Retry ordinary merge with expected candidate head when GitHub action is healthy; verify exact main SHA and main Chromium/Release/Pages before marking DONE. No auto-merge available. Do not claim merged or published.
+- **P1 #35:** after integration, specify and test production first-save uncertainty states and safe user-visible messages; KEY-only after reload remains blocked, never auto-delete, stage replay or reset-resurrect. Preserve backups and old-tab fence.
+- **DISCOVERY #14:** research shared owned cash, unavailable safe pace vs numeric zero and remaining-days horizon; no implementation or formula changes without explicit approval. #85 iPhone Safari accessibility and #17 Romanian labels remain open.
+- **RELEASE:** WEB 18.50 unchanged; test/docs only, no iOS, real ledger, encrypted backup, financial engine, stable source, backend/accounts/telemetry/bank sync edits. No exact Vercel READY/public browser/Safari claim.
+
 ## CURRENT WEB execution queue — 2026-10-26 — #35 Chromium pagehide candidate awaiting CI
 
 - **IN PROGRESS P1 #35:** [PR #114](https://github.com/nikopol000/financial-autonomy-preview/pull/114) test-only candidate `def164a9f4fba8789914c350334678ffafe4d897`: real Chromium navigation/pagehide with pending hypothetical retry behind real Web Lock; original KEY-only must stay byte-identical and reload blocked. JS parse PASS; [release 40331131719](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40331131719) SUCCESS. [Chromium 40331131693](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40331131693) pending terminal result (runner installation in progress). **Do not merge or call test PASS until verified.**
