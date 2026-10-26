@@ -8,7 +8,7 @@ const vm=require('node:vm');
 const crypto=require('node:crypto');
 const html=fs.readFileSync('index.html','utf8');
 const active=html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=/)?.[1];
-assert.ok(active&&active.includes('v01850'),'Expected WEB 18.50 candidate');
+assert.ok(active&&active.includes('v01851'),'Expected active WEB 18.51 with durable reset epoch');
 const current=fs.readFileSync(active,'utf8');
 const legacy=fs.readFileSync('_expo/static/js/web/index-v01849-responsive-nav-wrap-r3-20261026.js','utf8');
 const KEY='financial-autonomy.preview.key.v1',PAYLOAD='financial-autonomy.preview.payload.v1',RESET='financial-autonomy.preview.reset.v1';
@@ -157,7 +157,7 @@ test('Post-reset marker prevents implicit fresh-browser demo eligibility',async(
 test('First-save orphan key is still preserved and blocked; issue #35 remains open',async()=>{
   const s=store(),l=locks(),a=newTab(s,l);await a.load();
   s.fault.write=k=>k===PAYLOAD;
-  await assert.rejects(a.save(empty()),/nu a putut salva/);
+  await assert.rejects(a.save(empty()),/Prima salvare criptată/);
   assert.match(s.getItem(KEY),/^[0-9a-f]{64}$/);
   assert.equal(s.getItem(PAYLOAD),null);
   const before=clone(s.data),writes=s.writes;s.fault.write=null;
@@ -178,7 +178,7 @@ test('P1 #35: first PAYLOAD failure after idle-v2 reset preserves epoch and bloc
   const marker=s.getItem(RESET),stale=newTab(s,l),cached=oldTab(s,l);
   await stale.load();
   s.fault.write=k=>k===PAYLOAD;
-  await assert.rejects(stale.save(empty()),/nu a putut salva/);
+  await assert.rejects(stale.save(empty()),/Prima salvare criptată/);
   assert.match(s.getItem(KEY),/^[0-9a-f]{64}$/);
   assert.equal(s.getItem(PAYLOAD),null);
   assert.equal(s.getItem(RESET),marker);
@@ -197,7 +197,7 @@ test('P1 #35: synthetic KEY write-then-throw remains ambiguous, never silently r
     original(key,value);
     if(key===KEY)throw Error('Synthetic write-then-throw after KEY commit');
   };
-  await assert.rejects(a.save(empty()),/nu a putut salva/);
+  await assert.rejects(a.save(empty()),/Prima salvare criptată/);
   assert.match(s.getItem(KEY),/^[0-9a-f]{64}$/);
   assert.equal(s.getItem(PAYLOAD),null);
   const snapshot=clone(s.data),writes=s.writes;
@@ -216,7 +216,7 @@ test('P1 #35: synthetic PAYLOAD write-then-throw after reset keeps decryptable c
     original(key,value);
     if(key===PAYLOAD)throw Error('Synthetic write-then-throw after PAYLOAD commit');
   };
-  await assert.rejects(a.save(pending),/nu a putut salva/);
+  await assert.rejects(a.save(pending),/Prima salvare criptată/);
   isIdle(s);
   assert.deepEqual(clone(newVault.loadWebVault(s)),pending);
   const snapshot=clone(s.data),writes=s.writes;
@@ -257,7 +257,7 @@ async function makeLiveOrphanWithCapturedCiphertext(s,l){
     if(k===PAYLOAD){ciphertext=String(v);throw Error('Synthetic PAYLOAD quota failure')}
     return original(k,v);
   };
-  try{await assert.rejects(a.save(value),/nu a putut salva/i)}
+  try{await assert.rejects(a.save(value),/Prima salvare criptată/i)}
   finally{s.setItem=original}
   assert.equal(typeof ciphertext,'string');
   assert.match(s.getItem(KEY),/^[0-9a-f]{64}$/);

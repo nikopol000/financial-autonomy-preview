@@ -584,18 +584,57 @@ async function run() {
       try{await window.__r(309).save(state);return 'UNEXPECTED_SAVE'}
       catch(error){return String(error.message)}
     },writeThenThrowState);
-    assert.match(afterWriteError,/nu a putut salva datele local/);
+    assert.match(afterWriteError,/Prima salvare criptată nu a fost confirmată/);
     await writeThenThrowPage.evaluate(()=>window.__restoreWriteThenThrow());
     const committedDespiteError=await vaultBytes(writeThenThrowPage);
     assert.match(committedDespiteError.key,/^[0-9a-f]{64}$/);
     assert.ok(committedDespiteError.payload?.length>50);
+    // WEB 18.51: exact committed ciphertext is authenticated without a second write.
+    assert.equal(await writeThenThrowPage.evaluate(()=>window.__r(309).canRetryFirstSave()),true);
+    const alreadyCommitted=await writeThenThrowPage.evaluate(async()=>window.__r(309).retryFirstSave());
+    assert.equal(alreadyCommitted.transactions.length,0);
+    assert.deepEqual(await vaultBytes(writeThenThrowPage),committedDespiteError);
+    assert.equal(await writeThenThrowPage.evaluate(()=>window.__r(309).canRetryFirstSave()),false);
     await openReal(writeThenThrowPage,url);
     assert.equal((await writeThenThrowPage.evaluate(async()=>window.__r(309).load())).transactions.length,0);
     assert.deepEqual(await vaultBytes(writeThenThrowPage),committedDespiteError,
       'A successful write followed by an exception must not cause destructive rollback');
     console.log('PASS Chromium first payload write-then-throw: reported failure but committed encrypted pair survives reload');
 
-    // The known first-save flaw is a characterization, NOT a repair: if the
+    // WEB 18.51: an explicit same-live-tab retry can commit the previously
+    // sealed envelope when KEY is present and PAYLOAD was never written.
+    const retryContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'light'});
+    const retryPage=await retryContext.newPage();activePage=retryPage;
+    await openReal(retryPage,url);
+    const initialRetryState=await retryPage.evaluate(async()=>window.__r(309).load());
+    await retryPage.evaluate(payload=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(name,value){
+        if(name===payload)throw new DOMException('Synthetic quota failure before commit','QuotaExceededError');
+        return original.call(this,name,value);
+      };
+      window.__restoreRetryWrite=()=>{Storage.prototype.setItem=original};
+    },PAYLOAD);
+    const retryError=await retryPage.evaluate(async state=>{
+      try{await window.__r(309).save(state);return 'UNEXPECTED_SAVE'}
+      catch(error){return String(error.message)}
+    },initialRetryState);
+    assert.match(retryError,/Prima salvare criptată nu a fost confirmată/);
+    assert.equal(await retryPage.evaluate(()=>window.__r(309).canRetryFirstSave()),true);
+    await retryPage.evaluate(()=>window.__restoreRetryWrite());
+    const orphanBeforeRetry=await vaultBytes(retryPage);
+    assert.ok(orphanBeforeRetry.key);assert.equal(orphanBeforeRetry.payload,null);
+    await retryPage.evaluate(async()=>window.__r(309).retryFirstSave());
+    const repaired=await vaultBytes(retryPage);
+    assert.equal(repaired.key,orphanBeforeRetry.key);
+    assert.ok(repaired.payload);
+    assert.equal(decryptBrowserVault(repaired).transactions.length,0);
+    assert.equal(await retryPage.evaluate(()=>window.__r(309).canRetryFirstSave()),false);
+    await openReal(retryPage,url);
+    assert.deepEqual(await vaultBytes(retryPage),repaired);
+    console.log('PASS Chromium WEB 18.51 bounded first PAYLOAD failure retry commits authenticated ciphertext and reloads');
+
+    // The post-reload KEY-only ambiguity remains: if the
     // first payload write fails, the key remains and reload must refuse to
     // create a new ledger. Never auto-delete the ambiguous orphan key.
     const firstContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'light'});
@@ -615,7 +654,7 @@ async function run() {
       try{await window.__r(309).save(state);return 'UNEXPECTED_SAVE'}
       catch(error){return String(error.message)}
     },firstState);
-    assert.match(firstError,/nu a putut salva datele local/);
+    assert.match(firstError,/Prima salvare criptată nu a fost confirmată/);
     await firstPage.evaluate(()=>window.__restoreFirstSet());
     const orphanAfterFirst=await vaultBytes(firstPage);
     assert.match(orphanAfterFirst.key,/^[0-9a-f]{64}$/);
@@ -673,9 +712,9 @@ async function run() {
     console.log('PASS Chromium KNOWN UNSAFE first-save payload quota fault: orphan key persists; reload blocks instead of overwriting');
 
     // #35 RESEARCH ONLY: exercise a hypothetical same-live-tab retry in REAL
-    // Chromium with the active WEB 18.50 platform, AES-GCM and navigator.locks.
-    // This interception is TEST-ONLY. The shipped app does NOT capture a retry
-    // handle or offer recovery. A KEY-only orphan after reload is ambiguous.
+    // Chromium with the active WEB 18.51 platform, AES-GCM and navigator.locks.
+    // This separate test-only interception models the research handle independently
+    // of the shipped bounded retry. KEY-only after reload remains ambiguous.
     const boundedContext=await browser.newContext({viewport:{width:390,height:844},
       isMobile:true,hasTouch:true,colorScheme:'dark'});
     const boundedPage=await boundedContext.newPage();activePage=boundedPage;
@@ -705,7 +744,7 @@ async function run() {
       try{await api.save(state);return 'UNEXPECTED_SUCCESS'}
       catch(error){return String(error.message)}
     });
-    assert.match(boundedError,/nu a putut salva datele local/i);
+    assert.match(boundedError,/Prima salvare criptată nu a fost confirmată/i);
     await boundedPage.evaluate(()=>window.__restoreBoundedSet());
     const boundedOrphan=await vaultBytes(boundedPage);
     assert.match(boundedOrphan.key,/^[0-9a-f]{64}$/);
@@ -835,7 +874,7 @@ async function run() {
         catch(error){return String(error.message)}
       }finally{Storage.prototype.setItem=original}
     },{key:KEY,payload:PAYLOAD,reset:RESET});
-    assert.match(lifecycleFault,/nu a putut salva datele local/i);
+    assert.match(lifecycleFault,/Prima salvare criptată nu a fost confirmată/i);
     const lifecycleOrphan=await vaultBytes(lifecyclePage);
     assert.match(lifecycleOrphan.key,/^[0-9a-f]{64}$/);
     assert.equal(lifecycleOrphan.payload,null);
@@ -935,7 +974,7 @@ async function run() {
       }finally{Storage.prototype.setItem=original}
     },PAYLOAD);
     assert.equal(committedFaultResult.injected,true);
-    assert.match(committedFaultResult.error,/nu a putut salva datele local/i);
+    assert.match(committedFaultResult.error,/Prima salvare criptată nu a fost confirmată/i);
     const committedFaultBytes=await vaultBytes(committedFaultPage);
     assert.equal(committedFaultBytes.reset,committedFaultEpoch);
     assert.match(committedFaultBytes.key,/^[0-9a-f]{64}$/);

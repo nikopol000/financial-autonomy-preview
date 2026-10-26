@@ -674,7 +674,7 @@ async function test(name,fn) {
     assert.ok(source.includes('Nu șterge datele site-ului și nu reseta aplicația.'), 'No destructive recovery advice');
     assert.ok(source.includes('această pagină nu poate restaura datele cât timp seiful este blocat.'), 'No misleading backup-restore promise');
     assert.ok(source.includes('O?"Reîncearcă deschiderea"'), 'Retry should only reload vault');
-    assert.ok(source.includes('e&&(0,k.jsx)(h.Button,{label:"\\xcenchide mesajul"'), 'Blocked error cannot be dismissed as if resolved');
+    assert.ok(source.includes('e&&!R.canRetryFirstSave()&&(0,k.jsx)(h.Button,{label:"\\xcenchide mesajul"'), 'Pending first-save retry must not be dismissed; blocked landing remains protected');
   });
   await test('Orphan key has ambiguous provenance; attempted backup-state save remains fail-closed',()=>{
     const first=storage(),flaky={
