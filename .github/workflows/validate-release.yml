@@ -70,6 +70,8 @@ jobs:
         run: node --test tests/vault-v2-first-write-prototype.cjs
       - name: Research-only read-only recovery conflict UX contract (not production)
         run: node --test tests/vault-recovery-conflict-contract.cjs
+      - name: Research-only bounded post-reset first-save retry protocol (not production)
+        run: node --test tests/vault-first-save-bounded-retry-prototype.cjs
       - name: Research-only reset epoch fencing against legacy WEB tabs (not production)
         run: node --test tests/vault-reset-fencing-prototype.cjs
       - name: Candidate WEB 18.50 durable reset epoch and cached legacy integration
