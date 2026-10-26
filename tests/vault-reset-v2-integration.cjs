@@ -8,7 +8,7 @@ const vm=require('node:vm');
 const crypto=require('node:crypto');
 const html=fs.readFileSync('index.html','utf8');
 const active=html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=/)?.[1];
-assert.ok(active&&active.includes('v01850'),'Expected WEB 18.50 candidate');
+assert.ok(active&&active.includes('v01851'),'Expected active WEB 18.51 with durable reset epoch');
 const current=fs.readFileSync(active,'utf8');
 const legacy=fs.readFileSync('_expo/static/js/web/index-v01849-responsive-nav-wrap-r3-20261026.js','utf8');
 const KEY='financial-autonomy.preview.key.v1',PAYLOAD='financial-autonomy.preview.payload.v1',RESET='financial-autonomy.preview.reset.v1';
