@@ -673,6 +673,95 @@ async function run() {
     console.log('PASS Chromium WEB 18.52 document visibilitychange revokes pending first-save retry with zero writes');
 
 
+    // #35: REAL same-origin Chromium StorageEvents, not dispatchEvent mocks.
+    // Each browser profile is disposable; a sibling tab deliberately mutates
+    // synthetic KEY/PAYLOAD/RESET to prove a live first-save retry is revoked.
+    // A different storage key must NOT revoke the handle. No real user data.
+    for(const changedKey of ['fa-synthetic-unrelated',KEY,PAYLOAD,RESET]){
+      const eventContext=await browser.newContext({viewport:{width:390,height:844},
+        isMobile:true,hasTouch:true,colorScheme:'light'});
+      const eventA=await eventContext.newPage();activePage=eventA;
+      await openReal(eventA,url);
+      const eventB=await eventContext.newPage();
+      await openReal(eventB,url);
+      await eventA.bringToFront();
+      const eventState=await eventA.evaluate(async()=>window.__r(309).load());
+      await eventA.evaluate(payload=>{
+        window.__faNativeEvents=[];
+        window.addEventListener('storage',event=>{
+          window.__faNativeEvents.push({key:event.key,trusted:event.isTrusted,
+            sameStorage:event.storageArea===localStorage});
+        });
+        const original=Storage.prototype.setItem;
+        Storage.prototype.setItem=function(name,value){
+          if(this===localStorage&&name===payload)
+            throw new DOMException('Synthetic native-event payload denial','QuotaExceededError');
+          return original.call(this,name,value);
+        };
+        window.__restoreNativeEventSet=()=>{Storage.prototype.setItem=original};
+      },PAYLOAD);
+      const eventFailure=await eventA.evaluate(async state=>{
+        try{await window.__r(309).save(state);return 'UNEXPECTED_SUCCESS'}
+        catch(error){return String(error.message)}
+      },eventState);
+      assert.match(eventFailure,/Prima salvare criptată nu a fost confirmată/);
+      await eventA.evaluate(()=>window.__restoreNativeEventSet());
+      assert.equal(await eventA.evaluate(()=>window.__r(309).canRetryFirstSave()),true,
+        'Fresh live retry must be available before a sibling storage event');
+      const eventOrphan=await vaultBytes(eventA);
+      assert.match(eventOrphan.key,/^[0-9a-f]{64}$/);
+      assert.equal(eventOrphan.payload,null);
+      const changedValue=changedKey===KEY?'b'.repeat(64):
+        changedKey===PAYLOAD?'synthetic-conflicting-ciphertext':
+        changedKey===RESET?'idle-v2:'+'c'.repeat(32):'unrelated';
+      await eventB.evaluate(([key,value])=>localStorage.setItem(key,value),
+        [changedKey,changedValue]);
+      await eventA.waitForFunction(key=>
+        window.__faNativeEvents.some(event=>event.key===key),changedKey,{timeout:10000});
+      const observed=await eventA.evaluate(key=>
+        window.__faNativeEvents.filter(event=>event.key===key),changedKey);
+      assert.ok(observed.some(event=>event.trusted&&event.sameStorage),
+        'Expected a native trusted cross-tab StorageEvent, not a synthetic dispatch');
+      if(changedKey==='fa-synthetic-unrelated'){
+        assert.equal(await eventA.evaluate(()=>window.__r(309).canRetryFirstSave()),true,
+          'Unrelated native storage event must not revoke first-save retry');
+        assert.deepEqual(await vaultBytes(eventA),eventOrphan,
+          'Unrelated key must leave all vault bytes unchanged');
+      }else{
+        assert.equal(await eventA.evaluate(()=>window.__r(309).canRetryFirstSave()),false,
+          'Native sibling vault mutation must revoke the live retry');
+        const changedSnapshot=await vaultBytes(eventA);
+        const rejected=await eventA.evaluate(async keys=>{
+          const writes=[],originalSet=Storage.prototype.setItem,
+            originalRemove=Storage.prototype.removeItem;
+          Storage.prototype.setItem=function(name,value){
+            if(keys.includes(String(name)))writes.push(['set',String(name)]);
+            return originalSet.call(this,name,value);
+          };
+          Storage.prototype.removeItem=function(name){
+            if(keys.includes(String(name)))writes.push(['remove',String(name)]);
+            return originalRemove.call(this,name);
+          };
+          try{
+            await window.__r(309).retryFirstSave();
+            return {error:'UNEXPECTED_RETRY',writes};
+          }catch(error){return {error:String(error.message),writes}}
+          finally{
+            Storage.prototype.setItem=originalSet;
+            Storage.prototype.removeItem=originalRemove;
+          }
+        },[KEY,PAYLOAD,RESET]);
+        assert.match(rejected.error,/nu mai este disponibilă/i);
+        assert.deepEqual(rejected.writes,[],
+          'Rejected retry must not write any vault key');
+        assert.deepEqual(await vaultBytes(eventA),changedSnapshot,
+          'Rejected retry must not overwrite the sibling tab change');
+      }
+      console.log('PASS Chromium #35 native cross-tab StorageEvent '+changedKey+
+        ': trusted event, correct retry fencing and zero unintended vault writes');
+      await eventContext.close();
+    }
+
     // The post-reload KEY-only ambiguity remains: if the
     // first payload write fails, the key remains and reload must refuse to
     // create a new ledger. Never auto-delete the ambiguous orphan key.
