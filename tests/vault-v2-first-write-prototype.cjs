@@ -46,7 +46,12 @@ function store(initial={},fault={}) {
   let writes=0;
   return {data,get writes(){return writes},
     getItem(k){if(fault.denyRead?.(k))throw Error('SecurityError: read '+k);return Object.hasOwn(data,k)?data[k]:null;},
-    setItem(k,v){if(fault.denyWrite?.(k))throw Error((fault.writeError||'QuotaExceededError')+': write '+k);data[k]=String(v);writes++;},
+    setItem(k,v){
+      if(fault.denyWrite?.(k))throw Error((fault.writeError||'QuotaExceededError')+': write '+k);
+      data[k]=String(v);writes++;
+      // Synthetic write-then-throw: storage contains committed bytes despite an error.
+      if(fault.writeThenThrow?.(k))throw Error((fault.writeError||'QuotaExceededError')+': reported after commit '+k);
+    },
     removeItem(k){if(fault.denyRemove?.(k))throw Error('SecurityError: remove '+k);delete data[k];writes++;}
   };
 }
@@ -106,6 +111,38 @@ test('quota failure on first v2 write leaves no orphan and permits deliberate re
   assert.deepEqual(s.data,{});assert.equal(s.writes,0);
   deny=false;writeV2(s,ledger());assert.deepEqual(readV2(s).state,ledger());
 });
+test('RESEARCH: v2 first setItem write-then-throw authenticates committed bytes; stale retry never overwrites',()=>{
+  let fail=true;
+  const s=store({}, {writeThenThrow:k=>fail&&k===V2});
+  const original=ledger();original.transactions.push({id:'synthetic-ack-uncertain'});
+  assert.throws(()=>writeV2(s,original),/QuotaExceededError.*after commit/);
+  assert.equal(s.writes,1,'The simulated browser committed exactly one v2 record');
+  const committed=s.getItem(V2);
+  assert.deepEqual(readV2(s).state,original,'Existing AES-GCM must authenticate the committed record');
+  fail=false;
+  const before=s.writes;
+  assert.throws(()=>writeV2(s,ledger()),/Stale revision/,
+    'An uncertain first-write acknowledgement must not authorize another initial save');
+  assert.equal(s.writes,before,'Retry without the exact expected revision must write nothing');
+  assert.equal(s.getItem(V2),committed);
+});
+test('RESEARCH: v2 update write-then-throw preserves authenticated newer ledger and rejects stale tab',()=>{
+  let fail=false;
+  const s=store({}, {writeThenThrow:k=>fail&&k===V2});
+  const initial=writeV2(s,ledger());
+  const newer=ledger();newer.transactions.push({id:'synthetic-newer'});
+  fail=true;
+  assert.throws(()=>writeV2(s,newer,initial),/QuotaExceededError.*after commit/);
+  assert.equal(s.writes,2);
+  const committed=s.getItem(V2);
+  assert.deepEqual(readV2(s).state,newer);
+  fail=false;
+  const before=s.writes;
+  assert.throws(()=>writeV2(s,ledger(),initial),/Stale revision/);
+  assert.equal(s.writes,before);
+  assert.equal(s.getItem(V2),committed);
+});
+
 test('SecurityError on first v2 write leaves no key or ciphertext',()=>{
   const s=store({}, {denyWrite:k=>k===V2,writeError:'SecurityError'});
   assert.throws(()=>writeV2(s,ledger()),/SecurityError/);
