@@ -347,14 +347,15 @@ async function run() {
     });
     assert.match(interrupted,/Resetarea a fost întreruptă/);
     const interruptedBytes=await vaultBytes(tabA);
-    assert.equal(interruptedBytes.reset,'committed-v1');
+    assert.match(interruptedBytes.reset,/^pending-v2:[0-9a-f]{32}$/);
     assert.equal(interruptedBytes.payload,null);
     assert.match(interruptedBytes.key,/^[0-9a-f]{64}$/);
     await tabA.evaluate(()=>window.__faRestoreRemove());
     await openReal(tabA,url);
     await tabA.evaluate(async()=>window.__r(309).load());
-    const erased={key:null,payload:null,reset:null};
-    assert.deepEqual(await vaultBytes(tabA),erased,'Reload must finish committed reset and remove journal');
+    const erased=await vaultBytes(tabA);
+    assert.equal(erased.key,null);assert.equal(erased.payload,null);
+    assert.match(erased.reset,/^idle-v2:[0-9a-f]{32}$/);
     const staleAfterReset=await tabB.evaluate(async state=>{
       try {await window.__r(309).save(state);return 'UNEXPECTED_SAVE'}
       catch(error){return String(error.message)}
@@ -417,19 +418,23 @@ async function run() {
     });
     assert.match(payloadDenied,/Resetarea a fost întreruptă/);
     const pendingReset=await vaultBytes(faultPage);
-    assert.equal(pendingReset.reset,'committed-v1');
+    assert.match(pendingReset.reset,/^pending-v2:[0-9a-f]{32}$/);
     assert.equal(pendingReset.key,faultSeed.key);
     assert.equal(pendingReset.payload,faultSeed.payload);
     await faultPage.evaluate(()=>window.__restoreFaultRemove());
     await openReal(faultPage,url);
     await faultPage.evaluate(async()=>window.__r(309).load());
-    const cleared={key:null,payload:null,reset:null};
-    assert.deepEqual(await vaultBytes(faultPage),cleared);
+    const cleared=await vaultBytes(faultPage);
+    assert.equal(cleared.key,null);assert.equal(cleared.payload,null);
+    assert.match(cleared.reset,/^idle-v2:[0-9a-f]{32}$/);
     await faultPage.evaluate(async()=>window.__r(309).resetData());
-    assert.deepEqual(await vaultBytes(faultPage),cleared,'Repeated reset must be idempotent');
+    const secondReset=await vaultBytes(faultPage);
+    assert.equal(secondReset.key,null);assert.equal(secondReset.payload,null);
+    assert.match(secondReset.reset,/^idle-v2:[0-9a-f]{32}$/);
+    assert.notEqual(secondReset.reset,cleared.reset,'Repeated reset rotates durable epoch');
     await openReal(faultPage,url);
     await faultPage.evaluate(async()=>window.__r(309).load());
-    assert.deepEqual(await vaultBytes(faultPage),cleared);
+    assert.deepEqual(await vaultBytes(faultPage),secondReset);
     console.log('PASS Chromium payload removal denied: committed journal survives, reload completes reset, repeated reset idempotent');
 
     // Read permission faults must block both loading and saving; no attempt to
@@ -597,7 +602,7 @@ async function run() {
     const firstPage=await firstContext.newPage();activePage=firstPage;
     await openReal(firstPage,url);
     const firstState=await firstPage.evaluate(async()=>window.__r(309).load());
-    assert.deepEqual(await vaultBytes(firstPage),cleared);
+    assert.deepEqual(await vaultBytes(firstPage),{key:null,payload:null,reset:null});
     await firstPage.evaluate(payload=>{
       const original=Storage.prototype.setItem;
       Storage.prototype.setItem=function(name,value){
@@ -689,10 +694,9 @@ async function run() {
       return 'NO_AUTOMATIC_RECOVERY_AUTHORIZED';
     };
 
-    // F08: v18.45 tab loaded before a hypothetical new tab staged encrypted
-    // data. Its real resetData() can succeed, remove its own reset marker,
-    // and leave the unrecognized STAGE intact. That is indistinguishable from
-    // a crash just after staging: stage-only MUST NOT auto-activate.
+    // F08: active WEB 18.50 retains an epoch after reset. Old cached
+    // 18.49 ambiguity is separately pinned in the Node compatibility matrix.
+    // A staged research record remains quarantined, never auto-activated.
     const resetCoexistContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'dark'});
     const oldResetTab=await resetCoexistContext.newPage();activePage=oldResetTab;
     await openReal(oldResetTab,url);
@@ -707,13 +711,14 @@ async function run() {
     assert.equal(researchDecision(stageOnlyCrash),'QUARANTINE_AMBIGUOUS_STAGE_ONLY');
     await oldResetTab.evaluate(async()=>window.__r(309).resetData());
     const afterOldReset=await researchSnapshot(newStageTab);
-    assert.deepEqual(afterOldReset,stageOnlyCrash,
-      'A real old-tab intentional reset leaves the same durable keys as a stage-only crash');
-    assert.equal(researchDecision(afterOldReset),'QUARANTINE_AMBIGUOUS_STAGE_ONLY');
+    assert.equal(afterOldReset.key,null);assert.equal(afterOldReset.payload,null);
+    assert.match(afterOldReset.reset,/^idle-v2:[0-9a-f]{32}$/);
+    assert.equal(afterOldReset.stage,stagedRaw);assert.equal(afterOldReset.v2,null);
+    assert.equal(researchDecision(afterOldReset),'QUARANTINE_LEGACY_OR_RESET_CONFLICT');
     await openReal(newStageTab,url);
-    assert.deepEqual(await researchSnapshot(newStageTab),stageOnlyCrash,
-      'Reload must not silently promote the unrecognized staged ciphertext');
-    console.log('PASS Chromium F08 research: real cached v18.45 reset leaves ambiguous stage-only bytes; quarantine required, no resurrection');
+    assert.deepEqual(await researchSnapshot(newStageTab),afterOldReset,
+      'Reload must retain epoch and must not promote unrecognized staged ciphertext');
+    console.log('PASS Chromium F08: reset epoch quarantines unknown staged data; no resurrection');
 
     // F09: a real cached v18.45 tab can save a v1 encrypted ledger after a
     // hypothetical v2 single-record commit. The candidate's reader MUST

@@ -9,9 +9,9 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const nodeCrypto = require('node:crypto');
 
-const html = fs.readFileSync('index.html','utf8');
-const path = html.match(/<script src="\/financial-autonomy-preview\/([^"?]+[.]js)[?]build=/)?.[1];
-assert.ok(path, 'Active immutable WEB bundle must be selected from index.html');
+// Pin the exact legacy build: the active bundle may advance, but the
+// compatibility test must keep exercising already-open WEB 18.49 tabs.
+const path = '_expo/static/js/web/index-v01849-responsive-nav-wrap-r3-20261026.js';
 const bundle = fs.readFileSync(path,'utf8');
 const KEY = 'financial-autonomy.preview.key.v1';
 const PAYLOAD = 'financial-autonomy.preview.payload.v1';
