@@ -214,6 +214,72 @@ test('KNOWN UNSAFE: interleaved v2 compare-then-set loses a committed tab withou
   // Production must serialize cooperating writers or fail closed.
 });
 
+// RESEARCH ONLY: Web Locks serialization is a required *new-client* contract,
+// not a guarantee for old cached tabs, direct legacy modules, or browser crashes.
+const RESEARCH_LOCK_NAME='financial-autonomy.preview.vault.v1';
+function researchExclusiveLocks() {
+  let tail=Promise.resolve();
+  return {request(name,options,callback) {
+    assert.equal(name,RESEARCH_LOCK_NAME,'All vault writers must use the same origin-wide lock');
+    assert.equal(options?.mode,'exclusive');
+    const result=tail.then(callback);
+    tail=result.then(()=>undefined,()=>undefined); // release even after a rejected writer
+    return result;
+  }};
+}
+function researchLockedWriteV2(storage,locks,state,expectedRevision,afterAcquiringLock) {
+  if(!locks||typeof locks.request!=='function')
+    return Promise.reject(Error('Web Locks unavailable: read-only; no fallback write'));
+  return locks.request(RESEARCH_LOCK_NAME,{mode:'exclusive'},async()=>{
+    if(afterAcquiringLock)await afterAcquiringLock();
+    // Authenticate and compare the expected revision INSIDE the exclusive lock.
+    return writeV2(storage,state,expectedRevision);
+  });
+}
+test('RESEARCH SAFE COOPERATING TABS: exclusive Web Lock rejects queued stale v2 writer',async()=>{
+  const s=store(),initial=writeV2(s,ledger()),locks=researchExclusiveLocks();
+  const tabA=ledger();tabA.transactions.push({id:'locked-A'});
+  const tabB=ledger();tabB.transactions.push({id:'locked-B'});
+  let entered,release;
+  const enteredLock=new Promise(resolve=>{entered=resolve});
+  const holdLock=new Promise(resolve=>{release=resolve});
+  const first=researchLockedWriteV2(s,locks,tabA,initial,async()=>{
+    entered();await holdLock; // B queues while A holds the exclusive lock
+  });
+  await enteredLock;
+  const second=researchLockedWriteV2(s,locks,tabB,initial);
+  const secondRejected=assert.rejects(second,/Stale revision/);
+  release();
+  const committed=await first;
+  await secondRejected;
+  assert.equal(s.writes,2,'One initial write and only one successful update');
+  assert.equal(s.getItem(V2),committed);
+  assert.deepEqual(readV2(s).state,tabA,'No acknowledged transaction is overwritten');
+  // This does not protect against a cached v1 tab that ignores the v2 record.
+});
+test('RESEARCH SAFE DEFAULT: absent or denied Web Locks never falls back to unguarded v2 save',async()=>{
+  const s=store(),initial=writeV2(s,ledger()),before=s.getItem(V2),writes=s.writes;
+  const next=ledger();next.transactions.push({id:'never-written'});
+  await assert.rejects(researchLockedWriteV2(s,null,next,initial),/Web Locks unavailable/);
+  const denied={request(){return Promise.reject(Error('NotAllowedError: Web Locks denied'))}};
+  await assert.rejects(researchLockedWriteV2(s,denied,next,initial),/NotAllowedError/);
+  assert.equal(s.writes,writes);
+  assert.equal(s.getItem(V2),before);
+});
+test('RESEARCH SAFE COOPERATING TABS: failed locked write releases queue without a stale overwrite',async()=>{
+  const s=store(),first=writeV2(s,ledger()),locks=researchExclusiveLocks();
+  const newer=ledger();newer.transactions.push({id:'already-committed'});
+  const current=writeV2(s,newer,first),before=s.writes;
+  const rejected=researchLockedWriteV2(s,locks,ledger(),first);
+  const next=ledger();next.transactions.push({id:'later-valid'});
+  const valid=researchLockedWriteV2(s,locks,next,current);
+  await assert.rejects(rejected,/Stale revision/);
+  const latest=await valid;
+  assert.equal(s.writes,before+1,'Rejected stale writer made no write');
+  assert.equal(s.getItem(V2),latest);
+  assert.deepEqual(readV2(s).state,next);
+});
+
 test('stale expected revision cannot overwrite a newer single-record save',()=>{
   const s=store(),first=writeV2(s,ledger());
   const newer=ledger();newer.transactions.push({id:'newer'});
