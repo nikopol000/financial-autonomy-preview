@@ -66,7 +66,9 @@ jobs:
         run: node tests/auto-theme-bundle-regression.cjs
       - name: Bundled AES-GCM synthetic vault persistence and OpenSSL interop
         run: node tests/vault-real-crypto-regression.cjs
-      - name: WEB 18.51 real AES-GCM bounded first-save retry regression
+      - name: WEB 18.54 expiry of sensitive first-save retry handle (immutable diff)
+        run: node tests/first-save-expiry-v1854-regression.cjs
+      - name: WEB 18.54 real AES-GCM bounded first-save retry regression
         run: node tests/vault-first-save-retry-production.cjs
       - name: Research-only v2 atomic first-write prototype (not production)
         run: node --test tests/vault-v2-first-write-prototype.cjs

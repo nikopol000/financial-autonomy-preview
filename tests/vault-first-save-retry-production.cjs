@@ -68,7 +68,7 @@ function locks(){
     const next=tail.then(fn);tail=next.catch(()=>{});return next;
   }};
 }
-function tab(storage,lock=locks()){
+function tab(storage,lock=locks(),timers=null){
   const handlers=new Map();
   const documentHandlers=new Map();
   const document={visibilityState:'visible',addEventListener(name,fn){const list=documentHandlers.get(name)||[];list.push(fn);documentHandlers.set(name,list)}};
@@ -78,7 +78,7 @@ function tab(storage,lock=locks()){
     crypto:{getRandomValues:bytes=>crypto.webcrypto.getRandomValues(bytes),randomUUID:()=>crypto.randomUUID()},
     addEventListener(name,fn){const list=handlers.get(name)||[];list.push(fn);handlers.set(name,list)}
   };
-  const {fn,deps}=factory(309,{...sandbox,globalThis,URL,Blob});
+  const {fn,deps}=factory(309,{...sandbox,globalThis,URL,Blob,setTimeout:timers?.setTimeout||setTimeout,clearTimeout:timers?.clearTimeout||clearTimeout});
   const api={};fn(globalThis,id=>id===205?model:vault,()=>{},null,{exports:api},api,deps);
   return {api,emit(name,event={}){for(const fn of handlers.get(name)||[])fn(event)},emitDocument(name,state){document.visibilityState=state;for(const fn of documentHandlers.get(name)||[])fn({type:name,bubbles:false})}};
 }
@@ -189,6 +189,28 @@ async function test(name,fn){try{await fn();count++;console.log('PASS',name)}cat
     await assert.rejects(t.api.retryFirstSave(),/SecurityError/);
     assert.equal(s.writes,before);
   });
+  await test('120-second expiry timer revokes retained AES key/ciphertext handle without touching local vault',async()=>{
+    const callbacks=new Map(),cancelled=new Set();
+    let nextId=0;
+    const timers={
+      setTimeout(fn,delay){assert.equal(delay,120000);const id=++nextId;callbacks.set(id,fn);return id;},
+      clearTimeout(id){cancelled.add(id);}
+    };
+    const s=memoryStorage(),t=tab(s,locks(),timers);
+    await t.api.load();
+    s.fault('before',PAYLOAD);
+    await assert.rejects(t.api.save(synthetic()),/Prima salvare/);
+    s.clearFault();
+    assert.equal(callbacks.size,1,'Expiry must be scheduled when a key-bearing retry token is created');
+    assert.equal(t.api.canRetryFirstSave(),true);
+    const before=s.writes,snapshot=clone(s.data);
+    callbacks.get(1)();
+    assert.equal(t.api.canRetryFirstSave(),false,'Timer must revoke the live handle without user interaction');
+    assert.ok(cancelled.has(1),'Revocation must clear its scheduled timeout');
+    await assert.rejects(t.api.retryFirstSave(),/nu mai este disponibilă/);
+    assert.equal(s.writes,before);
+    assert.deepEqual(s.data,snapshot,'Expiry must never alter KEY/PAYLOAD/RESET');
+  });
   await test('KEY-only reload cannot distinguish failed first save from deleted authenticated ciphertext',async()=>{
     const s=memoryStorage(),live=tab(s);await live.api.load();
     s.fault('before',PAYLOAD);
@@ -220,6 +242,6 @@ async function test(name,fn){try{await fn();count++;console.log('PASS',name)}cat
     assert.equal(s.writes,beforeLoss,'Externally missing ciphertext must not be overwritten');
     assert.deepEqual(s.data,orphanSnapshot,'Original key and reset epoch remain byte-identical');
   });
-  console.log(count+'/11 WEB bounded first-save synthetic integration tests passed');
-  if(count!==11)process.exitCode=1;
+  console.log(count+'/12 WEB bounded first-save synthetic integration tests passed');
+  if(count!==12)process.exitCode=1;
 })().catch(err=>{console.error(err);process.exitCode=1});
