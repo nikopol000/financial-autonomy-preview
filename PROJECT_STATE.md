@@ -1,3 +1,12 @@
+## CURRENT WEB checkpoint — 2026-10-26 — single-use retry Chromium guard; #35 reopened
+
+- **REAL START HEAD:** `c7f46aaa236251c56a22b9ea8dc6eadcd0a632f4` verified identical to main. Re-read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, `docs/WEB_VISUAL_REVIEW.md`, all eight open issues plus #35, index WEB 18.50, active immutable bundle, recovery/budget research.
+- **P1 #35 REOPENED:** GitHub showed issue #35 closed/completed, but WEB 18.50 has no shipped retry/recovery handle and KEY-only after reload remains ambiguous. Reopened with documented evidence; no real-user incident claimed.
+- **TEST-ONLY PROGRESS:** [PR #108](https://github.com/nikopol000/financial-autonomy-preview/pull/108) merged main `1002bd60be5037f3b37fb4a8b4de28ffd2cf4aff`. Real Chromium/Web Locks rejects **duplicate** test-only live-handle retry after authenticated commit, zero KEY/PAYLOAD/RESET writes, ciphertext byte-identical. Candidate [Chromium 40305080929](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40305080929) SUCCESS with named PASS; [release 40305080946](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40305080946) SUCCESS. Exact merged-main CI/Pages still to confirm.
+- **NONURGENT #17:** static inventory refreshed against actual WEB 18.50: obsolete `Primary window`, `Additional tracking windows`, `Budget ID explicit` absent; `Custom` survives in validation copy. Issue #17 updated; browser rendering not proven. **#14** remains financial-contract DISCOVERY; no modes/formulas.
+- **RELEASE:** WEB **18.50 unchanged**, no product JS/index/diagnostic, financial engine, real ledger, encrypted backup, stable source, iOS, backend, accounts, telemetry or bank integration edits. No public served UI/header, exact Vercel READY or Safari confirmation claimed.
+- **FIRST UNFINISHED:** design a safe first-write/uncertain-commit UX and retry lifetime, then test write-then-throw, reset/old cached tabs, denied storage and crash/reload. Preserve fail-closed, no orphan-key deletion, stage replay, silent migration or reset resurrection. #4/#29 residual and #85 Safari remain open. Next verify merged-main/checkpoint CI.
+
 ## CURRENT WEB checkpoint — 2026-10-26 — real Chromium Web Locks #35 bounded proof, no product fix
 
 - **START HEAD:** `4a0810b760410102b9988e44dad093cadeb525e6` after PR #104 test + #105 documentation. Mandatory repo guidance, open issue backlog and active WEB 18.50 verified in this execution. No iOS or stable source changes.
