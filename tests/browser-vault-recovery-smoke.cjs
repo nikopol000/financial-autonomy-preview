@@ -634,6 +634,45 @@ async function run() {
     assert.deepEqual(await vaultBytes(retryPage),repaired);
     console.log('PASS Chromium WEB 18.51 bounded first PAYLOAD failure retry commits authenticated ciphertext and reloads');
 
+    // Regression #35: visibilitychange fires on document, not window, and
+    // does not bubble. A hidden tab must lose its volatile retry authority.
+    const hiddenContext=await browser.newContext({viewport:{width:390,height:844},
+      isMobile:true,hasTouch:true,colorScheme:'dark'});
+    const hiddenPage=await hiddenContext.newPage();activePage=hiddenPage;
+    await openReal(hiddenPage,url);
+    const hiddenState=await hiddenPage.evaluate(async()=>window.__r(309).load());
+    await hiddenPage.evaluate(payload=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(name,value){
+        if(name===payload)throw new DOMException('Synthetic hidden-tab first write failure','QuotaExceededError');
+        return original.call(this,name,value);
+      };
+      window.__restoreHiddenSet=()=>{Storage.prototype.setItem=original};
+    },PAYLOAD);
+    const hiddenError=await hiddenPage.evaluate(async state=>{
+      try{await window.__r(309).save(state);return 'UNEXPECTED_SAVE'}
+      catch(error){return String(error.message)}
+    },hiddenState);
+    assert.match(hiddenError,/Prima salvare criptată nu a fost confirmată/);
+    await hiddenPage.evaluate(()=>window.__restoreHiddenSet());
+    assert.equal(await hiddenPage.evaluate(()=>window.__r(309).canRetryFirstSave()),true);
+    const hiddenBefore=await vaultBytes(hiddenPage);
+    await hiddenPage.evaluate(()=>{
+      Object.defineProperty(document,'visibilityState',{configurable:true,value:'hidden'});
+      document.dispatchEvent(new Event('visibilitychange',{bubbles:false}));
+    });
+    assert.equal(await hiddenPage.evaluate(()=>window.__r(309).canRetryFirstSave()),false,
+      'Document visibilitychange must revoke retry authority without bubbling to window');
+    const hiddenResult=await hiddenPage.evaluate(async()=>{
+      try{await window.__r(309).retryFirstSave();return 'UNEXPECTED_RETRY'}
+      catch(error){return String(error.message)}
+    });
+    assert.match(hiddenResult,/nu mai este disponibilă/);
+    assert.deepEqual(await vaultBytes(hiddenPage),hiddenBefore,
+      'Hidden document must not write, delete or replace vault bytes');
+    console.log('PASS Chromium WEB 18.52 document visibilitychange revokes pending first-save retry with zero writes');
+
+
     // The post-reload KEY-only ambiguity remains: if the
     // first payload write fails, the key remains and reload must refuse to
     // create a new ledger. Never auto-delete the ambiguous orphan key.
