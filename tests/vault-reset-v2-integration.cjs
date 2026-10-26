@@ -164,3 +164,73 @@ test('First-save orphan key is still preserved and blocked; issue #35 remains op
   await assert.rejects(newTab(s,l).load(),/Cheia locală există/);
   assert.deepEqual(s.data,before);assert.equal(s.writes,writes);
 });
+
+
+/* #35: NEW v18.50 reset epoch + first-write fault boundaries.
+ * These are actual bundled WEB modules with synthetic state and injected
+ * Storage faults. They characterize fail-closed behavior, NOT recovery.
+ * A Storage write-then-throw shim below is intentionally nonconforming:
+ * native Storage normally either completes setItem or throws without writing.
+ */
+test('P1 #35: first PAYLOAD failure after idle-v2 reset preserves epoch and blocks cached 18.49',async()=>{
+  const s=store(),l=locks(),resetter=newTab(s,l);
+  await resetter.load();await resetter.resetData();isIdle(s);
+  const marker=s.getItem(RESET),stale=newTab(s,l),cached=oldTab(s,l);
+  await stale.load();
+  s.fault.write=k=>k===PAYLOAD;
+  await assert.rejects(stale.save(empty()),/nu a putut salva/);
+  assert.match(s.getItem(KEY),/^[0-9a-f]{64}$/);
+  assert.equal(s.getItem(PAYLOAD),null);
+  assert.equal(s.getItem(RESET),marker);
+  const snapshot=clone(s.data),writes=s.writes;
+  s.fault.write=null;
+  await assert.rejects(newTab(s,l).load(),/Cheia locală există/);
+  await assert.rejects(cached.load(),/Marcaj de resetare necunoscut/);
+  await assert.rejects(stale.save(empty()),/altă filă|Reîncarcă/);
+  await assert.rejects(stale.resetData(),/altă filă|Reîncarcă/);
+  assert.deepEqual(s.data,snapshot);assert.equal(s.writes,writes);
+});
+test('P1 #35: synthetic KEY write-then-throw remains ambiguous, never silently reinitialized',async()=>{
+  const s=store(),l=locks(),a=newTab(s,l);await a.load();
+  const original=s.setItem.bind(s);
+  s.setItem=(key,value)=>{
+    original(key,value);
+    if(key===KEY)throw Error('Synthetic write-then-throw after KEY commit');
+  };
+  await assert.rejects(a.save(empty()),/nu a putut salva/);
+  assert.match(s.getItem(KEY),/^[0-9a-f]{64}$/);
+  assert.equal(s.getItem(PAYLOAD),null);
+  const snapshot=clone(s.data),writes=s.writes;
+  s.setItem=original;
+  await assert.rejects(newTab(s,l).load(),/Cheia locală există/);
+  await assert.rejects(a.save(empty()),/altă filă|Reîncarcă/);
+  assert.deepEqual(s.data,snapshot);assert.equal(s.writes,writes);
+});
+test('P1 #35: synthetic PAYLOAD write-then-throw after reset keeps decryptable ciphertext',async()=>{
+  const s=store(),l=locks(),resetter=newTab(s,l);
+  await resetter.load();await resetter.resetData();isIdle(s);
+  const a=newTab(s,l),pending=clone(await a.load());
+  pending.transactions.push({id:'synthetic-committed-after-throw',kind:'income',amount:700});
+  const original=s.setItem.bind(s);
+  s.setItem=(key,value)=>{
+    original(key,value);
+    if(key===PAYLOAD)throw Error('Synthetic write-then-throw after PAYLOAD commit');
+  };
+  await assert.rejects(a.save(pending),/nu a putut salva/);
+  isIdle(s);
+  assert.deepEqual(clone(newVault.loadWebVault(s)),pending);
+  const snapshot=clone(s.data),writes=s.writes;
+  s.setItem=original;
+  await assert.rejects(a.save(pending),/altă filă|Reîncarcă/);
+  assert.deepEqual(s.data,snapshot);assert.equal(s.writes,writes);
+  assert.deepEqual(clone(await newTab(s,l).load()),pending);
+});
+test('P1 #35: denied RESET read on post-reset first save rejects before any write',async()=>{
+  const s=store(),l=locks(),a=newTab(s,l);
+  await a.load();await a.resetData();isIdle(s);
+  const b=newTab(s,l);await b.load();
+  const snapshot=clone(s.data),writes=s.writes;
+  s.fault.read=k=>k===RESET;
+  await assert.rejects(b.save(empty()),/SecurityError/);
+  assert.deepEqual(s.data,snapshot);assert.equal(s.writes,writes);
+});
