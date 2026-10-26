@@ -187,6 +187,33 @@ test('wrong key or tampered ciphertext blocks load and save without writes',()=>
     s.data[V2]=original;
   }
 });
+test('KNOWN UNSAFE: interleaved v2 compare-then-set loses a committed tab without Web Locks',()=>{
+  // Two tabs both hold the same authenticated revision. B commits after A
+  // checked that revision, but before A's setItem. localStorage has no CAS.
+  // This deliberately characterizes an UNSAFE prototype, not a fix.
+  const s=store(),initial=writeV2(s,ledger());
+  const nativeSet=s.setItem.bind(s);
+  const tabA=ledger();tabA.transactions.push({id:'tab-A'});
+  const tabB=ledger();tabB.transactions.push({id:'tab-B'});
+  let interleaved=false,tabBRevision=null;
+  s.setItem=(key,value)=>{
+    if(key===V2&&!interleaved){
+      interleaved=true;
+      tabBRevision=writeV2(s,tabB,initial); // B commits inside A's write gap
+    }
+    return nativeSet(key,value); // A overwrites B without seeing its revision
+  };
+  const before=s.writes;
+  const tabARevision=writeV2(s,tabA,initial);
+  assert.equal(interleaved,true);
+  assert.equal(s.writes,before+2,'Both tabs successfully wrote a full v2 record');
+  assert.notEqual(tabARevision,tabBRevision);
+  assert.deepEqual(readV2(s).state,tabA,'The later stale write silently lost B');
+  assert.equal(readV2(s).state.transactions.some(t=>t.id==='tab-B'),false);
+  // A single-record envelope fixes torn KEY/PAYLOAD, NOT multi-tab CAS.
+  // Production must serialize cooperating writers or fail closed.
+});
+
 test('stale expected revision cannot overwrite a newer single-record save',()=>{
   const s=store(),first=writeV2(s,ledger());
   const newer=ledger();newer.transactions.push({id:'newer'});
