@@ -66,8 +66,7 @@ for(const [before,after,count] of edits){
   expected=expected.split(before).join(after);
 }
 assert.equal(actual,expected,'Unexpected change outside budget microcopy and diagnostic metadata');
-const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18[.]48"/);
-assert.ok(html.includes('/financial-autonomy-preview/'+newPath+'?build=18.48.1'));
+// Historical immutable-release regression: later releases may activate a newer bundle.
+// The exact 18.48 artifact is verified above independently of active index.html.
 assert.ok(actual.includes('financial-autonomy-diagnostic-unic-v18.48.json'));
 console.log('PASS WEB 18.48 exact Romanian budget copy only; financial engine and vault unchanged');
