@@ -32,6 +32,12 @@ The five added integration cases prove, in Node VM with synthetic ledger and sim
 
 **Next acceptance gate:** prove candidate behavior in a disposable real Chromium browser with actual Web Locks and storage faults; review old cached clients, same-tab retry after errors, real browser lifecycle and the absence of duplicate authority. Only then consider an immutable product release. Keep issue #14 budget perspectives separately in financial-contract DISCOVERY.
 
+### Real Chromium validation of bounded research path — 26 October 2026
+
+[PR #106](https://github.com/nikopol000/financial-autonomy-preview/pull/106) adds a **disposable localhost Chromium** scenario to `tests/browser-vault-recovery-smoke.cjs`. It runs the **actual WEB 18.50 application bundle** in the browser, resets a fresh synthetic vault to a durable `idle-v2` epoch, injects a first PAYLOAD quota failure through `Storage.prototype.setItem`, and captures the exact encrypted bytes **only in the test's still-open page**. A sibling browser tab confirms KEY-only is blocked. The test-only retry acquires the browser's real `navigator.locks.request(..., {mode:'exclusive'})`, checks original KEY/RESET, authenticates the captured ciphertext through bundled module 310, writes the exact PAYLOAD once, and verifies decryption and unchanged bytes after page reload.
+
+[Candidate Chromium CI 40299195657](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40299195657) **SUCCESS**, with named log PASS for the bounded retry and the existing blocked-two-tabs test. [Candidate release CI 40299195664](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40299195664) **SUCCESS**. This upgrades the narrow proof from simulated Node locks to **real Chromium Web Locks/localStorage**, but does **not** prove Safari, power-loss durability, or that any product recovery function exists. The real application still blocks an orphan after reload; the test's handle is an injected test fixture and disappears on reload. No financial formulas, backup format or user data changed. Issue #35 remains open until a separate, safe, immutable product implementation passes the full release gate.
+
 ## Observed evidence and limits
 
 - v1 first save writes KEY before PAYLOAD. A failed PAYLOAD write can leave KEY-only. KEY-only cannot prove whether initialization failed or existing ciphertext disappeared. The current product fails closed; #35 remains open.
