@@ -9,9 +9,8 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const crypto = require('node:crypto');
 
-const html = fs.readFileSync('index.html','utf8');
-const bundlePath = html.match(new RegExp('<script src="/financial-autonomy-preview/([^"?]+[.]js)[?]build='))?.[1];
-assert.ok(bundlePath, 'Active immutable bundle path required');
+// The staged-v2 prototype intentionally models OLD cached platform 309/310.
+const bundlePath = '_expo/static/js/web/index-v01849-responsive-nav-wrap-r3-20261026.js';
 const bundle = fs.readFileSync(bundlePath,'utf8');
 const sandbox = {Uint8Array,Uint16Array,Uint32Array,Int32Array,ArrayBuffer,DataView,
   TextDecoder,TextEncoder,Buffer,setTimeout,clearTimeout,console,
