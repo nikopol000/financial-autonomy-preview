@@ -14,6 +14,8 @@ const KEYS = Object.freeze({
   v2: 'financial-autonomy.preview.atomic-prototype.v2'
 });
 const COMMITTED_RESET = 'committed-v1';
+const IDLE_V2 = /^idle-v2:[0-9a-f]{32}$/;
+const PENDING_V2 = /^pending-v2:[0-9a-f]{32}$/;
 
 function inspectReadOnly(storage) {
   const bytes = {};
@@ -25,8 +27,23 @@ function inspectReadOnly(storage) {
   const has = name => bytes[name] !== null;
   // Deliberately never parse or return secret/ciphertext bytes.
   let state;
-  if (has('reset') && bytes.reset !== COMMITTED_RESET) state = 'UNKNOWN_RESET';
-  else if (has('reset')) state = 'RESET_IN_PROGRESS';
+  const marker = bytes.reset;
+  const idle = typeof marker === 'string' && IDLE_V2.test(marker);
+  const pending = typeof marker === 'string' && PENDING_V2.test(marker);
+  // WEB 18.50 retains a durable idle-v2 reset generation. This is not an
+  // unknown marker, nor proof of a never-used browser. It never authorizes
+  // this research oracle to initialize, migrate, replay or delete records.
+  if (has('reset') && marker !== COMMITTED_RESET && !idle && !pending)
+    state = 'UNKNOWN_RESET';
+  else if (marker === COMMITTED_RESET || pending)
+    state = 'RESET_IN_PROGRESS';
+  else if (idle) {
+    if (has('stage') || has('v2')) state = 'POST_RESET_CONFLICT';
+    else if (has('key') && has('payload')) state = 'POST_RESET_V1_PAIR_UNVERIFIED';
+    else if (has('key')) state = 'POST_RESET_KEY_ONLY_AMBIGUOUS';
+    else if (has('payload')) state = 'POST_RESET_PAYLOAD_ONLY_AMBIGUOUS';
+    else state = 'RESET_COMPLETED_EMPTY';
+  }
   else if (has('stage') && (has('key') || has('payload') || has('v2'))) state = 'STAGE_CONFLICT';
   else if (has('v2') && (has('key') || has('payload'))) state = 'DUAL_AUTHORITY';
   else if (has('stage')) state = 'STAGE_ONLY_AMBIGUOUS';
@@ -88,6 +105,42 @@ for (const [label, present, expected] of cases) {
     f.assertUnchanged();
   });
 }
+// WEB 18.50 reset-epoch footprint classification. All cases remain read-only;
+// even a valid idle marker never grants automatic first-save recovery (#35).
+const EPOCH = 'a'.repeat(32);
+const epochCases = [
+  ['completed reset with no vault', ['reset'], 'RESET_COMPLETED_EMPTY', 'idle-v2:' + EPOCH],
+  ['first-save orphan key after reset', ['reset','key'], 'POST_RESET_KEY_ONLY_AMBIGUOUS', 'idle-v2:' + EPOCH],
+  ['missing key after reset', ['reset','payload'], 'POST_RESET_PAYLOAD_ONLY_AMBIGUOUS', 'idle-v2:' + EPOCH],
+  ['complete v1 pair after reset', ['reset','key','payload'], 'POST_RESET_V1_PAIR_UNVERIFIED', 'idle-v2:' + EPOCH],
+  ['research stage after reset', ['reset','stage'], 'POST_RESET_CONFLICT', 'idle-v2:' + EPOCH],
+  ['research v2 after reset', ['reset','v2'], 'POST_RESET_CONFLICT', 'idle-v2:' + EPOCH],
+  ['interrupted v2 reset before deletion', ['reset','key','payload'], 'RESET_IN_PROGRESS', 'pending-v2:' + EPOCH],
+  ['interrupted v2 reset after deletion', ['reset'], 'RESET_IN_PROGRESS', 'pending-v2:' + EPOCH]
+];
+for (const [label, present, expected, resetValue] of epochCases) {
+  test('WEB 18.50 read-only epoch: ' + label, () => {
+    const f = fixture(present, {resetValue});
+    assert.deepEqual(inspectReadOnly(f.storage), {state:expected, automaticRecovery:false});
+    f.assertUnchanged();
+  });
+}
+for (const bad of ['idle-v2:bad','pending-v2:bad','idle-v2:'+'A'.repeat(32),
+  'pending-v2:'+'b'.repeat(31),'idle-v2:'+'c'.repeat(33)]) {
+  test('malformed reset generation remains unknown: '+bad.slice(0,22), () => {
+    const f=fixture(['reset','key'],{resetValue:bad});
+    assert.deepEqual(inspectReadOnly(f.storage),
+      {state:'UNKNOWN_RESET',automaticRecovery:false});
+    f.assertUnchanged();
+  });
+}
+test('denied WEB 18.50 idle marker read never authorizes recovery', () => {
+  const f=fixture(['reset','key'],{resetValue:'idle-v2:'+EPOCH,deniedKey:KEYS.reset});
+  assert.deepEqual(inspectReadOnly(f.storage),
+    {state:'STORAGE_UNREADABLE',automaticRecovery:false});
+  f.assertUnchanged();
+});
+
 test('unknown future reset marker never authorizes recovery', () => {
   const f = fixture(['reset','key','payload'], {resetValue:'future-v99'});
   assert.equal(inspectReadOnly(f.storage).state, 'UNKNOWN_RESET');

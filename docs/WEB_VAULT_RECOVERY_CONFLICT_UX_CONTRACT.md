@@ -4,6 +4,24 @@
 
 This is a proposal for a **non-destructive, user-controlled recovery experience**, not a repair, a migration, or a change to the current vault. It is based on actual v18.45 module 309/310 and the synthetic Chromium F08/F09 tests in [PR #64](https://github.com/nikopol000/financial-autonomy-preview/pull/64). The read-only oracle in `tests/vault-recovery-conflict-contract.cjs` is deliberately **not imported into the product**.
 
+## WEB 18.50 reset-generation reconciliation — 26 October 2026
+
+The earlier read-only oracle was written against WEB 18.45 and classified **every** non-`committed-v1` RESET value as `UNKNOWN_RESET`. That is now stale: the shipped WEB 18.50 reset protocol intentionally retains `idle-v2:<32 lowercase hex>` after a completed reset, and uses `pending-v2:<32 lowercase hex>` while finishing an authorized reset. This **research-only** classifier now distinguishes those two validated forms without authorizing any writes, recovery, automatic initialization, deletion or migration.
+
+| Observed footprint | Research-only classification | Safety decision |
+| --- | --- | --- |
+| `idle-v2` and no v1/v2/stage | `RESET_COMPLETED_EMPTY` | Not an untouched browser; no automatic recovery |
+| `idle-v2` + KEY only | `POST_RESET_KEY_ONLY_AMBIGUOUS` | Preserve KEY; failed new first write and missing old payload cannot be distinguished |
+| `idle-v2` + PAYLOAD only | `POST_RESET_PAYLOAD_ONLY_AMBIGUOUS` | Preserve ciphertext; do not fabricate key |
+| `idle-v2` + complete v1 pair | `POST_RESET_V1_PAIR_UNVERIFIED` | Presence is not proof of authenticity; product must authenticate |
+| `idle-v2` + research stage or v2 | `POST_RESET_CONFLICT` | Preserve all bytes; no migration/replay |
+| `pending-v2` with or without v1 bytes | `RESET_IN_PROGRESS` | No recovery; only actual product's previously authorized reset completion logic may act |
+| Invalid generation/unknown marker or denied read | `UNKNOWN_RESET` / `STORAGE_UNREADABLE` | Fail closed without writes |
+
+The oracle does **not** participate in production reset finalization; it is intentionally more conservative than the active vault implementation. The new Node tests cover recognized/malformed markers, post-reset orphan states, read denial and exact byte preservation. Their passing status must be checked in CI, not inferred from a commit. This does **not** fix issue #35 or prove Safari/power-loss durability. It also does not authorize the proposed v2 single-record format.
+
+**Next design gate:** specify a separate, explicit user recovery path for a KEY-only vault and a safe first-write commit protocol that cannot create dual authority with cached old tabs. Until proven, preserve fail-closed behavior and do not auto-delete an orphan key. Budget issue #14 remains discovery-only.
+
 ## Observed evidence and limits
 
 - v1 first save writes KEY before PAYLOAD. A failed PAYLOAD write can leave KEY-only. KEY-only cannot prove whether initialization failed or existing ciphertext disappeared. The current product fails closed; #35 remains open.
