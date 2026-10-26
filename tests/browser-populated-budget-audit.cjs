@@ -3,6 +3,7 @@
 // Disposable localhost Chromium contexts only. No real vault, backup or financial formula changes.
 // 200% CSS zoom is a layout stress approximation, NOT iOS Dynamic Type certification.
 const assert=require('node:assert/strict');
+require('./web-v1849-nav-regression.cjs');
 const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
