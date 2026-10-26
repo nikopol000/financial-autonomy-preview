@@ -755,6 +755,49 @@ async function run() {
     assert.equal(boundedCommitted.reset,boundedEpoch);
     assert.ok(boundedCommitted.payload?.length>50);
     assert.equal(decryptBrowserVault(boundedCommitted).version,4);
+    // #35 research-only idempotence gate: a successful bounded commit must
+    // NOT permit the same live handle to write again, even if it holds the
+    // identical ciphertext. A duplicate write could mask another authority.
+    // Observe actual Web Locks and instrument all three vault storage keys.
+    const duplicateRetry=await boundedPage.evaluate(async ({key,payload,reset})=>{
+      const handle=window.__boundedHandle;
+      const names=new Set([key,payload,reset]);
+      const writes=[];
+      const originalSet=Storage.prototype.setItem;
+      const originalRemove=Storage.prototype.removeItem;
+      Storage.prototype.setItem=function(name,value){
+        if(names.has(String(name)))writes.push(['set',String(name)]);
+        return originalSet.call(this,name,value);
+      };
+      Storage.prototype.removeItem=function(name){
+        if(names.has(String(name)))writes.push(['remove',String(name)]);
+        return originalRemove.call(this,name);
+      };
+      try{
+        await navigator.locks.request('financial-autonomy.preview.vault.v1',
+          {mode:'exclusive'},()=>{
+            const current={key:localStorage.getItem(key),
+              payload:localStorage.getItem(payload),
+              epoch:localStorage.getItem(reset)};
+            if(current.epoch!==handle.epoch||
+               current.key!==handle.key||current.payload!==null)
+              throw Error('Changed authority: fail closed');
+            // This branch must never be reached after a successful commit.
+            localStorage.setItem(payload,handle.payload);
+          });
+        return {error:'UNEXPECTED_REPLAY',writes};
+      }catch(error){return {error:String(error.message),writes}}
+      finally{
+        Storage.prototype.setItem=originalSet;
+        Storage.prototype.removeItem=originalRemove;
+      }
+    },{key:KEY,payload:PAYLOAD,reset:RESET});
+    assert.match(duplicateRetry.error,/Changed authority: fail closed/);
+    assert.deepEqual(duplicateRetry.writes,[],
+      'Duplicate live-handle retry must not write or delete any vault key');
+    assert.deepEqual(await vaultBytes(boundedPage),boundedCommitted,
+      'Rejected replay must preserve committed ciphertext byte-for-byte');
+    console.log('PASS Chromium #35 RESEARCH ONLY: duplicate bounded live-handle retry is rejected under real Web Lock with zero vault writes');
     await openReal(boundedPage,url);
     const boundedReload=await boundedPage.evaluate(async()=>window.__r(309).load());
     assert.equal(boundedReload.version,4);
