@@ -37,6 +37,48 @@ function release(){
   assert.ok(fs.existsSync(path.join(ROOT,parsed.pathname.slice(PREFIX.length))),'Bundle missing');
   return {version,bundle:src};
 }
+
+function overlapArea(a,b){
+  if(!a||!b)return 0;
+  const w=Math.max(0,Math.min(a.x+a.width,b.x+b.width)-Math.max(a.x,b.x));
+  const h=Math.max(0,Math.min(a.y+a.height,b.y+b.height)-Math.max(a.y,b.y));
+  return Math.round(w*h*100)/100;
+}
+async function navFootprint(page){
+  const names=['Acasă','Finanțe','Înregistrează','Istoric','Mai mult'];
+  const tabs=[];
+  for(const name of names){
+    const locator=page.getByRole('tab',{name,exact:true});
+    assert.equal(await locator.count(),1,'Navigation destination must have one accessible tab: '+name);
+    const box=await locator.boundingBox();
+    assert.ok(box&&box.width>0&&box.height>0,'Navigation tab must have a measurable hit target: '+name);
+    const text=await locator.evaluate((el,label)=>{
+      const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
+      let node;
+      while((node=walker.nextNode())){
+        if(node.textContent.trim()!==label)continue;
+        const range=document.createRange();
+        range.selectNodeContents(node);
+        const rect=range.getBoundingClientRect();
+        return {x:rect.x,y:rect.y,width:rect.width,height:rect.height};
+      }
+      return null;
+    },name);
+    tabs.push({name,hitTarget:box,text});
+  }
+  const textOverlapPairs=[];
+  for(let i=0;i<tabs.length;i++)for(let j=i+1;j<tabs.length;j++){
+    const area=overlapArea(tabs[i].text,tabs[j].text);
+    if(area>0)textOverlapPairs.push({a:tabs[i].name,b:tabs[j].name,areaCssPx2:area});
+  }
+  const textOutsideHitTarget=tabs.filter(t=>t.text&&(
+    t.text.x<t.hitTarget.x-1||
+    t.text.x+t.text.width>t.hitTarget.x+t.hitTarget.width+1
+  )).map(t=>t.name);
+  return {tabs,textOverlapPairs,textOutsideHitTarget,
+    caveat:'Text-node rectangles and CSS zoom are Chromium diagnostics, not Safari Dynamic Type certification'};
+}
+
 async function audit(browser,url,width,scheme){
   const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:2,
     isMobile:true,hasTouch:true,colorScheme:scheme,timezoneId:'Europe/Bucharest',reducedMotion:'reduce'});
@@ -69,6 +111,7 @@ async function audit(browser,url,width,scheme){
       'Populated budget page must not expose English Primary terminology');
     assert.ok(await page.getByText(/Lunar · principală/).count()>=1,
       'Primary monthly window must be clearly labeled in Romanian');
+    const navNormal=await navFootprint(page);
     const normal=await page.evaluate(()=>{
       const root=document.documentElement;
       return {viewport:innerWidth,documentScrollWidth:root.scrollWidth,
@@ -79,6 +122,7 @@ async function audit(browser,url,width,scheme){
     // CSS zoom is explicitly a stress proxy; no claim of real iPhone Dynamic Type.
     await page.evaluate(()=>{document.documentElement.style.zoom='200%';});
     await page.screenshot({path:path.join(OUT,'populated-budget-'+label+'-csszoom200.png'),fullPage:true});
+    const navZoom=await navFootprint(page);
     const zoom=await page.evaluate(()=>({
       viewport:innerWidth,documentScrollWidth:document.documentElement.scrollWidth,
       rootZoom:getComputedStyle(document.documentElement).zoom,
@@ -89,9 +133,12 @@ async function audit(browser,url,width,scheme){
     assert.ok(normal.bodyText.includes('Alimente DEMO · TEST'),'Configured budget must render in the real UI');
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
-      limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,normal,zoom,encryptedVaultUntouched:true};
+      limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
+      normal:{...normal,navigation:navNormal},zoom:{...zoom,navigation:navZoom},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
-      '; zoom200 scrollWidth='+zoom.documentScrollWidth);
+      '; zoom200 scrollWidth='+zoom.documentScrollWidth+
+      '; nav text overlaps='+navZoom.textOverlapPairs.length+
+      '; labels outside targets='+navZoom.textOutsideHitTarget.join(','));
     return result;
   }catch(error){
     await page.screenshot({path:path.join(OUT,'FAIL-'+label+'.png'),fullPage:true}).catch(()=>{});
@@ -114,7 +161,7 @@ async function audit(browser,url,width,scheme){
       results.push(await audit(browser,url,width,scheme));
     fs.writeFileSync(path.join(OUT,'audit.json'),JSON.stringify({
       product:'WEB '+id.version,bundle:id.bundle,origin:'localhost disposable demo only',
-      zoomCaveat:'CSS zoom is not Safari/iOS Dynamic Type',results},null,2));
+      zoomCaveat:'CSS zoom and text-node geometry are Chromium diagnostics, not Safari/iOS Dynamic Type',results},null,2));
     console.log('PASS 4/4 populated budget demo UI audit with synthetic 2000 RON budgets');
   }finally{
     if(browser)await browser.close();
