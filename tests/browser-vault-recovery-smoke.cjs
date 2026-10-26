@@ -110,7 +110,8 @@ async function run() {
     await openReal(orphan,url);
     await orphan.getByText('Datele locale nu pot fi deschise',{exact:true}).waitFor({state:'visible',timeout:15000});
     await orphan.getByText(/Nu șterge datele site-ului și nu reseta aplicația/).waitFor({state:'visible'});
-    await orphan.getByText(/această pagină nu poate restaura datele cât timp seiful este blocat/).waitFor({state:'visible'});
+    await orphan.getByText(/reîncercarea deschiderii nu le poate recrea/).waitFor({state:'visible'});
+    await orphan.getByText(/Acest ecran nu poate restaura un backup/).waitFor({state:'visible'});
     const beforeOrphan=await vaultBytes(orphan);
     assert.deepEqual(beforeOrphan,{key:'a'.repeat(64),payload:null,reset:null});
     await orphan.getByText('Reîncearcă deschiderea',{exact:true}).click();
