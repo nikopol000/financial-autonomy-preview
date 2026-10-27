@@ -620,9 +620,28 @@ async function main() {
       localStorage.setItem(EPOCH,crypto.randomUUID());
     },{EPOCH,EPOCH_V2});
     const checkedEmpty=await b.evaluate(()=>window.__research.epochRead());
+    // A previous CI attempt failed on the save below but a rerun passed.
+    // Preserve fail-closed semantics: never retry or silently reinitialize.
+    // Instead report the precise precondition and failure reason, including
+    // the browser's actual marker/revision, for a reproducible diagnosis.
+    assert.equal(checkedEmpty.ok,true,
+      'Expected readable clean generation: '+JSON.stringify(checkedEmpty));
+    assert.equal(checkedEmpty.raw,null,
+      'Expected an empty ciphertext slot: '+JSON.stringify(checkedEmpty));
     const checkedNew=await a.evaluate(snapshot=>window.__research.epochSave(
       {transactions:['newer-than-reset-snapshot']},snapshot.epoch,snapshot.raw),checkedEmpty);
-    assert.equal(checkedNew.ok,true);
+    if(!checkedNew.ok) {
+      const actual=await a.evaluate(({EPOCH,EPOCH_V2,V1_KEY,V1_PAYLOAD})=>({
+        epoch:localStorage.getItem(EPOCH),
+        ciphertextPresent:localStorage.getItem(EPOCH_V2)!==null,
+        legacyKeyPresent:localStorage.getItem(V1_KEY)!==null,
+        legacyPayloadPresent:localStorage.getItem(V1_PAYLOAD)!==null
+      }),{EPOCH,EPOCH_V2,V1_KEY,V1_PAYLOAD});
+      assert.fail('Guarded reset research save failed: '+JSON.stringify({
+        reason:checkedNew.reason,expectedEpoch:checkedEmpty.epoch,
+        expectedRaw:checkedEmpty.raw,actual
+      }));
+    }
     assert.deepEqual(await b.evaluate(snapshot=>window.__research.epochResetChecked(
       snapshot.epoch,snapshot.raw),checkedEmpty),{ok:false,reason:'stale-revision'});
     assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),checkedNew.raw);
