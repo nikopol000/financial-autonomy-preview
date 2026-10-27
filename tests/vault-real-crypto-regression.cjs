@@ -82,6 +82,7 @@ function realTab(s,{locks,url='https://example.test/?fa_real=1',events,timerHarn
   if(events){
     globalThis.addEventListener=(name,fn)=>{events[name]=fn};
     globalThis.document={visibilityState:'visible',addEventListener:(name,fn)=>{events['document:'+name]=fn}};
+    events.document=globalThis.document;
   }
   const context={...sandbox,globalThis,URL,Blob};
   if(timerHarness){
@@ -798,13 +799,12 @@ async function test(name,fn) {
     assert.equal(tab.canRetryFirstSave(),true);
     const before=clone(backing.data),writes=backing.writes;
     assert.equal(typeof events['document:visibilitychange'],'function');
-    tab.canRetryFirstSave();
-    // visibilityState is an actual property on this synthetic tab's document.
-    // The listener is invoked with hidden state by the same captured document.
-    events['document:visibilitychange'](); // visible: no invalidation
+    events['document:visibilitychange'](); // still visible: no invalidation
     assert.equal(tab.canRetryFirstSave(),true);
-    events.pagehide(); // hidden/page departure invalidates the token
+    events.document.visibilityState='hidden';
+    events['document:visibilitychange']();
     assert.equal(tab.canRetryFirstSave(),false);
+    await assert.rejects(tab.retryFirstSave(),/nu mai este disponibilă/);
     assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
   });
   await test('Blocked vault landing retains visible non-destructive guidance and retry',()=>{
