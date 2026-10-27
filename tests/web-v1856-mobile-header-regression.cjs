@@ -19,6 +19,6 @@ for(const [oldText,newText] of edits){
 }
 assert.equal(after,expected,'Unexpected change outside mobile brand and diagnostic version');
 const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18\\.56"/);
-assert.match(html,/index-v01856-mobile-header-two-line-20261027\\.js\\?build=18\\.56\\.1/);
+assert.match(html,/name="financial-autonomy-version" content="18\.56"/);
+assert.match(html,/index-v01856-mobile-header-two-line-20261027\.js\?build=18\.56\.1/);
 console.log('PASS WEB 18.56: mobile brand capped at two lines; immutable diff confirms no financial, vault or navigation changes');
