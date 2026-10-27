@@ -138,6 +138,64 @@ async function caseReloadBeforeRetry(browser,url){
     console.log('PASS #35 actual Chromium WEB UI: reload before retry blocks and preserves orphan bytes at 320px dark');
   }finally{await context.close();}
 }
+// A separate real Chromium tab commits a DIFFERENT, authenticated envelope
+// under the existing first-save key. The pending first tab must not overwrite
+// that ciphertext, even though its own editor still has a pending retry.
+async function caseCrossTabAuthenticatedConflict(browser,url){
+  const context=await browser.newContext({viewport:{width:390,height:844},
+    isMobile:true,hasTouch:true,colorScheme:'dark',timezoneId:'Europe/Bucharest'});
+  const first=await context.newPage();
+  let second;
+  try{
+    await openReal(first,url);
+    const cleanState=await first.evaluate(async()=>window.__r(309).load());
+    assert.deepEqual(await bytes(first),[null,null,null]);
+    await beginBudget(first,'Buget sintetic care nu trebuie suprascris');
+    await injectAtomicPayloadFailure(first);
+    const orphan=await failedBudgetSave(first);
+    await first.getByRole('button',{name:'Reîncearcă prima salvare',exact:true})
+      .waitFor({state:'visible',timeout:10000});
+    second=await context.newPage();
+    await openReal(second,url);
+    await second.getByText('Datele locale nu pot fi deschise',{exact:true})
+      .waitFor({state:'visible',timeout:20000});
+    // The second tab uses the actual bundled AES-GCM implementation and the
+    // native localStorage shared by this disposable browser context.
+    const committed=await second.evaluate(({keyName,payloadName,state})=>{
+      const keyHex=localStorage.getItem(keyName);
+      if(!keyHex||localStorage.getItem(payloadName)!==null)
+        throw Error('Expected only the first-save key');
+      const key=Uint8Array.from(keyHex.match(/.{2}/g),part=>parseInt(part,16));
+      const envelope=window.__r(311).seal(JSON.stringify(state),key,
+        size=>crypto.getRandomValues(new Uint8Array(size)));
+      localStorage.setItem(payloadName,envelope);
+      // Verify the independently committed payload authenticates with the
+      // real vault module, rather than relying on a malformed sentinel.
+      const loaded=window.__r(310).loadWebVault(localStorage);
+      if(JSON.stringify(loaded)!==JSON.stringify(state))
+        throw Error('Second-tab ciphertext failed authentication');
+      return [localStorage.getItem(keyName),localStorage.getItem(payloadName),
+        localStorage.getItem('financial-autonomy.preview.reset.v1')];
+    },{keyName:KEY,payloadName:PAYLOAD,state:cleanState});
+    assert.equal(committed[0],orphan[0],'Other tab must not replace the first AES key');
+    assert.ok(committed[1]&&committed[1].length>50);
+    assert.deepEqual(await bytes(first),committed,'First tab must observe the other tab ciphertext');
+    await first.getByRole('button',{name:'Reîncearcă prima salvare',exact:true}).click();
+    await first.waitForFunction(()=>!window.__r(309).canRetryFirstSave(),null,{timeout:20000});
+    assert.deepEqual(await bytes(first),committed,
+      'Conflicting first-save retry must never overwrite authenticated other-tab ciphertext');
+    await openReal(first,url);
+    assert.deepEqual(await bytes(first),committed,'Reload must preserve the other tab ciphertext');
+    const after=await first.evaluate(async()=>window.__r(309).load());
+    assert.equal(after.monthPlans?.some(m=>m.budgets?.some(b=>
+      b.name==='Buget sintetic care nu trebuie suprascris')),false,
+      'Failed first-tab budget must not appear as a successful save');
+    console.log('PASS #35 actual Chromium WEB UI: authenticated second-tab ciphertext wins, first-tab retry refuses overwrite and reload preserves it');
+  }finally{
+    if(second)await second.close();
+    await context.close();
+  }
+}
 (async()=>{
   const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
   const version=html.match(/<meta name="financial-autonomy-version" content="(\d+\.\d+)"/)?.[1];
@@ -157,6 +215,7 @@ async function caseReloadBeforeRetry(browser,url){
     const url='http://127.0.0.1:'+server.address().port+PREFIX+'?fa_real=1';
     await caseLiveRetry(browser,url);
     await caseReloadBeforeRetry(browser,url);
+    await caseCrossTabAuthenticatedConflict(browser,url);
   }finally{
     if(browser)await browser.close();
     await new Promise(resolve=>server.close(resolve));
