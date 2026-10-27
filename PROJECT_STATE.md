@@ -1,4 +1,4 @@
-## CURRENT WEB checkpoint — 2026-10-27 15:xx Europe/Bucharest — 18.56 release gate and Chromium research diagnosis
+## CURRENT WEB checkpoint — 2026-10-27 — 18.56 release gate and Chromium research diagnosis
 
 - **REAL START HEAD:** `ebc2193ebc8598626d52d44a19cb218d03c40e78`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, `docs/WEB_VISUAL_REVIEW.md` (root path absent), active index/bundle, all nine open issues, and latest #85 checkpoint. Product remains immutable WEB **18.56** on GitHub main; no new bundle/version.
 - **CLOSED PREVIOUS CI QUESTION:** exact WEB 18.56 merged-main [Chromium 40502048432](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40502048432) completed **SUCCESS**, including browser tests. Earlier first attempt of [Chromium 40501627924](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40501627924/attempts/1) failed at `tests/browser-v2-locks-research.cjs:625`, immediately after the foreign-epoch guarded-reset PASS; retry was green. This is an intermittent **research test**, not evidence of production v2 safety.
