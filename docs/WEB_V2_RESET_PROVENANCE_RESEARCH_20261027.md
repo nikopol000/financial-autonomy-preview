@@ -37,3 +37,16 @@ The tests distinguish a foreign valid UUID, a stale snapshot with newer committe
 ## Evidence and acceptance
 
 The four new named Chromium tests are in PR #152. CI evidence must be recorded only after the exact SHA's browser and release jobs succeed. Before any product release, additionally test interrupted migration at every boundary, legacy tab open across deployment, reload, eviction, denied get/set/remove, reset while another tab saves, backup/restore interoperability, and Safari/iPhone behavior. Release only under `RELEASE_PROCESS.md` with immutable bundle, synchronized metadata/diagnostics, exact-SHA CI and Vercel/served-browser checks.
+
+
+## 2026-10-27 continuation — cached v1 reset and empty-vault provenance
+
+Test candidate: `tests/browser-v2-locks-research.cjs`, branch `research/web-v2-legacy-reset-reappearance-20261027`. These are **synthetic Chromium characterizations only**; CI verification and merge status must be checked against exact commits before reporting success.
+
+- **KNOWN UNSAFE mixed-version reset:** a v2 ledger is saved; a cached-v1-like tab writes legacy key/payload; v2 reader correctly quarantines while the legacy footprint exists. When the old tab removes its own keys and commits a legacy reset marker, the v2 reader currently ignores that marker and **reopens the unchanged v2 ciphertext**. This is a demonstration of potential resurrection after intentional legacy reset, not evidence of any real incident.
+- **Guarded reset acknowledgement ambiguity:** if writing the new epoch succeeds but the API then throws, the old encrypted bytes can remain. The checked guard should reject the old epoch on retry and the reader should quarantine those bytes rather than silently replay them.
+- **KNOWN UNSAFE empty-vault provenance:** a valid-looking foreign epoch marker with no ciphertext passes the current checked reset guard. This does not by itself lose money, but proves that the empty-state authorization/provenance contract remains incomplete.
+
+**Consequence:** a marker recognized only by new clients cannot fence already-open or cached legacy writers/resetters. Do not activate v2 or claim checked reset is a safe migration; no automatically inferred first-run/reset state. A future contract must explicitly define how a committed v1 reset affects all v2 data, even after the legacy keys disappear, and how to handle marker loss, denial, stale tabs, and reset acknowledgement uncertainty. Keep both old and new ciphertext untouched when provenance cannot be established. Research alternative: defer v2 and focus on v1 safe error handling while investigating enforceable legacy-client cutover; browser cache eviction alone is not a guarantee for an already-open tab.
+
+Nonurgent UX cross-check: issue #17's exact English budget-editor literals from v18.41 are absent from the active v18.54 bundle; localized copy is present. This is a static finding, not a Safari/zoom acceptance. Issue #14 remains analysis only pending explicit financial-contract approval.

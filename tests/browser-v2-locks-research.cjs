@@ -658,6 +658,98 @@ async function main() {
     console.log('PASS Chromium research guarded reset: corrupt ciphertext cannot authorize destructive reset');
 
 
+    // KNOWN UNSAFE mixed-version sequence: v2 detects a legacy footprint
+    // while it exists, but cannot infer a completed v1 reset once it vanishes.
+    await a.evaluate(({EPOCH,EPOCH_V2,V1_KEY,V1_PAYLOAD,RESET})=>{
+      localStorage.removeItem(EPOCH_V2);
+      localStorage.removeItem(V1_KEY);
+      localStorage.removeItem(V1_PAYLOAD);
+      localStorage.removeItem(RESET);
+      localStorage.setItem(EPOCH,crypto.randomUUID());
+    },{EPOCH,EPOCH_V2,V1_KEY,V1_PAYLOAD,RESET});
+    const beforeLegacyReset=await a.evaluate(()=>window.__research.epochRead());
+    const legacySurvivor=await a.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['v2-before-legacy-reset']},snapshot.epoch,snapshot.raw),beforeLegacyReset);
+    assert.equal(legacySurvivor.ok,true);
+    await b.evaluate(({V1_KEY,V1_PAYLOAD})=>{
+      localStorage.setItem(V1_KEY,'synthetic-cached-v1-key');
+      localStorage.setItem(V1_PAYLOAD,'synthetic-cached-v1-payload');
+    },{V1_KEY,V1_PAYLOAD});
+    assert.deepEqual(await a.evaluate(()=>window.__research.epochRead()),{
+      ok:false,reason:'legacy-footprint'
+    });
+    await b.evaluate(({V1_KEY,V1_PAYLOAD,RESET})=>{
+      localStorage.removeItem(V1_PAYLOAD);
+      localStorage.removeItem(V1_KEY);
+      localStorage.setItem(RESET,'committed-v1');
+    },{V1_KEY,V1_PAYLOAD,RESET});
+    const resurfaced=await a.evaluate(()=>window.__research.epochRead());
+    assert.equal(resurfaced.ok,true);
+    assert.deepEqual(resurfaced.state.transactions,['v2-before-legacy-reset']);
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),
+      legacySurvivor.raw,'The legacy reset never touched v2 ciphertext');
+    console.log('PASS KNOWN UNSAFE Chromium mixed-version: completed legacy reset removes footprint; naive v2 reader resurfaces old ciphertext (hazard, not fix)');
+
+    // A checked reset still has an ambiguous commit acknowledgement. The
+    // committed epoch must quarantine the old ciphertext on reload/retry.
+    await a.evaluate(key=>localStorage.removeItem(key),RESET);
+    const beforeCheckedAck=await a.evaluate(()=>window.__research.epochRead());
+    const checkedAckFault=await a.evaluate(async ({snapshot,EPOCH})=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(key,value){
+        if(key===EPOCH){
+          original.call(this,key,value);
+          throw Error('synthetic-checked-reset-ack-lost');
+        }
+        return original.call(this,key,value);
+      };
+      try{
+        return await window.__research.epochResetChecked(snapshot.epoch,snapshot.raw)
+          .then(()=>({ok:true}),error=>({ok:false,message:error.message}));
+      }finally{
+        Storage.prototype.setItem=original;
+      }
+    },{snapshot:beforeCheckedAck,EPOCH});
+    assert.deepEqual(checkedAckFault,{ok:false,message:'synthetic-checked-reset-ack-lost'});
+    const afterCheckedAck=await b.evaluate(({EPOCH,EPOCH_V2})=>({
+      epoch:localStorage.getItem(EPOCH),raw:localStorage.getItem(EPOCH_V2)
+    }),{EPOCH,EPOCH_V2});
+    assert.notEqual(afterCheckedAck.epoch,beforeCheckedAck.epoch);
+    assert.equal(afterCheckedAck.raw,beforeCheckedAck.raw);
+    assert.deepEqual(await b.evaluate(()=>window.__research.epochRead()),{
+      ok:false,reason:'epoch-mismatch'
+    });
+    assert.deepEqual(await a.evaluate(snapshot=>window.__research.epochResetChecked(
+      snapshot.epoch,snapshot.raw),beforeCheckedAck),{ok:false,reason:'stale-epoch'});
+    console.log('PASS Chromium research checked reset: commit-then-throw rotates epoch, quarantines ciphertext and rejects stale retry');
+
+    // KNOWN UNSAFE provenance gap: a syntactically valid foreign marker with
+    // no ciphertext can authorize checked reset because no bound envelope
+    // exists. This is not evidence of lost money; it blocks claiming that
+    // the reset authorization model is complete for an empty vault.
+    await a.evaluate(({EPOCH,EPOCH_V2})=>{
+      localStorage.removeItem(EPOCH_V2);
+      localStorage.setItem(EPOCH,crypto.randomUUID());
+    },{EPOCH,EPOCH_V2});
+    const genuineEmpty=await a.evaluate(()=>window.__research.epochRead());
+    assert.equal(genuineEmpty.raw,null);
+    const foreignEmpty=await b.evaluate(({EPOCH,prior})=>{
+      let other=crypto.randomUUID();
+      while(other===prior)other=crypto.randomUUID();
+      localStorage.setItem(EPOCH,other);
+      return other;
+    },{EPOCH,prior:genuineEmpty.epoch});
+    const unboundEmpty=await a.evaluate(()=>window.__research.epochRead());
+    assert.equal(unboundEmpty.ok,true);
+    assert.equal(unboundEmpty.epoch,foreignEmpty);
+    assert.equal(unboundEmpty.raw,null);
+    const acceptedEmpty=await b.evaluate(snapshot=>window.__research.epochResetChecked(
+      snapshot.epoch,snapshot.raw),unboundEmpty);
+    assert.equal(acceptedEmpty.ok,true);
+    assert.notEqual(acceptedEmpty.epoch,foreignEmpty);
+    console.log('PASS KNOWN UNSAFE Chromium empty-vault: foreign valid epoch authorizes checked reset without authenticated provenance (gap, not fix)');
+
+
 
   } finally {
     if(context)await context.close();
