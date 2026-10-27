@@ -12,7 +12,9 @@ for(const [before,after] of changes){
   expected=expected.replace(before,after);
 }
 assert.equal(current,expected,'WEB 18.54 must change ONLY first-save token expiry and diagnostic version');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\.54"/);
-assert.match(html,/index-v01854-first-save-expiry-20261026\.js\?build=18\.54\.1/);
+// Historical immutable v18.54 diff remains valid when a later release is active.
+if(html.includes('name="financial-autonomy-version" content="18.54"')) {
+  assert.match(html,/index-v01854-first-save-expiry-20261026\.js\?build=18\.54\.1/);
+}
 assert.match(current,/financial-autonomy-diagnostic-unic-v18\.54\.json/);
 console.log('PASS immutable WEB 18.54 first-save token-expiry diff and synchronized release metadata');
