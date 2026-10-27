@@ -734,3 +734,59 @@ test('SAFE DEFAULT: denied read of fence, stage or reset marker cannot mutate',(
     assert.equal(s.writes,writes);assert.equal(JSON.stringify(s.data),before);
   }
 });
+
+/*
+ * 2026-10-27: fault matrix for the *hypothetical* fenced stage -> v2
+ * activation boundary. These tests do NOT approve migration. A write may
+ * commit and then throw; a cached legacy direct reset can remove the fence
+ * even after an authenticated v2 record exists.
+ */
+test('RESEARCH fenced activation: commit-then-throw leaves authenticated v2 and retry is read-only',()=>{
+  let uncertain=true;
+  const s=store({}, {writeThenThrow:k=>uncertain&&k===V2});
+  const pending=ledger();pending.transactions.push({id:'activation-ack-uncertain'});
+  const stage=stageFirst(s,pending);
+  s.setItem(V1_KEY,RESEARCH_FENCE);
+  const before=s.writes;
+  assert.throws(()=>recoverFencedStage(s),/QuotaExceededError.*after commit/);
+  assert.equal(s.writes,before+1,'One complete activation record was written');
+  assert.equal(s.getItem(V2),stage);
+  assert.equal(s.getItem(STAGE),stage,'Do not discard the last staged ciphertext');
+  assert.equal(s.getItem(V1_KEY),RESEARCH_FENCE);
+  uncertain=false;
+  const writes=s.writes;
+  assert.deepEqual(recoverFencedStage(s),pending,'Authenticate before treating retry as success');
+  assert.equal(s.writes,writes,'A matching committed activation must not be rewritten');
+});
+test('RESEARCH fenced activation: changed v2 after uncertain acknowledgement is quarantined without replay',()=>{
+  let uncertain=true;
+  const s=store({}, {writeThenThrow:k=>uncertain&&k===V2});
+  const pending=ledger();pending.transactions.push({id:'no-blind-replay'});
+  const stage=stageFirst(s,pending);
+  s.setItem(V1_KEY,RESEARCH_FENCE);
+  assert.throws(()=>recoverFencedStage(s),/after commit/);
+  uncertain=false;
+  s.data[V2]='external-conflicting-record';
+  const before=JSON.stringify(s.data),writes=s.writes;
+  assert.throws(()=>recoverFencedStage(s),/Conflicting active v2/);
+  assert.equal(s.writes,writes,'No speculative rewrite after uncertain commit');
+  assert.equal(JSON.stringify(s.data),before);
+  assert.equal(s.getItem(STAGE),stage);
+});
+test('KNOWN UNSAFE migration: direct legacy reset after activation leaves v2 data but removes fence',()=>{
+  const s=store(),pending=ledger();
+  pending.transactions.push({id:'must-not-resurrect-after-reset'});
+  const stage=stageFirst(s,pending);
+  s.setItem(V1_KEY,RESEARCH_FENCE);
+  assert.deepEqual(recoverFencedStage(s),pending);
+  assert.equal(s.getItem(V2),stage);
+  legacyVault.clearWebVault(s); // cached/direct v1 module ignores hypothetical v2
+  assert.equal(s.getItem(V1_KEY),null);
+  assert.equal(s.getItem(V2),stage,'Old reset did not delete v2: residual reset-resurrection hazard');
+  const before=JSON.stringify(s.data),writes=s.writes;
+  assert.throws(()=>recoverFencedStage(s),/Ambiguous stage-only/);
+  assert.equal(s.writes,writes);
+  assert.equal(JSON.stringify(s.data),before);
+  // A naive v2-only reader could still decrypt the surviving record; therefore
+  // a single-record migration MUST NOT ship without a reset/epoch contract.
+});
