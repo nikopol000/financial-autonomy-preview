@@ -20,6 +20,9 @@ async function install(page) {
     const hex = bytes => [...bytes].map(b => b.toString(16).padStart(2,'0')).join('');
     const fromHex = s => new Uint8Array(s.match(/../g).map(x => parseInt(x,16)));
     const enc = new TextEncoder(), dec = new TextDecoder();
+    // Research-only shape check: a UUID is NOT proof of reset provenance.
+    const validEpoch = value => typeof value==='string' &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
     async function seal(state) {
       const key = crypto.getRandomValues(new Uint8Array(32));
       const nonce = crypto.getRandomValues(new Uint8Array(12));
@@ -63,8 +66,9 @@ async function install(page) {
       // A reset must not return a revision to null without a generation check.
       async epochRead() {
         const epoch=localStorage.getItem(EPOCH);
-        const raw=localStorage.getItem(EPOCH_V2);
         if(epoch===null)return {ok:false,reason:'epoch-missing'};
+        if(!validEpoch(epoch))return {ok:false,reason:'epoch-invalid'};
+        const raw=localStorage.getItem(EPOCH_V2);
         if(localStorage.getItem(V1_KEY)!==null || localStorage.getItem(V1_PAYLOAD)!==null)
           return {ok:false,reason:'legacy-footprint'};
         if(raw===null)return {ok:true,epoch,raw:null,state:null};
@@ -80,6 +84,8 @@ async function install(page) {
         if(!navigator.locks?.request)return {ok:false,reason:'lock-unavailable'};
         return navigator.locks.request(LOCK,{mode:'exclusive'},async () => {
           const epoch=localStorage.getItem(EPOCH);
+          if(epoch!==null && !validEpoch(epoch))
+            return {ok:false,reason:'epoch-invalid'};
           if(epoch===null || epoch!==expectedEpoch)
             return {ok:false,reason:'stale-epoch'};
           if(localStorage.getItem(V1_KEY)!==null || localStorage.getItem(V1_PAYLOAD)!==null)
@@ -95,8 +101,9 @@ async function install(page) {
       async epochReset(faultAfterEpoch=false) {
         if(!navigator.locks?.request)return {ok:false,reason:'lock-unavailable'};
         return navigator.locks.request(LOCK,{mode:'exclusive'},async () => {
-          if(localStorage.getItem(EPOCH)===null)
-            return {ok:false,reason:'epoch-missing'};
+          const epoch=localStorage.getItem(EPOCH);
+          if(epoch===null)return {ok:false,reason:'epoch-missing'};
+          if(!validEpoch(epoch))return {ok:false,reason:'epoch-invalid'};
           const next=crypto.randomUUID();
           localStorage.setItem(EPOCH,next);
           if(faultAfterEpoch)throw Error('synthetic-reset-interrupted-after-epoch');
@@ -403,6 +410,76 @@ async function main() {
     assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH),markerBeforeDenial);
     assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),null);
     console.log('PASS Chromium research epoch: denied marker read blocks load/save/reset; no ciphertext write or false clean state');
+    
+    // Corrupted epoch markers must never become a clean bootstrap even if
+    // ciphertext is still present. A UUID shape check is only a minimal guard:
+    // a different well-formed UUID remains a provenance/legacy-client problem.
+    await a.evaluate(({EPOCH,EPOCH_V2})=>{
+      localStorage.removeItem(EPOCH_V2);
+      localStorage.setItem(EPOCH,crypto.randomUUID());
+    },{EPOCH,EPOCH_V2});
+    const cleanEpoch=await a.evaluate(()=>window.__research.epochRead());
+    const beforeCorrupt=await a.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['before-corruption']},snapshot.epoch,snapshot.raw),cleanEpoch);
+    assert.equal(beforeCorrupt.ok,true);
+    await b.evaluate(key=>localStorage.setItem(key,'invalid-marker'),EPOCH);
+    assert.deepEqual(await a.evaluate(()=>window.__research.epochRead()),
+      {ok:false,reason:'epoch-invalid'});
+    const writesBeforeCorrupt=await a.evaluate(()=>window.__research.epochWrites);
+    assert.deepEqual(await b.evaluate(()=>window.__research.epochSave(
+      {transactions:['must-not-write']},'invalid-marker',null)),
+      {ok:false,reason:'epoch-invalid'});
+    assert.deepEqual(await a.evaluate(()=>window.__research.epochReset()),
+      {ok:false,reason:'epoch-invalid'});
+    assert.equal(await a.evaluate(()=>window.__research.epochWrites),writesBeforeCorrupt);
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),
+      beforeCorrupt.raw);
+    console.log('PASS Chromium research epoch: corrupt marker blocks read/save/reset without changing authenticated ciphertext');
+
+    // Browser reports an error AFTER the reset marker setItem committed.
+    // An older ciphertext still exists, but must not be reopened/replayed.
+    await a.evaluate(({EPOCH,EPOCH_V2})=>{
+      localStorage.removeItem(EPOCH_V2);
+      localStorage.setItem(EPOCH,crypto.randomUUID());
+    },{EPOCH,EPOCH_V2});
+    const beforeAck=await a.evaluate(()=>window.__research.epochRead());
+    const savedBeforeAck=await b.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['do-not-resurrect']},snapshot.epoch,snapshot.raw),beforeAck);
+    assert.equal(savedBeforeAck.ok,true);
+    const ackFault=await a.evaluate(async key=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(name,value) {
+        if(name===key) {
+          original.call(this,name,value);
+          throw Error('synthetic-epoch-reset-ack-lost-after-commit');
+        }
+        return original.call(this,name,value);
+      };
+      try {
+        return await window.__research.epochReset().then(
+          ()=>({ok:true}),e=>({ok:false,message:e.message}));
+      } finally {
+        Storage.prototype.setItem=original;
+      }
+    },EPOCH);
+    assert.deepEqual(ackFault,{
+      ok:false,message:'synthetic-epoch-reset-ack-lost-after-commit'
+    });
+    const committedEpoch=await b.evaluate(key=>localStorage.getItem(key),EPOCH);
+    assert.notEqual(committedEpoch,beforeAck.epoch);
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),
+      savedBeforeAck.raw,'Old ciphertext remains after marker committed but reset threw');
+    assert.deepEqual(await b.evaluate(()=>window.__research.epochRead()),
+      {ok:false,reason:'epoch-mismatch'});
+    const writesBeforeAckRetry=await a.evaluate(()=>window.__research.epochWrites);
+    assert.deepEqual(await a.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['unsafe-replay']},snapshot.epoch,snapshot.raw),
+      {epoch:beforeAck.epoch,raw:savedBeforeAck.raw}),
+      {ok:false,reason:'stale-epoch'});
+    assert.equal(await a.evaluate(()=>window.__research.epochWrites),
+      writesBeforeAckRetry);
+    console.log('PASS Chromium research epoch: reset marker commits then throws; old ciphertext quarantined and stale replay refused');
+
 
   } finally {
     if(context)await context.close();
