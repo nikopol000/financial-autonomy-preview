@@ -12,9 +12,11 @@ const V1_KEY = 'financial-autonomy.preview.key.v1';
 const V1_PAYLOAD = 'financial-autonomy.preview.payload.v1';
 const RESET = 'financial-autonomy.preview.reset.v1';
 const UNSAFE = 'financial-autonomy.preview.unguarded-browser-research.v2';
+const EPOCH = 'financial-autonomy.preview.epoch-browser-research.v2';
+const EPOCH_V2 = 'financial-autonomy.preview.epoch-record-browser-research.v2';
 
 async function install(page) {
-  await page.evaluate(({LOCK,V2,V1_KEY,UNSAFE}) => {
+  await page.evaluate(({LOCK,V2,V1_KEY,V1_PAYLOAD,UNSAFE,EPOCH,EPOCH_V2}) => {
     const hex = bytes => [...bytes].map(b => b.toString(16).padStart(2,'0')).join('');
     const fromHex = s => new Uint8Array(s.match(/../g).map(x => parseInt(x,16)));
     const enc = new TextEncoder(), dec = new TextDecoder();
@@ -34,7 +36,7 @@ async function install(page) {
         {name:'AES-GCM',iv:fromHex(env.nonce)},key,fromHex(env.cipher))));
     }
     window.__research = {
-      writes:0,events:[],holding:false,unsafeHolding:false,
+      writes:0,epochWrites:0,events:[],holding:false,unsafeHolding:false,
       async read(key=V2) {
         const raw = localStorage.getItem(key);
         return raw===null ? null : {raw,state:await unseal(raw)};
@@ -55,6 +57,51 @@ async function install(page) {
           window.__research.writes++;
           if(fault==='after')throw Error('synthetic-v2-ack-lost-after-commit');
           return {ok:true,raw};
+        });
+      },
+      // Hypothetical epoch contract ONLY. Does not modify production storage.
+      // A reset must not return a revision to null without a generation check.
+      async epochRead() {
+        const epoch=localStorage.getItem(EPOCH);
+        const raw=localStorage.getItem(EPOCH_V2);
+        if(epoch===null)return {ok:false,reason:'epoch-missing'};
+        if(localStorage.getItem(V1_KEY)!==null || localStorage.getItem(V1_PAYLOAD)!==null)
+          return {ok:false,reason:'legacy-footprint'};
+        if(raw===null)return {ok:true,epoch,raw:null,state:null};
+        try {
+          const state=await unseal(raw);
+          if(state.__epoch!==epoch)return {ok:false,reason:'epoch-mismatch'};
+          return {ok:true,epoch,raw,state};
+        } catch(_error) {
+          return {ok:false,reason:'unauthenticated'};
+        }
+      },
+      async epochSave(state,expectedEpoch,expectedRaw) {
+        if(!navigator.locks?.request)return {ok:false,reason:'lock-unavailable'};
+        return navigator.locks.request(LOCK,{mode:'exclusive'},async () => {
+          const epoch=localStorage.getItem(EPOCH);
+          if(epoch===null || epoch!==expectedEpoch)
+            return {ok:false,reason:'stale-epoch'};
+          if(localStorage.getItem(V1_KEY)!==null || localStorage.getItem(V1_PAYLOAD)!==null)
+            return {ok:false,reason:'legacy-footprint'};
+          if(localStorage.getItem(EPOCH_V2)!==expectedRaw)
+            return {ok:false,reason:'stale-revision'};
+          const raw=await seal({...state,__epoch:epoch});
+          localStorage.setItem(EPOCH_V2,raw);
+          window.__research.epochWrites++;
+          return {ok:true,raw};
+        });
+      },
+      async epochReset(faultAfterEpoch=false) {
+        if(!navigator.locks?.request)return {ok:false,reason:'lock-unavailable'};
+        return navigator.locks.request(LOCK,{mode:'exclusive'},async () => {
+          if(localStorage.getItem(EPOCH)===null)
+            return {ok:false,reason:'epoch-missing'};
+          const next=crypto.randomUUID();
+          localStorage.setItem(EPOCH,next);
+          if(faultAfterEpoch)throw Error('synthetic-reset-interrupted-after-epoch');
+          localStorage.removeItem(EPOCH_V2);
+          return {ok:true,epoch:next};
         });
       },
       async unsafeSave(state,expected,hold=false) {
@@ -80,7 +127,7 @@ async function install(page) {
     window.addEventListener('storage',e => {
       if(e.key===V2)window.__research.events.push({key:e.key,newValue:e.newValue});
     });
-  },{LOCK,V2,V1_KEY,UNSAFE});
+  },{LOCK,V2,V1_KEY,V1_PAYLOAD,UNSAFE,EPOCH,EPOCH_V2});
 }
 
 async function main() {
@@ -209,6 +256,70 @@ async function main() {
       'fence-absent-or-reset-ambiguous',
       'Research-only fence guard must still quarantine the unsafe new record');
     console.log('PASS KNOWN UNSAFE Chromium: null-revision ABA after locked reset accepts pre-reset draft; fence guard quarantines (hazard, not fix)');
+    // RESEARCH ONLY: persistent epoch distinguishes an initial null revision
+    // from the identical null revision after an intentional reset (ABA).
+    await a.evaluate(async ({LOCK,EPOCH,EPOCH_V2,V1_KEY,V1_PAYLOAD}) =>
+      navigator.locks.request(LOCK,{mode:'exclusive'},() => {
+        localStorage.removeItem(V1_KEY);
+        localStorage.removeItem(V1_PAYLOAD);
+        localStorage.removeItem(EPOCH_V2);
+        localStorage.setItem(EPOCH,crypto.randomUUID());
+      }),{LOCK,EPOCH,EPOCH_V2,V1_KEY,V1_PAYLOAD});
+    const oldEpochSnapshot=await b.evaluate(()=>window.__research.epochRead());
+    assert.equal(oldEpochSnapshot.ok,true);
+    assert.equal(oldEpochSnapshot.raw,null);
+    const epochSaved=await a.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['before-reset']},snapshot.epoch,snapshot.raw),oldEpochSnapshot);
+    assert.equal(epochSaved.ok,true);
+    const resetEpoch=await a.evaluate(()=>window.__research.epochReset());
+    assert.equal(resetEpoch.ok,true);
+    assert.notEqual(resetEpoch.epoch,oldEpochSnapshot.epoch);
+    const epochWritesBeforeStale=await b.evaluate(()=>window.__research.epochWrites);
+    const staleEpochAttempt=await b.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['draft-before-reset']},snapshot.epoch,snapshot.raw),oldEpochSnapshot);
+    assert.deepEqual(staleEpochAttempt,{ok:false,reason:'stale-epoch'});
+    assert.equal(await b.evaluate(()=>window.__research.epochWrites),epochWritesBeforeStale);
+    const freshEpochSnapshot=await a.evaluate(()=>window.__research.epochRead());
+    assert.equal(freshEpochSnapshot.ok,true);
+    assert.equal(freshEpochSnapshot.raw,null);
+    assert.equal(freshEpochSnapshot.epoch,resetEpoch.epoch);
+    console.log('PASS Chromium research epoch: reset changes null generation; stale pre-reset tab rejected with zero writes');
+
+    const newGeneration=await a.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['new-generation-only']},snapshot.epoch,snapshot.raw),freshEpochSnapshot);
+    assert.equal(newGeneration.ok,true);
+    assert.deepEqual((await b.evaluate(()=>window.__research.epochRead())).state.transactions,
+      ['new-generation-only']);
+    console.log('PASS Chromium research epoch: current-generation new ledger authenticates after reset');
+
+    const beforeInterruptedWrites=await a.evaluate(()=>window.__research.epochWrites);
+    const interrupted=await a.evaluate(()=>window.__research.epochReset(true)
+      .then(()=>({ok:true}),error=>({ok:false,message:error.message})));
+    assert.deepEqual(interrupted,{ok:false,message:'synthetic-reset-interrupted-after-epoch'});
+    assert.equal((await b.evaluate(()=>window.__research.epochRead())).reason,
+      'epoch-mismatch','Old ciphertext must be quarantined after partial reset');
+    const staleInterrupted=await a.evaluate(({epoch,raw})=>window.__research.epochSave(
+      {transactions:['replay']},epoch,raw),{epoch:freshEpochSnapshot.epoch,raw:newGeneration.raw});
+    assert.deepEqual(staleInterrupted,{ok:false,reason:'stale-epoch'});
+    assert.equal(await a.evaluate(()=>window.__research.epochWrites),beforeInterruptedWrites);
+    console.log('PASS Chromium research epoch: interrupted reset quarantines old ciphertext and rejects stale replay');
+
+    // Cached v1 writers do not consult this new epoch. Even when the new
+    // reader refuses a mixed footprint, old tabs can still write v1 keys.
+    await b.evaluate(({V1_KEY,V1_PAYLOAD})=>{
+      localStorage.setItem(V1_KEY,'synthetic-cached-legacy-key');
+      localStorage.setItem(V1_PAYLOAD,'synthetic-cached-legacy-payload');
+    },{V1_KEY,V1_PAYLOAD});
+    assert.equal((await a.evaluate(()=>window.__research.epochRead())).reason,
+      'legacy-footprint');
+    const activeEpoch=await a.evaluate(key=>localStorage.getItem(key),EPOCH);
+    const blockedLegacy=await a.evaluate(({epoch,EPOCH_V2})=>window.__research.epochSave(
+      {transactions:['not-written']},epoch,localStorage.getItem(EPOCH_V2)
+    ),{epoch:activeEpoch,EPOCH_V2});
+    assert.deepEqual(blockedLegacy,{ok:false,reason:'legacy-footprint'});
+    assert.equal(await a.evaluate(()=>window.__research.epochWrites),beforeInterruptedWrites);
+    console.log('PASS KNOWN UNSAFE Chromium: cached v1 can still write legacy keys; new epoch reader/writer quarantine mixed footprint (migration blocker)');
+
   } finally {
     if(context)await context.close();
     if(browser)await browser.close();
