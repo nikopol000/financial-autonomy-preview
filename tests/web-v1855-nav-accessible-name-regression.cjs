@@ -23,6 +23,8 @@ assert.match(after,/accessibilityRole:"tab",accessibilityLabel:e==="\\xcenregist
 assert.match(after,/"\\xcenregistreaz\\u0103":"Adaugă"/);
 assert.match(after,/onPress:\(\)=>T\(e\)/);
 const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18\.55"/);
-assert.match(html,/index-v01855-nav-accessible-name-20261027\.js\?build=18\.55\.1/);
+// Historical immutable diff stays valid after a later WEB version becomes active.
+if(html.includes('name="financial-autonomy-version" content="18.55"')){
+  assert.match(html,/index-v01855-nav-accessible-name-20261027\.js\?build=18\.55\.1/);
+}
 console.log('PASS WEB 18.55: Add tab visible/accessibility labels match; route, engine and vault unchanged');
