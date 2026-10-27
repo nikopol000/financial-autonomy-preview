@@ -140,7 +140,15 @@ async function caseReloadBeforeRetry(browser,url){
 }
 (async()=>{
   const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
-  assert.match(html,/<meta name="financial-autonomy-version" content="18\.59"/);
+  const version=html.match(/<meta name="financial-autonomy-version" content="(\d+\.\d+)"/)?.[1];
+  const script=html.match(/<script src="([^"]+)" defer>/)?.[1];
+  assert.ok(version&&script,'Active release metadata and script required');
+  const parsed=new URL(script,'http://localhost');
+  assert.ok(parsed.pathname.startsWith(PREFIX),'Script must use the preview path prefix');
+  assert.ok(parsed.pathname.includes('index-v0'+version.replace('.','')+'-'),
+    'Immutable bundle name must match active version');
+  assert.ok(fs.existsSync(path.resolve(ROOT,parsed.pathname.slice(PREFIX.length))),
+    'Active immutable bundle must exist');
   const server=http.createServer(serve);
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   let browser;
