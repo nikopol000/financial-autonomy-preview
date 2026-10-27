@@ -39,7 +39,7 @@ async function install(page) {
         const raw = localStorage.getItem(key);
         return raw===null ? null : {raw,state:await unseal(raw)};
       },
-      async save(state,expected,hold=false) {
+      async save(state,expected,hold=false,fault=null) {
         if(!navigator.locks || typeof navigator.locks.request!=='function')
           return {ok:false,reason:'lock-unavailable'};
         return navigator.locks.request(LOCK,{mode:'exclusive'},async () => {
@@ -50,8 +50,10 @@ async function install(page) {
             await new Promise(resolve => window.__research.release=resolve);
           }
           const raw=await seal(state);
+          if(fault==='before')throw Error('synthetic-v2-write-rejected-before-commit');
           localStorage.setItem(V2,raw);
           window.__research.writes++;
+          if(fault==='after')throw Error('synthetic-v2-ack-lost-after-commit');
           return {ok:true,raw};
         });
       },
@@ -124,6 +126,31 @@ async function main() {
       {transactions:['A','B']});
     console.log('PASS Chromium real tabs: current revision can save after stale rejection');
 
+    // Browser-native AES-GCM and localStorage fault matrix. An exception is
+    // NOT proof that setItem did or did not commit; never blindly replay.
+    const denied=await a.evaluate(raw=>window.__research.save(
+      {transactions:['A','B','not-committed']},raw,false,'before'
+    ).then(()=>({ok:true}),e=>({ok:false,message:e.message})),next.raw);
+    assert.deepEqual(denied,{ok:false,message:'synthetic-v2-write-rejected-before-commit'});
+    assert.equal(await b.evaluate(()=>localStorage.getItem(
+      'financial-autonomy.preview.atomic-browser-research.v2')),next.raw);
+    console.log('PASS Chromium v2 fault: pre-commit error preserves authenticated bytes with zero write');
+
+    const ambiguous=await a.evaluate(raw=>window.__research.save(
+      {transactions:['A','B','C']},raw,false,'after'
+    ).then(()=>({ok:true}),e=>({ok:false,message:e.message})),next.raw);
+    assert.deepEqual(ambiguous,{ok:false,message:'synthetic-v2-ack-lost-after-commit'});
+    const committed=await b.evaluate(()=>window.__research.read());
+    assert.deepEqual(committed.state,{transactions:['A','B','C']});
+    assert.notEqual(committed.raw,next.raw);
+    const writesBeforeRetry=await a.evaluate(()=>window.__research.writes);
+    const staleRetry=await a.evaluate(raw=>window.__research.save(
+      {transactions:['A','B','C']},raw),next.raw);
+    assert.deepEqual(staleRetry,{ok:false,reason:'stale'});
+    assert.equal(await a.evaluate(()=>window.__research.writes),writesBeforeRetry);
+    assert.equal((await a.evaluate(()=>window.__research.read())).raw,committed.raw);
+    console.log('PASS Chromium v2 fault: post-commit error authenticates current bytes; stale retry performs zero writes');
+
     // Known-unsafe counterexample: both pass a check before either writes.
     const ua=a.evaluate(()=>window.__research.unsafeSave({transactions:['A']},null,true));
     const ub=b.evaluate(()=>window.__research.unsafeSave({transactions:['B']},null,true));
@@ -150,7 +177,7 @@ async function main() {
     assert.equal((await a.evaluate(()=>window.__research.guardedRead())).reason,
       'fence-absent-or-reset-ambiguous');
     assert.deepEqual((await a.evaluate(()=>window.__research.read())).state,
-      {transactions:['A','B']},
+      {transactions:['A','B','C']},
       'Naive v2-only reader could still resurrect intentionally reset data');
     console.log('PASS KNOWN UNSAFE Chromium: cached-v1-style reset removes fence, leaves decryptable v2; guarded reader quarantines');
   } finally {
