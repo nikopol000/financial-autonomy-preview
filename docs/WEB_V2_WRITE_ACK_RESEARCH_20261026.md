@@ -61,3 +61,16 @@ These are Node/VM fault-injection tests with actual bundled AES-GCM and syntheti
 **Decision gate before any shipping v2:** define a reset/epoch protocol respected by every client capable of writing the same ledger, including cached old bundles, or explicitly block migration while those clients can still write. Web Locks alone do not make legacy clients understand new v2/reset keys. Never auto-promote a stage-only record, delete an ambiguous key, restore after intentional reset, or silently overwrite an active record.
 
 **Next test:** real Chromium two-tab lifecycle using actual Web Locks and a staged migration test harness, followed by an exhaustive crash matrix at each staging/fence/activation/reset boundary. Record exact CI proof before counting these new cases as passing.
+
+
+## 2026-10-27 — real Chromium two-tab Web Locks and cached reset research (no product activation)
+
+[PR #137](https://github.com/nikopol000/financial-autonomy-preview/pull/137) adds `tests/browser-v2-locks-research.cjs` to the existing Chromium workflow. This uses **two real tabs in one disposable localhost browser context**, actual `navigator.locks`, `localStorage`, native `StorageEvent` and browser `crypto.subtle` AES-GCM. Unlike the earlier Node/VM tests, the lock queue and storage events are exercised in Chromium; **unlike production tests**, this is a self-contained hypothetical v2 harness, **not** the bundled vault implementation.
+
+- **Guarded race:** tab A holds an exclusive origin-wide lock; tab B queues from the same expected revision. After A writes, B rechecks *inside* the lock and rejects as stale, with zero writes. A subsequent B save from the current revision succeeds. A real cross-tab `StorageEvent` is observed.
+- **KNOWN UNSAFE unguarded race:** two tabs pass a pre-write check, pause, and then write in the opposite order. Both report success; tab B's synthetic transaction is lost. A PASS here demonstrates a real browser scheduling hazard, **not** a fix.
+- **KNOWN UNSAFE cached-reset analogue:** a legacy-style reset removes v1 KEY/PAYLOAD/RESET but does not know about the hypothetical v2 key. The v2 ciphertext remains decryptable. A research-only guarded reader refuses the now-absent fence, whereas a naive v2-only reader would expose reset data.
+
+Candidate [Chromium CI 40429966347](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40429966347) **SUCCESS** with all five named PASS lines. Candidate [Release CI 40429966447](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40429966447) **SUCCESS**. Merged research commit: `cdd09d106849eeacfc5a765cd78d241d4c89ed91`. Exact merged-main checks must be verified separately.
+
+**Remaining production blockers:** old cached clients do not participate in v2 fencing, reset provenance is ambiguous, and Web Locks protect only cooperating tabs. This test does not establish power-loss durability, browser compatibility beyond tested Chromium, safe stage promotion, Safari iPhone behavior or permission to migrate. Keep active WEB **18.54** unchanged and fail closed on ambiguous KEY-only/stage-only/reset footprints. No user data, encrypted backup, formula, iOS or backend change.
