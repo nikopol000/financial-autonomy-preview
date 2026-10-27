@@ -37,6 +37,8 @@ assert.match(after,/L\.budgets\.length>0&&\(0,b\.jsxs\)\(f\.Section,\{title:"Azi
 assert.match(after,/onCreate:\(\)=>q\(\{kind:"budget"\}\)/);
 assert.match(after,/label:"Configurează primul buget",onPress:R/);
 const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18\.59"/);
-assert.match(html,/index-v01859-budget-direct-configure-20261027\.js\?build=18\.59\.1/);
+// Historical immutable diff remains valid after a newer WEB release.
+if(html.includes('name="financial-autonomy-version" content="18.59"')){
+  assert.match(html,/index-v01859-budget-direct-configure-20261027\.js\?build=18\.59\.1/);
+}
 console.log('PASS WEB 18.59: direct budget setup; unchanged financial, vault, backup and populated-budget engine');
