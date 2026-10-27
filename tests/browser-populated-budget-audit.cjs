@@ -90,6 +90,15 @@ async function audit(browser,url,width,scheme){
     await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
     await page.getByText('DEMO · DATE FICTIVE',{exact:true}).waitFor({state:'visible',timeout:30000});
     await page.waitForFunction(expected=>document.documentElement.style.colorScheme===expected,scheme,{timeout:10000});
+    // WEB 18.60: compact DEMO warning must remain explicit and exit reachable.
+    await page.getByText('DEMO · DATE FICTIVE',{exact:true}).waitFor({state:'visible'});
+    assert.ok(await page.getByText('Date fictive, doar în memorie.',{exact:false}).count()>=1,
+      'Compact banner must still identify memory-only fictional data');
+    assert.ok(await page.getByText(/Backup, diagnostic, import și ștergere dezactivate/).isVisible(),
+      'Compact banner must still identify unavailable destructive/export actions');
+    assert.ok(await page.getByRole('button',{name:'Ieși din demo'}).isVisible(),
+      'Compact banner must retain a visible exit action');
+    await page.screenshot({path:path.join(OUT,'demo-banner-'+label+'.png'),fullPage:true});
     // WEB 18.57: test the real disclosure UI, not only a static bundle string.
     // Demo is in memory and no financial vault is created.
     await page.getByRole('tab',{name:'Acasă'}).click();

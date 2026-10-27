@@ -37,6 +37,8 @@ jobs:
         run: node tests/web-v1858-budget-empty-state-regression.cjs
       - name: WEB 18.59 direct budget setup and immutable diff
         run: node tests/web-v1859-direct-budget-configure-regression.cjs
+      - name: WEB 18.60 compact DEMO-only warning and immutable diff
+        run: node tests/web-v1860-compact-demo-banner-regression.cjs
       - name: Verify v18.22 candidate reconciliation independently of active release
         run: |
           node tests/reconciliation-v1822-candidate.cjs
