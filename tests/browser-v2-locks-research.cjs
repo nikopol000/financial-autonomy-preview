@@ -398,8 +398,8 @@ async function main() {
         ok:false,name:'SecurityError',message:'synthetic marker read denied'
       },operation+' must fail closed rather than treat denied read as clean storage');
     }
-    assert.equal(await a.evaluate(()=>window.__research.epochWrites),writesBeforeEvictionAttempt+1,
-      'Only the explicitly authorized fresh synthetic write before marker eviction was counted');
+    assert.equal(await a.evaluate(()=>window.__research.epochWrites),writesBeforeEvictionAttempt,
+      'Denied marker read must not add a ciphertext write');
     assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH),markerBeforeDenial);
     assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),null);
     console.log('PASS Chromium research epoch: denied marker read blocks load/save/reset; no ciphertext write or false clean state');
