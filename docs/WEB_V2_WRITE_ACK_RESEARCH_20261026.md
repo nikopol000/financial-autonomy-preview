@@ -74,3 +74,17 @@ These are Node/VM fault-injection tests with actual bundled AES-GCM and syntheti
 Candidate [Chromium CI 40429966347](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40429966347) **SUCCESS** with all five named PASS lines. Candidate [Release CI 40429966447](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40429966447) **SUCCESS**. Merged research commit: `cdd09d106849eeacfc5a765cd78d241d4c89ed91`. Exact merged-main checks must be verified separately.
 
 **Remaining production blockers:** old cached clients do not participate in v2 fencing, reset provenance is ambiguous, and Web Locks protect only cooperating tabs. This test does not establish power-loss durability, browser compatibility beyond tested Chromium, safe stage promotion, Safari iPhone behavior or permission to migrate. Keep active WEB **18.54** unchanged and fail closed on ambiguous KEY-only/stage-only/reset footprints. No user data, encrypted backup, formula, iOS or backend change.
+
+
+## 2026-10-27 — Chromium native AES-GCM acknowledgement-fault matrix (research-only)
+
+Candidate `tests/browser-v2-locks-research.cjs` extends the existing disposable localhost two-tab Chromium harness. It exercises two synthetic failures **inside the same origin-wide exclusive Web Lock** with native browser `crypto.subtle`, localStorage and a real second-tab read. This does not call the product's v1 vault or activate a v2 schema.
+
+| Fault injection | Expected persisted bytes | Safe interpretation |
+| --- | --- | --- |
+| Error **before** `setItem` | Identical authenticated ciphertext and revision; zero writes | No commit observed. The application must not infer a new successful save. |
+| Error **after** `setItem` | New complete authenticated ciphertext is visible in another tab, even though caller received an error | Treat the acknowledgement as uncertain; authenticate the exact current bytes read-only. A retry using the old revision is stale and must perform **zero** writes. |
+
+This test is deliberately about **acknowledgement**, not crash durability or atomic multi-key migration. Authentication of current bytes does not prove persistence after power loss. It does not establish safe recovery from a KEY-only v1 footprint, stage-only v2, cached legacy reset, or stale tab outside the lock. The earlier `KNOWN UNSAFE` legacy reset test remains a migration blocker: v2 ciphertext can remain decryptable after an old client intentionally resets v1. Any reader ignoring the missing fence can resurrect deleted data. **Do not ship v2 migration until the legacy compatibility/reset epoch contract is proven or migration is explicitly blocked for incompatible clients.**
+
+**Verification gate:** candidate CI must show both new named Chromium PASS messages; merged-main Chromium and Release CI must be checked independently. Research-only; no product bundle/version, financial formulas, actual ledger, backup, iOS or backend changes.
