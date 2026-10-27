@@ -20,8 +20,10 @@ for(const [oldText,newText] of edits){
 }
 assert.equal(after,expected,'WEB 18.57 must change only calculation disclosure UI and diagnostic metadata');
 const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18\.57"/);
-assert.match(html,/index-v01857-visible-calculation-disclosure-20261027\.js\?build=18\.57\.1/);
+// Historical immutable 18.57 diff must remain valid after later active releases.
+if(html.includes('name="financial-autonomy-version" content="18.57"')){
+  assert.match(html,/index-v01857-visible-calculation-disclosure-20261027\.js\?build=18\.57\.1/);
+}
 assert.match(after,/accessibilityLabel:f\?"Ascunde calculul":o/);
 assert.match(after,/minHeight:44,maxWidth:"100%"/);
 console.log('PASS WEB 18.57: visible calculation disclosures, >=44px target, unchanged finance/vault engine');
