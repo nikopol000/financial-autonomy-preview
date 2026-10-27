@@ -109,3 +109,15 @@ This test is deliberately about **acknowledgement**, not crash durability or ato
 ### Verification of the reset ABA characterization — 2026-10-27
 
 [PR #142](https://github.com/nikopol000/financial-autonomy-preview/pull/142) merged as `141568998a84e7575a48ae26854c89b1b1514a25`. Candidate [Chromium CI #40436971483](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40436971483) **SUCCESS**; actual job log contains `PASS KNOWN UNSAFE Chromium: null-revision ABA after locked reset accepts pre-reset draft; fence guard quarantines (hazard, not fix)`. Candidate [Release CI #40436971516](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40436971516) **SUCCESS**. The research-only test demonstrates the missing-generation hazard in native Chromium, not a corrected production reset or Safari validation. Exact merged-main push CI/Pages and public Vercel served HTML remain separate verification gates.
+
+
+## 2026-10-27 — real Chromium persistent reset epoch research (candidate; not product)
+
+Candidate test `tests/browser-v2-locks-research.cjs` extends the existing disposable two-tab Chromium harness with a **separate hypothetical generation marker** and a v2 ciphertext that authenticates its generation inside AES-GCM. Each cooperating new-client save checks both the epoch and exact ciphertext revision **under the same exclusive Web Lock**.
+
+New synthetic acceptance cases (pending CI evidence):
+1. A tab holds `(epoch=E1, revision=null)`, another tab saves and resets, leaving `(epoch=E2, revision=null)`. The first tab must reject its old draft as `stale-epoch` with zero writes; a fresh E2 draft may be saved and authenticated.
+2. An injected reset interruption **after epoch rotation but before ciphertext removal** leaves old authenticated bytes at E1 and marker E2. The guarded reader must quarantine with `epoch-mismatch`; stale E1 replay must write zero bytes. This deliberately does not claim that a two-key reset is crash-atomic or fully recoverable.
+3. A cached legacy v1 tab can still write its v1 KEY/PAYLOAD without consulting E2. The hypothetical new reader/writer detects that mixed footprint and refuses writes, but **cannot prevent the legacy writer itself**. This is a migration blocker, not a fix. Do not activate v2 merely because the new reader fails closed.
+
+A persistent marker is a *candidate design ingredient*, not a durable monotonic guarantee: storage eviction, denied reads, marker deletion, browser restore, same-origin legacy code and interrupted reset can invalidate assumptions. No production code, formulas, iOS, backup or real financial data changed. Do not remove old ciphertext or resurrect data automatically; explicit financial semantics and storage migration gates remain intact. CI and exact-commit deployment verification must be recorded separately.
