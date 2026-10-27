@@ -90,6 +90,20 @@ async function audit(browser,url,width,scheme){
     await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
     await page.getByText('DEMO · DATE FICTIVE',{exact:true}).waitFor({state:'visible',timeout:30000});
     await page.waitForFunction(expected=>document.documentElement.style.colorScheme===expected,scheme,{timeout:10000});
+    // WEB 18.57: test the real disclosure UI, not only a static bundle string.
+    // Demo is in memory and no financial vault is created.
+    await page.getByRole('tab',{name:'Acasă'}).click();
+    const disclosureButtons=page.getByRole('button',{name:'Vezi calculul',exact:true});
+    assert.ok(await disclosureButtons.count()>=2,'Home must expose labeled calculation disclosures');
+    const firstDisclosure=disclosureButtons.first();
+    assert.match(await firstDisclosure.innerText(),/Vezi calculul/,'Disclosure label must be visible, not only accessible');
+    const disclosureBox=await firstDisclosure.boundingBox();
+    assert.ok(disclosureBox&&disclosureBox.height>=43.5,'Disclosure touch target must be at least 44 CSS px high');
+    await firstDisclosure.click();
+    assert.equal(await page.getByRole('button',{name:'Ascunde calculul',exact:true}).count(),1,
+      'Expanded disclosure must expose the matching visible/accessibility name');
+    await page.getByRole('button',{name:'Ascunde calculul',exact:true}).click();
+    await page.screenshot({path:path.join(OUT,'home-calculation-'+label+'.png'),fullPage:true});
     assert.equal(await page.getByRole('tab',{name:'Finanțe'}).count(),1,'Finance tab missing');
     await page.getByRole('tab',{name:'Finanțe'}).click();
     await page.getByRole('button',{name:/^Bugete/}).click();

@@ -31,6 +31,8 @@ jobs:
         run: node tests/web-v1855-nav-accessible-name-regression.cjs
       - name: WEB 18.56 mobile brand two-line layout and immutable diff
         run: node tests/web-v1856-mobile-header-regression.cjs
+      - name: WEB 18.57 visible calculation disclosure and immutable diff
+        run: node tests/web-v1857-calculation-disclosure-regression.cjs
       - name: Verify v18.22 candidate reconciliation independently of active release
         run: |
           node tests/reconciliation-v1822-candidate.cjs
