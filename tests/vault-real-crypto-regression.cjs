@@ -859,6 +859,6 @@ async function test(name,fn) {
     await fresh.save(loaded);
     assert.ok(vault.loadWebVault(backing).transactions.some(t=>t.id==='post-reset-valid'));
   });
-  console.log(passed+'/46 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==46)process.exitCode=1;
+  console.log(passed+'/48 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==48)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
