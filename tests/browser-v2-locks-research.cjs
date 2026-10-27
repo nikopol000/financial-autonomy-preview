@@ -481,6 +481,83 @@ async function main() {
     console.log('PASS Chromium research epoch: reset marker commits then throws; old ciphertext quarantined and stale replay refused');
 
 
+    // A syntactically valid UUID from a foreign generation is not proof of
+    // a legitimate reset. A mixed-version or external writer can replace it.
+    await a.evaluate(({EPOCH,EPOCH_V2})=>{
+      localStorage.removeItem(EPOCH_V2);
+      localStorage.setItem(EPOCH,crypto.randomUUID());
+    },{EPOCH,EPOCH_V2});
+    const foreignBaseline=await a.evaluate(()=>window.__research.epochRead());
+    assert.equal(foreignBaseline.ok,true);
+    const foreignSaved=await a.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['before-foreign-epoch']},snapshot.epoch,snapshot.raw),foreignBaseline);
+    assert.equal(foreignSaved.ok,true);
+    const foreignEpoch=await b.evaluate(({EPOCH,old})=>{
+      let replacement=crypto.randomUUID();
+      while(replacement===old)replacement=crypto.randomUUID();
+      localStorage.setItem(EPOCH,replacement);
+      return replacement;
+    },{EPOCH,old:foreignBaseline.epoch});
+    assert.notEqual(foreignEpoch,foreignBaseline.epoch);
+    assert.deepEqual(await b.evaluate(()=>window.__research.epochRead()),{
+      ok:false,reason:'epoch-mismatch'
+    });
+    const writesBeforeForeign=await a.evaluate(()=>window.__research.epochWrites);
+    assert.deepEqual(await a.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['stale-foreign']},snapshot.epoch,snapshot.raw),foreignBaseline),{
+      ok:false,reason:'stale-epoch'
+    });
+    assert.equal(await a.evaluate(()=>window.__research.epochWrites),writesBeforeForeign);
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),
+      foreignSaved.raw,'A foreign marker must not silently replace ciphertext');
+    console.log('PASS Chromium research epoch: well-formed foreign UUID quarantines old ciphertext and rejects stale save');
+
+    // KNOWN UNSAFE: epochReset only validates UUID shape, so it will accept
+    // the foreign marker as authoritative and delete the authenticated record.
+    // This is an intentional counterexample, NOT a production-safe reset.
+    const unsafeForeignReset=await b.evaluate(()=>window.__research.epochReset());
+    assert.equal(unsafeForeignReset.ok,true);
+    assert.equal(await a.evaluate(key=>localStorage.getItem(key),EPOCH_V2),null);
+    assert.notEqual(unsafeForeignReset.epoch,foreignEpoch);
+    console.log('PASS KNOWN UNSAFE Chromium: reset accepts unauthenticated foreign UUID and deletes v2 ciphertext (migration blocker)');
+
+    // A denied marker write BEFORE commit must preserve the old epoch and
+    // authenticated ciphertext. It is distinct from write-then-throw.
+    await a.evaluate(({EPOCH,EPOCH_V2})=>{
+      localStorage.removeItem(EPOCH_V2);
+      localStorage.setItem(EPOCH,crypto.randomUUID());
+    },{EPOCH,EPOCH_V2});
+    const deniedBaseline=await a.evaluate(()=>window.__research.epochRead());
+    const deniedSaved=await a.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['preserve-on-denied-reset']},snapshot.epoch,snapshot.raw),deniedBaseline);
+    assert.equal(deniedSaved.ok,true);
+    const writesBeforeDeniedReset=await a.evaluate(()=>window.__research.epochWrites);
+    const deniedReset=await a.evaluate(async key=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(name,value) {
+        if(name===key)throw new DOMException('synthetic epoch write denied','SecurityError');
+        return original.call(this,name,value);
+      };
+      try {
+        return await window.__research.epochReset().then(
+          ()=>({ok:true}),error=>({ok:false,name:error.name,message:error.message}));
+      } finally {
+        Storage.prototype.setItem=original;
+      }
+    },EPOCH);
+    assert.deepEqual(deniedReset,{
+      ok:false,name:'SecurityError',message:'synthetic epoch write denied'
+    });
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH),
+      deniedBaseline.epoch,'Pre-commit denial must not rotate epoch');
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),
+      deniedSaved.raw,'Pre-commit denial must not delete ciphertext');
+    assert.equal(await a.evaluate(()=>window.__research.epochWrites),writesBeforeDeniedReset);
+    assert.deepEqual((await b.evaluate(()=>window.__research.epochRead())).state.transactions,
+      ['preserve-on-denied-reset']);
+    console.log('PASS Chromium research epoch: denied pre-commit reset marker write preserves authenticated ledger');
+
+
   } finally {
     if(context)await context.close();
     if(browser)await browser.close();
