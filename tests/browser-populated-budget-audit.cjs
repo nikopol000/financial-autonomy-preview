@@ -104,6 +104,15 @@ async function audit(browser,url,width,scheme){
       'Expanded disclosure must expose the matching visible/accessibility name');
     await page.getByRole('button',{name:'Ascunde calculul',exact:true}).click();
     await page.screenshot({path:path.join(OUT,'home-calculation-'+label+'.png'),fullPage:true});
+    // WEB 18.58: an unconfigured budget must not masquerade as a calculated 0/0 limit.
+    await page.getByRole('tab',{name:'Mai mult'}).click();
+    await page.getByText('Bugete',{exact:true}).last().click();
+    await page.getByText('Buget neconfigurat',{exact:true}).waitFor({state:'visible',timeout:10000});
+    assert.equal(await page.getByText('Buget azi',{exact:true}).count(),0,
+      'No daily budget result card may appear before a budget is configured');
+    assert.equal(await page.getByRole('button',{name:'După buget'}).count(),0,
+      'Unconfigured budget page must not show irrelevant filter controls');
+    await page.screenshot({path:path.join(OUT,'empty-budget-'+label+'.png'),fullPage:true});
     assert.equal(await page.getByRole('tab',{name:'Finanțe'}).count(),1,'Finance tab missing');
     await page.getByRole('tab',{name:'Finanțe'}).click();
     await page.getByRole('button',{name:/^Bugete/}).click();
