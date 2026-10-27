@@ -27,6 +27,8 @@ jobs:
         run: node tests/budget-primary-label-v1848-regression.cjs
       - name: Accessibility shell and unchanged financial engine
         run: node tests/shell-regression.cjs
+      - name: WEB 18.55 navigation accessible name and immutable diff
+        run: node tests/web-v1855-nav-accessible-name-regression.cjs
       - name: Verify v18.22 candidate reconciliation independently of active release
         run: |
           node tests/reconciliation-v1822-candidate.cjs
