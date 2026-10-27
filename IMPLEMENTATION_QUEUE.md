@@ -1,3 +1,9 @@
+## CURRENT WEB execution queue — 2026-10-27 — Vercel production still 18.54; #14 horizon/provenance discovery
+
+- **RELEASE BLOCKER #85:** main HEAD `deb293c5625a5772a3f323dd9aee045a46cb13a3` contains immutable WEB 18.55; Vercel production alias still on `69bf23c` (18.54). A READY preview deployment of exactly matching HTML/bundle blobs exists (`dpl_4n6sFZkuw8wxctAhnfetUynV8HMC`), but normal promote API returned 422; no alias reassignment or restriction bypass. Recheck official production deployment and browser/header accessibility, then real Safari/200% zoom and safe-area. Do not claim live 18.55 on primary Vercel.
+- **DONE DISCOVERY #14:** active code-level null-coverage `??0` ambiguity, shared cash vs multiple budget windows and mismatched paycheck/monthly horizons documented in `docs/WEB_BUDGET_HORIZON_PROVENANCE_DISCOVERY_20261027.md`, with numeric examples, official Actual/YNAB/Monarch references and explicitly anecdotal user feedback. **ANALYSIS ONLY**; no formula or budget-mode implementation without explicit approved numeric contract.
+- **CRITICAL P1 #35/#29/#4:** v2 migration still BLOCKED by cached legacy writers/resets; no auto-recovery, deletion, marker-only trust or activation. **FIRST UNFINISHED:** production publication verification when Vercel permits; independently pursue safe v1-only integrity/UX and #85 mobile layout without iOS or data changes.
+
 ## CURRENT WEB execution queue — 2026-10-27 — v18.55 narrow nav label shipped to main/Pages; Vercel activation pending
 
 - **DONE PRODUCT P2 #85:** [PR #157](https://github.com/nikopol000/financial-autonomy-preview/pull/157) merged `2ccd867bd6f57b1d68ed8a384776294334d2e039`. Immutable WEB 18.55 aligns visible **Adaugă** with accessible tab name **Adaugă**, retains internal `Înregistrează` route. Diagnostic/HTML/build metadata synchronized; exact diff regression and Chromium browser nav labels updated. No financial engine, vault, backup or iOS change.
