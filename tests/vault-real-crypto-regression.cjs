@@ -74,11 +74,21 @@ const sample = () => ({
   balanceChecks:[]
 });
 
-function realTab(s,{locks,url='https://example.test/?fa_real=1'}={}){
+function realTab(s,{locks,url='https://example.test/?fa_real=1',events,timerHarness}={}){
   const globalThis={localStorage:s,location:{href:url},history:{state:null,replaceState(){}},
     crypto:{getRandomValues:array=>nodeCrypto.webcrypto.getRandomValues(array),randomUUID:()=>nodeCrypto.randomUUID()}};
   if(locks)globalThis.navigator={locks};
-  const {factory,dependencies}=moduleFactory(309,{...sandbox,globalThis,URL,Blob}),api={};
+  // Capture only this synthetic tab's lifecycle events; never touch a browser or real storage.
+  if(events){
+    globalThis.addEventListener=(name,fn)=>{events[name]=fn};
+    globalThis.document={visibilityState:'visible',addEventListener:(name,fn)=>{events['document:'+name]=fn}};
+  }
+  const context={...sandbox,globalThis,URL,Blob};
+  if(timerHarness){
+    context.setTimeout=(fn,ms)=>{timerHarness.callback=fn;timerHarness.delay=ms;return {unref(){}}};
+    context.clearTimeout=()=>{timerHarness.cleared=true};
+  }
+  const {factory,dependencies}=moduleFactory(309,context),api={};
   factory(globalThis,id=>id===205?model:vault,()=>{},null,{exports:api},api,dependencies);
   return api;
 }
@@ -712,6 +722,91 @@ async function test(name,fn) {
     await assert.rejects(realTab(backing,{locks}).load(),/Cheia locală există, dar datele criptate lipsesc/);
   });
 
+  await test('First-save payload denial: same-tab bounded retry commits the exact prepared ciphertext',async()=>{
+    const backing=storage(),locks=serialLocks();let denyPayload=true;
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(denyPayload&&k===PAYLOAD)throw Error('QuotaExceededError: synthetic atomic denial');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks});
+    assert.deepEqual(clone(await tab.load()),empty());
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată nu a fost confirmată/);
+    assert.equal(tab.canRetryFirstSave(),true);
+    const key=backing.getItem(KEY);
+    assert.match(key,/^[0-9a-f]{64}$/);
+    assert.equal(backing.getItem(PAYLOAD),null);
+    assert.equal(backing.writes,1);
+    denyPayload=false;
+    assert.deepEqual(clone(await tab.retryFirstSave()),sample());
+    assert.equal(backing.getItem(KEY),key,'Retry must not replace the original AES key');
+    assert.equal(backing.writes,2,'Retry must write only the pending encrypted payload');
+    assert.deepEqual(clone(vault.loadWebVault(backing)),sample());
+    assert.equal(tab.canRetryFirstSave(),false);
+    await assert.rejects(tab.retryFirstSave(),/nu mai este disponibilă/);
+  });
+  await test('First-save orphan: reload cannot recover the volatile token and pagehide drops it',async()=>{
+    const backing=storage(),locks=serialLocks(),events={};
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(k===PAYLOAD)throw Error('QuotaExceededError: synthetic atomic denial');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks,events});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată/);
+    assert.equal(tab.canRetryFirstSave(),true);
+    const before=clone(backing.data),writes=backing.writes;
+    const reloaded=realTab(backing,{locks});
+    assert.equal(reloaded.canRetryFirstSave(),false);
+    await assert.rejects(reloaded.load(),/Cheia locală există, dar datele criptate lipsesc/);
+    await assert.rejects(reloaded.retryFirstSave(),/nu mai este disponibilă/);
+    assert.equal(typeof events.pagehide,'function');
+    events.pagehide();
+    assert.equal(tab.canRetryFirstSave(),false);
+    await assert.rejects(tab.retryFirstSave(),/nu mai este disponibilă/);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+  });
+  await test('First-save retry expires and releases its volatile token without storage writes',async()=>{
+    const backing=storage(),locks=serialLocks(),timerHarness={};
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(k===PAYLOAD)throw Error('QuotaExceededError: synthetic atomic denial');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks,timerHarness});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată/);
+    assert.equal(tab.canRetryFirstSave(),true);
+    assert.equal(timerHarness.delay,120000);
+    const before=clone(backing.data),writes=backing.writes;
+    timerHarness.callback(); // deterministic expiry: no two-minute wall-clock wait
+    assert.equal(tab.canRetryFirstSave(),false);
+    await assert.rejects(tab.retryFirstSave(),/nu mai este disponibilă/);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+  });
+  await test('First-save retry is invalidated by hidden visibility and cannot write',async()=>{
+    const backing=storage(),locks=serialLocks(),events={};
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(k===PAYLOAD)throw Error('QuotaExceededError: synthetic atomic denial');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks,events});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată/);
+    assert.equal(tab.canRetryFirstSave(),true);
+    const before=clone(backing.data),writes=backing.writes;
+    assert.equal(typeof events['document:visibilitychange'],'function');
+    tab.canRetryFirstSave();
+    // visibilityState is an actual property on this synthetic tab's document.
+    // The listener is invoked with hidden state by the same captured document.
+    events['document:visibilitychange'](); // visible: no invalidation
+    assert.equal(tab.canRetryFirstSave(),true);
+    events.pagehide(); // hidden/page departure invalidates the token
+    assert.equal(tab.canRetryFirstSave(),false);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+  });
   await test('Blocked vault landing retains visible non-destructive guidance and retry',()=>{
     assert.ok(source.includes('O?"Datele locale nu pot fi deschise"'), 'Blocked state needs an explicit heading');
     assert.ok(source.includes('Nu șterge datele site-ului și nu reseta aplicația.'), 'No destructive recovery advice');
@@ -859,6 +954,6 @@ async function test(name,fn) {
     await fresh.save(loaded);
     assert.ok(vault.loadWebVault(backing).transactions.some(t=>t.id==='post-reset-valid'));
   });
-  console.log(passed+'/48 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==48)process.exitCode=1;
+  console.log(passed+'/52 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==52)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
