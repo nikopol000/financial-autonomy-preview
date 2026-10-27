@@ -46,7 +46,7 @@ function overlapArea(a,b){
   return Math.round(w*h*100)/100;
 }
 async function navFootprint(page){
-  const names=['Acasă','Finanțe','Înregistrează','Istoric','Mai mult'];
+  const names=['Acasă','Finanțe','Adaugă','Istoric','Mai mult'];
   const tabs=[];
   for(const name of names){
     const locator=page.getByRole('tab',{name,exact:true});
@@ -57,7 +57,7 @@ async function navFootprint(page){
       const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
       let node;
       while((node=walker.nextNode())){
-        if(node.textContent.trim().replace(/\u00ad/g,'')!==(label==='Înregistrează'?'Adaugă':label))continue;
+        if(node.textContent.trim().replace(/\u00ad/g,'')!==(label))continue;
         const range=document.createRange();
         range.selectNodeContents(node);
         const rect=range.getBoundingClientRect();
@@ -144,7 +144,7 @@ async function audit(browser,url,width,scheme){
     const narrowRows=new Set(navNarrow.tabs.map(t=>Math.round(t.hitTarget.y))).size;
     assert.ok(narrowRows>=2,'Extremely narrow navigation must wrap into at least two rows');
     await page.screenshot({path:path.join(OUT,'populated-budget-'+label+'-half-width.png'),fullPage:true});
-    for(const name of ['Acasă','Finanțe','Înregistrează','Istoric','Mai mult']){
+    for(const name of ['Acasă','Finanțe','Adaugă','Istoric','Mai mult']){
       const tab=page.getByRole('tab',{name,exact:true});
       await tab.click();
       assert.equal(await tab.getAttribute('aria-selected'),'true','Destination must remain operable: '+name);
