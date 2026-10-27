@@ -620,6 +620,49 @@ async function test(name,fn) {
     assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
   });
 
+  // Synthetic acknowledgement ambiguity: an adapter can mutate backing storage
+  // and then report an error. This is fault injection, not an observed browser incident.
+  await test('KNOWN UNSAFE: first key write commits then throws and strands an orphan key',()=>{
+    const backing=storage();
+    const ambiguous={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){
+        backing.setItem(k,v);
+        if(k===KEY)throw Error('Injected key write acknowledged as failure after commit');
+      },
+      removeItem:k=>backing.removeItem(k),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    assert.throws(()=>vault.saveWebVault(ambiguous,sample(),random),/nu a putut salva/);
+    assert.equal(backing.writes,1,'Payload write must never have started');
+    assert.match(backing.getItem(KEY),/^[0-9a-f]{64}$/);
+    assert.equal(backing.getItem(PAYLOAD),null);
+    const before=clone(backing.data),writes=backing.writes;
+    assert.throws(()=>vault.loadWebVault(backing),/Cheia locală există, dar datele criptate lipsesc/);
+    assert.throws(()=>vault.saveWebVault(backing,sample(),random),/Salvarea este blocată/);
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+  });
+  await test('First payload write commits then throws: error is ambiguous but encrypted ledger is readable',()=>{
+    const backing=storage();
+    const ambiguous={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){
+        backing.setItem(k,v);
+        if(k===PAYLOAD)throw Error('Injected payload write acknowledged as failure after commit');
+      },
+      removeItem:k=>backing.removeItem(k),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    assert.throws(()=>vault.saveWebVault(ambiguous,sample(),random),/nu a putut salva/);
+    assert.equal(backing.writes,2,'Both encrypted entries were committed');
+    assert.match(backing.getItem(KEY),/^[0-9a-f]{64}$/);
+    assert.ok(backing.getItem(PAYLOAD));
+    assert.ok(!backing.getItem(PAYLOAD).includes('synthetic-checking'),'No plaintext leak');
+    const before=clone(backing.data),writes=backing.writes;
+    assert.deepEqual(clone(vault.loadWebVault(backing)),sample());
+    assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
+  });
+
   await test('First vault key-write denial leaves no partial vault; later retry succeeds',()=>{
     const backing=storage();
     let deny=true;
@@ -816,6 +859,6 @@ async function test(name,fn) {
     await fresh.save(loaded);
     assert.ok(vault.loadWebVault(backing).transactions.some(t=>t.id==='post-reset-valid'));
   });
-  console.log(passed+'/46 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==46)process.exitCode=1;
+  console.log(passed+'/48 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==48)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
