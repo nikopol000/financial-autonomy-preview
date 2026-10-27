@@ -100,6 +100,13 @@ async function main() {
     assert.equal(await a.evaluate(()=>isSecureContext),true);
     assert.equal(await b.evaluate(()=>typeof navigator.locks?.request),'function');
 
+    // Keep an actual pre-reset in-memory draft and its null revision in tab B.
+    // A later reset can return storage to null (ABA) even under Web Locks.
+    const staleNullRevision=await b.evaluate(()=>localStorage.getItem(
+      'financial-autonomy.preview.atomic-browser-research.v2'));
+    assert.equal(staleNullRevision,null);
+    await b.evaluate(()=>{window.__research.preResetDraft={transactions:['draft-before-reset']};});
+
     // Real browser queue: both tabs start from the same empty revision.
     const first=a.evaluate(()=>window.__research.save({transactions:['A']},null,true));
     await a.waitForFunction(()=>window.__research.holding);
@@ -183,6 +190,25 @@ async function main() {
       {transactions:['A','B','C']},
       'Naive v2-only reader could still resurrect intentionally reset data');
     console.log('PASS KNOWN UNSAFE Chromium: cached-v1-style reset removes fence, leaves decryptable v2; guarded reader quarantines');
+
+    // KNOWN UNSAFE: the same null revision exists before the first write AND
+    // after a naive v2 reset that removes the only v2 key. Exclusive Web Locks
+    // serialize these calls, but cannot distinguish the two generations.
+    const beforeReset=await a.evaluate(()=>window.__research.read());
+    assert.deepEqual(beforeReset.state,{transactions:['A','B','C']});
+    await a.evaluate(async ({LOCK,V2})=>navigator.locks.request(
+      LOCK,{mode:'exclusive'},()=>localStorage.removeItem(V2)),{LOCK,V2});
+    assert.equal(await b.evaluate(()=>window.__research.read()),null);
+    const staleAfterReset=await b.evaluate(expected=>window.__research.save(
+      window.__research.preResetDraft,expected),staleNullRevision);
+    assert.equal(staleAfterReset.ok,true,
+      'KNOWN UNSAFE: stale null revision can create a ledger after reset');
+    assert.deepEqual((await a.evaluate(()=>window.__research.read())).state,
+      {transactions:['draft-before-reset']});
+    assert.equal((await a.evaluate(()=>window.__research.guardedRead())).reason,
+      'fence-absent-or-reset-ambiguous',
+      'Research-only fence guard must still quarantine the unsafe new record');
+    console.log('PASS KNOWN UNSAFE Chromium: null-revision ABA after locked reset accepts pre-reset draft; fence guard quarantines (hazard, not fix)');
   } finally {
     if(context)await context.close();
     if(browser)await browser.close();
