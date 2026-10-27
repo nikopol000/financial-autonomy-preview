@@ -320,6 +320,90 @@ async function main() {
     assert.equal(await a.evaluate(()=>window.__research.epochWrites),beforeInterruptedWrites);
     console.log('PASS KNOWN UNSAFE Chromium: cached v1 can still write legacy keys; new epoch reader/writer quarantine mixed footprint (migration blocker)');
 
+    // RESEARCH ONLY: repeat reset must rotate the epoch even after a
+    // previously interrupted reset; no stale draft may be accepted.
+    await a.evaluate(({V1_KEY,V1_PAYLOAD})=>{
+      localStorage.removeItem(V1_KEY);
+      localStorage.removeItem(V1_PAYLOAD);
+    },{V1_KEY,V1_PAYLOAD});
+    const epochBeforeRetry=await a.evaluate(key=>localStorage.getItem(key),EPOCH);
+    const repeatedOnce=await a.evaluate(()=>window.__research.epochReset());
+    assert.equal(repeatedOnce.ok,true);
+    assert.notEqual(repeatedOnce.epoch,epochBeforeRetry);
+    assert.deepEqual(await b.evaluate(()=>window.__research.epochRead()),{
+      ok:true,epoch:repeatedOnce.epoch,raw:null,state:null
+    });
+    const repeatedTwice=await b.evaluate(()=>window.__research.epochReset());
+    assert.equal(repeatedTwice.ok,true);
+    assert.notEqual(repeatedTwice.epoch,repeatedOnce.epoch);
+    const epochWritesBeforeRepeatedStale=await a.evaluate(()=>window.__research.epochWrites);
+    const repeatedStale=await a.evaluate(epoch=>window.__research.epochSave(
+      {transactions:['stale-repeat-reset']},epoch,null),repeatedOnce.epoch);
+    assert.deepEqual(repeatedStale,{ok:false,reason:'stale-epoch'});
+    assert.equal(await a.evaluate(()=>window.__research.epochWrites),epochWritesBeforeRepeatedStale);
+    const repeatedFresh=await b.evaluate(epoch=>window.__research.epochSave(
+      {transactions:['fresh-after-two-resets']},epoch,null),repeatedTwice.epoch);
+    assert.equal(repeatedFresh.ok,true);
+    assert.deepEqual((await a.evaluate(()=>window.__research.epochRead())).state.transactions,
+      ['fresh-after-two-resets']);
+    console.log('PASS Chromium research epoch: repeated resets rotate generation, reject stale draft, and accept only fresh ledger');
+
+    // An evicted/missing marker is NOT a clean first run: keep the encrypted
+    // bytes untouched and reject both a write and an attempted reset.
+    const encryptedBeforeEviction=await a.evaluate(key=>localStorage.getItem(key),EPOCH_V2);
+    await b.evaluate(key=>localStorage.removeItem(key),EPOCH);
+    assert.deepEqual(await a.evaluate(()=>window.__research.epochRead()),{
+      ok:false,reason:'epoch-missing'
+    });
+    const writesBeforeEvictionAttempt=await a.evaluate(()=>window.__research.epochWrites);
+    const evictedSave=await a.evaluate(({epoch,raw})=>window.__research.epochSave(
+      {transactions:['must-not-recreate']},epoch,raw),
+      {epoch:repeatedTwice.epoch,raw:repeatedFresh.raw});
+    assert.deepEqual(evictedSave,{ok:false,reason:'stale-epoch'});
+    assert.deepEqual(await a.evaluate(()=>window.__research.epochReset()),{
+      ok:false,reason:'epoch-missing'
+    });
+    assert.equal(await a.evaluate(()=>window.__research.epochWrites),writesBeforeEvictionAttempt);
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),encryptedBeforeEviction);
+    console.log('PASS Chromium research epoch: missing marker quarantines existing ciphertext; no write, reset or auto-bootstrap');
+
+    // Separate disposable synthetic generation: deny marker reads in one tab.
+    // A SecurityError must never be coerced into a missing/clean marker.
+    await a.evaluate(({EPOCH,EPOCH_V2})=>{
+      localStorage.removeItem(EPOCH_V2);
+      localStorage.setItem(EPOCH,crypto.randomUUID());
+    },{EPOCH,EPOCH_V2});
+    const markerBeforeDenial=await a.evaluate(key=>localStorage.getItem(key),EPOCH);
+    const deniedMarker=await a.evaluate(async ({EPOCH})=>{
+      const original=Storage.prototype.getItem;
+      Storage.prototype.getItem=function(key) {
+        if(key===EPOCH)throw new DOMException('synthetic marker read denied','SecurityError');
+        return original.call(this,key);
+      };
+      try {
+        const capture=async fn=>fn().then(()=>({ok:true}),
+          e=>({ok:false,name:e.name,message:e.message}));
+        return {
+          read:await capture(()=>window.__research.epochRead()),
+          save:await capture(()=>window.__research.epochSave(
+            {transactions:['must-not-write']},'any',null)),
+          reset:await capture(()=>window.__research.epochReset())
+        };
+      } finally {
+        Storage.prototype.getItem=original;
+      }
+    },{EPOCH});
+    for(const operation of ['read','save','reset']){
+      assert.deepEqual(deniedMarker[operation],{
+        ok:false,name:'SecurityError',message:'synthetic marker read denied'
+      },operation+' must fail closed rather than treat denied read as clean storage');
+    }
+    assert.equal(await a.evaluate(()=>window.__research.epochWrites),writesBeforeEvictionAttempt,
+      'Denied marker read must not add a ciphertext write');
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH),markerBeforeDenial);
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),null);
+    console.log('PASS Chromium research epoch: denied marker read blocks load/save/reset; no ciphertext write or false clean state');
+
   } finally {
     if(context)await context.close();
     if(browser)await browser.close();
