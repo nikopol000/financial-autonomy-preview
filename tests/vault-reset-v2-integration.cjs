@@ -11,6 +11,8 @@ const active=html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)
 assert.ok(active&&active.startsWith('_expo/static/js/web/index-v0'),'Expected an active immutable WEB bundle with durable reset epoch');
 const current=fs.readFileSync(active,'utf8');
 const legacy=fs.readFileSync('_expo/static/js/web/index-v01849-responsive-nav-wrap-r3-20261026.js','utf8');
+// An immutable pre-journal bundle is still runnable in a cached/open tab.
+const preJournal=fs.readFileSync('_expo/static/js/web/index-v01843-budget-language-followup-20261024.js','utf8');
 const KEY='financial-autonomy.preview.key.v1',PAYLOAD='financial-autonomy.preview.payload.v1',RESET='financial-autonomy.preview.reset.v1';
 const clone=v=>JSON.parse(JSON.stringify(v));
 const empty=()=>({version:4,accounts:[],transactions:[],balanceChecks:[]});
@@ -40,7 +42,7 @@ function loadVault(bundle){
   }
   return get(310);
 }
-const newVault=loadVault(current),oldVault=loadVault(legacy);
+const newVault=loadVault(current),oldVault=loadVault(legacy),preJournalVault=loadVault(preJournal);
 const random=n=>new Uint8Array(crypto.randomBytes(n));
 function store(initial={}){
   const data={...initial},fault={read:null,write:null,remove:null},events=[];
@@ -69,6 +71,41 @@ function tab(bundle,vault,s,lock,url='https://example.test/?fa_real=1'){
 const newTab=(s,l,url)=>tab(current,newVault,s,l,url),oldTab=(s,l,url)=>tab(legacy,oldVault,s,l,url);
 const isIdle=s=>assert.match(s.getItem(RESET),/^idle-v2:[0-9a-f]{32}$/);
 const isPending=s=>assert.match(s.getItem(RESET),/^pending-v2:[0-9a-f]{32}$/);
+// These are explicit KNOWN-UNSAFE cross-version characterizations, not fixes.
+// A localStorage marker cannot force an already-open v18.43 bundle to cooperate.
+test('KNOWN UNSAFE: real WEB 18.43 vault ignores a future migration marker and writes v1 ciphertext',()=>{
+  const marker='migration-v2:synthetic-block';
+  const s=store({[RESET]:marker});
+  const sample=empty();
+  sample.transactions.push({id:'cached-prejournal-write',kind:'income',amount:123});
+  const before=s.writes;
+  assert.throws(()=>newVault.saveWebVault(s,sample,random),/Resetarea locală/i);
+  assert.throws(()=>oldVault.saveWebVault(s,sample,random),/Resetarea locală/i);
+  assert.equal(s.writes,before,'Cooperating versions must not write through an unknown marker');
+  preJournalVault.saveWebVault(s,sample,random);
+  assert.equal(s.getItem(RESET),marker,'Old writer does not even acknowledge the migration marker');
+  assert.ok(s.getItem(KEY));
+  assert.ok(s.getItem(PAYLOAD));
+  assert.deepEqual(clone(preJournalVault.loadWebVault(s)),sample);
+});
+test('KNOWN UNSAFE: real WEB 18.43 reset ignores a future marker and leaves v2 bytes to resurface',()=>{
+  const marker='migration-v2:synthetic-block';
+  const future='financial-autonomy.preview.atomic-browser-research.v2';
+  const ciphertext='synthetic-v2-ciphertext-not-a-user-ledger';
+  const s=store({[RESET]:marker,[future]:ciphertext});
+  preJournalVault.saveWebVault(s,empty(),random);
+  const oldKey=s.getItem(KEY),oldPayload=s.getItem(PAYLOAD);
+  assert.ok(oldKey&&oldPayload);
+  const before=s.writes;
+  assert.throws(()=>newVault.clearWebVault(s),/Marcaj de resetare necunoscut/i);
+  assert.throws(()=>oldVault.clearWebVault(s),/Marcaj de resetare necunoscut/i);
+  assert.equal(s.writes,before);
+  preJournalVault.clearWebVault(s);
+  assert.equal(s.getItem(KEY),null);
+  assert.equal(s.getItem(PAYLOAD),null);
+  assert.equal(s.getItem(RESET),marker,'Pre-journal reset does not consume the marker');
+  assert.equal(s.getItem(future),ciphertext,'A v1 reset cannot delete an unknown v2 ciphertext');
+});
 test('New reset retains non-sensitive durable epoch; new tab can save AES-GCM vault',async()=>{
   const s=store(),l=locks(),a=newTab(s,l);
   await a.load();await a.save(empty());await a.resetData();isIdle(s);
