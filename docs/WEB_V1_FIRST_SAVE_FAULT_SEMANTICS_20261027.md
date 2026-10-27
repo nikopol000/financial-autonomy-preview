@@ -34,3 +34,18 @@ Before any change, inspect the current blocked-vault UI and validate copy for ke
 ## Evidence and limitations
 
 The existing tests cover spec-compatible payload-write failure and key-only/payload-only states. The two new cases only extend *adversarial adapter* coverage; their exact CI status must be checked separately. No physical crash durability, iPhone Safari behavior, user incident or real data recovery was observed. Research-only: no change to release version or diagnostics.
+
+## Follow-up: real bundled platform retry lifecycle — 2026-10-27
+
+[PR #169](https://github.com/nikopol000/financial-autonomy-preview/pull/169) (test-only; merged `f040e9077fde79013c557230d7869a0801233150`) adds **four** synthetic Node VM integration cases using the active immutable WEB 18.57 modules 309/310/311, not a mocked encryption engine. The [candidate Release CI run #40537973615](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40537973615) passed **52/52**, with named PASS logs for all four. These tests use a spec-compatible *atomic* payload-write denial (the failed write does not mutate backing storage), unlike the deliberately non-conforming write-then-throw adapter in the earlier section.
+
+| Scenario | Verified in synthetic VM | Safety boundary |
+| --- | --- | --- |
+| Initial payload write denied after key committed; same tab remains open | `canRetryFirstSave()` is true; retry writes only the prepared encrypted payload, keeps the original AES key, authenticates and returns the exact synthetic ledger; second retry is rejected | The volatile handle is scoped to this tab and the 120-second window. This is not proof of crash durability. |
+| New module instance / reload while key-only footprint exists | New instance has **no** volatile token; load and retry fail closed with **zero writes**; the original tab's captured `pagehide` invalidates its token | No automatic inference that the key came from an interrupted first save. |
+| 120-second expiry | Deterministic captured timer callback clears the token; retry is rejected with **zero writes** | The test invokes the expiry callback rather than waiting 120 seconds; it is not a wall-clock or Safari background-throttling test. |
+| Document becomes hidden | Synthetic `visibilitychange` listener invalidates the token; retry is rejected without writing | Browser lifecycle dispatch and iPhone Safari background behavior remain unverified. |
+
+**Conclusion:** active WEB 18.57 already supports a safe *bounded same-tab* retry for the tested synthetic failure. The unresolved P1 is the **ambiguous KEY-only footprint after pagehide/reload/expiry**, plus real browser acceptance and interruption between individual atomic storage writes. Never auto-clear or regenerate the key, never claim ciphertext can be reconstructed from a key, and do not activate v2 migration while cached pre-journal tabs can write or reset. This does not change the live app, backup format, accounting formulas or iOS.
+
+**Next acceptance work:** synthetic Chromium with real browser storage quota/permission failure when feasible; compare UI messaging in first-save retry versus blocked reload at 320/390 CSS px, light/dark and keyboard/VoiceOver. Separate genuine browser behavior from Node VM evidence. Validate recovery affordances without automatic destructive actions. Vercel WEB 18.57 production publication is tracked independently from this test-only PR.
