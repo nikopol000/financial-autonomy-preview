@@ -111,6 +111,33 @@ async function install(page) {
           return {ok:true,epoch:next};
         });
       },
+      // RESEARCH ONLY: destructive reset must prove the CURRENT ciphertext
+      // belongs to the CURRENT epoch and matches the caller's snapshot.
+      // This guards against a syntactically valid but foreign epoch marker;
+      // it does NOT fence cached v1 clients or authenticate an empty vault.
+      async epochResetChecked(expectedEpoch,expectedRaw) {
+        if(!navigator.locks?.request)return {ok:false,reason:'lock-unavailable'};
+        return navigator.locks.request(LOCK,{mode:'exclusive'},async () => {
+          const epoch=localStorage.getItem(EPOCH);
+          if(epoch===null)return {ok:false,reason:'epoch-missing'};
+          if(!validEpoch(epoch))return {ok:false,reason:'epoch-invalid'};
+          if(epoch!==expectedEpoch)return {ok:false,reason:'stale-epoch'};
+          if(localStorage.getItem(V1_KEY)!==null || localStorage.getItem(V1_PAYLOAD)!==null)
+            return {ok:false,reason:'legacy-footprint'};
+          const raw=localStorage.getItem(EPOCH_V2);
+          if(raw!==expectedRaw)return {ok:false,reason:'stale-revision'};
+          if(raw!==null) {
+            let state;
+            try { state=await unseal(raw); }
+            catch(_error) { return {ok:false,reason:'unauthenticated'}; }
+            if(state.__epoch!==epoch)return {ok:false,reason:'epoch-mismatch'};
+          }
+          const next=crypto.randomUUID();
+          localStorage.setItem(EPOCH,next);
+          localStorage.removeItem(EPOCH_V2);
+          return {ok:true,epoch:next};
+        });
+      },
       async unsafeSave(state,expected,hold=false) {
         // Deliberately UNSAFE: check-then-async-write is not atomic across tabs.
         if(localStorage.getItem(UNSAFE)!==expected)return {ok:false,reason:'stale'};
@@ -556,6 +583,80 @@ async function main() {
     assert.deepEqual((await b.evaluate(()=>window.__research.epochRead())).state.transactions,
       ['preserve-on-denied-reset']);
     console.log('PASS Chromium research epoch: denied pre-commit reset marker write preserves authenticated ledger');
+
+
+    // Guarded-reset alternative: UUID shape is not sufficient. A foreign
+    // marker cannot authorize deletion of authenticated older ciphertext.
+    await a.evaluate(({EPOCH,EPOCH_V2})=>{
+      localStorage.removeItem(EPOCH_V2);
+      localStorage.setItem(EPOCH,crypto.randomUUID());
+    },{EPOCH,EPOCH_V2});
+    const checkedBase=await a.evaluate(()=>window.__research.epochRead());
+    const checkedSaved=await a.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['must-survive-foreign-marker']},snapshot.epoch,snapshot.raw),checkedBase);
+    assert.equal(checkedSaved.ok,true);
+    const foreignChecked=await b.evaluate(({EPOCH,old})=>{
+      let replacement=crypto.randomUUID();
+      while(replacement===old)replacement=crypto.randomUUID();
+      localStorage.setItem(EPOCH,replacement);
+      return replacement;
+    },{EPOCH,old:checkedBase.epoch});
+    const checkedBefore=await a.evaluate(key=>localStorage.getItem(key),EPOCH_V2);
+    assert.deepEqual(await b.evaluate(snapshot=>window.__research.epochResetChecked(
+      snapshot.epoch,snapshot.raw),{epoch:foreignChecked,raw:checkedSaved.raw}),{
+      ok:false,reason:'epoch-mismatch'
+    });
+    assert.deepEqual(await a.evaluate(snapshot=>window.__research.epochResetChecked(
+      snapshot.epoch,snapshot.raw),{epoch:checkedBase.epoch,raw:checkedSaved.raw}),{
+      ok:false,reason:'stale-epoch'
+    });
+    assert.equal(await a.evaluate(key=>localStorage.getItem(key),EPOCH_V2),checkedBefore);
+    console.log('PASS Chromium research guarded reset: foreign valid UUID cannot delete authenticated old-epoch ciphertext');
+
+    // In a clean synthetic generation, a caller with a stale ciphertext
+    // revision cannot reset someone else's newly committed transaction.
+    await a.evaluate(({EPOCH,EPOCH_V2})=>{
+      localStorage.removeItem(EPOCH_V2);
+      localStorage.setItem(EPOCH,crypto.randomUUID());
+    },{EPOCH,EPOCH_V2});
+    const checkedEmpty=await b.evaluate(()=>window.__research.epochRead());
+    const checkedNew=await a.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['newer-than-reset-snapshot']},snapshot.epoch,snapshot.raw),checkedEmpty);
+    assert.equal(checkedNew.ok,true);
+    assert.deepEqual(await b.evaluate(snapshot=>window.__research.epochResetChecked(
+      snapshot.epoch,snapshot.raw),checkedEmpty),{ok:false,reason:'stale-revision'});
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),checkedNew.raw);
+    console.log('PASS Chromium research guarded reset: stale snapshot cannot delete newer authenticated transaction');
+
+    // A matching, authenticated snapshot may reset. A stale pre-reset tab
+    // must then fail, and ciphertext must remain absent after that attempt.
+    const checkedCurrent=await b.evaluate(()=>window.__research.epochRead());
+    const checkedReset=await b.evaluate(snapshot=>window.__research.epochResetChecked(
+      snapshot.epoch,snapshot.raw),checkedCurrent);
+    assert.equal(checkedReset.ok,true);
+    assert.notEqual(checkedReset.epoch,checkedCurrent.epoch);
+    assert.equal(await a.evaluate(key=>localStorage.getItem(key),EPOCH_V2),null);
+    assert.deepEqual(await a.evaluate(snapshot=>window.__research.epochResetChecked(
+      snapshot.epoch,snapshot.raw),checkedCurrent),{ok:false,reason:'stale-epoch'});
+    assert.deepEqual(await a.evaluate(()=>window.__research.epochRead()),{
+      ok:true,epoch:checkedReset.epoch,raw:null,state:null
+    });
+    console.log('PASS Chromium research guarded reset: authenticated current snapshot resets once; stale retry cannot erase new generation');
+
+    // Even if the marker matches, corrupt ciphertext is not resettable.
+    const cleanAfterChecked=await a.evaluate(()=>window.__research.epochRead());
+    const validAfterChecked=await a.evaluate(snapshot=>window.__research.epochSave(
+      {transactions:['protected-against-corrupt-reset']},snapshot.epoch,snapshot.raw),cleanAfterChecked);
+    assert.equal(validAfterChecked.ok,true);
+    await b.evaluate(key=>localStorage.setItem(key,'{broken-ciphertext'),EPOCH_V2);
+    assert.deepEqual(await a.evaluate(({epoch,EPOCH_V2})=>window.__research.epochResetChecked(
+      epoch,localStorage.getItem(EPOCH_V2)),{epoch:checkedReset.epoch,EPOCH_V2}),{
+      ok:false,reason:'unauthenticated'
+    });
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),EPOCH_V2),'{broken-ciphertext');
+    assert.equal(await a.evaluate(key=>localStorage.getItem(key),EPOCH),checkedReset.epoch);
+    console.log('PASS Chromium research guarded reset: corrupt ciphertext cannot authorize destructive reset');
+
 
 
   } finally {
