@@ -82,7 +82,7 @@ await test('Unavailable local storage fails closed',async()=>{
 await test('User-visible demo banner, exit confirmation and cross-tab invalidation are wired',()=>{
   assert.ok(source.includes('DEMO · DATE FICTIVE'));
   assert.ok(source.includes('label:"Ieși din demo"'));
-  assert.ok(source.includes('Date fictive, doar în memorie. Backupul, diagnosticul, importul și ștergerea datelor sunt blocate.'));
+  assert.ok(source.includes('Date fictive, doar în memorie. Backup, diagnostic, import și ștergere dezactivate.'));
   assert.ok(source.includes('globalThis.confirm('));
   assert.ok(source.includes('addEventListener("storage",onStorage)'));
 });
