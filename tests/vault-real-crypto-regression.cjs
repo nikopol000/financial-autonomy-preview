@@ -746,6 +746,53 @@ async function test(name,fn) {
     assert.equal(tab.canRetryFirstSave(),false);
     await assert.rejects(tab.retryFirstSave(),/nu mai este disponibilă/);
   });
+  await test('First-save retry rejects a conflicting second-tab payload without overwriting it',async()=>{
+    const backing=storage(),locks=serialLocks();let denyPayload=true;
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(denyPayload&&k===PAYLOAD)throw Error('QuotaExceededError: synthetic atomic denial');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată nu a fost confirmată/);
+    assert.equal(tab.canRetryFirstSave(),true);
+    // A different payload is present by the time the original tab attempts recovery.
+    // It must be preserved even if its contents are invalid or untrusted.
+    backing.setItem(PAYLOAD,'synthetic-other-tab-payload');
+    denyPayload=false;
+    const before=clone(backing.data),writes=backing.writes;
+    await assert.rejects(tab.retryFirstSave(),/altă filă/);
+    assert.equal(tab.canRetryFirstSave(),false,'Conflicting retry token must be invalidated');
+    assert.deepEqual(backing.data,before,'Never overwrite another tab\'s payload');
+    assert.equal(backing.writes,writes,'Conflict detection must not write');
+  });
+  await test('First-save retry accepts already committed identical ciphertext without another write',async()=>{
+    const backing=storage(),locks=serialLocks();let deniedPayload=null;
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){
+        if(k===PAYLOAD&&deniedPayload===null){
+          deniedPayload=String(v);
+          throw Error('QuotaExceededError: synthetic atomic denial');
+        }
+        backing.setItem(k,v);
+      },
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată nu a fost confirmată/);
+    assert.ok(deniedPayload,'Capture only synthetic ciphertext from the denied operation');
+    assert.equal(backing.getItem(PAYLOAD),null);
+    backing.setItem(PAYLOAD,deniedPayload);
+    const before=clone(backing.data),writes=backing.writes;
+    assert.deepEqual(clone(await tab.retryFirstSave()),sample());
+    assert.equal(backing.writes,writes,'An already present exact envelope must not be rewritten');
+    assert.deepEqual(backing.data,before);
+    assert.equal(tab.canRetryFirstSave(),false);
+    assert.deepEqual(clone(vault.loadWebVault(backing)),sample());
+  });
   await test('First-save orphan: reload cannot recover the volatile token and pagehide drops it',async()=>{
     const backing=storage(),locks=serialLocks(),events={};
     const flaky={
@@ -954,6 +1001,6 @@ async function test(name,fn) {
     await fresh.save(loaded);
     assert.ok(vault.loadWebVault(backing).transactions.some(t=>t.id==='post-reset-valid'));
   });
-  console.log(passed+'/52 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==52)process.exitCode=1;
+  console.log(passed+'/54 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==54)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
