@@ -46,3 +46,18 @@ The new **research-only** tests in `tests/vault-v2-first-write-prototype.cjs` co
 **Boundary:** this does *not* prove migration safety. The existing actual legacy v1 writer can ignore a v2 envelope; an older reset can remove a proposed v1-key fence, and a stage-only record can be indistinguishable from an intentional old-client reset. Even a correct exclusive lock protects only clients participating in the same protocol. A safe production v2 contract must first specify a monotonic reset generation/epoch, legacy tab fencing that survives a reset, authenticated stage promotion and rollback, failure at each read/write/remove, and what to do when the old client cannot be fenced. Until that contract is testable, keep WEB 18.54 and KEY-only fail-closed behavior. No financial formulas, #14 modes, real vaults, backups or iOS are changed.
 
 **Proposed acceptance matrix for future research (not approval to implement):** (1) two new tabs competing from same revision, (2) missing/denied lock, (3) cached v1 tab saving/resetting during v2 migration, (4) crash after stage but before fence, (5) crash after fence but before activation, (6) reset before/after activation, (7) write-then-throw at each stage, (8) denied/corrupt marker read, (9) repeated reset and new ledger creation, (10) fresh load and reload with stale tabs. For each case assert exact ciphertext/marker bytes, number of writes, absence of unintended resurrection, and explicit user-visible blocked state. Do not auto-delete a legacy footprint or interpret unknown provenance as a clean vault.
+
+
+## 2026-10-27 — fenced activation acknowledgement and cached legacy reset (research-only)
+
+Three deterministic additions to `tests/vault-v2-first-write-prototype.cjs` exercise a *hypothetical* already-authenticated staged envelope with a v1 fence:
+
+1. **Activation commits, then throws:** the full v2 ciphertext is already present although the API reports an error. A subsequent check must authenticate the identical staged bytes and return without writing again; the stage and fence are preserved.
+2. **Conflicting v2 after uncertain acknowledgement:** if the v2 slot changes before the retry, the staged ciphertext must **not** be replayed over it. Quarantine all records without writes.
+3. **KNOWN UNSAFE — direct cached legacy reset after activation:** the actual bundled legacy `clearWebVault` removes the v1 fence while leaving the v2 ciphertext untouched. The conservative `recoverFencedStage` rejects this footprint, but a naive v2-only reader could still open data intentionally reset by the user. The test deliberately demonstrates an **unresolved hazard**, not a mitigation.
+
+These are Node/VM fault-injection tests with actual bundled AES-GCM and synthetic storage. They do not prove Safari durability, actual tab lifecycle, or that a v2 migration is safe. The tested guard is prototype-only and is **not** wired into WEB 18.54.
+
+**Decision gate before any shipping v2:** define a reset/epoch protocol respected by every client capable of writing the same ledger, including cached old bundles, or explicitly block migration while those clients can still write. Web Locks alone do not make legacy clients understand new v2/reset keys. Never auto-promote a stage-only record, delete an ambiguous key, restore after intentional reset, or silently overwrite an active record.
+
+**Next test:** real Chromium two-tab lifecycle using actual Web Locks and a staged migration test harness, followed by an exhaustive crash matrix at each staging/fence/activation/reset boundary. Record exact CI proof before counting these new cases as passing.
