@@ -53,6 +53,8 @@ assert.match(after,/L\.budgets\.length>0&&\(0,b\.jsxs\)\(f\.Section,\{title:"Azi
 assert.match(after,/L\.budgets\.length>0&&\(0,b\.jsxs\)\(s\.default,\{style:v\.wrap/);
 assert.match(after,/children:"Buget neconfigurat"/);
 const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18\.58"/);
-assert.match(html,/index-v01858-budget-empty-state-20261027\.js\?build=18\.58\.1/);
+// Historical immutable 18.58 diff remains valid after a later active release.
+if(html.includes('name="financial-autonomy-version" content="18.58"')){
+  assert.match(html,/index-v01858-budget-empty-state-20261027\.js\?build=18\.58\.1/);
+}
 console.log('PASS WEB 18.58: no unconfigured 0/0 budget card, shorter screen copy, unchanged finance/vault/backup');
