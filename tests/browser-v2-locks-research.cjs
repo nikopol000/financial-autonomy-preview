@@ -128,10 +128,12 @@ async function main() {
 
     // Browser-native AES-GCM and localStorage fault matrix. An exception is
     // NOT proof that setItem did or did not commit; never blindly replay.
+    const writesBeforeFaults=await a.evaluate(()=>window.__research.writes);
     const denied=await a.evaluate(raw=>window.__research.save(
       {transactions:['A','B','not-committed']},raw,false,'before'
     ).then(()=>({ok:true}),e=>({ok:false,message:e.message})),next.raw);
     assert.deepEqual(denied,{ok:false,message:'synthetic-v2-write-rejected-before-commit'});
+    assert.equal(await a.evaluate(()=>window.__research.writes),writesBeforeFaults);
     assert.equal(await b.evaluate(()=>localStorage.getItem(
       'financial-autonomy.preview.atomic-browser-research.v2')),next.raw);
     console.log('PASS Chromium v2 fault: pre-commit error preserves authenticated bytes with zero write');
@@ -140,6 +142,7 @@ async function main() {
       {transactions:['A','B','C']},raw,false,'after'
     ).then(()=>({ok:true}),e=>({ok:false,message:e.message})),next.raw);
     assert.deepEqual(ambiguous,{ok:false,message:'synthetic-v2-ack-lost-after-commit'});
+    assert.equal(await a.evaluate(()=>window.__research.writes),writesBeforeFaults+1);
     const committed=await b.evaluate(()=>window.__research.read());
     assert.deepEqual(committed.state,{transactions:['A','B','C']});
     assert.notEqual(committed.raw,next.raw);
