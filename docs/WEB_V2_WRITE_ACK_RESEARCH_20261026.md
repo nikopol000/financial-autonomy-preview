@@ -150,3 +150,18 @@ Candidate branch `research/web-epoch-marker-faults-20261027` extends `tests/brow
 **Alternatives and decision:** UUID shape checks prevent obvious corruption but do not close the protocol. An authenticated monotonic reset journal might provide provenance for participating clients, yet cached v1 writers and resets cannot be forced to honor it; server-free browser storage cannot guarantee cross-version atomicity or survival after user storage eviction. Therefore **keep migration blocked** until a testable compatibility boundary prevents old clients from writing/resetting the same ledger, or the product explicitly refuses migration under mixed-version conditions. Never infer a clean vault from missing/corrupt/denied markers, auto-promote stage-only data, replay ciphertext after reset or delete KEY-only evidence. No new financial semantics approved.
 
 **Remaining matrix:** well-formed but foreign marker, denied write before commit, post-commit marker acknowledgement, reload after crash, cached legacy reset during activation, storage eviction, and Safari. Assert zero unauthorized writes and preserve backup recovery paths; do not claim power-loss durability from Chromium localStorage tests.
+
+
+## 2026-10-27 — well-formed foreign epoch and denied marker write (PR #150; research only)
+
+[PR #150](https://github.com/nikopol000/financial-autonomy-preview/pull/150), initial test commit `7de64f89280e15372ebed5fa1cedabbb7c173ce2`, adds two-tab disposable localhost Chromium fault injection with native browser AES-GCM, localStorage and Web Locks. This is **not production code** and is not a verified migration. Release CI [40458659078](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40458659078) succeeded; Chromium [40458659057](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40458659057) was still running at the time of this note; do not count its tests as PASS until logs confirm.
+
+| Scenario | Expected prototype behavior | Meaning |
+| --- | --- | --- |
+| Foreign but valid UUID replaces epoch after authenticated save | Reader reports epoch mismatch; stale writer refuses and leaves ciphertext unchanged | A shape-valid marker is not proof of origin or intentional reset. |
+| Reset invoked with that foreign marker | **KNOWN UNSAFE:** prototype accepts marker and deletes v2 ciphertext | Reset must not rely on UUID syntax alone; design requires authenticated provenance and an enforceable mixed-version boundary. |
+| Epoch rotation `setItem` throws **before** commit | Epoch and ciphertext remain unchanged; prior AES-GCM record still authenticates | Separate pre-commit denial from prior write-then-throw case; do not infer successful reset from exception. |
+
+**Alternatives:** (A) single-record v2 plus UUID-only epoch is rejected as insufficient; (B) authenticated monotonic reset journal and cooperating Web Locks may guard new clients but still cannot force cached v1 tabs to participate; (C) a version-compatibility fence that provably excludes legacy writers/resetters is a prerequisite before any migration. No browser-only localStorage scheme can guarantee recovery after complete site-storage eviction. Preserve the existing v1 vault until migration is safe; never auto-delete KEY-only, restore unknown ciphertext, or resurrect intentional resets.
+
+**Next:** verify named Chromium test results, then test cached v1 reset during activation, power-loss/eviction assumptions, and the compatibility boundary. No financial formula, budget perspective (#14), backup, real data, iOS or WEB 18.54 bundle changes.
