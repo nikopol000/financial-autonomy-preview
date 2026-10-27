@@ -6,6 +6,7 @@ on:
       - '_expo/static/js/web/**'
       - 'tests/browser-vault-recovery-smoke.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
+      - 'tests/browser-v2-locks-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
@@ -15,6 +16,7 @@ on:
       - '_expo/static/js/web/**'
       - 'tests/browser-vault-recovery-smoke.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
+      - 'tests/browser-v2-locks-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
   contents: read
@@ -33,6 +35,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Real Chromium local-only encrypted backup and blocked-vault smoke
         run: node tests/browser-vault-recovery-smoke.cjs
+      - name: Research real Chromium Web Locks and cached-reset hazards (synthetic only)
+        run: node tests/browser-v2-locks-research.cjs
       - name: Audit actual blocked WEB mobile UI in light/dark (synthetic-only)
         run: node tests/browser-vault-ui-audit.cjs
       - name: Audit populated demo budgets at 320/390px light/dark and CSS zoom stress
