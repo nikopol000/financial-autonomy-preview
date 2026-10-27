@@ -113,14 +113,21 @@ async function audit(browser,url,width,scheme){
     assert.equal(await page.getByRole('button',{name:'După buget'}).count(),0,
       'Unconfigured budget page must not show irrelevant filter controls');
     await page.screenshot({path:path.join(OUT,'empty-budget-'+label+'.png'),fullPage:true});
-    assert.equal(await page.getByRole('tab',{name:'Finanțe'}).count(),1,'Finance tab missing');
-    await page.getByRole('tab',{name:'Finanțe'}).click();
-    await page.getByRole('button',{name:/^Bugete/}).click();
-    await page.getByRole('button',{name:'Adaugă categorie de buget'}).click();
+    // WEB 18.59: direct empty-state action opens the SAME existing editor.
+    // Save a disposable demo budget, then verify it is visible in Finanțe and Bugete.
+    const setup=page.getByRole('button',{name:'Configurează primul buget',exact:true});
+    assert.equal(await setup.count(),1,'Empty budget page must expose one direct setup action');
+    const setupBox=await setup.boundingBox();
+    assert.ok(setupBox&&setupBox.height>=43.5,'Budget setup target must be at least 44 CSS px tall');
+    await setup.click();
     await page.getByText('Categorie de buget',{exact:true}).waitFor({state:'visible',timeout:10000});
     await page.getByRole('textbox',{name:'Nume'}).fill('Alimente DEMO · TEST');
     await page.getByRole('textbox',{name:'Limită pentru perioada principală · RON'}).fill('2000');
     await page.getByRole('button',{name:'Salvează configurația'}).click();
+    assert.equal(await setup.count(),0,'Configured budget must no longer display the empty-state action');
+    assert.equal(await page.getByRole('tab',{name:'Finanțe'}).count(),1,'Finance tab missing');
+    await page.getByRole('tab',{name:'Finanțe'}).click();
+    await page.getByRole('button',{name:/^Bugete/}).click();
     await page.getByText('Alimente DEMO · TEST',{exact:true}).waitFor({state:'visible',timeout:10000});
     const englishPrimaryRow=await page.getByText(/Primary ·/).count();
     const romanianPrimaryRow=await page.getByText(/Perioada principală ·/).count();
