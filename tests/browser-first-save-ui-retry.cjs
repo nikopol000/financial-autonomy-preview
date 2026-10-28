@@ -138,6 +138,46 @@ async function caseReloadBeforeRetry(browser,url){
     console.log('PASS #35 actual Chromium WEB UI: reload before retry blocks and preserves orphan bytes at 320px dark');
   }finally{await context.close();}
 }
+// #35: a genuine encrypted payload can survive without its key (for example,
+// external deletion). The blocked UI must never treat that ciphertext as a
+// fresh installation or erase it. This uses the actual WEB editor and AES-GCM
+// rather than a fabricated malformed envelope; all data is synthetic.
+async function casePayloadOnlyPreserved(browser,url){
+  const context=await browser.newContext({viewport:{width:390,height:844},
+    isMobile:true,hasTouch:true,colorScheme:'light',timezoneId:'Europe/Bucharest'});
+  const page=await context.newPage();
+  try{
+    await openReal(page,url);
+    assert.deepEqual(await bytes(page),[null,null,null]);
+    await beginBudget(page,'Buget sintetic cu cheie absentă');
+    await page.getByRole('button',{name:'Salvează configurația'}).click();
+    await page.waitForFunction(payload=>Boolean(localStorage.getItem(payload)),PAYLOAD,
+      {timeout:20000});
+    const committed=await bytes(page);
+    assert.match(committed[0],/^[0-9a-f]{64}$/,'A real AES key must exist before fault injection');
+    assert.ok(committed[1]&&committed[1].length>50,'Real ciphertext must be committed');
+    const verified=await page.evaluate(()=>window.__r(310).loadWebVault(localStorage));
+    assert.ok(verified.monthPlans.some(m=>m.budgets?.some(b=>
+      b.name==='Buget sintetic cu cheie absentă')),
+      'Payload must authenticate before deliberate key removal');
+    await page.evaluate(key=>localStorage.removeItem(key),KEY);
+    const payloadOnly=await bytes(page);
+    assert.deepEqual(payloadOnly,[null,committed[1],committed[2]]);
+    await openReal(page,url);
+    await page.getByText('Datele locale nu pot fi deschise',{exact:true})
+      .waitFor({state:'visible',timeout:20000});
+    assert.equal(await page.getByRole('button',{name:'Reîncearcă prima salvare'}).count(),0,
+      'Missing key must not advertise first-save retry');
+    assert.deepEqual(await bytes(page),payloadOnly,
+      'Blocked load must preserve authenticated ciphertext with missing key');
+    await page.getByRole('button',{name:'Reîncearcă deschiderea'}).click();
+    await page.getByText('Datele locale nu pot fi deschise',{exact:true})
+      .waitFor({state:'visible',timeout:20000});
+    assert.deepEqual(await bytes(page),payloadOnly,
+      'Blocked UI retry must not delete ciphertext or recreate a key');
+    console.log('PASS #35 actual Chromium WEB UI: authenticated PAYLOAD-only vault blocks and preserves ciphertext across reload and retry');
+  }finally{await context.close();}
+}
 // The 120-second in-memory retry is deliberately non-durable. Verify that a
 // real Chromium timer expiry revokes authority without deleting the orphan
 // key, and that the existing blocked-vault guidance survives a reload.
@@ -306,6 +346,7 @@ async function caseLifecycleRevokesRetry(browser,url,kind){
     const url='http://127.0.0.1:'+server.address().port+PREFIX+'?fa_real=1';
     await caseLiveRetry(browser,url);
     await caseReloadBeforeRetry(browser,url);
+    await casePayloadOnlyPreserved(browser,url);
     await caseExpiryBeforeRetry(browser,url);
     await caseLifecycleRevokesRetry(browser,url,'visibilitychange');
     await caseLifecycleRevokesRetry(browser,url,'pagehide');
