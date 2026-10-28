@@ -1,3 +1,11 @@
+## WEB 18.61 — 2026-10-28 — evidence-based premium UX benchmark, DISCOVERY ONLY
+
+- **START HEAD:** `91a6abe8f0d340961e9bda0ea0ea1f6f68333d74`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, `docs/WEB_VISUAL_REVIEW.md` (root path absent), nine open issues including #14/#17/#25 and P1 #35/#29/#4, current HTML and immutable WEB 18.61 bundle.
+- **DONE RESEARCH:** [Premium UX benchmark](docs/WEB_PREMIUM_UX_BENCHMARK_20261028.md) documents official Actual/Monarch budget models, a 2026 YNAB product announcement, dated real community feedback and explicit anecdote limits. Distinguishes planned category remainder, cash after obligations, forecast, and unexplained observed balance; gives safe copy/layout hypotheses and #14 approval gate. No new user preference was invented.
+- **P1 STATUS CHECK:** active WEB 18.61 module 309 already fails closed for real-vault save/reset without Web Locks and shows a read-only notice; #4 risk is primarily cached legacy-tab participation, not an unmitigated current no-lock fallback. #35 KEY-only provenance and #29/v2 reset migration remain unresolved. Existing 62/62 synthetic tests from PR #210 are historical CI evidence, **not rerun by this docs-only branch**.
+- **PRODUCT:** no HTML, immutable JS, formula, vault, backup or iOS changes; version remains **18.61**. Benchmark is not browser testing, user research or release validation. Vercel production READY 18.61 from earlier checkpoint, no new product deployment required.
+- **FIRST UNFINISHED:** open PR, verify its exact commit Release CI/Pages, merge only if checks pass, then verify final main SHA; inspect #85 Chromium geometry artifact and current populated UX; continue #35/#29/#4 integrity risks. #14 perspectives remain DISCOVERY ONLY until explicit numeric approval.
+
 ## WEB 18.61 — 2026-10-28 — #35 foreign KEY replacement retry race, candidate verified
 
 - **START HEAD:** `a96b1d31d735103e8db7916ff9512338d4f0cab5`; read real HEAD, AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, `docs/WEB_VISUAL_REVIEW.md` (root path absent), all nine open issues including DISCOVERY #14/#17/#25, and active 18.61 HTML/immutable bundle. No iOS access.
