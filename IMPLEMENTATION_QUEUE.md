@@ -1,3 +1,8 @@
+## WEB 18.61 — 2026-10-28 — benchmark merged / research issue updated
+
+- **DONE:** [PR #212](https://github.com/nikopol000/financial-autonomy-preview/pull/212) merged `baa48593e98be43c7d28122a697596c89fc6c840`, candidate [Release #40676618457](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40676618457) SUCCESS; evidence-based UX benchmark documented and #14/#4 comments posted. No product change or version bump.
+- **NEXT:** verify final exact-SHA CI/Pages; inspect #85 current populated geometry and Safari accessibility; select measurable copy/layout enhancement. #35/#29/#4 remain integrity P1; #14 stays **DISCOVERY / NO FORMULA OR MODE IMPLEMENTATION** pending explicit numeric contract. No iOS, user ledger, backup or backend changes.
+
 ## WEB 18.61 — 2026-10-28 — premium UX research checkpoint (nonurgent DISCOVERY)
 
 - **DONE DISCOVERY:** [2026-10-28 premium benchmark](docs/WEB_PREMIUM_UX_BENCHMARK_20261028.md): verified official approaches (Actual tracking/envelope and forecast, Monarch flex/category), dated Reddit feedback on confusing numbers, annual expenses, missing manual entries and account overload. Feedback is anecdotal; no inferred majority preference. Recommend visible source/period labels, progressive disclosure and low-friction return; do not copy UI.
