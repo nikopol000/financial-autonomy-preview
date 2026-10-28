@@ -13,6 +13,9 @@ const html = fs.readFileSync('index.html', 'utf8');
 const activePath = html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=/)?.[1];
 assert.ok(activePath, 'Active WEB bundle path missing');
 const sources = [LEGACY, GUARDED, activePath].map(p => fs.readFileSync(p, 'utf8'));
+// P1 #4: actual archived immutable versions, not mocked legacy behavior.
+const EARLY_1827 = fs.readFileSync('_expo/static/js/web/index-v01827-vault-orphan-guard-20261023.js', 'utf8');
+const GUARDED_1834 = fs.readFileSync('_expo/static/js/web/index-v01834-multitab-vault-guard-20261024.js', 'utf8');
 const KEY = 'financial-autonomy.preview.key.v1';
 const PAYLOAD = 'financial-autonomy.preview.payload.v1';
 const RESET = 'financial-autonomy.preview.reset.v1';
@@ -209,5 +212,52 @@ const entry=(id)=>({id,kind:'expense',amount:100,date:'2026-10-28',accountId:'sy
   assert.deepEqual(clone(await modernV2ABA.load()).transactions.map(t=>t.id),
     ['v2-authoritative'],'Isolated v2 stays authoritative despite v1 ABA');
   console.log('PASS PROTOTYPE ONLY: v1 ABA raw-byte restoration defeats tuple fingerprint; no complete legacy-edit detection');
-  console.log('7/7 cross-version synthetic characterizations passed: 2 KNOWN UNSAFE, 1 FAIL CLOSED, 4 RESEARCH-ONLY');
+  // KNOWN UNSAFE: WEB 18.27 predates any cooperating-tab revision fencing.
+  // Keep this test separate from 18.33: the older immutable release is a
+  // realistic cached writer and must be included in a future v2 migration gate.
+  const s7=storage(),legacy27=tab(EARLY_1827,s7),modern7=tab(sources[2],s7,locks());
+  const stale27=clone(await legacy27.load());
+  await legacy27.save({...stale27,transactions:[entry('early27-baseline')]});
+  const snapshot27=clone(await modern7.load());
+  await modern7.save({...snapshot27,transactions:[...snapshot27.transactions,entry('modern-after-27')]});
+  assert.deepEqual(clone(await modern7.load()).transactions.map(t=>t.id),
+    ['early27-baseline','modern-after-27']);
+  await legacy27.save({...stale27,transactions:[entry('early27-stale')]});
+  assert.deepEqual(clone(await modern7.load()).transactions.map(t=>t.id),['early27-stale'],
+    'KNOWN UNSAFE: cached 18.27 overwrites a newer 18.62 transaction');
+  console.log('PASS KNOWN UNSAFE: cached 18.27 stale save overwrites modern ledger');
+
+  // Partial mitigation: cached WEB 18.34 knows revisions and Web Locks, so a
+  // sequential stale write is rejected without mutating the current ciphertext.
+  const s8=storage(),modern8=tab(sources[2],s8,locks()),guarded34=tab(GUARDED_1834,s8,locks());
+  await modern8.load();
+  await modern8.save({...empty(),transactions:[entry('initial-34')]});
+  const stale34=clone(await guarded34.load());
+  await modern8.save({...empty(),transactions:[entry('modern-after-34')]});
+  const ciphertextBefore=s8.getItem(PAYLOAD),writesBefore=s8.writes;
+  await assert.rejects(guarded34.save({...stale34,transactions:[...stale34.transactions,entry('stale34')]}),
+    /modificate|filă|Reîncarcă/i);
+  assert.equal(s8.writes,writesBefore,'18.34 must not write after rejecting stale revision');
+  assert.equal(s8.getItem(PAYLOAD),ciphertextBefore,'18.34 must preserve current ciphertext');
+  assert.deepEqual(clone(await modern8.load()).transactions.map(t=>t.id),['modern-after-34']);
+  console.log('PASS PARTIAL GUARD: 18.34 rejects sequential stale save with zero writes');
+
+  // KNOWN UNSAFE: WEB 18.34 has no knowledge of WEB 18.62 idle-v2 reset marker.
+  // After explicitly reloading the old client, the v1 KEY/PAYLOAD tuple appears
+  // empty and a new first save may recreate a ledger despite the modern tombstone.
+  const s9=storage(),modern9=tab(sources[2],s9,locks()),guarded34Reset=tab(GUARDED_1834,s9,locks());
+  await modern9.load();
+  await modern9.save({...empty(),transactions:[entry('pre-reset-34')]});
+  await modern9.resetData();
+  const resetEpoch34=s9.getItem(RESET);
+  assert.match(resetEpoch34,/^idle-v2:[0-9a-f]{32}$/);
+  const oldAfterReset=clone(await guarded34Reset.load());
+  assert.deepEqual(oldAfterReset.transactions,[],'18.34 sees empty v1 tuple after modern reset');
+  await guarded34Reset.save({...oldAfterReset,transactions:[entry('resurrected-by-34')]});
+  assert.equal(s9.getItem(RESET),resetEpoch34,'18.34 does not erase modern reset marker');
+  assert.deepEqual(clone(await modern9.load()).transactions.map(t=>t.id),['resurrected-by-34'],
+    'KNOWN UNSAFE: cached 18.34 can resurrect data after 18.62 reset');
+  console.log('PASS KNOWN UNSAFE: cached 18.34 first save resurrects after modern reset');
+
+  console.log('10/10 cross-version synthetic characterizations passed: 4 KNOWN UNSAFE, 1 FAIL CLOSED, 1 PARTIAL GUARD, 4 RESEARCH-ONLY');
 })().catch(err=>{console.error(err);process.exitCode=1});
