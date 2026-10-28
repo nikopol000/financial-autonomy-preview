@@ -232,3 +232,37 @@ test('v2 reset tombstone: explicit restore commits atomically; stale v1 cannot a
   assert.notDeepEqual(v1bytes(s),original,'legacy divergence deliberately retained');
   console.log('PASS RESEARCH ONLY: explicit post-reset restore; legacy resurrection never becomes authority');
 });
+
+
+test('existing v2 revision survives interrupted explicit replacement until atomic commit',async()=>{
+  const {validated}=await makeBackup();
+  const second=clone(validated);
+  second.transactions.push({id:'synthetic-second',kind:'expense',amount:175,
+    accountId:'synthetic-checking',date:'2026-10-28'});
+  const reference=fixture();
+  confirmRestore(reference,validated,opts(reference,'initial'));
+  reference.disarm();
+  confirmRestore(reference,second,opts(reference,'replacement'));
+  const operations=reference.trace;
+  const final=operations.findLastIndex(x=>x.op==='set'&&x.key===AUTH);
+  assert.equal(final,operations.length-1);
+  let cases=0;
+  for(let i=0;i<operations.length;i++)for(const phase of operations[i].op==='set'?['before','after']:['before']){
+    const s=fixture(),original=v1bytes(s);
+    confirmRestore(s,validated,opts(s,'initial'));
+    const priorAuth=s.data.get(AUTH),priorStage=s.data.get(STAGE+'initial');
+    s.arm(i,phase);
+    assert.throws(()=>confirmRestore(s,second,opts(s,'replacement')),/INJECTED/);
+    s.disarm();
+    const committed=i===final&&phase==='after';
+    const current=readAuthority(s);
+    assert.equal(current.source,'v2');
+    assert.deepEqual(clone(current.value),committed?second:validated);
+    assert.equal(s.data.get(STAGE+'initial'),priorStage,'previous stage must not be overwritten');
+    if(!committed)assert.equal(s.data.get(AUTH),priorAuth,'previous authority retained');
+    assert.deepEqual(v1bytes(s),original,'original v1 bytes never changed');
+    cases++;
+  }
+  assert.ok(cases>=10);
+  console.log('PASS RESEARCH ONLY: '+cases+' replacement faults; previous v2 revision and v1 preserved');
+});
