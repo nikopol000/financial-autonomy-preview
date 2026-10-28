@@ -208,6 +208,22 @@ async function main() {
     assert.equal(await b.evaluate(()=>window.__restoreResearch.writes),writesBeforeRetry);
     console.log('PASS real Chromium: commit-then-throw is readable; stale retry writes nothing');
 
+    // Cached legacy reset/deletion can leave a KEY-only v1 tuple. The v2
+    // authority must stay readable and must not silently adopt or delete v1.
+    await b.evaluate(({V1PAY})=>localStorage.removeItem(V1PAY),{V1PAY});
+    await waitLegacy(a,null);
+    const v1KeyOnly=await a.evaluate(()=>window.__restoreResearch.read());
+    assert.equal(v1KeyOnly.source,'v2');
+    assert.equal(v1KeyOnly.legacyDiverged,true);
+    assert.deepEqual(v1KeyOnly.state,{transactions:['A','B','C']});
+    const writesBeforeKeyOnly=await a.evaluate(()=>window.__restoreResearch.writes);
+    assert.deepEqual(await a.evaluate(raw=>window.__restoreResearch.reset(raw,true),
+      committed.authority),{ok:false,reason:'legacy-diverged'});
+    assert.equal(await a.evaluate(()=>window.__restoreResearch.writes),writesBeforeKeyOnly);
+    await b.evaluate(({V1PAY})=>localStorage.setItem(V1PAY,'synthetic-legacy-ciphertext'),{V1PAY});
+    await waitLegacy(a,'synthetic-legacy-ciphertext');
+    console.log('PASS real Chromium: legacy KEY-only divergence preserves v2 and blocks reset');
+
     await b.evaluate(({V1PAY})=>localStorage.setItem(V1PAY,'cached-tab-change'),{V1PAY});
     await waitLegacy(a,'cached-tab-change');
     assert.equal((await a.evaluate(()=>window.__restoreResearch.read())).legacyDiverged,true);
