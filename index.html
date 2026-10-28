@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <meta name="financial-autonomy-version" content="18.60" />
+    <meta name="financial-autonomy-version" content="18.61" />
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="Financial Autonomy — bugete, conturi și claritate financiară, cu date păstrate local." />
@@ -34,6 +34,11 @@
         outline: 3px solid #159cb4 !important;
         outline-offset: 3px;
       }
+      /* RN Web can reset outline-width to zero on tab Pressables.
+         Keep keyboard focus perceptible INSIDE mobile navigation hit targets. */
+      #root [role="tab"]:focus-visible {
+        box-shadow: inset 0 0 0 3px #159cb4 !important;
+      }
       @media (forced-colors: active) {
         #root :is(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible {
           outline-color: Highlight !important;
@@ -59,6 +64,6 @@
     </noscript>
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
-  <script src="/financial-autonomy-preview/_expo/static/js/web/index-v01860-compact-demo-warning-20261028.js?build=18.60.1" defer></script>
+  <script src="/financial-autonomy-preview/_expo/static/js/web/index-v01861-keyboard-tab-focus-20261028.js?build=18.61.1" defer></script>
 </body>
 </html>
