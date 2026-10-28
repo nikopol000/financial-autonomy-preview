@@ -46,3 +46,19 @@ The primary practical goal here is isolation from **noncooperating but nonmalici
 - **Require manual export/import before migration** (fallback): simpler but risky for users who lack a backup and may lose unsaved divergent edits; not acceptable as the only recovery mechanism.
 
 **Next engineering step:** validate immutable 18.27/18.34 behavior in CI, then build a research-only *real module-311 portable backup* compatibility test and a fail-closed explicit restore fault matrix. Production storage migration remains gated on browser tests and recovery UX. Issue #14 budget perspectives remains ANALYSIS ONLY pending explicit financial contract approval.
+
+
+## Research implementation evidence — 2026-10-28, candidate PR #230
+
+**No product behavior changed.** The test file tests/vault-v2-portable-backup-restore-research.cjs loads the *actual* immutable WEB 18.62 Metro module 311 and module 310 in a Node VM with synthetic v4 accounts/transactions. It uses the real 600,000-round PBKDF2-SHA256 and AES-GCM backup operations, rather than substituting a fake backup implementation.
+
+- Round-trip preserves the synthetic ledger and does not expose its account identifier in the backup JSON. A full-width character in the password round-trips through NFKC normalization. Wrong password, unsupported version/KDF, truncated salt/nonce, altered authenticated ciphertext, malformed JSON, oversize file and a separately generated **authentic AES-GCM file containing an invalid financial state** are rejected before any local-storage write.
+- A separate **research-only** v2 stage/authority model requires explicit confirmation, simulated Web Locks availability, exact expected authority and a v1 baseline check. It never modifies the original v1 key, ciphertext or reset marker. A staged envelope is authenticated by AES-GCM; its SHA-256 fingerprint detects accidental changes but does **not** authenticate the authority pointer or establish provenance.
+- The v1→v2 fault matrix injects read/write failures **before each storage operation** and **after each write**, including write-then-throw on the final single-key authority commit. Reload selects v1 until the authority commit persists; after commit, it selects v2. An explicit restore after a v2 reset tombstone does not auto-import a stale v1 ledger.
+- A second replacement matrix checks that an existing v2 stage/revision is never overwritten by an interrupted restore and that old v1 bytes remain unchanged. This is a **prototype** using isolated research keys, not a deployed migration or production restore controller.
+
+**Verification:** the first four research tests passed in [candidate Release CI #40750420540](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40750420540): **4/4**, including **14** injected initial migration faults. The additional active-v2 replacement test was added afterward; its exact-SHA CI result must be checked before claiming it passed or merging.
+
+**Remaining safety gates:** actual Web Locks and two-tab Chromium/Safari, stale cached 18.27/18.33/18.34 conflict behavior, reset and recovery UI, revision/epoch provenance, failed storage reads on reload, interrupted multi-revision retention, and a verified production v2 migration are **not** established. The prototype's key material lives with the staged envelope and is **not** secure against malicious same-origin code. A v1 digest cannot detect ABA/transient changes. The current WEB 18.62 v1 cached-tab overwrite/resurrection vulnerabilities remain **KNOWN UNSAFE**.
+
+**Alternatives:** (a) keep v1 as sole live authority (current, known risk); (b) migrate to an isolated v2 namespace with atomic pointer and explicit divergence recovery (research direction); (c) silently merge by timestamp/fingerprint (reject: ambiguous intent and ABA). Do not implement (b) until the unresolved acceptance gates are met. This does not authorize changes to budget issue #14 or any financial formula.
