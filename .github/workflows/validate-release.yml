@@ -86,6 +86,8 @@ jobs:
         run: node tests/vault-cached-legacy-cross-version.cjs
       - name: Research-only v2 staged authority and crash fault matrix (NOT PRODUCTION)
         run: node --test tests/vault-v2-authority-crash-matrix-prototype.cjs
+      - name: Research-only actual portable backup and v2 restore fault matrix (NOT PRODUCTION)
+        run: node --test tests/vault-v2-portable-backup-restore-research.cjs
       - name: WEB 18.54 expiry of sensitive first-save retry handle (immutable diff)
         run: node tests/first-save-expiry-v1854-regression.cjs
       - name: WEB 18.54 real AES-GCM bounded first-save retry regression
