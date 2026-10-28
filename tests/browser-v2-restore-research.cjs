@@ -208,6 +208,37 @@ async function main() {
     assert.equal(await b.evaluate(()=>window.__restoreResearch.writes),writesBeforeRetry);
     console.log('PASS real Chromium: commit-then-throw is readable; stale retry writes nothing');
 
+    // RESEARCH-ONLY counterexamples: the current authority pointer is a
+    // plain localStorage value. A retained, valid older stage can be replayed
+    // by explicit storage rollback; a digest of the stage does not authenticate
+    // authority metadata or establish a monotonic epoch.
+    const priorAuthority=replacement.authority;
+    await b.evaluate(({AUTH,priorAuthority})=>
+      localStorage.setItem(AUTH,priorAuthority),{AUTH,priorAuthority});
+    await waitAuthority(a,priorAuthority);
+    assert.deepEqual((await a.evaluate(()=>window.__restoreResearch.read())).state,
+      {transactions:['A','B']});
+    await b.evaluate(({AUTH,ackAuthority})=>
+      localStorage.setItem(AUTH,ackAuthority),{AUTH,ackAuthority});
+    await waitAuthority(a,ackAuthority);
+    assert.deepEqual((await a.evaluate(()=>window.__restoreResearch.read())).state,
+      {transactions:['A','B','C']});
+    console.log('PASS KNOWN LIMITATION: valid older authority replay rolls back the visible ledger');
+
+    const alteredAuthority=JSON.stringify({...JSON.parse(ackAuthority),
+      epoch:'synthetic-untrusted-epoch'});
+    await b.evaluate(({AUTH,alteredAuthority})=>
+      localStorage.setItem(AUTH,alteredAuthority),{AUTH,alteredAuthority});
+    await waitAuthority(a,alteredAuthority);
+    assert.deepEqual((await a.evaluate(()=>window.__restoreResearch.read())).state,
+      {transactions:['A','B','C']});
+    assert.equal((await a.evaluate(()=>window.__restoreResearch.read())).authority,
+      alteredAuthority);
+    await b.evaluate(({AUTH,ackAuthority})=>
+      localStorage.setItem(AUTH,ackAuthority),{AUTH,ackAuthority});
+    await waitAuthority(a,ackAuthority);
+    console.log('PASS KNOWN LIMITATION: unauthenticated authority epoch is accepted after alteration');
+
     // Cached legacy reset/deletion can leave a KEY-only v1 tuple. The v2
     // authority must stay readable and must not silently adopt or delete v1.
     await b.evaluate(({V1PAY})=>localStorage.removeItem(V1PAY),{V1PAY});
