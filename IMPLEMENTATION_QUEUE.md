@@ -1,3 +1,8 @@
+## WEB 18.62 candidate — 2026-10-28 — factual copy/layout hierarchy, awaiting verification
+
+- **IN PROGRESS:** `feat/web-v1862-budget-copy-clarity-20261028` from confirmed main `71e39eb3`; immutable 18.62 bundle and active-candidate HTML version/build/diagnostic synchronized. Three non-financial strings only: Bugete planned-vs-recorded intro, `SECȚIUNI` eyebrow, `Mai mult` heading. Strict whole-bundle exact-diff guard and actual Chromium synthetic UI assertions added to CI. This addresses #17 clarity and 2026-10-28 premium benchmark without implementing #14 perspectives.
+- **NEXT:** candidate PR Release + Chromium tests; merge only after SUCCESS; verify final main SHA, Vercel production exact artifact, served browser and diagnostic name. If any step unverified, record as such. Continue P1 #35 KEY-only provenance, #29 partial reset, #4 legacy tabs; #85 real Safari/VoiceOver remains open. No formulas, real data, encrypted backup, iOS, backend or telemetry changed.
+
 ## WEB 18.61 — 2026-10-28 — benchmark merged / research issue updated
 
 - **DONE:** [PR #212](https://github.com/nikopol000/financial-autonomy-preview/pull/212) merged `baa48593e98be43c7d28122a697596c89fc6c840`, candidate [Release #40676618457](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40676618457) SUCCESS; evidence-based UX benchmark documented and #14/#4 comments posted. No product change or version bump.
