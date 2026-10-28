@@ -248,7 +248,11 @@ async function audit(browser,url,width,scheme){
     await page.screenshot({path:path.join(OUT,'home-calculation-'+label+'.png'),fullPage:true});
     // WEB 18.58: an unconfigured budget must not masquerade as a calculated 0/0 limit.
     await page.getByRole('tab',{name:'Mai mult'}).click();
+    // WEB 18.62: navigation and planning copy is short, factual, and non-coaching.
+    await page.getByText('SECȚIUNI',{exact:true}).waitFor({state:'visible',timeout:10000});
     await page.getByText('Bugete',{exact:true}).last().click();
+    await page.getByText('Limite planificate și cheltuieli înregistrate, pe fiecare perioadă.',{exact:true})
+      .waitFor({state:'visible',timeout:10000});
     await page.getByText('Buget neconfigurat',{exact:true}).waitFor({state:'visible',timeout:10000});
     assert.equal(await page.getByText('Buget azi',{exact:true}).count(),0,
       'No daily budget result card may appear before a budget is configured');
