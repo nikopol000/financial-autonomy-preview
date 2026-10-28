@@ -40,6 +40,23 @@ function storage(){
     get data(){return data}
   };
 }
+// RESEARCH-ONLY adapter: redirects modern v1 API calls to separate synthetic v2 keys.
+// This is NOT a migration implementation, production key format or recovery algorithm.
+function researchV2View(backing){
+  const names=new Map([
+    [KEY,'financial-autonomy.preview.research.key.v2'],
+    [PAYLOAD,'financial-autonomy.preview.research.payload.v2'],
+    [RESET,'financial-autonomy.preview.research.reset.v2']
+  ]);
+  const map=k=>names.get(k)??k;
+  return {
+    getItem:k=>backing.getItem(map(k)),
+    setItem:(k,v)=>backing.setItem(map(k),v),
+    removeItem:k=>backing.removeItem(map(k)),
+    key:i=>backing.key(i),
+    get length(){return backing.length}
+  };
+}
 function locks(){
   let tail=Promise.resolve();
   return {request(name,opts,fn){
@@ -118,5 +135,40 @@ const entry=(id)=>({id,kind:'expense',amount:100,date:'2026-10-28',accountId:'sy
   assert.deepEqual(clone(s2.data),before);
   assert.equal(s2.writes,writes);
   console.log('PASS FAIL CLOSED: 18.49 guarded cached tab cannot consume 18.62 idle-v2 reset marker');
-  console.log('3/3 cross-version synthetic characterizations passed; two demonstrate REAL RESIDUAL RISK');
+  // PROTOTYPE ONLY: a separate authoritative v2 namespace is invisible to cached v1 writers.
+  // This proves isolation of names, NOT crash-safe migration or detection of all divergent v1 writes.
+  const s3=storage(),legacy3=tab(sources[0],s3),modernV2=tab(sources[2],researchV2View(s3),locks());
+  await legacy3.load();
+  await legacy3.save({...empty(),transactions:[entry('v1-before-cutover')]});
+  await modernV2.load();
+  await modernV2.save({...empty(),transactions:[entry('v2-authoritative')]});
+  const v2Bytes=s3.getItem('financial-autonomy.preview.research.payload.v2');
+  assert.ok(v2Bytes,'Research v2 ciphertext must exist');
+  const v1Before=s3.getItem(PAYLOAD);
+  await legacy3.save({...empty(),transactions:[entry('v1-divergent-after-cutover')]});
+  assert.notEqual(s3.getItem(PAYLOAD),v1Before,'Legacy write diverges from cutover v1 snapshot');
+  assert.equal(s3.getItem('financial-autonomy.preview.research.payload.v2'),v2Bytes,
+    'Legacy v1 writer cannot overwrite isolated v2 ciphertext');
+  assert.deepEqual(clone(await modernV2.load()).transactions.map(t=>t.id),['v2-authoritative']);
+  assert.deepEqual(clone(await legacy3.load()).transactions.map(t=>t.id),['v1-divergent-after-cutover']);
+  console.log('PASS PROTOTYPE ONLY: v2 namespace isolates ciphertext, while divergent v1 edits remain and need explicit conflict handling');
+
+  const s4=storage(),legacy4=tab(sources[0],s4),modernV2Reset=tab(sources[2],researchV2View(s4),locks());
+  await legacy4.load();
+  await legacy4.save({...empty(),transactions:[entry('v1-before-reset')]});
+  await modernV2Reset.load();
+  await modernV2Reset.save({...empty(),transactions:[entry('v2-before-reset')]});
+  await modernV2Reset.resetData();
+  const v2Epoch=s4.getItem('financial-autonomy.preview.research.reset.v2');
+  assert.match(v2Epoch,/^idle-v2:[0-9a-f]{32}$/);
+  await legacy4.save({...empty(),transactions:[entry('v1-resurrected-after-v2-reset')]});
+  assert.deepEqual(clone(await modernV2Reset.load()).transactions,[],
+    'Legacy v1 resurrection cannot be promoted to authoritative v2 after reset');
+  assert.equal(s4.getItem('financial-autonomy.preview.research.payload.v2'),null);
+  assert.equal(s4.getItem('financial-autonomy.preview.research.reset.v2'),v2Epoch);
+  await legacy4.resetData();
+  assert.equal(s4.getItem('financial-autonomy.preview.research.reset.v2'),v2Epoch,
+    'Legacy v1 reset cannot erase isolated v2 tombstone');
+  console.log('PASS PROTOTYPE ONLY: cached v1 save/reset cannot resurrect or clear isolated v2 after v2 reset');
+  console.log('5/5 cross-version synthetic characterizations passed: 2 KNOWN UNSAFE, 1 FAIL CLOSED, 2 RESEARCH-ONLY namespace isolation');
 })().catch(err=>{console.error(err);process.exitCode=1});
