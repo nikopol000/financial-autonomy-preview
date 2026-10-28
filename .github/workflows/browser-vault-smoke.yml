@@ -19,6 +19,7 @@ on:
       - 'tests/browser-first-save-ui-retry.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
       - 'tests/browser-v2-locks-research.cjs'
+      - 'tests/browser-populated-budget-audit.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
   contents: read

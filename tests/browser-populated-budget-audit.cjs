@@ -67,16 +67,19 @@ async function navFootprint(page){
     },name);
     tabs.push({name,hitTarget:box,text});
   }
-  const textOverlapPairs=[];
+  const textOverlapPairs=[],hitTargetOverlapPairs=[];
   for(let i=0;i<tabs.length;i++)for(let j=i+1;j<tabs.length;j++){
     const area=overlapArea(tabs[i].text,tabs[j].text);
     if(area>0)textOverlapPairs.push({a:tabs[i].name,b:tabs[j].name,areaCssPx2:area});
+    // A non-overlapping label is insufficient if two pressable targets overlap.
+    const hitArea=overlapArea(tabs[i].hitTarget,tabs[j].hitTarget);
+    if(hitArea>1)hitTargetOverlapPairs.push({a:tabs[i].name,b:tabs[j].name,areaCssPx2:hitArea});
   }
   const textOutsideHitTarget=tabs.filter(t=>t.text&&(
     t.text.x<t.hitTarget.x-1||
     t.text.x+t.text.width>t.hitTarget.x+t.hitTarget.width+1
   )).map(t=>t.name);
-  return {tabs,textOverlapPairs,textOutsideHitTarget,
+  return {tabs,textOverlapPairs,hitTargetOverlapPairs,textOutsideHitTarget,
     caveat:'Text-node rectangles and CSS zoom are Chromium diagnostics, not Safari Dynamic Type certification'};
 }
 
@@ -96,19 +99,29 @@ async function keyboardNavFocus(page){
       outlineWidthPx:parseFloat(css.outlineWidth)||0,tag:el.tagName,
       tabindex:el.getAttribute('tabindex'),insideRoot:document.getElementById('root')?.contains(el),
       cssSelectorMatch:el.matches('#root :is(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible'),
-      outlineColor:css.outlineColor,boxShadow:css.boxShadow};
+      outlineColor:css.outlineColor,boxShadow:css.boxShadow,
+      // Focus can have a ring but still be covered by a fixed overlay.
+      centerExposed:(()=>{
+        const r=el.getBoundingClientRect();
+        const x=r.left+r.width/2,y=r.top+r.height/2;
+        if(x<0||x>=innerWidth||y<0||y>=innerHeight)return false;
+        const hit=document.elementFromPoint(x,y);
+        return !!hit&&(el===hit||el.contains(hit));
+      })()};
   });
   await page.keyboard.press('Tab');
   const forward=await inspect();
   assert.equal(forward.label,'Finanțe','Tab must reach next distinct navigation destination');
   assert.equal(forward.role,'tab','Keyboard focus must remain on a navigation tab');
   assert.equal(forward.focusVisible,true,'Keyboard-focused tab must match :focus-visible');
+  assert.equal(forward.centerExposed,true,'Focused Finanțe tab must not be occluded at its center');
   assert.ok((forward.outlineStyle!=='none'&&forward.outlineWidthPx>=2)||forward.boxShadow.includes('inset'),
     'Keyboard-focused navigation tab must have a visible ring: '+JSON.stringify(forward));
   await page.keyboard.press('Shift+Tab');
   const backward=await inspect();
   assert.equal(backward.label,'Acasă','Shift+Tab must return to previous navigation destination');
   assert.equal(backward.focusVisible,true,'Reverse keyboard focus must remain visibly indicated');
+  assert.equal(backward.centerExposed,true,'Focused Acasă tab must not be occluded at its center');
   assert.ok((backward.outlineStyle!=='none'&&backward.outlineWidthPx>=2)||backward.boxShadow.includes('inset'),
     'Reverse keyboard focus must have a visible ring: '+JSON.stringify(backward));
   return {forward,backward,caveat:'Chromium keyboard CSS focus, not Safari or VoiceOver'};
@@ -188,6 +201,7 @@ async function audit(browser,url,width,scheme){
     const navNormal=await navFootprint(page);
     const focusNormal=await keyboardNavFocus(page);
     assert.deepEqual(navNormal.textOverlapPairs,[], 'Navigation text must not overlap at normal size');
+    assert.deepEqual(navNormal.hitTargetOverlapPairs,[], 'normal navigation pressable targets must not overlap');
     assert.deepEqual(navNormal.textOutsideHitTarget,[], 'Navigation labels must fit their hit targets at normal size');
     const normal=await page.evaluate(()=>{
       const root=document.documentElement;
@@ -201,6 +215,7 @@ async function audit(browser,url,width,scheme){
     await page.screenshot({path:path.join(OUT,'populated-budget-'+label+'-csszoom200.png'),fullPage:true});
     const navZoom=await navFootprint(page);
     assert.deepEqual(navZoom.textOverlapPairs,[], 'Navigation labels must not overlap at 200% CSS zoom');
+    assert.deepEqual(navZoom.hitTargetOverlapPairs,[], '200% CSS zoom navigation pressable targets must not overlap');
     assert.deepEqual(navZoom.textOutsideHitTarget,[], 'Navigation labels must fit hit targets at 200% CSS zoom');
     const zoom=await page.evaluate(()=>({
       viewport:innerWidth,documentScrollWidth:document.documentElement.scrollWidth,
@@ -215,6 +230,7 @@ async function audit(browser,url,width,scheme){
     const navNarrow=await navFootprint(page);
     const focusNarrow=await keyboardNavFocus(page);
     assert.deepEqual(navNarrow.textOverlapPairs,[], 'Narrow layout navigation must not overlap');
+    assert.deepEqual(navNarrow.hitTargetOverlapPairs,[], 'half-width navigation pressable targets must not overlap');
     assert.deepEqual(navNarrow.textOutsideHitTarget,[], 'Narrow layout navigation labels must stay within targets');
     const narrowRows=new Set(navNarrow.tabs.map(t=>Math.round(t.hitTarget.y))).size;
     assert.ok(narrowRows>=2,'Extremely narrow navigation must wrap into at least two rows');
