@@ -138,6 +138,47 @@ async function caseReloadBeforeRetry(browser,url){
     console.log('PASS #35 actual Chromium WEB UI: reload before retry blocks and preserves orphan bytes at 320px dark');
   }finally{await context.close();}
 }
+// The 120-second in-memory retry is deliberately non-durable. Verify that a
+// real Chromium timer expiry revokes authority without deleting the orphan
+// key, and that the existing blocked-vault guidance survives a reload.
+async function caseExpiryBeforeRetry(browser,url){
+  const context=await browser.newContext({viewport:{width:320,height:844},
+    isMobile:true,hasTouch:true,colorScheme:'light',timezoneId:'Europe/Bucharest'});
+  const page=await context.newPage();
+  try{
+    await page.clock.install({time:new Date('2026-10-28T10:00:00+02:00')});
+    await openReal(page,url);
+    await beginBudget(page,'Buget sintetic expirat');
+    await injectAtomicPayloadFailure(page);
+    const orphan=await failedBudgetSave(page);
+    assert.equal(await page.evaluate(()=>window.__r(309).canRetryFirstSave()),true,
+      'A live failed first save must initially permit bounded retry');
+    await page.clock.fastForward(120001);
+    assert.equal(await page.evaluate(()=>window.__r(309).canRetryFirstSave()),false,
+      'Actual Chromium timeout must revoke the volatile retry authority');
+    assert.deepEqual(await bytes(page),orphan,
+      'Expiry must not erase or replace the KEY-only storage footprint');
+    const retry=page.getByRole('button',{name:'Reîncearcă prima salvare',exact:true});
+    if(await retry.count()&&await retry.isVisible())await retry.click();
+    assert.deepEqual(await bytes(page),orphan,
+      'An expired visible retry action must fail closed with zero vault writes');
+    const result=await page.evaluate(async()=>{
+      try{await window.__r(309).retryFirstSave();return 'UNEXPECTED SUCCESS'}
+      catch(error){return String(error?.message||error)}
+    });
+    assert.match(result,/nu mai este disponibilă/,
+      'Expired retry must reject rather than create a new vault');
+    assert.deepEqual(await bytes(page),orphan,
+      'Direct expired retry must not mutate encrypted storage');
+    await openReal(page,url);
+    await page.getByText('Datele locale nu pot fi deschise',{exact:true})
+      .waitFor({state:'visible',timeout:20000});
+    assert.deepEqual(await bytes(page),orphan,
+      'Reload after expiry must quarantine the same orphan key');
+    console.log('PASS #35 actual Chromium WEB UI: 120s retry expiry revokes authority, preserves KEY-only bytes, reload remains blocked');
+  }finally{await context.close();}
+}
+
 // A separate real Chromium tab commits a DIFFERENT, authenticated envelope
 // under the existing first-save key. The pending first tab must not overwrite
 // that ciphertext, even though its own editor still has a pending retry.
@@ -215,6 +256,7 @@ async function caseCrossTabAuthenticatedConflict(browser,url){
     const url='http://127.0.0.1:'+server.address().port+PREFIX+'?fa_real=1';
     await caseLiveRetry(browser,url);
     await caseReloadBeforeRetry(browser,url);
+    await caseExpiryBeforeRetry(browser,url);
     await caseCrossTabAuthenticatedConflict(browser,url);
   }finally{
     if(browser)await browser.close();
