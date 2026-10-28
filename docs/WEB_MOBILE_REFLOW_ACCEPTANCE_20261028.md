@@ -1,3 +1,7 @@
+## Follow-up Chromium evidence — 2026-10-28 (#85)
+
+[PR #202](https://github.com/nikopol000/financial-autonomy-preview/pull/202) adds a **real Chromium** synthetic populated-budget scroll test: after creating a 2,000 RON monthly DEMO budget, it scrolls the last `Lunar · principală` detail into view and asserts its center is inside the viewport and hit-test exposed (not hidden by the fixed navigation or overlay). It records scroll ancestors and target/nav geometry in the existing JSON artifact. Candidate [Release #40641392016](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40641392016) and [Chromium #40641392067](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40641392067) passed, including four named 320/390px light/dark cases and half-width stress. This is regression coverage for a **budget detail**, not a complete proof that every final interactive control is reachable. Browser zoom, iOS Safari native text enlargement, VoiceOver and independent production-browser acceptance remain unverified. No UI or financial formula changed.
+
 # WEB mobile reflow and enlarged-text acceptance — 2026-10-28
 
 Status: **DISCOVERY / TEST PLAN ONLY** for issue #85. No code, financial-model, encrypted-vault or iOS changes. This is a test contract, **not** a claim of WCAG compliance or Safari acceptance.
