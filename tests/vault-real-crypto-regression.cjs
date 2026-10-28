@@ -423,6 +423,67 @@ async function test(name,fn) {
     assert.deepEqual(backing.data,before);assert.equal(backing.writes,writes);
     assert.deepEqual(clone(vault.loadWebVault(backing)),sample());
   });
+  // A storage API can persist a marker and still throw before returning. The
+  // durable reset intent, not the JavaScript exception, determines recovery.
+  await test('Reset: pending marker write-then-throw preserves ciphertext until locked recovery',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    const before=clone(backing.data);
+    let injected=false;
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){
+        backing.setItem(k,v);
+        if(k===RESET&&String(v).startsWith('pending-v2:')&&!injected){
+          injected=true;throw Error('Injected pending marker committed before exception');
+        }
+      },
+      removeItem:k=>backing.removeItem(k),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks:serialLocks()});await tab.load();
+    await assert.rejects(tab.resetData(),/Resetarea a fost întreruptă/);
+    assert.equal(injected,true);
+    assert.match(backing.getItem(RESET),/^pending-v2:[0-9a-f]{32}$/);
+    assert.equal(backing.getItem(KEY),before[KEY]);
+    assert.equal(backing.getItem(PAYLOAD),before[PAYLOAD]);
+    assert.throws(()=>vault.loadWebVault(backing),/Resetarea locală/);
+    const writes=backing.writes;
+    await assert.rejects(tab.save(sample()),/Resetarea locală|Reîncarcă/);
+    assert.equal(backing.writes,writes,'Pending reset forbids writes by stale tab');
+    assert.deepEqual(clone(await realTab(backing,{locks:serialLocks()}).load()),empty());
+    assert.match(backing.getItem(RESET),/^idle-v2:[0-9a-f]{32}$/);
+    assert.equal(backing.getItem(KEY),null);
+    assert.equal(backing.getItem(PAYLOAD),null);
+  });
+  await test('Reset: final idle marker write-then-throw cannot resurrect erased ledger',async()=>{
+    const backing=storage();vault.saveWebVault(backing,sample(),random);
+    let injected=false;
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){
+        backing.setItem(k,v);
+        if(k===RESET&&String(v).startsWith('idle-v2:')&&!injected){
+          injected=true;throw Error('Injected idle marker committed before exception');
+        }
+      },
+      removeItem:k=>backing.removeItem(k),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks:serialLocks()});await tab.load();
+    await assert.rejects(tab.resetData(),/Injected idle marker committed before exception/);
+    assert.equal(injected,true);
+    const durableEpoch=backing.getItem(RESET);
+    assert.match(durableEpoch,/^idle-v2:[0-9a-f]{32}$/);
+    assert.equal(backing.getItem(KEY),null);
+    assert.equal(backing.getItem(PAYLOAD),null);
+    const writes=backing.writes;
+    await assert.rejects(tab.save(sample()),/altă filă|Reîncarcă/i);
+    assert.equal(backing.writes,writes,'Old tab must not recreate a vault');
+    const fresh=realTab(backing,{locks:serialLocks()});
+    assert.deepEqual(clone(await fresh.load()),empty());
+    assert.equal(backing.getItem(RESET),durableEpoch,'Reload preserves durable reset epoch');
+    assert.equal(backing.writes,writes,'Reload does not rewrite an already committed reset');
+  });
   await test('Reset: first ciphertext deletion failure leaves committed marker and resumes on reload',async()=>{
     const backing=storage();vault.saveWebVault(backing,sample(),random);
     const before=clone(backing.data),writes=backing.writes;
@@ -1213,6 +1274,6 @@ async function test(name,fn) {
   await test('First-save retry reset event while queued behind Web Lock prevents stale write',async()=>{
     await queuedFirstSaveRetryRevocation('reset');
   });
-  console.log(passed+'/62 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==62)process.exitCode=1;
+  console.log(passed+'/64 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==64)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
