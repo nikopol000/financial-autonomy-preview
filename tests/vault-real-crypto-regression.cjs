@@ -1058,6 +1058,54 @@ async function test(name,fn) {
     assert.equal(tab.canRetryFirstSave(),false);
     assert.deepEqual(clone(await realTab(backing,{locks}).load()),sample());
   });
-  console.log(passed+'/56 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==56)process.exitCode=1;
+
+  await test('First-save retry refuses changed durable reset epoch even if storage event is missed',async()=>{
+    const backing=storage(),locks=serialLocks();
+    let denyPayloadWrite=true;
+    const guarded={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(k===PAYLOAD&&denyPayloadWrite)throw Error('QuotaExceededError: synthetic atomic denial');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(guarded,{locks});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată/);
+    assert.equal(tab.canRetryFirstSave(),true);
+    const orphanKey=backing.getItem(KEY);
+    assert.equal(backing.getItem(PAYLOAD),null);
+    // Another client has advanced the durable reset epoch, but this tab has
+    // missed the storage event. The locked retry must independently re-read it.
+    backing.setItem(RESET,'idle-v2:'+'1'.repeat(32));
+    const before=clone(backing.data),writes=backing.writes;
+    denyPayloadWrite=false;
+    await assert.rejects(tab.retryFirstSave(),/altă filă|Reîncarcă/i);
+    assert.equal(tab.canRetryFirstSave(),false);
+    assert.deepEqual(backing.data,before,'A stale retry cannot overwrite a reset epoch');
+    assert.equal(backing.writes,writes,'No ciphertext write after reset epoch change');
+    assert.equal(backing.getItem(KEY),orphanKey,'Do not delete the ambiguous orphan key');
+    assert.equal(backing.getItem(PAYLOAD),null);
+  });
+  await test('First-save retry token is invalidated by reset storage event, not unrelated storage events',async()=>{
+    const backing=storage(),locks=serialLocks(),events={};
+    const guarded={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(k===PAYLOAD)throw Error('QuotaExceededError: synthetic atomic denial');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(guarded,{locks,events});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată/);
+    assert.equal(tab.canRetryFirstSave(),true);
+    assert.equal(typeof events.storage,'function');
+    const before=clone(backing.data),writes=backing.writes;
+    events.storage({key:'unrelated.test.key'});
+    assert.equal(tab.canRetryFirstSave(),true,'Unrelated storage events must not cancel recovery');
+    events.storage({key:RESET});
+    assert.equal(tab.canRetryFirstSave(),false,'A reset event must revoke the volatile retry token');
+    await assert.rejects(tab.retryFirstSave(),/nu mai este disponibilă/i);
+    assert.deepEqual(backing.data,before);
+    assert.equal(backing.writes,writes,'Event invalidation never mutates encrypted storage');
+  });
+  console.log(passed+'/58 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==58)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
