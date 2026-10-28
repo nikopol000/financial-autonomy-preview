@@ -160,6 +160,29 @@ async function main() {
       {transactions:['A','B']});
     console.log('PASS real Chromium tabs: explicit fresh replacement retains previous stage');
 
+    // A noncooperating cached-v1 writer ignores the v2 Web Lock. A visible
+    // legacy mutation during staged restore must prevent authority promotion.
+    // The staged ciphertext may remain orphaned; it must not become authoritative.
+    await a.evaluate(()=>{window.__restoreResearch.holding=false});
+    const beforeLegacyStage=await a.evaluate(()=>window.__restoreResearch.snapshot());
+    const stageWritesBefore=await a.evaluate(()=>window.__restoreResearch.writes);
+    const paused=a.evaluate(snapshot=>window.__restoreResearch.restore(
+      {transactions:['should-not-commit']},snapshot,true,true),beforeLegacyStage);
+    await a.waitForFunction(()=>window.__restoreResearch.holding);
+    await b.evaluate(({V1PAY})=>localStorage.setItem(V1PAY,'legacy-during-stage'),{V1PAY});
+    await waitLegacy(a,'legacy-during-stage');
+    await a.evaluate(()=>window.__restoreResearch.release());
+    assert.deepEqual(await paused,{ok:false,reason:'changed-during-stage'});
+    assert.equal(await a.evaluate(()=>window.__restoreResearch.writes),stageWritesBefore+1,
+      'A rejected restore may leave one non-authoritative stage but must not commit authority');
+    assert.equal((await a.evaluate(()=>window.__restoreResearch.snapshot())).authority,
+      beforeLegacyStage.authority);
+    assert.deepEqual((await a.evaluate(()=>window.__restoreResearch.read())).state,
+      {transactions:['A','B']});
+    await b.evaluate(({V1PAY})=>localStorage.setItem(V1PAY,'synthetic-legacy-ciphertext'),{V1PAY});
+    await waitLegacy(a,'synthetic-legacy-ciphertext');
+    console.log('PASS real Chromium: cached-v1 write during staging rejects authority commit; prior v2 remains');
+
     const denied=await a.evaluate(snapshot=>window.__restoreResearch.restore(
       {transactions:['not-committed']},snapshot,true,false,'before')
       .then(()=>({ok:true}),e=>({ok:false,message:e.message})),
