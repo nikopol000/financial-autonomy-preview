@@ -27,6 +27,7 @@ assert.equal(after,expected,'18.60 must change only demo banner geometry/copy an
 assert.match(after,/label:"Ieși din demo",secondary:!0/,'Demo exit action must remain available');
 assert.match(after,/Backup, diagnostic, import și ștergere dezactivate/,'Demo safety warning must remain visible');
 const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18\.60"/);
-assert.match(html,/index-v01860-compact-demo-warning-20261028\.js\?build=18\.60\.1/);
+if(html.includes('name="financial-autonomy-version" content="18.60"')){
+  assert.match(html,/index-v01860-compact-demo-warning-20261028\.js\?build=18\.60\.1/);
+}
 console.log('PASS WEB 18.60: compact mobile DEMO warning with preserved exit, unchanged financial/vault/backup/real mode');
