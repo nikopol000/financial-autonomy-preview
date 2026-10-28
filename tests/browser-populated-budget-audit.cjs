@@ -161,6 +161,58 @@ async function budgetScrollReachability(page,phase){
   return geometry;
 }
 
+/**
+ * #85: last actual budget-page interactive control must remain fully reachable
+ * above fixed navigation, including when keyboard focus scrolls it into view.
+ * This is Chromium geometry, not native iPhone text/VoiceOver acceptance.
+ */
+async function budgetInteractiveReachability(page,phase){
+  const selector='button, [role="button"], a[href], input, select, textarea';
+  const controls=page.locator(selector);
+  const candidates=await controls.evaluateAll(elements=>elements.map((el,index)=>{
+    const style=getComputedStyle(el);
+    const r=el.getBoundingClientRect();
+    const label=(el.getAttribute('aria-label')||el.textContent||'').trim().slice(0,100);
+    return {index,label,visible:r.width>0&&r.height>0&&style.display!=='none'&&
+      style.visibility!=='hidden'&&style.pointerEvents!=='none'&&
+      !el.closest('[aria-hidden="true"],[inert],[role="tab"],[role="tablist"]')&&
+      !/Ieși din demo/.test(label)};
+  }).filter(x=>x.visible));
+  assert.ok(candidates.length>=2,'Populated Bugete must have interactive controls: '+JSON.stringify(candidates));
+  const last=candidates[candidates.length-1];
+  const targets=[
+    {name:'După fereastră',locator:page.getByRole('button',{name:'După fereastră',exact:true})},
+    {name:'După buget',locator:page.getByRole('button',{name:'După buget',exact:true})},
+    {name:'last DOM-order budget control: '+last.label,locator:controls.nth(last.index)}
+  ];
+  const checks=[];
+  for(const target of targets){
+    assert.equal(await target.locator.count(),1,'Expected one budget control: '+target.name);
+    await target.locator.focus();
+    await target.locator.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(40);
+    const geometry=await target.locator.evaluate(el=>{
+      const r=el.getBoundingClientRect();
+      const x=r.left+r.width/2,y=r.top+r.height/2;
+      const hit=x>=0&&x<innerWidth&&y>=0&&y<innerHeight?document.elementFromPoint(x,y):null;
+      const navTop=Math.min(innerHeight,...[...document.querySelectorAll('[role="tab"]')]
+        .map(tab=>tab.getBoundingClientRect().top));
+      return {target:{x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom},
+        viewport:{width:innerWidth,height:innerHeight},navTop,
+        centerExposed:!!hit&&(hit===el||el.contains(hit)),
+        focused:document.activeElement===el,hitTag:hit?.tagName||null};
+    });
+    assert.equal(geometry.focused,true,'Budget control must accept keyboard focus: '+target.name);
+    assert.equal(geometry.centerExposed,true,
+      'Budget control must be hit-test exposed: '+target.name+' '+JSON.stringify(geometry));
+    assert.ok(geometry.target.y>=-1&&geometry.target.bottom<=geometry.navTop+1,
+      'Budget control must fit above fixed navigation: '+target.name+' '+JSON.stringify(geometry));
+    checks.push({name:target.name,...geometry});
+  }
+  return {phase,visibleCandidateCount:candidates.length,lastCandidate:last,checks,
+    caveat:'Chromium DOM-order/focus/geometry only; not Safari, VoiceOver or text-only enlargement'};
+}
+
 async function audit(browser,url,width,scheme){
   const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:2,
     isMobile:true,hasTouch:true,colorScheme:scheme,timezoneId:'Europe/Bucharest',reducedMotion:'reduce'});
@@ -233,6 +285,7 @@ async function audit(browser,url,width,scheme){
     assert.ok(await page.getByText(/Lunar · principală/).count()>=1,
       'Primary monthly window must be clearly labeled in Romanian');
     const scrollNormal=await budgetScrollReachability(page,'normal');
+    const interactiveNormal=await budgetInteractiveReachability(page,'normal');
     const navNormal=await navFootprint(page);
     const focusNormal=await keyboardNavFocus(page);
     assert.deepEqual(navNormal.textOverlapPairs,[], 'Navigation text must not overlap at normal size');
@@ -263,6 +316,7 @@ async function audit(browser,url,width,scheme){
     await page.setViewportSize({width:Math.floor(width/2),height:844});
     await page.waitForTimeout(150);
     const scrollNarrow=await budgetScrollReachability(page,'half-width');
+    const interactiveNarrow=await budgetInteractiveReachability(page,'half-width');
     const navNarrow=await navFootprint(page);
     const focusNarrow=await keyboardNavFocus(page);
     assert.deepEqual(navNarrow.textOverlapPairs,[], 'Narrow layout navigation must not overlap');
@@ -282,7 +336,7 @@ async function audit(browser,url,width,scheme){
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
       limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
-      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal},zoom:{...zoom,navigation:navZoom},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,rows:narrowRows},encryptedVaultUntouched:true};
+      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
       '; zoom200 scrollWidth='+zoom.documentScrollWidth+
       '; nav text overlaps='+navZoom.textOverlapPairs.length+
