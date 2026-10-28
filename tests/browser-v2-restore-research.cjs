@@ -160,6 +160,29 @@ async function main() {
       {transactions:['A','B']});
     console.log('PASS real Chromium tabs: explicit fresh replacement retains previous stage');
 
+    // A noncooperating cached-v1 writer ignores the v2 Web Lock. A visible
+    // legacy mutation during staged restore must prevent authority promotion.
+    // The staged ciphertext may remain orphaned; it must not become authoritative.
+    await a.evaluate(()=>{window.__restoreResearch.holding=false});
+    const beforeLegacyStage=await a.evaluate(()=>window.__restoreResearch.snapshot());
+    const stageWritesBefore=await a.evaluate(()=>window.__restoreResearch.writes);
+    const paused=a.evaluate(snapshot=>window.__restoreResearch.restore(
+      {transactions:['should-not-commit']},snapshot,true,true),beforeLegacyStage);
+    await a.waitForFunction(()=>window.__restoreResearch.holding);
+    await b.evaluate(({V1PAY})=>localStorage.setItem(V1PAY,'legacy-during-stage'),{V1PAY});
+    await waitLegacy(a,'legacy-during-stage');
+    await a.evaluate(()=>window.__restoreResearch.release());
+    assert.deepEqual(await paused,{ok:false,reason:'changed-during-stage'});
+    assert.equal(await a.evaluate(()=>window.__restoreResearch.writes),stageWritesBefore+1,
+      'A rejected restore may leave one non-authoritative stage but must not commit authority');
+    assert.equal((await a.evaluate(()=>window.__restoreResearch.snapshot())).authority,
+      beforeLegacyStage.authority);
+    assert.deepEqual((await a.evaluate(()=>window.__restoreResearch.read())).state,
+      {transactions:['A','B']});
+    await b.evaluate(({V1PAY})=>localStorage.setItem(V1PAY,'synthetic-legacy-ciphertext'),{V1PAY});
+    await waitLegacy(a,'synthetic-legacy-ciphertext');
+    console.log('PASS real Chromium: cached-v1 write during staging rejects authority commit; prior v2 remains');
+
     const denied=await a.evaluate(snapshot=>window.__restoreResearch.restore(
       {transactions:['not-committed']},snapshot,true,false,'before')
       .then(()=>({ok:true}),e=>({ok:false,message:e.message})),
@@ -184,6 +207,22 @@ async function main() {
       {ok:false,reason:'stale-authority'});
     assert.equal(await b.evaluate(()=>window.__restoreResearch.writes),writesBeforeRetry);
     console.log('PASS real Chromium: commit-then-throw is readable; stale retry writes nothing');
+
+    // Cached legacy reset/deletion can leave a KEY-only v1 tuple. The v2
+    // authority must stay readable and must not silently adopt or delete v1.
+    await b.evaluate(({V1PAY})=>localStorage.removeItem(V1PAY),{V1PAY});
+    await waitLegacy(a,null);
+    const v1KeyOnly=await a.evaluate(()=>window.__restoreResearch.read());
+    assert.equal(v1KeyOnly.source,'v2');
+    assert.equal(v1KeyOnly.legacyDiverged,true);
+    assert.deepEqual(v1KeyOnly.state,{transactions:['A','B','C']});
+    const writesBeforeKeyOnly=await a.evaluate(()=>window.__restoreResearch.writes);
+    assert.deepEqual(await a.evaluate(raw=>window.__restoreResearch.reset(raw,true),
+      committed.authority),{ok:false,reason:'legacy-diverged'});
+    assert.equal(await a.evaluate(()=>window.__restoreResearch.writes),writesBeforeKeyOnly);
+    await b.evaluate(({V1PAY})=>localStorage.setItem(V1PAY,'synthetic-legacy-ciphertext'),{V1PAY});
+    await waitLegacy(a,'synthetic-legacy-ciphertext');
+    console.log('PASS real Chromium: legacy KEY-only divergence preserves v2 and blocks reset');
 
     await b.evaluate(({V1PAY})=>localStorage.setItem(V1PAY,'cached-tab-change'),{V1PAY});
     await waitLegacy(a,'cached-tab-change');
