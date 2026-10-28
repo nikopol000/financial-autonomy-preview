@@ -1,3 +1,10 @@
+## WEB 18.61 — 2026-10-28 — premium UX research checkpoint (nonurgent DISCOVERY)
+
+- **DONE DISCOVERY:** [2026-10-28 premium benchmark](docs/WEB_PREMIUM_UX_BENCHMARK_20261028.md): verified official approaches (Actual tracking/envelope and forecast, Monarch flex/category), dated Reddit feedback on confusing numbers, annual expenses, missing manual entries and account overload. Feedback is anecdotal; no inferred majority preference. Recommend visible source/period labels, progressive disclosure and low-friction return; do not copy UI.
+- **P1:** active 18.61 already gates real save/reset behind Web Locks; cached legacy-tab safety remains OPEN #4. #35 ambiguous orphan KEY-only, #29 partial reset/v2 migration and #25 financial semantics remain open. No destructive recovery.
+- **#14 GATE:** benchmark does **not** authorize new budget modes, per-category cash allocation or any formula change. Require explicit numeric contract against nine synthetic cases in `docs/WEB_BUDGET_PERSPECTIVES_DISCOVERY_20261028.md`.
+- **FIRST UNFINISHED:** verify candidate and final CI/Pages, inspect #85 current populated UI/geometry and Safari/VoiceOver where possible; then pick an independently testable copy/layout improvement. Product WEB **18.61** unchanged; no iOS, real ledger, backup, backend, telemetry, bank sync.
+
 ## WEB 18.61 — 2026-10-28 — #35 foreign KEY replacement retry race, candidate verified
 
 - **DONE P1 #35 TEST:** [PR #210](https://github.com/nikopol000/financial-autonomy-preview/pull/210), merged `312357764f089be60fee5f69977ee02e590d3a58`: two real-bundle AES-GCM synthetic cases for foreign KEY replacement before and immediately after first-save retry payload commit. Candidate [Release CI #40668682576](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40668682576) SUCCESS, both named PASS and **62/62** tests. Merged-main CI/Pages runs `40668788871`/`40668788952`/`40668788071` pending final verification. No product change; WEB 18.61 remains current.
