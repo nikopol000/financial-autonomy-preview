@@ -2,6 +2,10 @@
 
 Status: **DISCOVERY / TEST PLAN ONLY** for issue #85. No code, financial-model, encrypted-vault or iOS changes. This is a test contract, **not** a claim of WCAG compliance or Safari acceptance.
 
+## Chromium implementation evidence — 2026-10-28 (not Safari acceptance)
+
+[PR #200](https://github.com/nikopol000/financial-autonomy-preview/pull/200) extended the existing actual Chromium populated-DEMO audit: **five pressable target rectangles** are checked pairwise in addition to text-node rectangles, and keyboard-focused Acasă/Finanțe tab centers must be exposed to `elementFromPoint` (not obscured by an overlay). Checks run at 320/390 CSS px, light/dark, root CSS zoom 200% and half-width layout stress. Candidate [Chromium #40635449391](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40635449391) **SUCCESS** with four named 2,000 RON synthetic budget PASS cases; merged-main [Chromium #40635600865](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40635600865) **SUCCESS**. Main push CI path filter now includes this test file. This is new automated **regression coverage**, not a new product fix. It does **not** prove native 200% text enlargement, Safari iPhone, VoiceOver, fixed-bottom-nav scroll reachability or WCAG compliance. Next: scroll/occlusion evidence with populated DEMO, then separate native browser/device acceptance.
+
 ## Evidence and scope
 
 - [Issue #85](https://github.com/nikopol000/financial-autonomy-preview/issues/85) records overlapping navigation labels in **synthetic Chromium CSS `zoom:200%`** at 320/390 CSS px on WEB 18.47. The absence of document-wide horizontal overflow did **not** detect the overlap.
