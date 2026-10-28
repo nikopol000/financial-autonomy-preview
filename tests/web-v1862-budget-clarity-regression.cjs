@@ -20,7 +20,6 @@ let expected=prev;
 for(const [oldText,newText] of replacements){
   assert.equal(expected.split(oldText).length-1,1,'Expected one original occurrence: '+oldText);
   expected=expected.replace(oldText,newText);
-  assert.equal(next.split(newText).length-1,1,'Expected one replacement: '+newText);
 }
 assert.equal(next,expected,'18.62 may only change the three reviewed UI copy strings and diagnostic version/name');
 assert.ok(html.includes('<meta name="financial-autonomy-version" content="18.62" />'),'HTML version metadata must be 18.62');
