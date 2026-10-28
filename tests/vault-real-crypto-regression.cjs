@@ -767,6 +767,57 @@ async function test(name,fn) {
     assert.deepEqual(backing.data,before,'Never overwrite another tab\'s payload');
     assert.equal(backing.writes,writes,'Conflict detection must not write');
   });
+  await test('First-save retry rejects foreign key replacement before payload commit with zero writes',async()=>{
+    const backing=storage(),locks=serialLocks();let denyPayload=true;
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){if(k===PAYLOAD&&denyPayload)throw Error('QuotaExceededError: synthetic first payload denial');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată/);
+    assert.equal(tab.canRetryFirstSave(),true);
+    const oldKey=backing.getItem(KEY);
+    backing.setItem(KEY,Buffer.from(random(32)).toString('hex'));
+    assert.notEqual(backing.getItem(KEY),oldKey);
+    const before=clone(backing.data),writes=backing.writes;
+    denyPayload=false;
+    await assert.rejects(tab.retryFirstSave(),/altă filă|Reîncarcă/i);
+    assert.equal(tab.canRetryFirstSave(),false);
+    assert.deepEqual(backing.data,before,'Foreign key must never be replaced by retry');
+    assert.equal(backing.writes,writes,'Conflicting key must prevent payload write');
+    await assert.rejects(realTab(backing,{locks}).load(),/Cheia locală există, dar datele criptate lipsesc/);
+  });
+  await test('First-save retry detects foreign key replacement immediately after payload commit',async()=>{
+    const backing=storage(),locks=serialLocks();
+    let denyPayload=true,replaceKeyAfterPayload=false;
+    const flaky={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){
+        if(k===PAYLOAD&&denyPayload)throw Error('QuotaExceededError: synthetic first payload denial');
+        backing.setItem(k,v);
+        // An uncooperative external storage writer can bypass Web Locks.
+        if(k===PAYLOAD&&replaceKeyAfterPayload)backing.setItem(KEY,Buffer.from(random(32)).toString('hex'));
+      },
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(flaky,{locks});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată/);
+    const originalKey=backing.getItem(KEY);
+    denyPayload=false;replaceKeyAfterPayload=true;
+    await assert.rejects(tab.retryFirstSave(),/altă filă|Reîncarcă/i);
+    assert.equal(tab.canRetryFirstSave(),false,'Do not authorize another retry after a key conflict');
+    assert.ok(backing.getItem(PAYLOAD),'Already committed ciphertext must not be deleted');
+    assert.notEqual(backing.getItem(KEY),originalKey);
+    const before=clone(backing.data),writes=backing.writes;
+    await assert.rejects(tab.retryFirstSave(),/nu mai este disponibilă/);
+    assert.deepEqual(backing.data,before);
+    assert.equal(backing.writes,writes,'Rejected repeat retry must not mutate storage');
+    await assert.rejects(realTab(backing,{locks}).load());
+    assert.deepEqual(backing.data,before,'Blocked reload must preserve ambiguous ciphertext');
+  });
   await test('First-save retry accepts already committed identical ciphertext without another write',async()=>{
     const backing=storage(),locks=serialLocks();let deniedPayload=null;
     const flaky={
@@ -1162,6 +1213,6 @@ async function test(name,fn) {
   await test('First-save retry reset event while queued behind Web Lock prevents stale write',async()=>{
     await queuedFirstSaveRetryRevocation('reset');
   });
-  console.log(passed+'/60 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==60)process.exitCode=1;
+  console.log(passed+'/62 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==62)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
