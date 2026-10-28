@@ -14,7 +14,7 @@ for(const [from,to] of [
 }
 assert.equal(next,expected,'18.61 JS must be identical to 18.60 except version and diagnostic filename');
 const html=fs.readFileSync('index.html','utf8');
-assert.match(html,/name="financial-autonomy-version" content="18\\.61"/);
-assert.match(html,/index-v01861-keyboard-tab-focus-20261028\\.js\\?build=18\\.61\\.1/);
+assert.match(html,/name="financial-autonomy-version" content="18\.61"/);
+assert.match(html,/index-v01861-keyboard-tab-focus-20261028\.js\?build=18\.61\.1/);
 assert.match(html,/#root \[role="tab"\]:focus-visible \{\s*box-shadow: inset 0 0 0 3px #159cb4 !important;/);
 console.log('PASS WEB 18.61: tab focus fallback, unchanged finance/vault/backup JS');
