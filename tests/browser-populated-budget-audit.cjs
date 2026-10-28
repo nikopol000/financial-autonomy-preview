@@ -127,6 +127,40 @@ async function keyboardNavFocus(page){
   return {forward,backward,caveat:'Chromium keyboard CSS focus, not Safari or VoiceOver'};
 }
 
+/** #85: verify last populated budget detail is reachable above fixed navigation.
+ * scrollIntoViewIfNeeded exercises actual scroll container; elementFromPoint
+ * catches a row positioned underneath a fixed footer. Chromium only.
+ */
+async function budgetScrollReachability(page,phase){
+  const lastDetail=page.getByText(/Lunar · principală/).last();
+  assert.ok(await lastDetail.count()>=1,'Populated budget must expose a period detail');
+  await lastDetail.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(100);
+  const geometry=await lastDetail.evaluate((el,phase)=>{
+    const rect=el.getBoundingClientRect();
+    const x=rect.left+rect.width/2,y=rect.top+rect.height/2;
+    const hit=x>=0&&x<innerWidth&&y>=0&&y<innerHeight?document.elementFromPoint(x,y):null;
+    const nav=[...document.querySelectorAll('[role="tab"]')].map(tab=>{
+      const r=tab.getBoundingClientRect();
+      return {name:tab.getAttribute('aria-label')||tab.textContent.trim(),top:r.top,bottom:r.bottom};
+    });
+    const scrollChain=[];
+    for(let p=el.parentElement;p;p=p.parentElement){
+      const style=getComputedStyle(p);
+      if(p.scrollHeight>p.clientHeight+2&&/auto|scroll/.test(style.overflowY))
+        scrollChain.push({tag:p.tagName,scrollTop:p.scrollTop,maxScroll:p.scrollHeight-p.clientHeight});
+    }
+    return {phase,viewport:{width:innerWidth,height:innerHeight},target:{top:rect.top,bottom:rect.bottom,
+      centerX:x,centerY:y},centerExposed:!!hit&&(hit===el||el.contains(hit)),
+      hitTag:hit?.tagName||null,nav,scrollChain,documentScrollTop:document.scrollingElement?.scrollTop||0};
+  },phase);
+  assert.ok(geometry.target.centerY>=0&&geometry.target.centerY<geometry.viewport.height,
+    'Last budget detail must be vertically reachable: '+JSON.stringify(geometry));
+  assert.equal(geometry.centerExposed,true,
+    'Last budget detail must not be obscured by fixed navigation/overlay: '+JSON.stringify(geometry));
+  return geometry;
+}
+
 async function audit(browser,url,width,scheme){
   const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:2,
     isMobile:true,hasTouch:true,colorScheme:scheme,timezoneId:'Europe/Bucharest',reducedMotion:'reduce'});
@@ -198,6 +232,7 @@ async function audit(browser,url,width,scheme){
       'Populated budget page must not expose English Primary terminology');
     assert.ok(await page.getByText(/Lunar · principală/).count()>=1,
       'Primary monthly window must be clearly labeled in Romanian');
+    const scrollNormal=await budgetScrollReachability(page,'normal');
     const navNormal=await navFootprint(page);
     const focusNormal=await keyboardNavFocus(page);
     assert.deepEqual(navNormal.textOverlapPairs,[], 'Navigation text must not overlap at normal size');
@@ -227,6 +262,7 @@ async function audit(browser,url,width,scheme){
     await page.evaluate(()=>{document.documentElement.style.zoom='';});
     await page.setViewportSize({width:Math.floor(width/2),height:844});
     await page.waitForTimeout(150);
+    const scrollNarrow=await budgetScrollReachability(page,'half-width');
     const navNarrow=await navFootprint(page);
     const focusNarrow=await keyboardNavFocus(page);
     assert.deepEqual(navNarrow.textOverlapPairs,[], 'Narrow layout navigation must not overlap');
@@ -246,7 +282,7 @@ async function audit(browser,url,width,scheme){
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
       limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
-      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal},zoom:{...zoom,navigation:navZoom},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,rows:narrowRows},encryptedVaultUntouched:true};
+      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal},zoom:{...zoom,navigation:navZoom},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,rows:narrowRows},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
       '; zoom200 scrollWidth='+zoom.documentScrollWidth+
       '; nav text overlaps='+navZoom.textOverlapPairs.length+
