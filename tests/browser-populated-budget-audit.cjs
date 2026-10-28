@@ -80,6 +80,40 @@ async function navFootprint(page){
     caveat:'Text-node rectangles and CSS zoom are Chromium diagnostics, not Safari Dynamic Type certification'};
 }
 
+
+/**
+ * #85: real keyboard traversal and visible focus in Chromium. This checks
+ * DOM keyboard order and CSS :focus-visible; it is NOT VoiceOver/Safari.
+ */
+async function keyboardNavFocus(page){
+  const home=page.getByRole('tab',{name:'Acasă',exact:true});
+  await home.focus();
+  const inspect=()=>page.evaluate(()=>{
+    const el=document.activeElement;
+    const css=getComputedStyle(el);
+    return {label:el.getAttribute('aria-label'),role:el.getAttribute('role'),
+      focusVisible:el.matches(':focus-visible'),outlineStyle:css.outlineStyle,
+      outlineWidthPx:parseFloat(css.outlineWidth)||0,tag:el.tagName,
+      tabindex:el.getAttribute('tabindex'),insideRoot:document.getElementById('root')?.contains(el),
+      cssSelectorMatch:el.matches('#root :is(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible'),
+      outlineColor:css.outlineColor,boxShadow:css.boxShadow};
+  });
+  await page.keyboard.press('Tab');
+  const forward=await inspect();
+  assert.equal(forward.label,'Finanțe','Tab must reach next distinct navigation destination');
+  assert.equal(forward.role,'tab','Keyboard focus must remain on a navigation tab');
+  assert.equal(forward.focusVisible,true,'Keyboard-focused tab must match :focus-visible');
+  assert.ok((forward.outlineStyle!=='none'&&forward.outlineWidthPx>=2)||forward.boxShadow.includes('inset'),
+    'Keyboard-focused navigation tab must have a visible ring: '+JSON.stringify(forward));
+  await page.keyboard.press('Shift+Tab');
+  const backward=await inspect();
+  assert.equal(backward.label,'Acasă','Shift+Tab must return to previous navigation destination');
+  assert.equal(backward.focusVisible,true,'Reverse keyboard focus must remain visibly indicated');
+  assert.ok((backward.outlineStyle!=='none'&&backward.outlineWidthPx>=2)||backward.boxShadow.includes('inset'),
+    'Reverse keyboard focus must have a visible ring: '+JSON.stringify(backward));
+  return {forward,backward,caveat:'Chromium keyboard CSS focus, not Safari or VoiceOver'};
+}
+
 async function audit(browser,url,width,scheme){
   const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:2,
     isMobile:true,hasTouch:true,colorScheme:scheme,timezoneId:'Europe/Bucharest',reducedMotion:'reduce'});
@@ -152,6 +186,7 @@ async function audit(browser,url,width,scheme){
     assert.ok(await page.getByText(/Lunar · principală/).count()>=1,
       'Primary monthly window must be clearly labeled in Romanian');
     const navNormal=await navFootprint(page);
+    const focusNormal=await keyboardNavFocus(page);
     assert.deepEqual(navNormal.textOverlapPairs,[], 'Navigation text must not overlap at normal size');
     assert.deepEqual(navNormal.textOutsideHitTarget,[], 'Navigation labels must fit their hit targets at normal size');
     const normal=await page.evaluate(()=>{
@@ -178,6 +213,7 @@ async function audit(browser,url,width,scheme){
     await page.setViewportSize({width:Math.floor(width/2),height:844});
     await page.waitForTimeout(150);
     const navNarrow=await navFootprint(page);
+    const focusNarrow=await keyboardNavFocus(page);
     assert.deepEqual(navNarrow.textOverlapPairs,[], 'Narrow layout navigation must not overlap');
     assert.deepEqual(navNarrow.textOutsideHitTarget,[], 'Narrow layout navigation labels must stay within targets');
     const narrowRows=new Set(navNarrow.tabs.map(t=>Math.round(t.hitTarget.y))).size;
@@ -194,7 +230,7 @@ async function audit(browser,url,width,scheme){
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
       limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
-      normal:{...normal,navigation:navNormal},zoom:{...zoom,navigation:navZoom},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,rows:narrowRows},encryptedVaultUntouched:true};
+      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal},zoom:{...zoom,navigation:navZoom},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,rows:narrowRows},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
       '; zoom200 scrollWidth='+zoom.documentScrollWidth+
       '; nav text overlaps='+navZoom.textOverlapPairs.length+
