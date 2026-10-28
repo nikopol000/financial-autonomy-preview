@@ -8,6 +8,7 @@ on:
       - 'tests/browser-first-save-ui-retry.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
       - 'tests/browser-v2-locks-research.cjs'
+      - 'tests/browser-v2-restore-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
@@ -19,6 +20,7 @@ on:
       - 'tests/browser-first-save-ui-retry.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
       - 'tests/browser-v2-locks-research.cjs'
+      - 'tests/browser-v2-restore-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
@@ -42,6 +44,8 @@ jobs:
         run: node tests/browser-first-save-ui-retry.cjs
       - name: Research real Chromium Web Locks and cached-reset hazards (synthetic only)
         run: node tests/browser-v2-locks-research.cjs
+      - name: Research real Chromium two-tab v2 staged restore and reset (synthetic only)
+        run: node tests/browser-v2-restore-research.cjs
       - name: Audit actual blocked WEB mobile UI in light/dark (synthetic-only)
         run: node tests/browser-vault-ui-audit.cjs
       - name: Audit populated demo budgets at 320/390px light/dark and CSS zoom stress
