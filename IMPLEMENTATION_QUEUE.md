@@ -1,3 +1,9 @@
+## 2026-10-28 — P1 #4 Chromium test visibility race corrected (#233); production v1 unsafe
+
+- **DONE:** PR #232 research two-tab staged restore; **merged-main Chromium #40760812532 FAILED** due stale cross-renderer localStorage read after another tab's commit. PR [#233](https://github.com/nikopol000/financial-autonomy-preview/pull/233) merged `1a7ea1d7713aaf16be0d28601f6a68c6e3e7bd26` with test-only authority/stage/legacy visibility waits; candidate Chromium #40761149376 and Release #40761149462 SUCCESS. Await exact merged-main/final checkpoint CI. Do not treat test synchronization as production safety.
+- **FIRST UNFINISHED / P1:** verify CI/Pages/Vercel; test whether Web Locks and localStorage cross-process visibility can race *inside* the critical section, then exercise actual cached 18.27/18.33/18.34 modules in real tabs and define authenticated v2 authority plus nondestructive conflict recovery. Existing production cached-v1 lost update/reset resurrection remains **KNOWN UNSAFE**. Continue #35 orphan key and #29 reset.
+- **P2 / DISCOVERY:** #85 native Safari iPhone text enlargement/VoiceOver and public browser; periodic #17/#25 benchmark. #14 perspectives remain ANALYSIS ONLY, no financial formulas or modes without explicit approved contract. Product WEB 18.62, no iOS, real data, backup, backend, login, telemetry or bank connection changes.
+
 ## 2026-10-28 — P1 #4 two-tab Chromium v2 staged restore RESEARCH DONE; production migration BLOCKED
 
 - **DONE/MERGED:** [PR #232](https://github.com/nikopol000/financial-autonomy-preview/pull/232), squash `1b0e4d87920c5e91cbf098adb90955ab49d29e62`. Eight named real Chromium localhost/Web Locks/AES-GCM synthetic checks PASS; candidate Chromium #40760441074 and final #40760583091 SUCCESS, Release #40760583062 SUCCESS. [Contract](docs/WEB_V2_BACKUP_RESTORE_CONTRACT_20261028.md). Existing WEB **18.62** product and financial model unchanged.
