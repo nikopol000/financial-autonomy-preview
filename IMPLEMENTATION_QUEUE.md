@@ -1,3 +1,9 @@
+## WEB 18.62 — 2026-10-28 — Vercel Git production READY (reconciled after earlier 403)
+
+- **VERIFIED:** official Vercel primary alias now READY `dpl_95XZ3m97VLkA5VzaJWBG7pcAUr91` for source commit `fd40105f4a12bfa29afa8ce6a23e426ecb1fc87e`, which contains immutable product WEB **18.62** and #216 test-only changes. Prior manual deployment 403 was real but superseded by a successful Git-triggered production deployment. Do not infer manual create permission.
+- **STILL OPEN:** public HTTP and served HTML/bundle/header/diagnostic could not be read; Vercel Git deployment file API returned 404; Safari/VoiceOver/native text zoom unverified. Candidate [Release CI #40693698722](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40693698722) 64/64 SUCCESS and docs [Release #40693925322](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40693925322) SUCCESS. Main CI/Pages not independently verified.
+- **FIRST UNFINISHED:** independently inspect served primary alias 18.62 and functional browser; monitor latest main Git deployment and verify CI/Pages. Continue #35/#29/#4 integrity and #85 mobile; sample #25 DISCOVERY periodically. #14 stays ANALYSIS ONLY; no financial formulas or budget modes without explicit numeric approval. No iOS/real data/backup/backend/telemetry changes.
+
 ## WEB 18.62 — 2026-10-28 — #29 write-then-throw marker recovery tests DONE; Vercel publication BLOCKED
 
 - **DONE:** [PR #216](https://github.com/nikopol000/financial-autonomy-preview/pull/216), merged `fd40105f4a12bfa29afa8ce6a23e426ecb1fc87e`: two additional actual-bundle AES-GCM synthetic tests for committed `pending-v2`/final `idle-v2` reset-marker writes that throw after persistence. Candidate [Release #40693698722](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40693698722) SUCCESS, both named PASS and **64/64**. No application changes; WEB **18.62** unchanged. Issue #29 commented with evidence and limits.
