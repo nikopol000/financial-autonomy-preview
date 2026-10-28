@@ -1,3 +1,9 @@
+## WEB 18.61 — 2026-10-28 05:07 — P1 #35 read-fault candidate; nonurgent #14 financial discovery
+
+- **IN PROGRESS / FIRST UNFINISHED:** candidate branch `test/web-first-save-read-faults-20261028` based on real main `d89be57122da62a5509ac4f10f1bac16748fe721`; 2 new bundled Node VM read-denial tests for first-save retry (#35), expected **56** cases, **not CI verified yet**. Open PR, wait for named Release CI PASS; repair before merging. No product change, so keep WEB **18.61** and immutable bundle/diagnostics unchanged.
+- **RESEARCH ONLY #14:** `docs/WEB_BUDGET_PERSPECTIVES_DISCOVERY_20261028.md` maps current 18.61 modules and proposes read-only aggregate owned-money context versus unsafe category scaling, with nine numeric examples and explicit user decision gate. Do **not** implement perspectives, allocate cash across categories or modify formulas without approval. No new user preference inferred.
+- **PERSISTENT:** #35 KEY-only after reload/expiry ambiguous; #29/#4 old cached tabs and v2 blocked. #85 real iPhone Safari 200% text, VoiceOver, safe-area, focus/scroll and served public 18.61 still unverified; #17 remains open. Next: candidate CI, issue comments, main checkpoint and actual browser evidence when possible. No iOS, real data, backup, backend, accounts, telemetry or bank sync.
+
 ## WEB 18.61 PRIMARY PRODUCTION READY — 2026-10-28 (supersedes previous 402 blocker)
 
 - **PUBLISHED BY OFFICIAL VERCEL METADATA:** Primary alias now maps to **READY production** `dpl_5xxrDuyDek8pmdkYimLzzTa2EcQE` / Git SHA `19579f9d39496aff8bfb2c46f1fcc686283d8a0b`. Git HTML declares **18.61**; immutable HTML and JS blobs match current docs main `70c665e50e1415e3ac9c8e1e0025ab862443d688`. The prior 402 daily quota gate is no longer current. No forced deployment or bypass. **Independent served HTTP/browser and Safari iPhone NOT VERIFIED** (public fetch inaccessible).
