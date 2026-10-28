@@ -2,6 +2,17 @@
 
 **DISCOVERY / NOT IMPLEMENTED.** No product vault, backup format, user ledger, UI, iOS, or formula change. This is an acceptance proposal for a future v1→v2 storage migration; do not interpret a green characterization test as a fix.
 
+## Browser-stage legacy divergence gate — PR #234 (candidate, verification pending)
+
+Two new **synthetic Chromium** cases in `tests/browser-v2-restore-research.cjs` expand the browser protocol acceptance matrix:
+
+- A cached-v1-style direct localStorage mutation occurs while a v2 restore holds its exclusive Web Lock. After the other renderer observes the changed v1 payload, the staged restore must reject authority promotion with `changed-during-stage`, leave the prior v2 revision readable and allow an orphan **non-authoritative** stage. This explicitly demonstrates that a Web Lock cannot stop an uncooperative legacy writer.
+- Deleting the legacy v1 payload while leaving its key produces a KEY-only tuple. The current v2 authority must remain readable, report observable legacy divergence and reject destructive reset without writes. Neither the missing v1 ciphertext nor the legacy key is automatically repaired or deleted.
+
+**Boundaries:** these writes are *simulated* in a real browser, not executed from archived 18.27/18.33/18.34 JavaScript. Cross-renderer visibility is synchronized before assertions, so the tests do not prove instantaneous visibility inside Web Locks. A cached writer may mutate v1 between the final check and v2 commit; the v2 authority must never follow v1 automatically, and the detection of transient ABA writes remains impossible with snapshot comparison alone. Production v1 is still vulnerable. Do not claim a shipped fix from a passing test.
+
+
+
 ## Evidence from immutable WEB 18.62
 
 - Bundle module **310** stores the live local AES-GCM vault as `financial-autonomy.preview.key.v1`, `financial-autonomy.preview.payload.v1`, plus reset marker `financial-autonomy.preview.reset.v1`. These are **not** the portable encrypted backup format.
