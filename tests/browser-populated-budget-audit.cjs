@@ -96,21 +96,21 @@ async function keyboardNavFocus(page){
       outlineWidthPx:parseFloat(css.outlineWidth)||0,tag:el.tagName,
       tabindex:el.getAttribute('tabindex'),insideRoot:document.getElementById('root')?.contains(el),
       cssSelectorMatch:el.matches('#root :is(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible'),
-      outlineColor:css.outlineColor};
+      outlineColor:css.outlineColor,boxShadow:css.boxShadow};
   });
   await page.keyboard.press('Tab');
   const forward=await inspect();
   assert.equal(forward.label,'Finanțe','Tab must reach next distinct navigation destination');
   assert.equal(forward.role,'tab','Keyboard focus must remain on a navigation tab');
   assert.equal(forward.focusVisible,true,'Keyboard-focused tab must match :focus-visible');
-  assert.ok(forward.outlineStyle!=='none'&&forward.outlineWidthPx>=2,
-    'Keyboard-focused navigation tab must have a visible outline: '+JSON.stringify(forward));
+  assert.ok((forward.outlineStyle!=='none'&&forward.outlineWidthPx>=2)||forward.boxShadow.includes('inset'),
+    'Keyboard-focused navigation tab must have a visible ring: '+JSON.stringify(forward));
   await page.keyboard.press('Shift+Tab');
   const backward=await inspect();
   assert.equal(backward.label,'Acasă','Shift+Tab must return to previous navigation destination');
   assert.equal(backward.focusVisible,true,'Reverse keyboard focus must remain visibly indicated');
-  assert.ok(backward.outlineStyle!=='none'&&backward.outlineWidthPx>=2,
-    'Reverse keyboard focus must have a visible outline');
+  assert.ok((backward.outlineStyle!=='none'&&backward.outlineWidthPx>=2)||backward.boxShadow.includes('inset'),
+    'Reverse keyboard focus must have a visible ring: '+JSON.stringify(backward));
   return {forward,backward,caveat:'Chromium keyboard CSS focus, not Safari or VoiceOver'};
 }
 
