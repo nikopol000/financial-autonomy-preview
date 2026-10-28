@@ -43,3 +43,12 @@
 Issue #14 (planned vs owned money vs remaining days), #25 (card overpayment) and #2 (historical reconciliation) remain DISCOVERY. None of these authorize changing formulas or budget modes. The storage isolation prototype makes no financial semantics decision.
 
 Related: [legacy cached-tab evidence](WEB_LEGACY_CACHED_TAB_COMPATIBILITY_20261028.md), issues #4/#29/#35 and `tests/vault-cached-legacy-cross-version.cjs`.
+
+## Research-only regression extension — 2026-10-28 (#4)
+
+The cross-version synthetic suite now includes two additional **characterization tests** using the actual cached WEB 18.33 module, active WEB 18.62 module, real AES-GCM, and a **test-only** v2 namespace adapter. These are not a migration implementation or browser acceptance:
+
+- **Observable legacy deletion:** after independent v1/v2 synthetic saves, the real 18.33 reset removes the legacy v1 tuple. Comparing the full v1 KEY/PAYLOAD/RESET tuple before and after detects a difference, while isolated v2 remains intact. This supports a *best-effort warning*, not automatic recovery or a proof that all edits are visible.
+- **ABA counterexample:** a real 18.33 save changes the v1 tuple; then the test deliberately restores the original v1 KEY/PAYLOAD/RESET bytes, simulating raw-byte snapshot restoration. A SHA-256 fingerprint of the **entire tuple** returns to its original value, despite the intervening write. Normal AES-GCM saves generate fresh ciphertext; the raw restoration is an adversarial storage rollback illustration, **not** evidence that a normal 18.33 save automatically reproduces identical ciphertext. It proves a fingerprint-only detector cannot guarantee a complete history of legacy writes.
+
+**Acceptance consequence:** the planned v2 conflict notice must say it detects only *observable* v1 divergence. It must never promise complete detection, silently merge a v1 delta into v2, or infer that an unchanged fingerprint proves no legacy edit. A crash-safe authority commit, encrypted-backup compatibility, actual multi-tab browser tests and explicit recovery UX remain prerequisites to any production storage migration. The existing two **KNOWN UNSAFE** v1 tests remain intentionally green because they reproduce vulnerabilities, not because the vulnerabilities are fixed.
