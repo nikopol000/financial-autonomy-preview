@@ -1,5 +1,19 @@
 # WEB P1 #4 — v2 authority and cached v1 tabs: research gate (2026-10-28)
 
+## Browser research — retained authority replay and mutable epoch (2026-10-28; candidate)
+
+Two **RESEARCH ONLY** Chromium assertions were added to `tests/browser-v2-restore-research.cjs`, running two actual browser tabs with Web Locks, WebCrypto AES-GCM and synthetic records. These are **known limitations**, not protection tests or evidence of a production incident:
+
+1. **Valid old authority replay:** after a v2 stage contains synthetic transactions A/B/C, a deliberate localStorage replacement of the authority pointer with an earlier *valid* A/B pointer makes `read()` display A/B. The old stage and digest still match. Restoring the later pointer makes A/B/C visible again. An integrity digest over the selected stage does not establish freshness.
+2. **Mutable epoch:** changing only the `epoch` string in the plain authority JSON still allows `read()` to accept the stage and display A/B/C. The stage digest does not authenticate the pointer's metadata.
+
+**Security boundary:** this is explicit same-origin storage tampering in a disposable research origin, not ordinary cached-v1 code behavior, and not evidence of a remote attack. A MAC whose secret is stored alongside data in the same origin cannot defend against malicious same-origin code that can read the secret; a fully rolled-back local-only storage snapshot also cannot be distinguished from the original solely from the restored bytes. Therefore do **not** claim that adding a MAC or random epoch alone provides anti-rollback or complete legacy-write detection.
+
+**Design alternatives for review:** (A) single authenticated envelope binding payload, status, revision and epoch (simpler consistency but not full-snapshot anti-rollback); (B) staged immutable encrypted envelopes with a validated authority pointer, explicit revision comparison and non-destructive retained history (recoverable but needs garbage-collection and conflict UX); (C) browser-native transactional storage such as IndexedDB for cooperating new tabs (still cannot fence old v1 localStorage writers or defeat full-origin rollback). Before production cutover, define the honest recovery message, backup export and conflict workflow, test interruptions and actual cached JS, and ensure no silent downgrade or automatic deletion. No formula, v1/v2 product storage, backup, real data, iOS or app release change is authorized by these research tests.
+
+**Verification:** local JavaScript parsing succeeded for the candidate source; GitHub Chromium/Release CI and merge status must be checked separately. A green characterization test documents a weakness, not its remediation.
+
+
 **Status: PROTOTYPE / NOT A PRODUCT MIGRATION.** Product WEB 18.62, its active bundle, vault, backup and financial formulas remain unchanged. Do not ship this storage protocol from this document alone.
 
 ## Observed evidence
