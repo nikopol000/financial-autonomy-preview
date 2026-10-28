@@ -96,6 +96,21 @@ async function install(page) {
   },{LOCK,AUTH,STAGE,V1KEY,V1PAY});
 }
 
+// localStorage notifications can reach another renderer after the writer's
+// evaluate() has returned. Synchronize *observation* before asserting a
+// cross-tab read; this is NOT a production atomicity guarantee.
+async function waitAuthority(page,raw) {
+  await page.waitForFunction(({AUTH,raw}) => {
+    if(localStorage.getItem(AUTH)!==raw)return false;
+    const record=JSON.parse(raw);
+    return record.status==='reset' || localStorage.getItem(record.stage)!==null;
+  },{AUTH,raw},{timeout:10000});
+}
+async function waitLegacy(page,value) {
+  await page.waitForFunction(({V1PAY,value})=>localStorage.getItem(V1PAY)===value,
+    {V1PAY,value},{timeout:10000});
+}
+
 async function main() {
   const server=http.createServer((_req,res)=>{
     res.writeHead(200,{'Content-Type':'text/html','Cache-Control':'no-store'});
@@ -140,6 +155,7 @@ async function main() {
     const replacement=await b.evaluate(snapshot=>window.__restoreResearch.restore(
       {transactions:['A','B']},snapshot,true),current);
     assert.equal(replacement.ok,true);
+    await waitAuthority(a,replacement.authority);
     assert.deepEqual((await a.evaluate(()=>window.__restoreResearch.read())).state,
       {transactions:['A','B']});
     console.log('PASS real Chromium tabs: explicit fresh replacement retains previous stage');
@@ -158,6 +174,8 @@ async function main() {
       {transactions:['A','B','C']},snapshot,true,false,'after')
       .then(()=>({ok:true}),e=>({ok:false,message:e.message})),beforeAck);
     assert.deepEqual(ack,{ok:false,message:'SYNTHETIC_AFTER_AUTHORITY'});
+    const ackAuthority=(await b.evaluate(()=>window.__restoreResearch.snapshot())).authority;
+    await waitAuthority(a,ackAuthority);
     const committed=await a.evaluate(()=>window.__restoreResearch.read());
     assert.deepEqual(committed.state,{transactions:['A','B','C']});
     const writesBeforeRetry=await b.evaluate(()=>window.__restoreResearch.writes);
@@ -168,6 +186,7 @@ async function main() {
     console.log('PASS real Chromium: commit-then-throw is readable; stale retry writes nothing');
 
     await b.evaluate(({V1PAY})=>localStorage.setItem(V1PAY,'cached-tab-change'),{V1PAY});
+    await waitLegacy(a,'cached-tab-change');
     assert.equal((await a.evaluate(()=>window.__restoreResearch.read())).legacyDiverged,true);
     const beforeDivergedReset=await a.evaluate(()=>window.__restoreResearch.writes);
     assert.deepEqual(await a.evaluate(raw=>window.__restoreResearch.reset(raw,true),
@@ -178,12 +197,14 @@ async function main() {
     console.log('PASS real Chromium: observable cached-v1 drift blocks destructive reset');
 
     await b.evaluate(({V1PAY})=>localStorage.setItem(V1PAY,'synthetic-legacy-ciphertext'),{V1PAY});
+    await waitLegacy(a,'synthetic-legacy-ciphertext');
     assert.equal((await a.evaluate(()=>window.__restoreResearch.read())).legacyDiverged,false);
     console.log('PASS KNOWN LIMITATION: v1 byte rollback hides transient edit (ABA is not detectable)');
 
     const reset=await a.evaluate(raw=>window.__restoreResearch.reset(raw,true),
       committed.authority);
     assert.equal(reset.ok,true);
+    await waitAuthority(b,reset.authority);
     await b.evaluate(({V1PAY})=>localStorage.setItem(V1PAY,'cached-tab-resurrection'),{V1PAY});
     assert.equal((await a.evaluate(()=>window.__restoreResearch.read())).source,'reset');
     assert.deepEqual(await b.evaluate(snapshot=>window.__restoreResearch.restore(
