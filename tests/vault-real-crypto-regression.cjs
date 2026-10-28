@@ -1001,6 +1001,63 @@ async function test(name,fn) {
     await fresh.save(loaded);
     assert.ok(vault.loadWebVault(backing).transactions.some(t=>t.id==='post-reset-valid'));
   });
-  console.log(passed+'/54 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==54)process.exitCode=1;
+
+  await test('First-save retry read-denial preflight leaves KEY-only state unchanged, then recovers',async()=>{
+    const backing=storage(),locks=serialLocks();
+    let denyPayloadWrite=true,denyPayloadRead=false;
+    const guarded={
+      getItem(k){if(k===PAYLOAD&&denyPayloadRead)throw Error('SecurityError: synthetic payload read denied');return backing.getItem(k)},
+      setItem(k,v){if(k===PAYLOAD&&denyPayloadWrite)throw Error('QuotaExceededError: synthetic atomic payload denial');backing.setItem(k,v)},
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(guarded,{locks});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată/);
+    const key=backing.getItem(KEY);
+    assert.match(key,/^[0-9a-f]{64}$/);
+    assert.equal(backing.getItem(PAYLOAD),null);
+    assert.equal(tab.canRetryFirstSave(),true);
+    denyPayloadWrite=false;denyPayloadRead=true;
+    const before=clone(backing.data),writes=backing.writes;
+    await assert.rejects(tab.retryFirstSave(),/SecurityError/);
+    assert.equal(tab.canRetryFirstSave(),true,'Transient read denial must not destroy volatile recovery token');
+    assert.deepEqual(backing.data,before);
+    assert.equal(backing.writes,writes,'No write may occur when revision cannot be read');
+    denyPayloadRead=false;
+    assert.deepEqual(clone(await tab.retryFirstSave()),sample());
+    assert.equal(backing.getItem(KEY),key);
+    assert.equal(tab.canRetryFirstSave(),false);
+    assert.deepEqual(clone(await realTab(backing,{locks}).load()),sample());
+  });
+  await test('First-save retry post-commit read-denial authenticates exact ciphertext without rewriting',async()=>{
+    const backing=storage(),locks=serialLocks();
+    let denyPayloadWrite=true,denyPayloadRead=false,armReadDenial=false;
+    const guarded={
+      getItem(k){if(k===PAYLOAD&&denyPayloadRead)throw Error('SecurityError: synthetic post-write read denial');return backing.getItem(k)},
+      setItem(k,v){
+        if(k===PAYLOAD&&denyPayloadWrite)throw Error('QuotaExceededError: synthetic atomic payload denial');
+        backing.setItem(k,v);
+        if(k===PAYLOAD&&armReadDenial)denyPayloadRead=true;
+      },
+      removeItem:k=>backing.removeItem(k),key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(guarded,{locks});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată/);
+    const key=backing.getItem(KEY);
+    denyPayloadWrite=false;armReadDenial=true;
+    await assert.rejects(tab.retryFirstSave(),/SecurityError/);
+    assert.equal(backing.getItem(KEY),key);
+    assert.ok(backing.data[PAYLOAD],'Ciphertext was atomically committed before read denial');
+    assert.equal(tab.canRetryFirstSave(),true,'Keep retry token until ciphertext is authenticated');
+    const before=clone(backing.data),writes=backing.writes;
+    armReadDenial=false;denyPayloadRead=false;
+    assert.deepEqual(clone(await tab.retryFirstSave()),sample());
+    assert.deepEqual(backing.data,before,'Second retry must not replace authenticated ciphertext');
+    assert.equal(backing.writes,writes,'Second retry must not write');
+    assert.equal(tab.canRetryFirstSave(),false);
+    assert.deepEqual(clone(await realTab(backing,{locks}).load()),sample());
+  });
+  console.log(passed+'/56 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==56)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
