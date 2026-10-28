@@ -1,3 +1,8 @@
+## WEB 18.61 publication blocker — 2026-10-28
+
+- **READY IN MAIN, NOT PRIMARY VERCEL:** Product commit `1c157354` Release/Chromium/Pages/Pages build all SUCCESS (40613672385/40613672420/40613672380/40613672247). One authorized normal Vercel production deployment attempt returned **HTTP 402 daily free deployment quota**, retryAfter=86400s. No workaround/retry. Primary still serves 18.60 by Vercel alias metadata. Do not call 18.61 live.
+- **NEXT:** after quota reset, recheck official alias and use ordinary Git production deploy for exact 18.61; independently verify served files and iPhone Safari focus/scroll/VoiceOver. Keep #85 OPEN, P1 #35/#29/#4 integrity research active and #14 financial perspectives DISCOVERY ONLY. No iOS, real financial data, backup or formulas.
+
 ## CURRENT WEB execution queue — 2026-10-28 — WEB 18.61 keyboard focus merged; release verification first
 
 - **DONE P2 #85 PRODUCT:** [PR #190](https://github.com/nikopol000/financial-autonomy-preview/pull/190) merged `1c157354b7f7a672bffe12e541c0010017d868f7`. Chromium exposed a real keyboard focus indicator defect in WEB 18.60: `Finanțe` tab receives focus but computed outline width is 0px. WEB **18.61** adds 3px inset tab-focus ring in HTML; immutable JS diff contains **only** diagnostic version/name. Candidate [Release 40613491617](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40613491617) and [Chromium 40613491582](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40613491582) SUCCESS, 320/390px light/dark + half-width Tab/Shift+Tab focus checks and existing demo budget. #85 issue updated.
