@@ -1,3 +1,9 @@
+## WEB 18.62 — 2026-10-28 — #4 cross-version P1 regression MERGED; migration safety NOT SOLVED
+
+- **DONE:** [PR #219](https://github.com/nikopol000/financial-autonomy-preview/pull/219) main `8da89d36089d7d0cb83938532287791a23aacab0`, three real-AES-GCM synthetic cross-version tests, [risk and alternatives](docs/WEB_LEGACY_CACHED_TAB_COMPATIBILITY_20261028.md). Candidate Release #40702195706 SUCCESS; main Release #40702296075 SUCCESS; main Pages #40702296496 SUCCESS. Main Pages build #40702294517 **SUCCESS**. WEB **18.62** unchanged.
+- **OPEN / CRITICAL:** cached 18.33 can overwrite new 18.62 ledger and resurrect pre-reset data; two **KNOWN UNSAFE** characterization PASS cases are not fixes. Need reviewed v1/v2 authoritative namespace and conflict/migration contract, crash/backup tests, browser validation. Do not migrate live storage yet.
+- **NEXT:** confirm final CI/Pages and Vercel alias/browser when accessible; pursue #35/#29 and legacy-tab safe migration research; periodically sample #85 UX and #25/#14 DISCOVERY. #14 budget perspectives and all financial formula changes require explicit approval. No iOS, real data, encrypted backup, backend, login, analytics or bank sync changes.
+
 ## WEB 18.62 — 2026-10-28 — P1 #4 cached legacy-tab cross-version characterization (PR #219)
 
 - **CANDIDATE:** actual WEB 18.33 tab can overwrite newer 18.62 ciphertext and resurrect a ledger after committed 18.62 reset; tested with synthetic real AES-GCM. Guarded 18.49 tab rejects idle-v2 marker without writes in tested scenario. **KNOWN UNSAFE tests PASS by reproducing loss/resurrection, not by fixing them.** [PR #219](https://github.com/nikopol000/financial-autonomy-preview/pull/219), [research document](docs/WEB_LEGACY_CACHED_TAB_COMPATIBILITY_20261028.md). Candidate Release CI #40701980354 SUCCESS before doc/checkpoint update; final candidate CI pending.
