@@ -170,5 +170,44 @@ const entry=(id)=>({id,kind:'expense',amount:100,date:'2026-10-28',accountId:'sy
   assert.equal(s4.getItem('financial-autonomy.preview.research.reset.v2'),v2Epoch,
     'Legacy v1 reset cannot erase isolated v2 tombstone');
   console.log('PASS PROTOTYPE ONLY: cached v1 save/reset cannot resurrect or clear isolated v2 after v2 reset');
-  console.log('5/5 cross-version synthetic characterizations passed: 2 KNOWN UNSAFE, 1 FAIL CLOSED, 2 RESEARCH-ONLY namespace isolation');
+  // RESEARCH ONLY: deletion of v1 bytes after cutover is observable drift, not a reason to change v2 authority.
+  const s5=storage(),legacy5=tab(sources[0],s5),modernV2Deletion=tab(sources[2],researchV2View(s5),locks());
+  await legacy5.load();
+  await legacy5.save({...empty(),transactions:[entry('v1-before-deletion')]});
+  await modernV2Deletion.load();
+  await modernV2Deletion.save({...empty(),transactions:[entry('v2-kept-after-deletion')]});
+  const v1Tuple=store=>[KEY,PAYLOAD,RESET].map(k=>store.getItem(k));
+  const fingerprint=tuple=>crypto.createHash('sha256').update(JSON.stringify(tuple)).digest('hex');
+  const baselineFingerprint=fingerprint(v1Tuple(s5));
+  await legacy5.resetData();
+  assert.notEqual(fingerprint(v1Tuple(s5)),baselineFingerprint,
+    'Deleting legacy v1 keys is an observable post-cutover tuple divergence');
+  assert.deepEqual(clone(await modernV2Deletion.load()).transactions.map(t=>t.id),
+    ['v2-kept-after-deletion'],'Legacy v1 deletion must not affect isolated v2');
+  console.log('PASS PROTOTYPE ONLY: legacy v1 deletion is observable divergence without changing v2 authority');
+
+  // RESEARCH ONLY: an ABA raw-byte restoration defeats even a full KEY/PAYLOAD/RESET fingerprint.
+  // This simulates a legacy snapshot being restored byte-for-byte after a real 18.33 save.
+  // Normal AES-GCM saves use fresh randomness; this is a storage rollback counterexample,
+  // not a claim that normal 18.33 save automatically produces identical ciphertext.
+  const s6=storage(),legacy6=tab(sources[0],s6),modernV2ABA=tab(sources[2],researchV2View(s6),locks());
+  await legacy6.load();
+  await legacy6.save({...empty(),transactions:[entry('v1-baseline')]});
+  await modernV2ABA.load();
+  await modernV2ABA.save({...empty(),transactions:[entry('v2-authoritative')]});
+  const originalTuple=[KEY,PAYLOAD,RESET].map(k=>[k,s6.getItem(k)]);
+  const originalFingerprint=fingerprint(v1Tuple(s6));
+  await legacy6.save({...empty(),transactions:[entry('v1-transient-after-cutover')]});
+  assert.notEqual(fingerprint(v1Tuple(s6)),originalFingerprint,
+    'The real 18.33 write must first produce observable divergence');
+  for(const [key,value] of originalTuple){
+    if(value===null)s6.removeItem(key);
+    else s6.setItem(key,value);
+  }
+  assert.equal(fingerprint(v1Tuple(s6)),originalFingerprint,
+    'A byte-for-byte restoration hides the intervening legacy write from fingerprint-only checks');
+  assert.deepEqual(clone(await modernV2ABA.load()).transactions.map(t=>t.id),
+    ['v2-authoritative'],'Isolated v2 stays authoritative despite v1 ABA');
+  console.log('PASS PROTOTYPE ONLY: v1 ABA raw-byte restoration defeats tuple fingerprint; no complete legacy-edit detection');
+  console.log('7/7 cross-version synthetic characterizations passed: 2 KNOWN UNSAFE, 1 FAIL CLOSED, 4 RESEARCH-ONLY');
 })().catch(err=>{console.error(err);process.exitCode=1});
