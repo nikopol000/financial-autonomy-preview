@@ -237,6 +237,56 @@ async function caseCrossTabAuthenticatedConflict(browser,url){
     await context.close();
   }
 }
+// Browser-backed lifecycle guard: events are injected deterministically.
+// These are NOT physical tab backgrounding, navigation or Safari tests.
+// The UI may still render a stale retry button, but the vault authority must
+// be revoked immediately and any attempted retry must remain write-free.
+async function caseLifecycleRevokesRetry(browser,url,kind){
+  assert.ok(['visibilitychange','pagehide'].includes(kind));
+  const context=await browser.newContext({viewport:{width:320,height:844},
+    isMobile:true,hasTouch:true,colorScheme:'dark',timezoneId:'Europe/Bucharest'});
+  const page=await context.newPage();
+  try{
+    await openReal(page,url);
+    await beginBudget(page,'Buget sintetic lifecycle '+kind);
+    await injectAtomicPayloadFailure(page);
+    const orphan=await failedBudgetSave(page);
+    assert.equal(await page.evaluate(()=>window.__r(309).canRetryFirstSave()),true,
+      'A live first-save failure must initially retain a bounded retry token');
+    await page.evaluate(type=>{
+      if(type==='visibilitychange'){
+        // Browser visibility is normally read-only. Override only inside
+        // this disposable test document to inject the hidden lifecycle edge.
+        Object.defineProperty(document,'visibilityState',{
+          configurable:true,get:()=> 'hidden'
+        });
+        document.dispatchEvent(new Event('visibilitychange'));
+      }else{
+        window.dispatchEvent(new Event('pagehide'));
+      }
+    },kind);
+    assert.equal(await page.evaluate(()=>window.__r(309).canRetryFirstSave()),false,
+      kind+' must invalidate the volatile first-save retry immediately');
+    assert.deepEqual(await bytes(page),orphan,
+      kind+' must not mutate the ambiguous KEY-only vault footprint');
+    const result=await page.evaluate(async()=>{
+      try{await window.__r(309).retryFirstSave();return 'UNEXPECTED SUCCESS'}
+      catch(error){return String(error?.message||error)}
+    });
+    assert.match(result,/nu mai este disponibilă/,
+      kind+' must reject a direct retry after lifecycle invalidation');
+    assert.deepEqual(await bytes(page),orphan,
+      kind+' rejected retry must never write ciphertext or delete the key');
+    await openReal(page,url);
+    await page.getByText('Datele locale nu pot fi deschise',{exact:true})
+      .waitFor({state:'visible',timeout:20000});
+    assert.deepEqual(await bytes(page),orphan,
+      kind+' reload must preserve the same blocked KEY-only bytes');
+    console.log('PASS #35 actual Chromium WEB UI: synthetic '+kind+
+      ' revokes first-save retry; KEY-only remains unchanged and blocked after reload');
+  }finally{await context.close();}
+}
+
 (async()=>{
   const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
   const version=html.match(/<meta name="financial-autonomy-version" content="(\d+\.\d+)"/)?.[1];
@@ -257,6 +307,8 @@ async function caseCrossTabAuthenticatedConflict(browser,url){
     await caseLiveRetry(browser,url);
     await caseReloadBeforeRetry(browser,url);
     await caseExpiryBeforeRetry(browser,url);
+    await caseLifecycleRevokesRetry(browser,url,'visibilitychange');
+    await caseLifecycleRevokesRetry(browser,url,'pagehide');
     await caseCrossTabAuthenticatedConflict(browser,url);
   }finally{
     if(browser)await browser.close();
