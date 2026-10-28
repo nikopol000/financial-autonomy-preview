@@ -1106,6 +1106,62 @@ async function test(name,fn) {
     assert.deepEqual(backing.data,before);
     assert.equal(backing.writes,writes,'Event invalidation never mutates encrypted storage');
   });
-  console.log(passed+'/58 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==58)process.exitCode=1;
+  // A retry button click is not a write authorization. Its volatile token can
+  // expire or be revoked while an exclusive origin lock is still queued.
+  async function queuedFirstSaveRetryRevocation(cause) {
+    const backing=storage(),events={},timerHarness={};
+    let denyPayload=true,queueRetry=false,releaseRetry=null;
+    const locks={
+      request(name,options,fn){
+        assert.equal(name,'financial-autonomy.preview.vault.v1');
+        assert.equal(options.mode,'exclusive');
+        if(!queueRetry)return Promise.resolve().then(fn);
+        return new Promise((resolve,reject)=>{
+          releaseRetry=()=>Promise.resolve().then(fn).then(resolve,reject);
+        });
+      }
+    };
+    const guarded={
+      getItem:k=>backing.getItem(k),
+      setItem(k,v){
+        if(k===PAYLOAD&&denyPayload)throw Error('QuotaExceededError: synthetic first-save denial');
+        backing.setItem(k,v);
+      },
+      removeItem:k=>backing.removeItem(k),
+      key:i=>backing.key(i),get length(){return backing.length}
+    };
+    const tab=realTab(guarded,{locks,events,timerHarness});
+    await tab.load();
+    await assert.rejects(tab.save(sample()),/Prima salvare criptată/);
+    assert.equal(tab.canRetryFirstSave(),true);
+    assert.match(backing.getItem(KEY),/^[0-9a-f]{64}$/);
+    assert.equal(backing.getItem(PAYLOAD),null);
+    const before=clone(backing.data),writes=backing.writes;
+    denyPayload=false;
+    queueRetry=true;
+    const queued=tab.retryFirstSave();
+    assert.equal(typeof releaseRetry,'function','Retry must wait for the exclusive lock');
+    if(cause==='expiry'){
+      assert.equal(timerHarness.delay,120000);
+      timerHarness.callback();
+    }else{
+      assert.equal(typeof events.storage,'function');
+      events.storage({key:RESET});
+    }
+    assert.equal(tab.canRetryFirstSave(),false,'Revocation must be visible before lock acquisition');
+    releaseRetry();
+    await assert.rejects(queued,/expirat|părăsită/i);
+    assert.deepEqual(backing.data,before,'Queued retry must not write after revocation');
+    assert.equal(backing.writes,writes,'No storage mutation while waiting or after lock');
+    await assert.rejects(realTab(backing,{locks:serialLocks()}).load(),/Cheia locală există, dar datele criptate lipsesc/);
+    assert.deepEqual(backing.data,before,'Reload must preserve ambiguous orphan key');
+  }
+  await test('First-save retry expires while queued behind Web Lock without writing',async()=>{
+    await queuedFirstSaveRetryRevocation('expiry');
+  });
+  await test('First-save retry reset event while queued behind Web Lock prevents stale write',async()=>{
+    await queuedFirstSaveRetryRevocation('reset');
+  });
+  console.log(passed+'/60 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==60)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
