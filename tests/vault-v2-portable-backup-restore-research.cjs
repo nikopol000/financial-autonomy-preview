@@ -34,7 +34,7 @@ const model={
       assert.ok(Array.isArray(s[k]),'valid '+k);
     return s;
   },
-  migrate(s){return this.validateState(s)},
+  migrate(s){return model.validateState(s)},
   emptyState:()=>({version:4,accounts:[],transactions:[],balanceChecks:[]})
 };
 const sandbox={Uint8Array,Uint16Array,Uint32Array,Int32Array,ArrayBuffer,DataView,
