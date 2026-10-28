@@ -93,7 +93,10 @@ async function keyboardNavFocus(page){
     const css=getComputedStyle(el);
     return {label:el.getAttribute('aria-label'),role:el.getAttribute('role'),
       focusVisible:el.matches(':focus-visible'),outlineStyle:css.outlineStyle,
-      outlineWidthPx:parseFloat(css.outlineWidth)||0};
+      outlineWidthPx:parseFloat(css.outlineWidth)||0,tag:el.tagName,
+      tabindex:el.getAttribute('tabindex'),insideRoot:document.getElementById('root')?.contains(el),
+      cssSelectorMatch:el.matches('#root :is(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible'),
+      outlineColor:css.outlineColor};
   });
   await page.keyboard.press('Tab');
   const forward=await inspect();
@@ -101,7 +104,7 @@ async function keyboardNavFocus(page){
   assert.equal(forward.role,'tab','Keyboard focus must remain on a navigation tab');
   assert.equal(forward.focusVisible,true,'Keyboard-focused tab must match :focus-visible');
   assert.ok(forward.outlineStyle!=='none'&&forward.outlineWidthPx>=2,
-    'Keyboard-focused navigation tab must have a visible outline');
+    'Keyboard-focused navigation tab must have a visible outline: '+JSON.stringify(forward));
   await page.keyboard.press('Shift+Tab');
   const backward=await inspect();
   assert.equal(backward.label,'Acasă','Shift+Tab must return to previous navigation destination');
