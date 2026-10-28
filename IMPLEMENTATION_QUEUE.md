@@ -1,3 +1,8 @@
+## WEB 18.62 — 2026-10-28 — P1 #4 cached legacy-tab cross-version characterization (PR #219)
+
+- **CANDIDATE:** actual WEB 18.33 tab can overwrite newer 18.62 ciphertext and resurrect a ledger after committed 18.62 reset; tested with synthetic real AES-GCM. Guarded 18.49 tab rejects idle-v2 marker without writes in tested scenario. **KNOWN UNSAFE tests PASS by reproducing loss/resurrection, not by fixing them.** [PR #219](https://github.com/nikopol000/financial-autonomy-preview/pull/219), [research document](docs/WEB_LEGACY_CACHED_TAB_COMPATIBILITY_20261028.md). Candidate Release CI #40701980354 SUCCESS before doc/checkpoint update; final candidate CI pending.
+- **NEXT:** verify final candidate CI, merge if green, update issue #4 and final main HEAD; then evaluate versioned v2 authority, cached-tab divergence, crash-safe migration and explicit backup/recovery contract without implementing. Continue P1 #35/#29, #85 mobile browser acceptance and periodic nonurgent #25/#14 DISCOVERY. WEB 18.62 unchanged, no formulas/iOS/real data/backup/backend/telemetry.
+
 ## WEB 18.62 — 2026-10-28 — Vercel Git production READY (reconciled after earlier 403)
 
 - **VERIFIED:** official Vercel primary alias now READY `dpl_95XZ3m97VLkA5VzaJWBG7pcAUr91` for source commit `fd40105f4a12bfa29afa8ce6a23e426ecb1fc87e`, which contains immutable product WEB **18.62** and #216 test-only changes. Prior manual deployment 403 was real but superseded by a successful Git-triggered production deployment. Do not infer manual create permission.
