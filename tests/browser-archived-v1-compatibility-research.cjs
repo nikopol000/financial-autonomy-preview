@@ -149,14 +149,33 @@ async function resetResurrection(browser,version){
       try{await window.__archivedVault.save(s);return {ok:true}}
       catch(e){return {ok:false,message:String(e.message)}}
     },snapshot);
-    assert.equal(attempt.ok,true,'Archived '+version+' resurrection is KNOWN UNSAFE');
+    let expectedId='before-reset';
+    if(version==='18.34'){
+      // 18.34 protects a STILL-STALE tab: its previous revision no longer
+      // matches. That is a useful partial guard, not a complete reset fence.
+      assert.equal(attempt.ok,false,'18.34 stale pre-reset snapshot must fail closed');
+      assert.equal(await b.evaluate(key=>localStorage.getItem(key),PAY),null);
+      assert.equal(await b.evaluate(key=>localStorage.getItem(key),RESET),marker);
+      console.log('PASS PARTIAL GUARD: real Chromium 18.34 stale pre-reset tab rejects save');
+      // The actual vulnerable path is a newly reloaded archived client:
+      // it sees no v1 ciphertext, accepts an empty state and first-saves again.
+      await a.reload();
+      await install(a,oldModules[version]);
+      const freshOld=await a.evaluate(()=>window.__archivedVault.load());
+      assert.deepEqual(freshOld.transactions,[]);
+      expectedId='resurrected-by-34';
+      await a.evaluate(s=>window.__archivedVault.save(s),
+        {...clone(freshOld),transactions:[tx(expectedId)]});
+    }else{
+      assert.equal(attempt.ok,true,'18.33 cached stale save is KNOWN UNSAFE');
+    }
     const resurrected=await a.evaluate(key=>localStorage.getItem(key),PAY);
     assert.ok(resurrected,'Archived cached writer recreated v1 ciphertext');
     await visible(b,PAY,resurrected);
     assert.equal(await b.evaluate(key=>localStorage.getItem(key),RESET),marker,
       'Reset marker remains, yet current v1 load can still accept old ciphertext');
     assert.deepEqual((await b.evaluate(()=>window.__archivedVault.load())).transactions
-      .map(x=>x.id),['before-reset']);
+      .map(x=>x.id),[expectedId]);
     console.log('PASS KNOWN UNSAFE: real Chromium '+version+
       ' cached tab resurrects v1 ledger after 18.62 reset');
   });
