@@ -1,3 +1,10 @@
+## WEB 18.61 — 2026-10-28 — premium benchmark PR #212 merged, candidate CI verified
+
+- **MERGED:** [PR #212](https://github.com/nikopol000/financial-autonomy-preview/pull/212), squash main `baa48593e98be43c7d28122a697596c89fc6c840`, adds [premium benchmark](docs/WEB_PREMIUM_UX_BENCHMARK_20261028.md) and initial queue/state checkpoint. Exact candidate head `1e54669ef7a976621e34b2377939bb533caf1045` [Release CI #40676618457](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40676618457) **SUCCESS**; immutable-release, syntax, financial and vault tests completed. Main HEAD was independently read after merge as `baa48593`; merged-main CI/Pages are not independently confirmed by the available PR-run API.
+- **ISSUES:** #14 updated with dated benchmark and strict DISCOVERY-only numeric approval gate; #4 updated with current 18.61 no-Web-Locks fail-closed code evidence and unresolved cached legacy-tab risk. No claim of a real Safari usability test or general user-preference survey.
+- **PRODUCT:** WEB **18.61 unchanged**; no product bundle/HTML, financial formulas, vault, backup, iOS, real data, cloud or telemetry modifications. Vercel deployment status for this documentation-only HEAD is not a browser acceptance claim.
+- **FIRST UNFINISHED:** verify exact final checkpoint HEAD CI/Pages and any Vercel rate limitations; inspect #85 populated budget audit geometry and actual iPhone Safari/VoiceOver, then pursue a small measured UI change. Keep #35 KEY-only, #29 partial reset and #4 legacy tabs P1; #14 remains blocked on explicit approved financial contract.
+
 ## WEB 18.61 — 2026-10-28 — evidence-based premium UX benchmark, DISCOVERY ONLY
 
 - **START HEAD:** `91a6abe8f0d340961e9bda0ea0ea1f6f68333d74`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, `docs/WEB_VISUAL_REVIEW.md` (root path absent), nine open issues including #14/#17/#25 and P1 #35/#29/#4, current HTML and immutable WEB 18.61 bundle.
