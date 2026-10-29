@@ -239,6 +239,57 @@ async function main() {
     await waitAuthority(a,ackAuthority);
     console.log('PASS KNOWN LIMITATION: unauthenticated authority epoch is accepted after alteration');
 
+    // RESEARCH ONLY: an unauthenticated authority status can be forged into a
+    // reset tombstone. This hides a valid committed ledger without deleting it.
+    // Do NOT mistake this characterization for a production security feature.
+    const retainedStagePath=JSON.parse(ackAuthority).stage;
+    const retainedStage=await a.evaluate(path=>localStorage.getItem(path),retainedStagePath);
+    const forgedReset=JSON.stringify({schema:2,status:'reset',epoch:'forged-reset'});
+    const writesBeforeForgery=await a.evaluate(()=>window.__restoreResearch.writes);
+    await b.evaluate(({AUTH,forgedReset})=>
+      localStorage.setItem(AUTH,forgedReset),{AUTH,forgedReset});
+    await waitAuthority(a,forgedReset);
+    assert.equal((await a.evaluate(()=>window.__restoreResearch.read())).source,'reset',
+      'A forged reset currently hides the valid stage (KNOWN LIMITATION)');
+    assert.equal(await a.evaluate(path=>localStorage.getItem(path),retainedStagePath),
+      retainedStage,'The encrypted ledger must remain physically recoverable');
+    assert.equal(await a.evaluate(()=>window.__restoreResearch.writes),writesBeforeForgery);
+    await b.evaluate(({AUTH,ackAuthority})=>
+      localStorage.setItem(AUTH,ackAuthority),{AUTH,ackAuthority});
+    await waitAuthority(a,ackAuthority);
+    assert.deepEqual((await a.evaluate(()=>window.__restoreResearch.read())).state,
+      {transactions:['A','B','C']});
+    console.log('PASS KNOWN LIMITATION: forged unauthenticated reset hides a valid ledger; pointer recovery restores it');
+
+    // Invalid authority must fail closed rather than silently treating v1 as
+    // authoritative. A stale mutation attempt must leave all stages untouched.
+    const malformedAuthority='{"schema":2,"status":"active"';
+    await b.evaluate(({AUTH,malformedAuthority})=>
+      localStorage.setItem(AUTH,malformedAuthority),{AUTH,malformedAuthority});
+    await a.waitForFunction(({AUTH,malformedAuthority})=>
+      localStorage.getItem(AUTH)===malformedAuthority,
+      {AUTH,malformedAuthority},{timeout:10000});
+    const blockedRead=await a.evaluate(async()=>{
+      try {await window.__restoreResearch.read();return 'UNEXPECTED_SUCCESS';}
+      catch(error){return error.name;}
+    });
+    assert.equal(blockedRead,'SyntaxError');
+    const writesBeforeMalformed=await a.evaluate(()=>window.__restoreResearch.writes);
+    assert.deepEqual(await a.evaluate(snapshot=>window.__restoreResearch.restore(
+      {transactions:['must-not-commit']},snapshot,true),
+      {authority:ackAuthority,legacy:original.legacy}),
+      {ok:false,reason:'stale-authority'});
+    assert.equal(await a.evaluate(()=>window.__restoreResearch.writes),writesBeforeMalformed);
+    assert.equal(await a.evaluate(path=>localStorage.getItem(path),retainedStagePath),
+      retainedStage);
+    await b.evaluate(({AUTH,ackAuthority})=>
+      localStorage.setItem(AUTH,ackAuthority),{AUTH,ackAuthority});
+    await waitAuthority(a,ackAuthority);
+    assert.deepEqual((await a.evaluate(()=>window.__restoreResearch.read())).state,
+      {transactions:['A','B','C']});
+    console.log('PASS real Chromium: malformed authority fails closed, stale restore writes nothing, valid ledger recovers');
+
+
     // Cached legacy reset/deletion can leave a KEY-only v1 tuple. The v2
     // authority must stay readable and must not silently adopt or delete v1.
     await b.evaluate(({V1PAY})=>localStorage.removeItem(V1PAY),{V1PAY});
