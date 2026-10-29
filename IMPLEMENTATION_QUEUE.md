@@ -1,3 +1,9 @@
+## 2026-10-29 — #4/#35 actual archived missing-component fault regression IN PROGRESS
+
+- **CANDIDATE:** `test/web-v1-missing-pair-idb-guard-20261029`, `93b4963da852dc65b628171b785df78f72ba00c2`. Test-only Chromium exercises actual WEB 18.27/18.33/18.34 encrypted v1 pair, then removes exactly key or payload after isolated IDB cutover. Check surviving bytes, fail-closed read/reset with zero IDB writes, reload and exact-pair restoration. Distinct from prior malformed-but-present fault tests.
+- **FIRST UNFINISHED:** independently verify candidate CI and named Chromium PASS logs; if green merge PR, verify merged main checks, update #4/#35 and checkpoints. If red, repair test without weakening assertions. WEB 18.65 PR #270 still Vercel rate-limited; **WEB 18.64 active**. No product release for tests/docs.
+- **KNOWN UNSAFE:** old v1 tab can still write after final v1 fingerprint check; full-pair replay and origin rollback remain undetectable. #29/#35 missing-component provenance unresolved. Next: actual backup/key provenance and recovery contract, Safari, #85 mobile zoom. #14/#25/#2 DISCOVERY ONLY, no financial formula/mode changes.
+
 ## 2026-10-29 — #4 authenticated same-revision IDB substitution RESEARCH MERGED
 
 - **DONE TEST-ONLY:** [PR #272](https://github.com/nikopol000/financial-autonomy-preview/pull/272) squash `539f52cf174acd475292236d2f312ed13ee445df`, Chromium synthetic authenticated same-revision IDB replacement during async reset preflight. Stale reset must return `authority-changed`; rival ciphertext/ledger survive. No product storage migration or release.
