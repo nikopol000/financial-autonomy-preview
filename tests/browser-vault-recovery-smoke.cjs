@@ -223,6 +223,16 @@ async function run() {
     await populatedTarget.getByText(/Backup incompatibil sau deteriorat/).waitFor({state:'visible',timeout:60000});
     assert.equal(await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).count(),0);
     assert.deepEqual(await vaultBytes(populatedTarget),pendingBefore,'Unsupported format must not write');
+    // Malformed JSON fails before the schema/PBKDF2/AES-GCM checks. It must
+    // also revoke a previously validated candidate and leave the vault intact.
+    await filePicker(populatedTarget,Buffer.from('{"format":"FinancialAutonomy","version":1,"data":'));
+    await populatedTarget.getByText(/Unexpected|JSON|SyntaxError|Expected|Backup incompatibil/i)
+      .first().waitFor({state:'visible',timeout:15000});
+    assert.equal(await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).count(),0,
+      'Malformed backup JSON must not retain an older confirmable candidate');
+    assert.deepEqual(await vaultBytes(populatedTarget),pendingBefore,
+      'Malformed backup JSON must not write or delete encrypted vault data');
+    console.log('PASS Chromium actual WEB backup: malformed JSON revokes pending restore with zero vault writes');
     const badCipher={...validEnvelope,
       data:(validEnvelope.data[0]==='0'?'1':'0')+validEnvelope.data.slice(1)};
     await filePicker(populatedTarget,Buffer.from(JSON.stringify(badCipher)));
