@@ -1,3 +1,10 @@
+## WEB 18.62 — 2026-10-29 — #4 sealed-authority RESEARCH CANDIDATE (not production)
+
+- **START HEAD:** `7904b31cadbcb689a19e71e51fe76f8d5943185c`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and nine open GitHub issues.
+- **CANDIDATE:** branch `research/v2-sealed-authority-prototype-20261029` adds `tests/vault-v2-sealed-authority-research.cjs`, CI step, and `docs/WEB_V2_SEALED_AUTHORITY_RESEARCH_20261029.md`. Six synthetic Node WebCrypto AES-GCM tests **PASS locally**: forged plain reset, bit-flipped metadata, altered stage, write-then-throw reset, pre-commit failure and **KNOWN LIMITATION** valid sealed-authority replay. No CI/merge/Pages/Vercel claim until verified.
+- **FIRST UNFINISHED:** verify exact PR Release CI including six named tests; merge only if green, verify merged-main CI/Pages and checkpoint; update issue #4. Then evaluate actual browser two-tab/Web Locks/IndexedDB authority, archived v1 interleavings, key provenance, portable backups and nondestructive recovery. WEB 18.62 v1 cached-tab overwrite/reset resurrection **STILL KNOWN UNSAFE**. #29/#35 P1 remain open.
+- **DISCOVERY:** #14 budget perspectives analysis-only pending explicit numerical contract; #25 card overpayment and #85 mobile zoom remain open. No product bundle/index/version, formulas, real data, backup format, iOS, backend, login, telemetry or bank sync changed.
+
 ## WEB 18.62 — 2026-10-29 — #4 forged v2 reset and malformed authority research MERGED; production v1 UNSAFE
 
 - **START HEAD:** `d177edaba1dc57bce93167add07090914f56db19`; [Release #40792078054](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40792078054), [Pages #40792078139](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40792078139), [Pages build #40792077209](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40792077209) SUCCESS. Mandatory docs and nine open issues reviewed.
