@@ -654,6 +654,15 @@ async function main() {
       snapshot.epoch,snapshot.raw),checkedCurrent);
     assert.equal(checkedReset.ok,true);
     assert.notEqual(checkedReset.epoch,checkedCurrent.epoch);
+    // Web Locks serialize cooperating writers, but do not guarantee that a
+    // different Chromium renderer has observed both localStorage mutations.
+    // Wait for the reset marker AND the absent ciphertext before asserting
+    // stale-tab behavior; do not weaken the stale rejection itself.
+    await a.waitForFunction(({epochKey,recordKey,expectedEpoch})=>
+      localStorage.getItem(epochKey)===expectedEpoch &&
+      localStorage.getItem(recordKey)===null,
+      {epochKey:EPOCH,recordKey:EPOCH_V2,expectedEpoch:checkedReset.epoch},
+      {timeout:10000});
     assert.equal(await a.evaluate(key=>localStorage.getItem(key),EPOCH_V2),null);
     assert.deepEqual(await a.evaluate(snapshot=>window.__research.epochResetChecked(
       snapshot.epoch,snapshot.raw),checkedCurrent),{ok:false,reason:'stale-epoch'});
