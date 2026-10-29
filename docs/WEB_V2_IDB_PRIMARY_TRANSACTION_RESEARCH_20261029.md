@@ -59,3 +59,17 @@ Three new Chromium assertions were added for (a) corrupted ciphertext/reset refu
 **Critical residual risk:** the explicit initialization flag is not itself proof of first-ever use; a user action, trustworthy recovery state and portable encrypted backup contract are still required. A fully rolled-back valid record remains readable. Cached WEB 18.27/18.33/18.34 writers still target localStorage and are not protected by this synthetic IndexedDB-only model. Do not ship the model as a production fix.
 
 **Next:** test actual archived v1 modules against a staged IDB cutover and the backup/key migration contract; include transaction abort, same-revision envelope replacement, corrupt authority, missing IDB and nondestructive recovery screens. Keep WEB 18.62 and all financial semantics unchanged.
+
+## Real archived WEB v1 writers versus IDB-primary (2026-10-29 candidate)
+
+**Research characterization; not a protection.** The same disposable Chromium origin runs the actual immutable Metro platform/vault/crypto modules of WEB 18.27, 18.33 and 18.34, with only a synthetic financial model substituted. A legacy tab first writes a real AES-GCM v1 key/payload pair. The isolated IDB-primary prototype then explicitly initializes an encrypted synthetic state. The archived tab loads and writes another v1 transaction, changing the ciphertext. The IDB prototype can still read its own staged record and **currently permits an IDB reset without inspecting the changed v1 pair**.
+
+The test deliberately asserts this **KNOWN UNSAFE migration gap** for all three archived versions. A passing test proves the gap exists, **not** that the reset is safe. Unlike the earlier sealed-localStorage authority prototype, the atomic-IDB research currently has no recorded v1 fingerprint, provenance/authority cutover state or divergence check. Neither database isolation nor AES-GCM prevents the cached client from changing the v1 ledger.
+
+**Required contract before any production migration:**
+1. Capture and authenticate the exact legacy key/payload pair at a reviewed cutover point; retain recoverable encrypted originals and never infer that a missing pair means a fresh vault.
+2. On every destructive IDB operation, explicitly compare the observed legacy pair with the cutover fingerprint and **block with no writes** when it diverges. Define how legitimate older clients, imported backups, key-only or payload-only faults, and a completed intentional reset are distinguished.
+3. Provide a non-destructive conflict screen with understandable choices (inspect/reload, encrypted export, explicit restore) and no automatic merge or reimport. Validate with actual browser behavior and accessible mobile UI.
+4. Repeat with injected writes during migration, crash/reload, denied/evicted IDB, quota errors, backup restoration, Safari iPhone and VoiceOver. Document that full-origin rollback remains outside the guarantees of a local-only origin.
+
+**Verification:** candidate source and JavaScript syntax were checked before the GitHub commit. Chromium/Release CI and named PASS lines must be checked independently; until then this is an unverified test candidate. No WEB product bundle, version, formula, real data, backup format or iOS source changed.
