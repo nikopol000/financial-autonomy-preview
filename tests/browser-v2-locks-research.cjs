@@ -615,15 +615,29 @@ async function main() {
 
     // In a clean synthetic generation, a caller with a stale ciphertext
     // revision cannot reset someone else's newly committed transaction.
-    await a.evaluate(({EPOCH,EPOCH_V2})=>{
+    const checkedGeneration=await a.evaluate(({EPOCH,EPOCH_V2})=>{
       localStorage.removeItem(EPOCH_V2);
-      localStorage.setItem(EPOCH,crypto.randomUUID());
+      const next=crypto.randomUUID();
+      localStorage.setItem(EPOCH,next);
+      return next;
     },{EPOCH,EPOCH_V2});
+    // A different Chromium renderer can lag behind the synthetic reset.
+    // Observe BOTH writes in B before taking its snapshot. A stale marker
+    // observed during fixture setup is not a storage-contract failure.
+    await b.waitForFunction(({epochKey,recordKey,expectedEpoch})=>
+      localStorage.getItem(epochKey)===expectedEpoch &&
+      localStorage.getItem(recordKey)===null,
+      {epochKey:EPOCH,recordKey:EPOCH_V2,expectedEpoch:checkedGeneration},
+      {timeout:10000});
     const checkedEmpty=await b.evaluate(()=>window.__research.epochRead());
-    // A previous CI attempt failed on the save below but a rerun passed.
-    // Preserve fail-closed semantics: never retry or silently reinitialize.
-    // Instead report the precise precondition and failure reason, including
-    // the browser's actual marker/revision, for a reproducible diagnosis.
+    // The writer A must also observe the exact B snapshot before attempting
+    // the guarded save. Do not retry a rejected save or weaken fail-closed
+    // behavior: the synchronization applies only to test-fixture setup.
+    await a.waitForFunction(({epochKey,recordKey,expectedEpoch})=>
+      localStorage.getItem(epochKey)===expectedEpoch &&
+      localStorage.getItem(recordKey)===null,
+      {epochKey:EPOCH,recordKey:EPOCH_V2,expectedEpoch:checkedGeneration},
+      {timeout:10000});
     assert.equal(checkedEmpty.ok,true,
       'Expected readable clean generation: '+JSON.stringify(checkedEmpty));
     assert.equal(checkedEmpty.raw,null,
