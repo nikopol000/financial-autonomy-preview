@@ -1,11 +1,9 @@
 'use strict';
-// WEB 18.64 immutable diff: pending backup verification has a request epoch.
-// A late successful decrypt must not reinstate a proposal after password edit
-// or newer selection. This is a UI guard; AES-GCM/PBKDF2 and financial math are unchanged.
+// WEB 18.64 immutable diff: a late backup decrypt must not restore an invalidated candidate.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const old=fs.readFileSync('_expo/static/js/web/index-v01863-backup-preview-safety-20261029.js','utf8');
-assert.match(html,/index-v01864-backup-async-epoch-20261029\.js\?build=18\.64\.1/);
+const next=fs.readFileSync('_expo/static/js/web/index-v01864-backup-async-epoch-20261029.js','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const replacements=[
   [
@@ -36,6 +34,6 @@ for(const [from,to] of replacements){
 }
 assert.equal(next,expected,'Only request epoch, restore candidate handling and diagnostic version may change');
 assert.match(html,/<meta name="financial-autonomy-version" content="18\.64"/);
-assert.match(html,/index-v01864-backup-async-epoch-20261029\.js\?build=18\.64\\.1/);
+assert.match(html,/index-v01864-backup-async-epoch-20261029\.js\?build=18\.64\.1/);
 assert.doesNotMatch(html,/index-v01863-backup-preview-safety-20261029/);
 console.log('PASS WEB 18.64: exact async-restore epoch diff; no financial or cryptographic changes');
