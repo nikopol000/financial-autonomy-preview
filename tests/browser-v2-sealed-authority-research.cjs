@@ -9,9 +9,10 @@ const AUTH='research.sealed.chromium.authority';
 const KEY='research.sealed.chromium.key';
 const STAGE='research.sealed.chromium.stage.';
 const LEGACY='financial-autonomy.preview.payload.v1';
+const LEGACY_KEY='financial-autonomy.preview.key.v1';
 const LOCK='research.sealed.chromium.lock';
 async function install(page){
-  await page.evaluate(({AUTH,KEY,STAGE,LEGACY,LOCK})=>{
+  await page.evaluate(({AUTH,KEY,STAGE,LEGACY,LEGACY_KEY,LOCK})=>{
     const enc=new TextEncoder(),dec=new TextDecoder();
     const hex=b=>Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');
     const bytes=s=>{
@@ -37,6 +38,7 @@ async function install(page){
       return JSON.parse(dec.decode(await crypto.subtle.decrypt(
         {name:'AES-GCM',iv:bytes(envelope.iv)},await keyFor(),bytes(envelope.cipher))));
     };
+    const legacy=()=>JSON.stringify([localStorage.getItem(LEGACY_KEY),localStorage.getItem(LEGACY)]);
     const r=window.__sealedResearch={writes:0,holding:false};
     r.initialize=()=>{
       if(localStorage.getItem(KEY)!==null||localStorage.getItem(AUTH)!==null)
@@ -64,13 +66,13 @@ async function install(page){
       if(rawStage===null||await digest(rawStage)!==record.digest)
         throw Error('STAGE_MISSING_OR_CHANGED');
       return {status:'active',record,state:await unseal(rawStage),
-        legacyDiverged:localStorage.getItem(LEGACY)!==record.legacy};
+        legacyDiverged:legacy()!==record.legacy};
     };
     r.commit=async(state,expected,expectedLegacy,hold=false)=>{
       if(!navigator.locks?.request)return {ok:false,reason:'locks-unavailable'};
       return navigator.locks.request(LOCK,{mode:'exclusive'},async()=>{
         if(localStorage.getItem(AUTH)!==expected)return {ok:false,reason:'stale-authority'};
-        if(localStorage.getItem(LEGACY)!==expectedLegacy)
+        if(legacy()!==expectedLegacy)
           return {ok:false,reason:'legacy-diverged'};
         const old=expected===null?null:await r.read();
         if(old&&old.status!=='active')return {ok:false,reason:'not-active'};
@@ -79,7 +81,7 @@ async function install(page){
         localStorage.setItem(stage,payload);r.writes++;
         if(hold){r.holding=true;await new Promise(resolve=>r.release=resolve);}
         if(localStorage.getItem(AUTH)!==expected)return {ok:false,reason:'stale-authority'};
-        if(localStorage.getItem(LEGACY)!==expectedLegacy)
+        if(legacy()!==expectedLegacy)
           return {ok:false,reason:'legacy-diverged'};
         const record={schema:2,status:'active',stage,digest:await digest(payload),
           legacy:expectedLegacy,revision:old?old.record.revision+1:1,epoch:crypto.randomUUID()};
@@ -103,7 +105,7 @@ async function install(page){
         return {ok:true,authority};
       });
     };
-  },{AUTH,KEY,STAGE,LEGACY,LOCK});
+  },{AUTH,KEY,STAGE,LEGACY,LEGACY_KEY,LOCK});
 }
 async function visible(page,key,value){
   await page.waitForFunction(({key,value})=>localStorage.getItem(key)===value,
@@ -130,8 +132,9 @@ async function main(){
       await a.evaluate(()=>window.__sealedResearch.initialize());
       const key=await a.evaluate(k=>localStorage.getItem(k),KEY);
       await visible(b,KEY,key);
+      const originalLegacy=JSON.stringify([null,'synthetic-legacy-1']);
       const first=await a.evaluate(legacy=>window.__sealedResearch.commit(
-        {transactions:['A']},null,legacy), 'synthetic-legacy-1');
+        {transactions:['A']},null,legacy),originalLegacy);
       assert.equal(first.ok,true);
       await visible(b,AUTH,first.authority);
       assert.deepEqual((await b.evaluate(()=>window.__sealedResearch.read())).state,
@@ -149,13 +152,13 @@ async function main(){
       assert.equal((await b.evaluate(()=>window.__sealedResearch.read())).status,'active');
       console.log('PASS Chromium: plain forged reset fails closed, no reader writes');
       const second=await b.evaluate(auth=>window.__sealedResearch.commit(
-        {transactions:['A','B']},auth,'synthetic-legacy-1'),first.authority);
+        {transactions:['A','B']},auth,originalLegacy),first.authority);
       assert.equal(second.ok,true);
       await visible(a,AUTH,second.authority);
       assert.deepEqual((await a.evaluate(()=>window.__sealedResearch.read())).state.transactions,
         ['A','B']);
       const paused=b.evaluate(auth=>window.__sealedResearch.commit(
-        {transactions:['A','B','C']},auth,'synthetic-legacy-1',true),second.authority);
+        {transactions:['A','B','C']},auth,originalLegacy,true),second.authority);
       await b.waitForFunction(()=>window.__sealedResearch.holding===true);
       await a.evaluate(key=>localStorage.setItem(key,'synthetic-legacy-from-old-tab'),LEGACY);
       await visible(b,LEGACY,'synthetic-legacy-from-old-tab');
@@ -168,6 +171,14 @@ async function main(){
       console.log('PASS Chromium: legacy drift during stage blocks promotion and divergent reset');
       await a.evaluate(key=>localStorage.setItem(key,'synthetic-legacy-1'),LEGACY);
       await visible(b,LEGACY,'synthetic-legacy-1');
+      // A key-only partial legacy write must also count as divergence.
+      await a.evaluate(key=>localStorage.setItem(key,'synthetic-orphan-v1-key'),LEGACY_KEY);
+      await visible(b,LEGACY_KEY,'synthetic-orphan-v1-key');
+      assert.deepEqual(await b.evaluate(auth=>window.__sealedResearch.reset(auth),
+        second.authority),{ok:false,reason:'legacy-diverged'});
+      await a.evaluate(key=>localStorage.removeItem(key),LEGACY_KEY);
+      await visible(b,LEGACY_KEY,null);
+      console.log('PASS Chromium: key-only v1 partial write also blocks destructive reset');
       await assert.rejects(b.evaluate(auth=>window.__sealedResearch.reset(auth,true),
         second.authority),/INJECTED_AFTER_RESET_COMMIT/);
       const resetAuthority=await b.evaluate(k=>localStorage.getItem(k),AUTH);
