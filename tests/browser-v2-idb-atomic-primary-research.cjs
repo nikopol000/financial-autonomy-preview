@@ -3,6 +3,7 @@
 // Synthetic ledger, fixed TEST-ONLY crypto key, disposable localhost origin.
 // This does NOT establish key provenance, durable flush, or rollback resistance.
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
 const http=require('node:http');
 const {chromium}=require('playwright');
 
@@ -120,6 +121,123 @@ async function install(page){
     };
   });
 }
+const archivedPaths={
+  '18.27':'_expo/static/js/web/index-v01827-vault-orphan-guard-20261023.js',
+  '18.33':'_expo/static/js/web/index-v01833-demo-preload-guard-20261023.js',
+  '18.34':'_expo/static/js/web/index-v01834-multitab-vault-guard-20261024.js'
+};
+const syntheticTx=id=>({id,kind:'expense',amount:100,date:'2026-10-29',accountId:'synthetic'});
+const syntheticEmpty=()=>({version:4,accounts:[],transactions:[],balanceChecks:[]});
+function extract(source){
+  const modules={};
+  function visit(id){
+    if(id===204||id===205||modules[id])return;
+    const matches=[...source.matchAll(new RegExp('\\},'+id+',\\[([^\\]]*)\\]\\);','g'))];
+    assert.equal(matches.length,1,'Missing or duplicate Metro module '+id);
+    const match=matches[0];
+    const start=source.lastIndexOf('__d(function(',match.index);
+    assert.ok(start>=0,'Metro factory missing for '+id);
+    const deps=match[1]?match[1].split(',').map(Number):[];
+    modules[id]={factory:source.slice(start+4,match.index+1),deps};
+    deps.forEach(visit);
+  }
+  visit(309);
+  assert.ok(modules[309]&&modules[310]&&modules[311],
+    'Must execute real platform, vault and cryptographic adapter');
+  return modules;
+}
+
+async function installLegacy(page,modules){
+  await page.evaluate(defs=>{
+    const model={
+      emptyState:()=>({version:4,accounts:[],transactions:[],balanceChecks:[]}),
+      migrate(s){model.validateState(s);return s},
+      validateState(s){
+        if(!s||s.version!==4||!['accounts','transactions','balanceChecks']
+          .every(k=>Array.isArray(s[k])))throw Error('INVALID_SYNTHETIC_STATE');
+        return s;
+      },
+      saveTransaction:(s,t)=>({...s,transactions:[...s.transactions,t]})
+    };
+    const cache=new Map([[204,{validateState:model.validateState}],[205,model]]);
+    function load(id){
+      if(cache.has(id))return cache.get(id);
+      const def=defs[id];
+      if(!def)throw Error('MISSING_METRO_MODULE_'+id);
+      // Trusted immutable repository source, evaluated only on a disposable
+      // localhost origin; this is NOT a generic user-input code evaluator.
+      const factory=Function('return ('+def.factory+')')();
+      const module={exports:{}};
+      cache.set(id,module.exports);
+      factory(window,load,()=>{},null,module,module.exports,def.deps);
+      cache.set(id,module.exports);
+      return module.exports;
+    }
+    window.__archivedVault=load(309);
+    if(!window.__archivedVault?.load||!window.__archivedVault?.save)
+      throw Error('ARCHIVED_PLATFORM_EXPORTS_MISSING');
+  },modules);
+}
+
+
+
+/*
+ * Migration-gap characterization, not a migration implementation:
+ * execute actual immutable WEB 18.27/18.33/18.34 vault+crypto adapters
+ * on the SAME disposable browser origin as the IDB-primary research.
+ * Only the financial model is synthetic. A current IDB writer does not
+ * yet bind its authority to legacy v1 ciphertext; this test documents
+ * the resulting unsafe reset after an archived writer changes v1.
+ */
+async function testRealArchivedDriftAgainstIdb(browser,url){
+  for(const version of ['18.27','18.33','18.34']){
+    const context=await browser.newContext();
+    try{
+      const old=await context.newPage(),modern=await context.newPage();
+      await Promise.all([old.goto(url),modern.goto(url)]);
+      await installLegacy(old,extract(fs.readFileSync(archivedPaths[version],'utf8')));
+      await install(modern);
+      await old.evaluate(()=>window.__archivedVault.load());
+      await old.evaluate(s=>window.__archivedVault.save(s),
+        {...syntheticEmpty(),transactions:[syntheticTx('legacy-initial')]});
+      const before=await old.evaluate(()=>[
+        localStorage.getItem('financial-autonomy.preview.key.v1'),
+        localStorage.getItem('financial-autonomy.preview.payload.v1')
+      ]);
+      assert.ok(before[0]&&before[1],
+        'actual archived AES-GCM v1 pair required, not demo-only state');
+      const staged=await modern.evaluate(()=>window.__atomicResearch.write({
+        expectedRevision:0,allowInitialize:true,
+        state:{transactions:['synthetic-staged-from-v1']}
+      }));
+      assert.deepEqual(staged,{ok:true,revision:1});
+      const latest=await old.evaluate(()=>window.__archivedVault.load());
+      await old.evaluate(s=>window.__archivedVault.save(s),{
+        ...latest,transactions:[...latest.transactions,syntheticTx('legacy-after-idb')]
+      });
+      const after=await old.evaluate(()=>[
+        localStorage.getItem('financial-autonomy.preview.key.v1'),
+        localStorage.getItem('financial-autonomy.preview.payload.v1')
+      ]);
+      assert.ok(after[0]&&after[1]);
+      assert.notEqual(after[1],before[1],
+        'archived writer must really change v1 encrypted payload');
+      assert.deepEqual((await modern.evaluate(()=>window.__atomicResearch.read())).state,
+        {transactions:['synthetic-staged-from-v1']});
+      const unsafe=await modern.evaluate(()=>window.__atomicResearch.write({
+        expectedRevision:1,reset:true
+      }));
+      assert.deepEqual(unsafe,{ok:true,revision:2});
+      assert.equal((await modern.evaluate(()=>window.__atomicResearch.read())).status,
+        'reset');
+      // This PASS is a demonstrated missing legacy-divergence gate,
+      // NOT a successful migration or safe reset.
+      console.log('PASS KNOWN UNSAFE atomic IDB + real archived '+version+
+        ': v1 ciphertext drift is ignored by experimental reset');
+    }finally{await context.close();}
+  }
+}
+
 async function main(){
   const server=http.createServer((_req,res)=>{
     res.writeHead(200,{'Content-Type':'text/html','Cache-Control':'no-store'});
@@ -227,6 +345,8 @@ async function main(){
         {transactions:['A']});
       console.log('PASS KNOWN UNSAFE atomic IDB: valid old-record rollback remains possible');
     }finally{await context.close();}
+    await testRealArchivedDriftAgainstIdb(browser,
+      'http://127.0.0.1:'+server.address().port+'/?fa_real=1');
   }finally{
     if(browser)await browser.close();
     await new Promise(resolve=>server.close(resolve));
