@@ -14,6 +14,7 @@ on:
       - 'tests/browser-v2-sealed-authority-research.cjs'
       - 'tests/browser-v2-idb-witness-research.cjs'
       - 'tests/browser-v2-idb-atomic-primary-research.cjs'
+      - 'tests/browser-v2-conflict-readonly-ui-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
@@ -31,6 +32,7 @@ on:
       - 'tests/browser-v2-sealed-authority-research.cjs'
       - 'tests/browser-v2-idb-witness-research.cjs'
       - 'tests/browser-v2-idb-atomic-primary-research.cjs'
+      - 'tests/browser-v2-conflict-readonly-ui-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
@@ -66,10 +68,20 @@ jobs:
         run: node tests/browser-v2-idb-witness-research.cjs
       - name: Research transactional IndexedDB primary authority in Chromium (NOT PRODUCTION)
         run: node tests/browser-v2-idb-atomic-primary-research.cjs
+      - name: Research isolated read-only conflict screen, storage faults and mobile zoom (NOT PRODUCTION)
+        run: node tests/browser-v2-conflict-readonly-ui-research.cjs
       - name: Audit actual blocked WEB mobile UI in light/dark (synthetic-only)
         run: node tests/browser-vault-ui-audit.cjs
       - name: Audit populated demo budgets at 320/390px light/dark and CSS zoom stress
         run: node tests/browser-populated-budget-audit.cjs
+      - name: Retain synthetic-only read-only conflict screen screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-v2-conflict-readonly-ui-research
+          path: artifacts/browser-v2-conflict-readonly/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Retain synthetic-only populated budget screenshots and geometry
         if: always()
         uses: actions/upload-artifact@v4
