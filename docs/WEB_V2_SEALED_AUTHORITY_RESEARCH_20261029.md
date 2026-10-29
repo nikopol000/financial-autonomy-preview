@@ -42,3 +42,11 @@ Local syntax check and `node --test` completed with **6/6 PASS** before opening 
 Related: [issue #4](https://github.com/nikopol000/financial-autonomy-preview/issues/4), [issue #29](https://github.com/nikopol000/financial-autonomy-preview/issues/29), [issue #35](https://github.com/nikopol000/financial-autonomy-preview/issues/35), `docs/WEB_V2_FORGED_RESET_RESEARCH_20261029.md`.
 
 **Issue #14 remains DISCOVERY ONLY**: no budget modes, financial formulas or semantics changed or approved.
+
+## Two-tab Chromium follow-up — PR #244 (verification pending)
+
+The next experiment is `tests/browser-v2-sealed-authority-research.cjs`, run in Chromium on a disposable localhost origin with **two real tabs** sharing localStorage, Web Locks and browser WebCrypto AES-GCM. Its inputs are **synthetic only**. The browser script is wired to the existing Chromium workflow; its result must be confirmed from the exact candidate workflow and named PASS lines before describing any observation as verified.
+
+The six named checks are: (1) sealed stage/authority cross-tab round-trip; (2) forged plaintext reset rejected with zero reader writes; (3) synthetic legacy payload mutation during a held staged commit rejects promotion and a divergent reset; (4) reset authority persisted before an injected throw remains authoritative after reload and later legacy writes; (5) **KNOWN UNSAFE** replay of a valid pre-reset sealed authority resurrects a retained earlier stage; and (6) key disappearance fails closed and restoring the original key restores readability.
+
+**Scope and threat model:** The synthetic legacy mutation is a direct localStorage write, **not** an execution of archived WEB 18.27/18.33/18.34 JavaScript. Those actual cached modules were exercised separately in `tests/browser-archived-v2-interleavings-research.cjs` against the *unauthenticated* v2 prototype. This follow-up does not yet combine actual archived modules with sealed authority. The lock protects only cooperating v2 writers; archived clients do not participate. A v2 legacy-fingerprint check is a divergence detector, not a durable anti-rollback counter. Full-origin rollback, same-origin key access, Safari crash durability, portable backup recovery, key provenance and user-visible conflict resolution remain unresolved. **Never use a successful research test as approval to deploy v2.**
