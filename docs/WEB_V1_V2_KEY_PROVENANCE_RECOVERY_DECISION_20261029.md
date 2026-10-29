@@ -1,3 +1,9 @@
+## 2026-10-30 — authenticated but older backup / isolated destination regression
+
+[PR #280](https://github.com/nikopol000/financial-autonomy-preview/pull/280) adds a Node VM test against actual WEB 18.64 bundled modules 310/311: a valid encrypted portable backup of synthetic ledger S decrypts correctly while the original local AES-GCM vault contains S plus a later transaction T. The test verifies **zero writes** and byte-identical preservation of the original live key/ciphertext during backup validation; after an explicit *test-only* choice, S is saved to a separate empty storage adapter and the original still decrypts to S+T. This demonstrates the need to distinguish *authenticated* from *newest*, and to avoid automatic overwrite. It does not detect full-origin rollback, resolve v1/IDB key provenance, create a browser-profile restore UX or prove Safari/VoiceOver behavior.
+
+Exact candidate [Release CI #40963364596](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40963364596) **SUCCESS** with named test PASS and **66/66 bundled** cases in job `123761533234`; merged-main/checkpoint CI are separate. No production storage change or new product version. Next acceptance: actual browser-level restore validation/cancel, separate disposable origin, storage denial and interrupted writes; preserve ambiguous evidence without claiming a freshness oracle.
+
 # WEB #4/#29/#35 — key provenance and recovery-source selection (research, 2026-10-29)
 
 **Status: analysis / acceptance contract, not a production migration or a claim of freshness.** Active WEB 18.64 remains unchanged. No real financial data, iOS, formulas, backup format, backend, bank connection or telemetry were touched.
