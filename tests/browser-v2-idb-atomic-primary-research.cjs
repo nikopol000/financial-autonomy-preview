@@ -260,12 +260,15 @@ async function testRealArchivedDriftAgainstIdb(browser,url){
         stagedRaw,'divergence must not mutate IDB authority');
       // A partial v1 key-only or payload-only fault must also block writes.
       for(const slot of [0,1]){
-        await old.evaluate(({slot,before,after})=>{
+        // The real archived writer reuses its v1 key, so mixing old/new
+        // key bytes is NOT necessarily a key-only fault. Inject each
+        // partial fault explicitly, and restore the pristine pair after.
+        await old.evaluate(({slot,before})=>{
           const keys=['financial-autonomy.preview.key.v1',
             'financial-autonomy.preview.payload.v1'];
-          localStorage.setItem(keys[slot],before[slot]);
-          localStorage.setItem(keys[1-slot],after[1-slot]);
-        },{slot,before,after});
+          keys.forEach((key,i)=>localStorage.setItem(key,
+            before[i]+(i===slot?'-synthetic-partial-fault':'')));
+        },{slot,before});
         const partial=await modern.evaluate(()=>window.__atomicResearch.write({
           expectedRevision:1,reset:true
         }));
