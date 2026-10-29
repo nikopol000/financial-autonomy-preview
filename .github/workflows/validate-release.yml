@@ -45,6 +45,8 @@ jobs:
         run: node tests/web-v1862-budget-clarity-regression.cjs
       - name: WEB 18.63 backup preview candidate revocation and immutable diff
         run: node tests/web-v1863-backup-preview-safety-regression.cjs
+      - name: WEB 18.64 async backup validation epoch and immutable diff
+        run: node tests/web-v1864-backup-async-epoch-regression.cjs
       - name: Verify v18.22 candidate reconciliation independently of active release
         run: |
           node tests/reconciliation-v1822-candidate.cjs
