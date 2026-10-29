@@ -197,6 +197,69 @@ async function run() {
     assert.deepEqual(await vaultBytes(populated),seed,'Export must not rewrite populated source vault');
     console.log('PASS Chromium dark mobile: real bundle loads one synthetic account and expense; password export leaves ciphertext intact');
 
+    // #4: A VALID but OLDER portable backup is not evidence that it is the
+    // newest ledger. Validate and CANCEL it against a newer, already-encrypted
+    // live vault in a separate disposable browser profile. This must not
+    // silently replace the newer transaction or mutate ANY vault storage key.
+    // No new restore-selection UI or freshness oracle is assumed here.
+    const newerContext=await browser.newContext({viewport:{width:390,height:844},
+      isMobile:true,hasTouch:true,colorScheme:'dark'});
+    const newerPage=await newerContext.newPage();activePage=newerPage;
+    await openReal(newerPage,url);
+    const newerFixture=structuredClone(fixture);
+    newerFixture.transactions.push({id:'synthetic-newer-browser-expense',
+      name:'Cheltuială sintetică ulterioară',kind:'expense',
+      accountId:'synthetic-checking-browser',amount:375,date:fixture.started,details:[]});
+    const newerSeed=encryptSyntheticLedger(newerFixture);
+    await newerPage.evaluate(([key,payload,seed])=>{
+      localStorage.setItem(key,seed.key);
+      localStorage.setItem(payload,seed.payload);
+    },[KEY,PAYLOAD,newerSeed]);
+    await openReal(newerPage,url);
+    assert.deepEqual(await vaultBytes(newerPage),newerSeed,
+      'Newer synthetic live ledger must load without mutation');
+    await toolsScreen(newerPage);
+    await newerPage.evaluate(keys=>{
+      const set=Storage.prototype.setItem,remove=Storage.prototype.removeItem;
+      window.__faBackupCancelWrites=[];
+      Storage.prototype.setItem=function(key,value){
+        if(this===localStorage&&keys.includes(String(key)))
+          window.__faBackupCancelWrites.push('set:'+String(key));
+        return set.call(this,key,value);
+      };
+      Storage.prototype.removeItem=function(key){
+        if(this===localStorage&&keys.includes(String(key)))
+          window.__faBackupCancelWrites.push('remove:'+String(key));
+        return remove.call(this,key);
+      };
+      window.__faStopCancelWatch=()=>{
+        Storage.prototype.setItem=set;Storage.prototype.removeItem=remove;
+      };
+    },[KEY,PAYLOAD,RESET]);
+    const newerBefore=await vaultBytes(newerPage);
+    const newerPassword=newerPage.locator('input[type="password"]').first();
+    await newerPassword.fill(PASSWORD);
+    await filePicker(newerPage,populatedBackup);
+    await newerPage.getByText(/Backup valid: 1 conturi și 1 operațiuni/)
+      .waitFor({state:'visible',timeout:60000});
+    assert.deepEqual(await vaultBytes(newerPage),newerBefore,
+      'Validating older backup must not replace newer live ciphertext');
+    await newerPage.getByText('Renunță la restaurare',{exact:true}).click();
+    assert.equal(await newerPage.getByText('Confirm înlocuirea datelor',{exact:true}).count(),0,
+      'Cancelled older backup must not remain confirmable');
+    assert.deepEqual(await vaultBytes(newerPage),newerBefore,
+      'Cancelling older backup must preserve newer live ciphertext byte-for-byte');
+    assert.deepEqual(await newerPage.evaluate(()=>window.__faBackupCancelWrites),[],
+      'Validation and cancellation must not write any protected vault key');
+    await newerPage.evaluate(()=>window.__faStopCancelWatch());
+    await openReal(newerPage,url);
+    assert.deepEqual(await vaultBytes(newerPage),newerBefore,
+      'Newer encrypted vault must survive reload after cancellation');
+    assert.equal(decryptBrowserVault(await vaultBytes(newerPage)).transactions.length,2,
+      'Later transaction must remain after rejecting older restore');
+    await newerContext.close();
+    console.log('PASS Chromium actual WEB: valid older backup validation/cancel makes zero vault writes and retains newer transaction after reload');
+
     const populatedTargetContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,colorScheme:'light'});
     const populatedTarget=await populatedTargetContext.newPage();activePage=populatedTarget;
     await openReal(populatedTarget,url);
