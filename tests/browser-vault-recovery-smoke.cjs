@@ -235,6 +235,9 @@ async function run() {
     assert.equal(await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).count(),0,
       'Explicit cancellation must revoke the pending backup');
     assert.deepEqual(await vaultBytes(populatedTarget),pendingBefore,'Cancellation must not write');
+    // Successful validation intentionally clears the password field. Re-enter
+    // it after cancelling before selecting the file again.
+    await targetPassword.fill(PASSWORD);
     await filePicker(populatedTarget,populatedBackup);
     await populatedTarget.getByText(/Backup valid: 1 conturi și 1 operațiuni/).waitFor({state:'visible',timeout:60000});
     console.log('PASS Chromium actual WEB backup: password edit, wrong password, unsupported schema, tamper and cancel revoke candidate with zero writes');
