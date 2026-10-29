@@ -1,3 +1,11 @@
+## Follow-up: v1 SHA-256 fingerprint divergence gate — candidate 2026-10-29
+
+**Test-only, not a production migration or a completed P1 fix.** The IndexedDB-primary research now captures a SHA-256 fingerprint of the *exact* legacy v1 localStorage key/payload pair at explicit cutover. The digest (not the raw v1 key) is stored alongside the encrypted IDB record. Subsequent reads and destructive writes compare the current pair against the stored fingerprint; a mismatch fails closed. The writer also synchronously rechecks the exact legacy pair inside the IDB readwrite transaction after asynchronous cryptographic preflight. It does **not** delete, repair, import or merge the v1 pair.
+
+The Chromium suite now tests actual archived 18.27, 18.33 and 18.34 AES-GCM writers, their post-cutover ciphertext drift, mixed key/payload partial-fault pairs, a synthetic change injected between asynchronous preflight and IDB commit, and byte-for-byte preservation of the IDB record on rejection. A deliberately restored original v1 pair is accepted again in this isolated model; **that is not proof of freshness**, and it highlights the inability to distinguish valid full-pair rollback. CI verification: **pending** until workflow evidence is inspected.
+
+**Known limits:** the old cached tab can still write immediately after the final synchronous check, and there is no cross-store atomic transaction. A v1 key/payload pair restored together to the cutover fingerprint defeats this witness; an origin-wide rollback also defeats local monotonicity. A digest does not authenticate the provenance of a v1 key, and localStorage can be denied or evicted. No Safari, real interruption, actual portable backup, or end-user conflict/recovery acceptance has been demonstrated. The old WEB 18.62 production vault remains unsafe. Future acceptance must include repeat checks on every read/write, explicit non-destructive quarantine/recovery, key provenance, backup roundtrip and no silent reimport after reset.
+
 # WEB #4 — transactional IndexedDB primary authority research (2026-10-29)
 
 **RESEARCH ONLY.** This is a disposable synthetic Chromium model, not the production WEB 18.62 vault, not a migration, and not a data-security guarantee. No real financial ledger, encrypted backup, iOS repository, financial formula, or product bundle is accessed.
