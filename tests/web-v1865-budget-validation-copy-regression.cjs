@@ -23,7 +23,7 @@ for(const [from,to] of replacements){
 }
 assert.equal(next,expected,'Only three Romanian copy strings and diagnostic version/name may change');
 assert.match(html,/<meta name="financial-autonomy-version" content="18\.65"/);
-assert.match(html,/index-v01865-budget-validation-romanian-20261029\.js\\?build=18\.65\.1/);
+assert.match(html,/index-v01865-budget-validation-romanian-20261029\.js\?build=18\.65\.1/);
 assert.doesNotMatch(html,/index-v01864-backup-async-epoch-20261029/);
 for(const obsolete of ['Numai Budgeted Expense poate avea buget.','Unbudgeted nu achit\\u0103 automat o obliga\\u021bie.','Name \\xb7 denumire'])
   assert.ok(!next.includes(obsolete),'Untranslated copy must not remain: '+obsolete);
