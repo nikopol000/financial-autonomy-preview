@@ -73,3 +73,7 @@ The test deliberately asserts this **KNOWN UNSAFE migration gap** for all three 
 4. Repeat with injected writes during migration, crash/reload, denied/evicted IDB, quota errors, backup restoration, Safari iPhone and VoiceOver. Document that full-origin rollback remains outside the guarantees of a local-only origin.
 
 **Verification:** candidate source and JavaScript syntax were checked before the GitHub commit. Chromium/Release CI and named PASS lines must be checked independently; until then this is an unverified test candidate. No WEB product bundle, version, formula, real data, backup format or iOS source changed.
+
+## Verification of archived v1 / IDB reset characterization
+
+[PR #255](https://github.com/nikopol000/financial-autonomy-preview/pull/255) merged as `795f57e5968838d9e8d2f2cde1ef76b30c824dc4`. Candidate [Chromium #40839463565](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40839463565) **SUCCESS**; job `123332049539` contains three named `PASS KNOWN UNSAFE` assertions for archived WEB 18.27, 18.33 and 18.34. [Release #40839463830](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40839463830) **SUCCESS**. Each PASS means the experimental IDB reset **incorrectly succeeds despite changed v1 ciphertext**. The experiment is not a mitigation. Merged-main/checkpoint CI, actual iPhone Safari, portable encrypted backup and production migration are **not verified**.
