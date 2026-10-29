@@ -43,3 +43,19 @@ References: [MDN IDBTransaction](https://developer.mozilla.org/en-US/docs/Web/AP
 ## Verification
 
 Candidate Chromium/Release CI: **pending at document creation**. A PASS for the final known-unsafe rollback case confirms the limitation, **not** a security mitigation.
+
+## Follow-up: preflight integrity and storage-denial research (2026-10-29)
+
+The original concurrency model checked the numeric revision inside the transaction but **did not authenticate the previously stored encrypted record before replacing it**. A caller holding the current revision could therefore overwrite damaged ciphertext with a reset, obscuring a potentially recoverable original. The revised **test-only** writer now:
+
+1. Reads the existing sealed record and decrypts/validates its status **before** any write transaction. Corrupt ciphertext returns `unreadable-authority`; invalid revision returns `invalid-authority`. Neither is treated as an empty ledger.
+2. Performs encryption before opening the transaction (WebCrypto awaits can cause an IndexedDB transaction to become inactive).
+3. In the readwrite transaction, compares both expected revision **and the exact previously observed record** before committing. A changed same-revision envelope is rejected as `authority-changed`; there is no silent merge.
+4. Requires an explicit `allowInitialize:true` only for the first empty synthetic database. Missing authority after reset/eviction returns `missing-authority`, not an automatic fresh vault.
+5. Characterizes IndexedDB API denial as an error that leaves the previously committed tombstone unchanged in another tab.
+
+Three new Chromium assertions were added for (a) corrupted ciphertext/reset refusal and byte-for-byte preservation, (b) deleted authority/implicit initialization refusal, and (c) denied IndexedDB open/no tombstone modification. **CI evidence is pending for this follow-up until the candidate workflow completes.** These tests do not prove quota, eviction detection across origins, real power-loss durability or Safari behavior.
+
+**Critical residual risk:** the explicit initialization flag is not itself proof of first-ever use; a user action, trustworthy recovery state and portable encrypted backup contract are still required. A fully rolled-back valid record remains readable. Cached WEB 18.27/18.33/18.34 writers still target localStorage and are not protected by this synthetic IndexedDB-only model. Do not ship the model as a production fix.
+
+**Next:** test actual archived v1 modules against a staged IDB cutover and the backup/key migration contract; include transaction abort, same-revision envelope replacement, corrupt authority, missing IDB and nondestructive recovery screens. Keep WEB 18.62 and all financial semantics unchanged.
