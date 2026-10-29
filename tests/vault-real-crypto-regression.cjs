@@ -1035,6 +1035,34 @@ async function test(name,fn) {
     assert.equal(original.writes,originalWrites);
     assert.throws(()=>vault.loadWebVault(original),/Cheia locală există, dar datele criptate lipsesc/);
   });
+  await test('Valid but older encrypted backup stays isolated from newer live ledger',async()=>{
+    // Actual WEB 18.64 module 311 decrypts an authentic older backup. This
+    // demonstrates integrity != freshness; it is not a UI restore or Safari test.
+    const older=sample(),newer=clone(older);
+    newer.transactions.push({
+      id:'synthetic-later-income',accountId:'synthetic-checking',
+      kind:'income',amount:500,date:'2026-10-24'
+    });
+    const live=storage();
+    vault.saveWebVault(live,newer,random);
+    const liveBefore=clone(live.data),liveWrites=live.writes;
+    const password='Synthetic-Older-Backup-2026!';
+    const backupText=await crypt.backup(older,password,random);
+    const restored=clone(await crypt.restore(backupText,password));
+    assert.deepEqual(restored,older,'Old valid backup authenticates');
+    assert.notDeepEqual(restored,newer,'Authenticated backup is not current ledger');
+    assert.deepEqual(live.data,liveBefore,'Validation must not replace live ciphertext');
+    assert.equal(live.writes,liveWrites,'No live writes during backup validation');
+    const isolated=storage(),locks=serialLocks();
+    const destination=realTab(isolated,{locks});
+    assert.deepEqual(clone(await destination.load()),empty());
+    // Only an explicit synthetic choice of a separate EMPTY destination writes.
+    await destination.save(restored);
+    assert.deepEqual(clone(await realTab(isolated,{locks}).load()),older);
+    assert.deepEqual(clone(vault.loadWebVault(live)),newer,'Newer live state survives');
+    assert.deepEqual(live.data,liveBefore,'Original ciphertext remains byte-identical');
+    assert.equal(live.writes,liveWrites,'No writes to original after isolated restore');
+  });
   await test('Invalid portable backup metadata and malformed files never modify protected encrypted vaults',async()=>{
     // Real bundled module 311 parser, real PBKDF2/AES-GCM for the source
     // envelope; all data and storage adapters are synthetic. An authenticated
@@ -1303,6 +1331,6 @@ async function test(name,fn) {
   await test('First-save retry reset event while queued behind Web Lock prevents stale write',async()=>{
     await queuedFirstSaveRetryRevocation('reset');
   });
-  console.log(passed+'/65 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==65)process.exitCode=1;
+  console.log(passed+'/66 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==66)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
