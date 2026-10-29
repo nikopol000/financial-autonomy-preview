@@ -22,7 +22,12 @@ for(const [oldText,newText] of replacements){
   expected=expected.replace(oldText,newText);
 }
 assert.equal(next,expected,'18.62 may only change the three reviewed UI copy strings and diagnostic version/name');
-assert.ok(html.includes('<meta name="financial-autonomy-version" content="18.62" />'),'HTML version metadata must be 18.62');
-assert.ok(html.includes('index-v01862-budget-copy-clarity-20261028.js?build=18.62.1'),'HTML must reference immutable 18.62 bundle');
-assert.ok(!html.includes('index-v01861-keyboard-tab-focus-20261028.js'),'Active HTML must not load previous bundle');
+// Historical immutable diff must remain valid after a later active release.
+// The current active HTML/version contract is checked by the newest release test.
+const active=html.match(/<meta name="financial-autonomy-version" content="(\\d+\\.\\d+)"/);
+assert.ok(active&&Number(active[1])>=18.62,'Active release must not regress below 18.62');
+if(active[1]==='18.62'){
+  assert.ok(html.includes('index-v01862-budget-copy-clarity-20261028.js?build=18.62.1'));
+  assert.ok(!html.includes('index-v01861-keyboard-tab-focus-20261028.js'));
+}
 console.log('PASS WEB 18.62: exact copy-only immutable diff; formulas, vault and backups byte-identical to 18.61');
