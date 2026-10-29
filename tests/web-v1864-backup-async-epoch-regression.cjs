@@ -33,7 +33,11 @@ for(const [from,to] of replacements){
   expected=expected.replace(from,to);
 }
 assert.equal(next,expected,'Only request epoch, restore candidate handling and diagnostic version may change');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\.64"/);
-assert.match(html,/index-v01864-backup-async-epoch-20261029\.js\?build=18\.64\.1/);
-assert.doesNotMatch(html,/index-v01863-backup-preview-safety-20261029/);
+// Historical immutable diff remains mandatory after a later active release.
+const active=html.match(/<meta name="financial-autonomy-version" content="(\d+\.\d+)"/);
+assert.ok(active&&Number(active[1])>=18.64,'Active release must not regress below 18.64');
+if(active[1]==='18.64'){
+  assert.match(html,/index-v01864-backup-async-epoch-20261029\.js\?build=18\.64\.1/);
+  assert.doesNotMatch(html,/index-v01863-backup-preview-safety-20261029/);
+}
 console.log('PASS WEB 18.64: exact async-restore epoch diff; no financial or cryptographic changes');
