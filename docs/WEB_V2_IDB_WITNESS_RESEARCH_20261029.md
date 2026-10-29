@@ -46,3 +46,10 @@ Source: `tests/browser-v2-idb-witness-research.cjs`, wired to `.github/workflows
 - MDN, Web Locks API: https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API
 
 Related: #4, #29, #35, `docs/WEB_V2_SEALED_AUTHORITY_RESEARCH_20261029.md`. Issue #14 remains DISCOVERY ONLY; no financial semantics/formulas or budget modes were changed.
+
+
+## Verified results — 2026-10-29, PR #249 merged
+
+[PR #249](https://github.com/nikopol000/financial-autonomy-preview/pull/249) merged as `41e3cb63a4c530824629900f2ad609eacca5f7d3`. Candidate [Chromium #40821133885](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40821133885), job `123273615134`, **SUCCESS** with all seven named PASS lines inspected. Candidate [Release #40821133379](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40821133379) **SUCCESS**. Exact merged-main [Chromium #40821294281](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40821294281), job `123274126767`, **SUCCESS**, seven named PASS lines independently inspected. Merged-main [Release #40821294280](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40821294280), [Pages #40821294386](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40821294386) and [Pages build #40821294013](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40821294013) **SUCCESS**.
+
+These PASS lines characterize **both** the narrower localStorage-only replay detection and the **KNOWN UNSAFE** coordinated two-store rollback. A successful test of a known limitation is not a mitigation. Local Chromium navigation was blocked by the execution environment; GitHub Actions Chromium is the verified browser test. WEB 18.62 production still uses v1 and is unchanged.
