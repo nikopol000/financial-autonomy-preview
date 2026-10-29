@@ -151,14 +151,14 @@ async function main(){
       await visible(b,AUTH,first.authority);
       assert.equal((await b.evaluate(()=>window.__sealedResearch.read())).status,'active');
       console.log('PASS Chromium: plain forged reset fails closed, no reader writes');
-      const second=await b.evaluate(auth=>window.__sealedResearch.commit(
-        {transactions:['A','B']},auth,originalLegacy),first.authority);
+      const second=await b.evaluate(({auth,legacy})=>window.__sealedResearch.commit(
+        {transactions:['A','B']},auth,legacy),{auth:first.authority,legacy:originalLegacy});
       assert.equal(second.ok,true);
       await visible(a,AUTH,second.authority);
       assert.deepEqual((await a.evaluate(()=>window.__sealedResearch.read())).state.transactions,
         ['A','B']);
-      const paused=b.evaluate(auth=>window.__sealedResearch.commit(
-        {transactions:['A','B','C']},auth,originalLegacy,true),second.authority);
+      const paused=b.evaluate(({auth,legacy})=>window.__sealedResearch.commit(
+        {transactions:['A','B','C']},auth,legacy,true),{auth:second.authority,legacy:originalLegacy});
       await b.waitForFunction(()=>window.__sealedResearch.holding===true);
       await a.evaluate(key=>localStorage.setItem(key,'synthetic-legacy-from-old-tab'),LEGACY);
       await visible(b,LEGACY,'synthetic-legacy-from-old-tab');
