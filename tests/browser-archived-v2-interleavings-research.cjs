@@ -36,9 +36,6 @@ function extract(source){
     'Must execute real platform, vault and cryptographic adapter');
   return modules;
 }
-const currentModules=extract(fs.readFileSync(CURRENT,'utf8'));
-const oldModules=Object.fromEntries(Object.entries(ARCHIVED).map(([v,p])=>
-  [v,extract(fs.readFileSync(p,'utf8'))]));
 
 async function installLegacy(page,modules){
   await page.evaluate(defs=>{
