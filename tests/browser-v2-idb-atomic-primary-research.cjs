@@ -36,6 +36,17 @@ async function install(page){
         req.onerror=()=>reject(req.error);tx.onabort=()=>reject(tx.error);
       });}finally{db.close();}
     };
+    // TEST-ONLY cutover witness: a digest, never the v1 encryption key itself.
+    // This detects divergence on the next v2 operation; it cannot prevent an
+    // archived tab writing immediately AFTER the last check/commit.
+    const legacyPair=()=>[
+      localStorage.getItem('financial-autonomy.preview.key.v1'),
+      localStorage.getItem('financial-autonomy.preview.payload.v1')
+    ];
+    const legacyFingerprint=async pair=>{
+      const hash=await crypto.subtle.digest('SHA-256',encoder.encode(JSON.stringify(pair)));
+      return Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');
+    };
     const research=window.__atomicResearch={};
     research.raw=raw;
     research.read=async()=>{
@@ -44,6 +55,8 @@ async function install(page){
       if(!Number.isSafeInteger(record.revision)||record.revision<1)
         throw Error('BAD_REVISION');
       const value=await unseal(record.envelope);
+      if(record.legacyFingerprint!==await legacyFingerprint(legacyPair()))
+        throw Error('LEGACY_DIVERGED');
       if(!['active','reset'].includes(value.status)||
         (value.status==='reset'&&value.state!==null))
         throw Error('BAD_STATE');
@@ -70,6 +83,12 @@ async function install(page){
           return {ok:false,reason:'unreadable-authority'};
         }
       }
+      // Preflight is asynchronous (WebCrypto), so recheck the exact v1 pair
+      // synchronously inside the transaction before committing the IDB record.
+      const v1Observed=legacyPair();
+      const v1Digest=await legacyFingerprint(v1Observed);
+      if(observed&&observed.legacyFingerprint!==v1Digest)
+        return {ok:false,reason:'legacy-diverged'};
       const envelope=await seal({status:reset?'reset':'active',state:reset?null:state});
       const db=await open();
       try{return await new Promise((resolve,reject)=>{
@@ -89,10 +108,18 @@ async function install(page){
           if(JSON.stringify(old)!==JSON.stringify(observed)){
             outcome={ok:false,reason:'authority-changed'};tx.abort();return;
           }
+          // An injected change models a legacy write during the async preflight.
+          // A real v1 tab can still write after this synchronous check.
+          if(fault==='legacy-drift-before-commit')
+            localStorage.setItem('financial-autonomy.preview.payload.v1',
+              (v1Observed[1]??'')+'synthetic-race');
+          if(JSON.stringify(legacyPair())!==JSON.stringify(v1Observed)){
+            outcome={ok:false,reason:'legacy-raced'};tx.abort();return;
+          }
           if(fault==='before-put'){
             outcome={ok:false,reason:'injected-before-put'};tx.abort();return;
           }
-          store.put({revision:actual+1,envelope},'current');
+          store.put({revision:actual+1,envelope,legacyFingerprint:v1Digest},'current');
           if(fault==='after-put-before-commit'){
             outcome={ok:false,reason:'injected-after-put'};tx.abort();
           }
@@ -222,18 +249,39 @@ async function testRealArchivedDriftAgainstIdb(browser,url){
       assert.ok(after[0]&&after[1]);
       assert.notEqual(after[1],before[1],
         'archived writer must really change v1 encrypted payload');
-      assert.deepEqual((await modern.evaluate(()=>window.__atomicResearch.read())).state,
-        {transactions:['synthetic-staged-from-v1']});
-      const unsafe=await modern.evaluate(()=>window.__atomicResearch.write({
+      const stagedRaw=await modern.evaluate(()=>window.__atomicResearch.raw());
+      await assert.rejects(modern.evaluate(()=>window.__atomicResearch.read()),
+        /LEGACY_DIVERGED/);
+      const blocked=await modern.evaluate(()=>window.__atomicResearch.write({
         expectedRevision:1,reset:true
       }));
-      assert.deepEqual(unsafe,{ok:true,revision:2});
-      assert.equal((await modern.evaluate(()=>window.__atomicResearch.read())).status,
-        'reset');
-      // This PASS is a demonstrated missing legacy-divergence gate,
-      // NOT a successful migration or safe reset.
-      console.log('PASS KNOWN UNSAFE atomic IDB + real archived '+version+
-        ': v1 ciphertext drift is ignored by experimental reset');
+      assert.deepEqual(blocked,{ok:false,reason:'legacy-diverged'});
+      assert.deepEqual(await modern.evaluate(()=>window.__atomicResearch.raw()),
+        stagedRaw,'divergence must not mutate IDB authority');
+      // A partial v1 key-only or payload-only fault must also block writes.
+      for(const slot of [0,1]){
+        await old.evaluate(({slot,before,after})=>{
+          const keys=['financial-autonomy.preview.key.v1',
+            'financial-autonomy.preview.payload.v1'];
+          localStorage.setItem(keys[slot],before[slot]);
+          localStorage.setItem(keys[1-slot],after[1-slot]);
+        },{slot,before,after});
+        const partial=await modern.evaluate(()=>window.__atomicResearch.write({
+          expectedRevision:1,reset:true
+        }));
+        assert.deepEqual(partial,{ok:false,reason:'legacy-diverged'});
+        assert.deepEqual(await modern.evaluate(()=>window.__atomicResearch.raw()),
+          stagedRaw);
+      }
+      // Recreate the exact initial pair only in this disposable test origin.
+      await old.evaluate(before=>{
+        localStorage.setItem('financial-autonomy.preview.key.v1',before[0]);
+        localStorage.setItem('financial-autonomy.preview.payload.v1',before[1]);
+      },before);
+      assert.deepEqual((await modern.evaluate(()=>window.__atomicResearch.read())).state,
+        {transactions:['synthetic-staged-from-v1']});
+      console.log('PASS guarded atomic IDB + real archived '+version+
+        ': full and partial v1 drift block reset with zero IDB writes');
     }finally{await context.close();}
   }
 }
@@ -338,6 +386,19 @@ async function main(){
       assert.equal(denied,'TEST_IDB_DENIED');
       assert.deepEqual(await a.evaluate(()=>window.__atomicResearch.raw()),tombstone);
       console.log('PASS atomic IDB: storage denial fails without modifying sealed tombstone');
+
+      const beforeRaced=await a.evaluate(()=>window.__atomicResearch.raw());
+      const raced=await a.evaluate(()=>window.__atomicResearch.write({
+        expectedRevision:3,reset:true,fault:'legacy-drift-before-commit'
+      }));
+      assert.deepEqual(raced,{ok:false,reason:'legacy-raced'});
+      assert.deepEqual(await a.evaluate(()=>window.__atomicResearch.raw()),beforeRaced);
+      await assert.rejects(a.evaluate(()=>window.__atomicResearch.read()),
+        /LEGACY_DIVERGED/);
+      await a.evaluate(()=>localStorage.removeItem(
+        'financial-autonomy.preview.payload.v1'));
+      assert.deepEqual(await a.evaluate(()=>window.__atomicResearch.raw()),beforeRaced);
+      console.log('PASS atomic IDB: injected legacy precommit race aborts without IDB write');
 
       // Demonstrates the fundamental limit of local-only freshness.
       await a.evaluate(record=>window.__atomicResearch.restoreOldForTest(record),original);
