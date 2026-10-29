@@ -24,7 +24,7 @@ for(const [oldText,newText] of replacements){
 assert.equal(next,expected,'18.62 may only change the three reviewed UI copy strings and diagnostic version/name');
 // Historical immutable diff must remain valid after a later active release.
 // The current active HTML/version contract is checked by the newest release test.
-const active=html.match(/<meta name="financial-autonomy-version" content="(\\d+\\.\\d+)"/);
+const active=html.match(/<meta name="financial-autonomy-version" content="(\d+\.\d+)"/);
 assert.ok(active&&Number(active[1])>=18.62,'Active release must not regress below 18.62');
 if(active[1]==='18.62'){
   assert.ok(html.includes('index-v01862-budget-copy-clarity-20261028.js?build=18.62.1'));
