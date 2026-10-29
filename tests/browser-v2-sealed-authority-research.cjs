@@ -4,6 +4,7 @@
 // Deliberately characterizes valid-record replay as KNOWN UNSAFE.
 const assert=require('node:assert/strict');
 const http=require('node:http');
+const fs=require('node:fs');
 const {chromium}=require('playwright');
 const AUTH='research.sealed.chromium.authority';
 const KEY='research.sealed.chromium.key';
@@ -111,6 +112,163 @@ async function visible(page,key,value){
   await page.waitForFunction(({key,value})=>localStorage.getItem(key)===value,
     {key,value},{timeout:10000});
 }
+
+const archivedPaths={
+  '18.27':'_expo/static/js/web/index-v01827-vault-orphan-guard-20261023.js',
+  '18.33':'_expo/static/js/web/index-v01833-demo-preload-guard-20261023.js',
+  '18.34':'_expo/static/js/web/index-v01834-multitab-vault-guard-20261024.js'
+};
+const syntheticTx=id=>({id,kind:'expense',amount:100,date:'2026-10-29',accountId:'synthetic'});
+const syntheticEmpty=()=>({version:4,accounts:[],transactions:[],balanceChecks:[]});
+function extract(source){
+  const modules={};
+  function visit(id){
+    if(id===204||id===205||modules[id])return;
+    const matches=[...source.matchAll(new RegExp('\\},'+id+',\\[([^\\]]*)\\]\\);','g'))];
+    assert.equal(matches.length,1,'Missing or duplicate Metro module '+id);
+    const match=matches[0];
+    const start=source.lastIndexOf('__d(function(',match.index);
+    assert.ok(start>=0,'Metro factory missing for '+id);
+    const deps=match[1]?match[1].split(',').map(Number):[];
+    modules[id]={factory:source.slice(start+4,match.index+1),deps};
+    deps.forEach(visit);
+  }
+  visit(309);
+  assert.ok(modules[309]&&modules[310]&&modules[311],
+    'Must execute real platform, vault and cryptographic adapter');
+  return modules;
+}
+
+async function installLegacy(page,modules){
+  await page.evaluate(defs=>{
+    const model={
+      emptyState:()=>({version:4,accounts:[],transactions:[],balanceChecks:[]}),
+      migrate(s){model.validateState(s);return s},
+      validateState(s){
+        if(!s||s.version!==4||!['accounts','transactions','balanceChecks']
+          .every(k=>Array.isArray(s[k])))throw Error('INVALID_SYNTHETIC_STATE');
+        return s;
+      },
+      saveTransaction:(s,t)=>({...s,transactions:[...s.transactions,t]})
+    };
+    const cache=new Map([[204,{validateState:model.validateState}],[205,model]]);
+    function load(id){
+      if(cache.has(id))return cache.get(id);
+      const def=defs[id];
+      if(!def)throw Error('MISSING_METRO_MODULE_'+id);
+      // Trusted immutable repository source, evaluated only on a disposable
+      // localhost origin; this is NOT a generic user-input code evaluator.
+      const factory=Function('return ('+def.factory+')')();
+      const module={exports:{}};
+      cache.set(id,module.exports);
+      factory(window,load,()=>{},null,module,module.exports,def.deps);
+      cache.set(id,module.exports);
+      return module.exports;
+    }
+    window.__archivedVault=load(309);
+    if(!window.__archivedVault?.load||!window.__archivedVault?.save)
+      throw Error('ARCHIVED_PLATFORM_EXPORTS_MISSING');
+  },modules);
+}
+
+// The archived platform/vault/crypto modules are executed as shipped. Only the
+// synthetic financial model is stubbed. Each version uses a fresh browser origin
+// storage context; no real ledger, portable backup or product bundle is modified.
+async function testRealArchivedAgainstSealed(browser,url){
+  for(const version of ['18.27','18.33','18.34']){
+    const context=await browser.newContext();
+    try{
+      const old=await context.newPage(),modern=await context.newPage();
+      await Promise.all([old.goto(url),modern.goto(url)]);
+      await installLegacy(old,extract(fs.readFileSync(archivedPaths[version],'utf8')));
+      await install(modern);
+      assert.equal(await modern.evaluate(()=>typeof navigator.locks?.request),'function');
+      await old.evaluate(()=>window.__archivedVault.load());
+      await old.evaluate(s=>window.__archivedVault.save(s),
+        {...syntheticEmpty(),transactions:[syntheticTx('legacy-initial')]});
+      const initialKey=await old.evaluate(k=>localStorage.getItem(k),LEGACY_KEY);
+      const initialPayload=await old.evaluate(k=>localStorage.getItem(k),LEGACY);
+      assert.ok(initialKey&&initialPayload,'real archived AES-GCM v1 bytes required');
+      await visible(modern,LEGACY_KEY,initialKey);
+      await visible(modern,LEGACY,initialPayload);
+      await modern.evaluate(()=>window.__sealedResearch.initialize());
+      const legacyFingerprint=JSON.stringify([initialKey,initialPayload]);
+      const first=await modern.evaluate(legacy=>window.__sealedResearch.commit(
+        {transactions:['sealed-A']},null,legacy),legacyFingerprint);
+      assert.equal(first.ok,true);
+      assert.deepEqual((await modern.evaluate(()=>window.__sealedResearch.read())).state,
+        {transactions:['sealed-A']});
+      if(version==='18.27'){
+        const paused=modern.evaluate(({auth,legacy})=>window.__sealedResearch.commit(
+          {transactions:['sealed-B-uncommitted']},auth,legacy,true),
+          {auth:first.authority,legacy:legacyFingerprint});
+        await modern.waitForFunction(()=>window.__sealedResearch.holding===true);
+        const latest=await old.evaluate(()=>window.__archivedVault.load());
+        await old.evaluate(s=>window.__archivedVault.save(s),
+          {...latest,transactions:[...latest.transactions,syntheticTx('real-18.27-during-stage')]});
+        await visible(modern,LEGACY,await old.evaluate(k=>localStorage.getItem(k),LEGACY));
+        await modern.evaluate(()=>window.__sealedResearch.release());
+        assert.deepEqual(await paused,{ok:false,reason:'legacy-diverged'});
+        assert.equal(await modern.evaluate(k=>localStorage.getItem(k),AUTH),first.authority);
+        const current=await modern.evaluate(()=>window.__sealedResearch.read());
+        assert.deepEqual(current.state.transactions,['sealed-A']);
+        assert.equal(current.legacyDiverged,true);
+        console.log('PASS real archived 18.27: ciphertext write during sealed staging blocks promotion');
+      }else if(version==='18.33'){
+        const latest=await old.evaluate(()=>window.__archivedVault.load());
+        await old.evaluate(s=>window.__archivedVault.save(s),
+          {...latest,transactions:[...latest.transactions,syntheticTx('real-18.33-post-cutover')]});
+        await visible(modern,LEGACY,await old.evaluate(k=>localStorage.getItem(k),LEGACY));
+        const current=await modern.evaluate(()=>window.__sealedResearch.read());
+        assert.equal(current.status,'active');
+        assert.equal(current.legacyDiverged,true);
+        assert.deepEqual(current.state.transactions,['sealed-A']);
+        const before=await modern.evaluate(()=>window.__sealedResearch.writes);
+        assert.deepEqual(await modern.evaluate(auth=>window.__sealedResearch.reset(auth),
+          first.authority),{ok:false,reason:'legacy-diverged'});
+        assert.equal(await modern.evaluate(()=>window.__sealedResearch.writes),before);
+        console.log('PASS real archived 18.33: post-cutover v1 divergence blocks destructive reset');
+        // Model a partial legacy deletion AFTER a real archived write. No v1
+        // ciphertext may be recreated automatically and v2 must stay readable.
+        await old.evaluate(k=>localStorage.removeItem(k),LEGACY);
+        await visible(modern,LEGACY,null);
+        const orphan=await modern.evaluate(()=>window.__sealedResearch.read());
+        assert.equal(orphan.status,'active');
+        assert.equal(orphan.legacyDiverged,true);
+        assert.deepEqual(orphan.state.transactions,['sealed-A']);
+        assert.deepEqual(await modern.evaluate(auth=>window.__sealedResearch.reset(auth),
+          first.authority),{ok:false,reason:'legacy-diverged'});
+        console.log('PASS real archived 18.33: payload-only deletion leaves v2 readable and reset blocked');
+      }else{
+        const reset=await modern.evaluate(auth=>window.__sealedResearch.reset(auth),
+          first.authority);
+        assert.equal(reset.ok,true);
+        await old.reload();
+        await installLegacy(old,extract(fs.readFileSync(archivedPaths[version],'utf8')));
+        const latest=await old.evaluate(()=>window.__archivedVault.load());
+        await old.evaluate(s=>window.__archivedVault.save(s),
+          {...latest,transactions:[...latest.transactions,syntheticTx('real-18.34-after-reset')]});
+        await visible(modern,LEGACY,await old.evaluate(k=>localStorage.getItem(k),LEGACY));
+        assert.equal((await modern.evaluate(()=>window.__sealedResearch.read())).status,'reset');
+        await modern.reload();
+        await install(modern);
+        assert.equal((await modern.evaluate(()=>window.__sealedResearch.read())).status,'reset');
+        console.log('PASS real archived 18.34: reloaded old writer cannot auto-import after sealed reset');
+        await modern.evaluate(({key,value})=>localStorage.setItem(key,value),
+          {key:AUTH,value:first.authority});
+        const replay=await modern.evaluate(()=>window.__sealedResearch.read());
+        assert.equal(replay.status,'active');
+        assert.deepEqual(replay.state.transactions,['sealed-A']);
+        assert.equal(replay.legacyDiverged,true);
+        await modern.evaluate(({key,value})=>localStorage.setItem(key,value),
+          {key:AUTH,value:reset.authority});
+        assert.equal((await modern.evaluate(()=>window.__sealedResearch.read())).status,'reset');
+        console.log('PASS KNOWN UNSAFE real archived 18.34: valid sealed authority replay exposes pre-reset stage');
+      }
+    }finally{await context.close();}
+  }
+}
+
 async function main(){
   const server=http.createServer((_req,res)=>{
     res.writeHead(200,{'Content-Type':'text/html','Cache-Control':'no-store'});
@@ -204,6 +362,9 @@ async function main(){
       assert.equal((await a.evaluate(()=>window.__sealedResearch.read())).status,'reset');
       console.log('PASS Chromium: missing key fails closed and restoring key recovers reset');
     }finally{await context.close();}
+    // Archived 18.33+ explicitly require the real-mode URL flag; otherwise
+    // demo-mode writes do not create the encrypted v1 storage pair.
+    await testRealArchivedAgainstSealed(browser,'http://127.0.0.1:'+server.address().port+'/?fa_real=1');
   }finally{
     if(browser)await browser.close();
     await new Promise(resolve=>server.close(resolve));
