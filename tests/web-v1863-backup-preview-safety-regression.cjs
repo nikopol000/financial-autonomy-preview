@@ -21,7 +21,10 @@ for(const [from,to] of replacements){
   expected=expected.replace(from,to);
 }
 assert.equal(next,expected,'Only the reviewed candidate-revocation and diagnostic replacements are allowed');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\.63"/);
-assert.match(html,/index-v01863-backup-preview-safety-20261029\.js\?build=18\.63\.1/);
-assert.doesNotMatch(html,/index-v01862-budget-copy-clarity-20261028/);
+const active=html.match(/<meta name="financial-autonomy-version" content="(\d+\.\d+)"/);
+assert.ok(active&&Number(active[1])>=18.63,'Active release must not regress below 18.63');
+if(active[1]==='18.63'){
+  assert.match(html,/index-v01863-backup-preview-safety-20261029\.js\?build=18\.63\.1/);
+  assert.doesNotMatch(html,/index-v01862-budget-copy-clarity-20261028/);
+}
 console.log('PASS WEB 18.63 immutable diff: backup candidate invalidation only; financial model and backup crypto unchanged');
