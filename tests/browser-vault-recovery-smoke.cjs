@@ -241,6 +241,43 @@ async function run() {
     await filePicker(populatedTarget,populatedBackup);
     await populatedTarget.getByText(/Backup valid: 1 conturi și 1 operațiuni/).waitFor({state:'visible',timeout:60000});
     console.log('PASS Chromium actual WEB backup: password edit, wrong password, unsupported schema, tamper and cancel revoke candidate with zero writes');
+
+    // A PBKDF2 validation can still be running when the password changes.
+    // The earlier candidate must not reappear after the older decrypt resolves.
+    // Delay the REAL bundled PBKDF2 function (module 315), then resume it.
+    await populatedTarget.getByText('Renunță la restaurare',{exact:true}).click();
+    await targetPassword.fill(PASSWORD);
+    await populatedTarget.evaluate(()=>{
+      const kdf=window.__r(315),original=kdf.pbkdf2Async;
+      let resume;
+      const gate=new Promise(resolve=>{resume=resolve});
+      window.__faBackupKdfStarted=false;
+      window.__faBackupKdfDone=false;
+      window.__faReleaseBackupKdf=()=>resume();
+      window.__faRestoreBackupKdf=()=>{kdf.pbkdf2Async=original};
+      kdf.pbkdf2Async=async(...args)=>{
+        window.__faBackupKdfStarted=true;
+        await gate;
+        try{return await original(...args)}
+        finally{window.__faBackupKdfDone=true}
+      };
+    });
+    await filePicker(populatedTarget,populatedBackup);
+    await populatedTarget.waitForFunction(()=>window.__faBackupKdfStarted===true,null,{timeout:15000});
+    await targetPassword.fill('ChangedDuringDecrypt!');
+    await populatedTarget.evaluate(()=>window.__faReleaseBackupKdf());
+    await populatedTarget.waitForFunction(()=>window.__faBackupKdfDone===true,null,{timeout:60000});
+    await populatedTarget.waitForTimeout(200);
+    assert.equal(await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).count(),0,
+      'An in-flight valid backup must not reappear after its password changes');
+    assert.deepEqual(await vaultBytes(populatedTarget),pendingBefore,
+      'Delayed validation invalidated by password edit must not write financial data');
+    await populatedTarget.evaluate(()=>window.__faRestoreBackupKdf());
+    await targetPassword.fill(PASSWORD);
+    await filePicker(populatedTarget,populatedBackup);
+    await populatedTarget.getByText(/Backup valid: 1 conturi și 1 operațiuni/).waitFor({state:'visible',timeout:60000});
+    console.log('PASS Chromium actual WEB backup: in-flight PBKDF2 invalidated by password edit cannot revive stale candidate');
+
     await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).click();
     await populatedTarget.getByText('Backup restaurat.',{exact:true}).waitFor({state:'visible',timeout:20000});
     const populatedRestored=await vaultBytes(populatedTarget);
