@@ -43,6 +43,8 @@ jobs:
         run: node tests/web-v1861-keyboard-focus-regression.cjs
       - name: WEB 18.62 factual budget copy and immutable diff
         run: node tests/web-v1862-budget-clarity-regression.cjs
+      - name: WEB 18.63 backup preview candidate revocation and immutable diff
+        run: node tests/web-v1863-backup-preview-safety-regression.cjs
       - name: Verify v18.22 candidate reconciliation independently of active release
         run: |
           node tests/reconciliation-v1822-candidate.cjs
