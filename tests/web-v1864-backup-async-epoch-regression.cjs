@@ -5,7 +5,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const old=fs.readFileSync('_expo/static/js/web/index-v01863-backup-preview-safety-20261029.js','utf8');
-const next=fs.readFileSync('_expo/static/js/web/index-v01864-backup-async-epoch-20261029.js','utf8');
+assert.match(html,/index-v01864-backup-async-epoch-20261029\.js\?build=18\.64\.1/);
 const html=fs.readFileSync('index.html','utf8');
 const replacements=[
   [
