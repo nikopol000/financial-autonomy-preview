@@ -206,6 +206,38 @@ async function run() {
     await filePicker(populatedTarget,populatedBackup);
     await populatedTarget.getByText(/Backup valid: 1 conturi și 1 operațiuni/).waitFor({state:'visible',timeout:60000});
     assert.deepEqual(await vaultBytes(populatedTarget),{key:null,payload:null,reset:null},'Validating populated backup must not write');
+    // A validated file is only a pending proposal. A later password edit or
+    // invalid replacement file must revoke it; otherwise Confirm could apply
+    // a different backup from the one most recently selected.
+    const pendingBefore=await vaultBytes(populatedTarget);
+    await targetPassword.fill('IncorrectBrowserPassword!');
+    assert.equal(await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).count(),0,
+      'Changing backup password must revoke the previously validated candidate');
+    await filePicker(populatedTarget,populatedBackup);
+    await populatedTarget.getByText(/Parolă greșită sau backup deteriorat/).waitFor({state:'visible',timeout:60000});
+    assert.equal(await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).count(),0);
+    assert.deepEqual(await vaultBytes(populatedTarget),pendingBefore,'Wrong password must not write');
+    await targetPassword.fill(PASSWORD);
+    const validEnvelope=JSON.parse(populatedBackup.toString('utf8'));
+    await filePicker(populatedTarget,Buffer.from(JSON.stringify({...validEnvelope,version:2})));
+    await populatedTarget.getByText(/Backup incompatibil sau deteriorat/).waitFor({state:'visible',timeout:60000});
+    assert.equal(await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).count(),0);
+    assert.deepEqual(await vaultBytes(populatedTarget),pendingBefore,'Unsupported format must not write');
+    const badCipher={...validEnvelope,
+      data:(validEnvelope.data[0]==='0'?'1':'0')+validEnvelope.data.slice(1)};
+    await filePicker(populatedTarget,Buffer.from(JSON.stringify(badCipher)));
+    await populatedTarget.getByText(/Parolă greșită sau backup deteriorat/).waitFor({state:'visible',timeout:60000});
+    assert.equal(await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).count(),0);
+    assert.deepEqual(await vaultBytes(populatedTarget),pendingBefore,'Tampered ciphertext must not write');
+    await filePicker(populatedTarget,populatedBackup);
+    await populatedTarget.getByText(/Backup valid: 1 conturi și 1 operațiuni/).waitFor({state:'visible',timeout:60000});
+    await populatedTarget.getByText('Renunță la restaurare',{exact:true}).click();
+    assert.equal(await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).count(),0,
+      'Explicit cancellation must revoke the pending backup');
+    assert.deepEqual(await vaultBytes(populatedTarget),pendingBefore,'Cancellation must not write');
+    await filePicker(populatedTarget,populatedBackup);
+    await populatedTarget.getByText(/Backup valid: 1 conturi și 1 operațiuni/).waitFor({state:'visible',timeout:60000});
+    console.log('PASS Chromium actual WEB backup: password edit, wrong password, unsupported schema, tamper and cancel revoke candidate with zero writes');
     await populatedTarget.getByText('Confirm înlocuirea datelor',{exact:true}).click();
     await populatedTarget.getByText('Backup restaurat.',{exact:true}).waitFor({state:'visible',timeout:20000});
     const populatedRestored=await vaultBytes(populatedTarget);
