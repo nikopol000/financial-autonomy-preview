@@ -353,6 +353,74 @@ async function testRealArchivedDriftAgainstIdb(browser,url){
       }
       console.log('PASS guarded atomic IDB + real archived '+version+
         ': full and malformed-component v1 drift block reset with zero IDB writes');
+
+      // KNOWN UNSAFE, deliberate test-origin rollback: BOTH the authenticated
+      // IndexedDB authority and the complete v1 key/ciphertext pair are
+      // restored to an older, mutually consistent snapshot. A local digest
+      // cannot tell this from an origin that never saw the newer writes.
+      // This is fault injection, NOT a demonstrated browser crash/rollback.
+      const olderAuthority=await modern.evaluate(()=>window.__atomicResearch.raw());
+      const olderPair=await old.evaluate(()=>[
+        localStorage.getItem('financial-autonomy.preview.key.v1'),
+        localStorage.getItem('financial-autonomy.preview.payload.v1')
+      ]);
+      assert.equal(olderAuthority.revision,1);
+      assert.deepEqual(olderPair,before);
+      const advanced=await modern.evaluate(()=>window.__atomicResearch.write({
+        expectedRevision:1,state:{transactions:['synthetic-v2-newer']}
+      }));
+      assert.deepEqual(advanced,{ok:true,revision:2});
+      const newerLegacy=await old.evaluate(()=>window.__archivedVault.load());
+      await old.evaluate(s=>window.__archivedVault.save(s),{
+        ...newerLegacy,
+        transactions:[...newerLegacy.transactions,syntheticTx('synthetic-v1-newer')]
+      });
+      const newerPair=await old.evaluate(()=>[
+        localStorage.getItem('financial-autonomy.preview.key.v1'),
+        localStorage.getItem('financial-autonomy.preview.payload.v1')
+      ]);
+      assert.notEqual(newerPair[1],olderPair[1],
+        'actual archived v1 writer must produce a newer encrypted payload');
+      await modern.waitForFunction(pair=>
+        localStorage.getItem('financial-autonomy.preview.payload.v1')===pair[1],
+        newerPair);
+      const newerAuthority=await modern.evaluate(()=>window.__atomicResearch.raw());
+      assert.equal(newerAuthority.revision,2);
+      assert.notDeepEqual(newerAuthority,olderAuthority);
+      await assert.rejects(modern.evaluate(()=>window.__atomicResearch.read()),
+        /LEGACY_DIVERGED/);
+
+      // Simulate a complete origin backup/restore, not a partial-key fault.
+      await old.evaluate(pair=>{
+        localStorage.setItem('financial-autonomy.preview.key.v1',pair[0]);
+        localStorage.setItem('financial-autonomy.preview.payload.v1',pair[1]);
+      },olderPair);
+      await modern.waitForFunction(pair=>
+        localStorage.getItem('financial-autonomy.preview.key.v1')===pair[0]&&
+        localStorage.getItem('financial-autonomy.preview.payload.v1')===pair[1],
+        olderPair);
+      await modern.evaluate(record=>
+        window.__atomicResearch.restoreOldForTest(record),olderAuthority);
+      await modern.reload();await install(modern);
+      assert.deepEqual(await modern.evaluate(()=>window.__atomicResearch.raw()),
+        olderAuthority);
+      assert.deepEqual(await modern.evaluate(()=>[
+        localStorage.getItem('financial-autonomy.preview.key.v1'),
+        localStorage.getItem('financial-autonomy.preview.payload.v1')
+      ]),olderPair);
+      const rolledBack=await modern.evaluate(()=>window.__atomicResearch.read());
+      assert.equal(rolledBack.revision,1);
+      assert.deepEqual(rolledBack.state,
+        {transactions:['synthetic-staged-from-v1']});
+      const accepted=await modern.evaluate(()=>window.__atomicResearch.write({
+        expectedRevision:1,state:{transactions:['synthetic-post-rollback']}
+      }));
+      assert.deepEqual(accepted,{ok:true,revision:2},
+        'an internally consistent older pair permits a new write');
+      assert.deepEqual((await modern.evaluate(()=>window.__atomicResearch.read())).state,
+        {transactions:['synthetic-post-rollback']});
+      console.log('PASS KNOWN UNSAFE guarded atomic IDB + real archived '+version+
+        ': complete v1/IDB rollback passes digest and allows new writes');
     }finally{await context.close();}
   }
 }
