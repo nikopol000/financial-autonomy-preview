@@ -120,6 +120,12 @@ async function install(page){
             outcome={ok:false,reason:'injected-before-put'};tx.abort();return;
           }
           store.put({revision:actual+1,envelope,legacyFingerprint:v1Digest},'current');
+          // A cached WEB v1 tab can synchronously write AFTER our final
+          // localStorage check but BEFORE the IDB transaction commits.
+          // This is a KNOWN UNSAFE inter-store race, not a mitigation.
+          if(fault==='legacy-drift-after-put')
+            localStorage.setItem('financial-autonomy.preview.payload.v1',
+              (v1Observed[1]??'')+'synthetic-after-check');
           if(fault==='after-put-before-commit'){
             outcome={ok:false,reason:'injected-after-put'};tx.abort();
           }
@@ -402,6 +408,30 @@ async function main(){
         'financial-autonomy.preview.payload.v1'));
       assert.deepEqual(await a.evaluate(()=>window.__atomicResearch.raw()),beforeRaced);
       console.log('PASS atomic IDB: injected legacy precommit race aborts without IDB write');
+
+      // Deterministic adversarial schedule: the old client writes just AFTER
+      // the last synchronous v1 check. The IDB reset commits despite drift.
+      // Subsequent reads and resets quarantine the divergent pair, but the
+      // already committed reset cannot be retroactively made atomic.
+      const late=await a.evaluate(()=>window.__atomicResearch.write({
+        expectedRevision:3,reset:true,fault:'legacy-drift-after-put'
+      }));
+      assert.deepEqual(late,{ok:true,revision:4});
+      const lateRecord=await b.evaluate(()=>window.__atomicResearch.raw());
+      assert.equal(lateRecord.revision,4);
+      await assert.rejects(b.evaluate(()=>window.__atomicResearch.read()),
+        /LEGACY_DIVERGED/);
+      const quarantined=await b.evaluate(()=>window.__atomicResearch.write({
+        expectedRevision:4,reset:true
+      }));
+      assert.deepEqual(quarantined,{ok:false,reason:'legacy-diverged'});
+      assert.deepEqual(await a.evaluate(()=>window.__atomicResearch.raw()),lateRecord,
+        'subsequent rejection must not mutate the committed authority');
+      await a.evaluate(()=>localStorage.removeItem(
+        'financial-autonomy.preview.payload.v1'));
+      assert.deepEqual(await b.evaluate(()=>window.__atomicResearch.read()),
+        {revision:4,status:'reset',state:null});
+      console.log('PASS KNOWN UNSAFE atomic IDB: late legacy write can race a committed reset; later operations quarantine');
 
       // Demonstrates the fundamental limit of local-only freshness.
       await a.evaluate(record=>window.__atomicResearch.restoreOldForTest(record),original);
