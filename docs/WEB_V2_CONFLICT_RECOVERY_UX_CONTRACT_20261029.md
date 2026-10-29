@@ -18,7 +18,7 @@ The test-only fingerprint is an equality witness, not a cryptographic statement 
 | Reset tombstone readable and no divergence | **„Registrul a fost resetat”** (only if provenance and reset contract independently verified) | Read-only status, no v1 reimport. | That an older cached tab cannot subsequently write. |
 | Key-only/payload-only v1 pair (#35/#29) | **„Datele salvate sunt incomplete”** — „Nu vom șterge sau reface automat informațiile rămase.” | Block destructive operations and preserve both fragments. | That a key-only footprint is an empty account or that a payload-only footprint is recoverable. |
 
-**Copy caveat:** The first row must use grammatically correct final microcopy (`„O filă mai veche ar fi putut modifica o copie a datelor.”`); the draft must be reviewed with real screen context before shipping. No blame, reassurance without evidence, or financial coaching. Do not show `0,00` when data cannot be authenticated.
+**Copy caveat:** All wording is provisional until tested in real screen context. Avoid blame, unsupported reassurance or financial coaching. Do not show `0,00` when data cannot be authenticated.
 
 ## Interaction and recovery decisions
 
