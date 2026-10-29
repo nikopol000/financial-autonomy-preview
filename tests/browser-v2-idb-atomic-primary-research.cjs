@@ -306,8 +306,53 @@ async function testRealArchivedDriftAgainstIdb(browser,url){
       },before);
       assert.deepEqual((await modern.evaluate(()=>window.__atomicResearch.read())).state,
         {transactions:['synthetic-staged-from-v1']});
+
+      // A missing component is NOT the same as a malformed but present one.
+      // Key-only and ciphertext-only can mean interrupted creation, deletion
+      // or an older tab's partial reset. Neither authorizes a new IDB reset.
+      for(const missingSlot of [0,1]){
+        const keys=['financial-autonomy.preview.key.v1',
+          'financial-autonomy.preview.payload.v1'];
+        await old.evaluate(({keys,missingSlot})=>{
+          localStorage.removeItem(keys[missingSlot]);
+        },{keys,missingSlot});
+        const incomplete=await modern.evaluate(keys=>
+          keys.map(key=>localStorage.getItem(key)),keys);
+        assert.equal(incomplete[missingSlot],null,
+          'actual archived v1 '+(missingSlot===0?'payload-only':'key-only')+
+          ' footprint must have an absent component');
+        assert.equal(incomplete[1-missingSlot],before[1-missingSlot],
+          'surviving encrypted v1 component must remain byte-for-byte intact');
+        await assert.rejects(modern.evaluate(()=>window.__atomicResearch.read()),
+          /LEGACY_DIVERGED/);
+        const denied=await modern.evaluate(()=>window.__atomicResearch.write({
+          expectedRevision:1,reset:true
+        }));
+        assert.deepEqual(denied,{ok:false,reason:'legacy-diverged'});
+        assert.deepEqual(await modern.evaluate(()=>window.__atomicResearch.raw()),
+          stagedRaw,'missing legacy component must never overwrite IDB');
+        await modern.reload();await install(modern);
+        await assert.rejects(modern.evaluate(()=>window.__atomicResearch.read()),
+          /LEGACY_DIVERGED/);
+        assert.deepEqual(await modern.evaluate(()=>window.__atomicResearch.write({
+          expectedRevision:1,reset:true
+        })),{ok:false,reason:'legacy-diverged'});
+        assert.deepEqual(await modern.evaluate(()=>window.__atomicResearch.raw()),
+          stagedRaw,'reload must not authorize reset of incomplete legacy pair');
+        assert.deepEqual(await modern.evaluate(keys=>
+          keys.map(key=>localStorage.getItem(key)),keys),incomplete,
+          'failed reads and resets must preserve the exact incomplete pair');
+        await old.evaluate(({keys,before})=>{
+          keys.forEach((key,i)=>localStorage.setItem(key,before[i]));
+        },{keys,before});
+        assert.deepEqual((await modern.evaluate(()=>window.__atomicResearch.read())).state,
+          {transactions:['synthetic-staged-from-v1']});
+        console.log('PASS guarded atomic IDB + real archived '+version+
+          ': '+(missingSlot===0?'payload-only':'key-only')+
+          ' v1 footprint survives reload and blocks reset without writes');
+      }
       console.log('PASS guarded atomic IDB + real archived '+version+
-        ': full and partial v1 drift block reset with zero IDB writes');
+        ': full and malformed-component v1 drift block reset with zero IDB writes');
     }finally{await context.close();}
   }
 }
