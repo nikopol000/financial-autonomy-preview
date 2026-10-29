@@ -1,3 +1,10 @@
+## 2026-10-29 — #4 sealed v2 authority prototype CANDIDATE; production risk OPEN
+
+- **START:** `7904b31cadbcb689a19e71e51fe76f8d5943185c`. Mandatory docs, visual review and nine open issues inspected.
+- **RESEARCH CANDIDATE:** `tests/vault-v2-sealed-authority-research.cjs` + release CI step + `docs/WEB_V2_SEALED_AUTHORITY_RESEARCH_20261029.md`; 6/6 local Node WebCrypto AES-GCM synthetic tests PASS. Plain forged reset and altered metadata now fail closed **in this isolated design**, but valid sealed pointer replay still rolls back visible state (KNOWN LIMITATION). Not deployed, not a production fix, not real Chromium or Safari.
+- **NEXT EXACT:** verify PR CI, merge if green, check merged-main CI/Pages, update issue #4 and final checkpoint. Then test actual browser concurrency and archived versions, full-origin rollback boundary, recovery UX, v1 portable backup, #29 reset and #35 orphan key. Existing WEB 18.62 stale v1 overwrite/reset resurrection **KNOWN UNSAFE**.
+- **OTHER BACKLOG:** #14 financial perspectives DISCOVERY only; no formulas/modes before explicit approved contract. #25 and #85 pending. No iOS or user data touched.
+
 ## 2026-10-29 — P1 #4 forged authority and malformed-pointer Chromium research MERGED (#241); production v1 unsafe
 
 - **START HEAD:** `d177edaba1dc57bce93167add07090914f56db19`; exact Release #40792078054, Pages #40792078139, Pages build #40792077209 SUCCESS.
