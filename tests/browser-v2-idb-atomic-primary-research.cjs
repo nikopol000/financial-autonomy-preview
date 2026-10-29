@@ -90,6 +90,23 @@ async function install(page){
       if(observed&&observed.legacyFingerprint!==v1Digest)
         return {ok:false,reason:'legacy-diverged'};
       const envelope=await seal({status:reset?'reset':'active',state:reset?null:state});
+      // RESEARCH ONLY: another authenticated writer replaces the record
+      // with different ciphertext but the SAME revision after our async
+      // preflight. The transaction must compare the full observed snapshot,
+      // not just the revision. This injected rival write is deliberate.
+      if(fault==='same-revision-authenticated-substitution'&&observed){
+        const substitutedEnvelope=await seal({
+          status:'active',state:{transactions:['external-authenticated-writer']}
+        });
+        const rival=await open();
+        try{await new Promise((resolve,reject)=>{
+          const tx=rival.transaction(STORE,'readwrite');
+          tx.objectStore(STORE).put({...observed,envelope:substitutedEnvelope},'current');
+          tx.oncomplete=resolve;
+          tx.onabort=()=>reject(tx.error);
+          tx.onerror=()=>reject(tx.error);
+        });}finally{rival.close();}
+      }
       const db=await open();
       try{return await new Promise((resolve,reject)=>{
         let outcome=null,completed=false;
@@ -458,6 +475,28 @@ async function main(){
       assert.deepEqual((await b.evaluate(()=>window.__atomicResearch.read())).state,
         {transactions:['A']});
       console.log('PASS KNOWN UNSAFE atomic IDB: valid old-record rollback remains possible');
+
+      // A revision-only compare would silently erase this independent
+      // authenticated replacement. It must reject the proposed reset and
+      // preserve the rival's valid encrypted record byte-for-byte.
+      const sameRevisionRejected=await b.evaluate(()=>
+        window.__atomicResearch.write({
+          expectedRevision:1,reset:true,
+          fault:'same-revision-authenticated-substitution'
+        }));
+      assert.deepEqual(sameRevisionRejected,{ok:false,reason:'authority-changed'});
+      const sameRevisionSurvivor=await a.evaluate(()=>window.__atomicResearch.raw());
+      assert.equal(sameRevisionSurvivor.revision,1);
+      assert.notDeepEqual(sameRevisionSurvivor,original,
+        'the injected authenticated rival must really replace ciphertext');
+      const survivingState=await a.evaluate(()=>window.__atomicResearch.read());
+      assert.equal(survivingState.status,'active');
+      assert.deepEqual(survivingState.state,
+        {transactions:['external-authenticated-writer']});
+      assert.deepEqual(await b.evaluate(()=>window.__atomicResearch.raw()),
+        sameRevisionSurvivor,
+        'rejected reset must not overwrite the rival ciphertext');
+      console.log('PASS atomic IDB: authenticated same-revision replacement blocks stale reset and preserves rival ciphertext');
     }finally{await context.close();}
     await testRealArchivedDriftAgainstIdb(browser,
       'http://127.0.0.1:'+server.address().port+'/?fa_real=1');
