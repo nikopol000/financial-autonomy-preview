@@ -130,7 +130,14 @@ async function install(page){
         code.hidden=!code.hidden;
         detail.textContent=code.hidden?'Detalii tehnice':'Închide detaliile';
       });
-      actions.append(recheck,detail);
+      const cancel=document.createElement('button');
+      cancel.type='button';cancel.textContent='Anulează';
+      cancel.addEventListener('click',()=>{
+        // Cancellation never dismisses the safety block or mutates storage.
+        caution.textContent='Acțiunea a fost anulată. Datele rămân blocate pentru salvare.';
+        heading.focus();
+      });
+      actions.append(recheck,detail,cancel);
       card.append(heading,status,caution,actions,code);
       main.append(card);root.append(main);
       heading.focus();
@@ -196,9 +203,14 @@ async function main(){
         const decision=await page.evaluate(()=>window.__readonlyResearch.render());
         assert.deepEqual(decision,{code:expected,blocked:true});
         assert.equal(await page.locator('h1').count(),1);
-        assert.equal(await page.locator('button').count(),2);
+        assert.equal(await page.locator('button').count(),3);
         assert.equal(await page.locator('input').count(),0);
         assert.equal(await page.locator('h1').evaluate(el=>el===document.activeElement),true);
+        await page.keyboard.press('Tab');
+        assert.equal(await page.getByRole('button',{name:'Verifică din nou'}).evaluate(
+          el=>el===document.activeElement),true);
+        await page.getByRole('button',{name:'Anulează'}).click();
+        assert.match(await page.locator('article').innerText(),/Acțiunea a fost anulată/);
         await page.getByRole('button',{name:'Detalii tehnice'}).click();
         assert.equal(await page.locator('small').isVisible(),true);
         await page.getByRole('button',{name:'Închide detaliile'}).click();
@@ -252,9 +264,11 @@ async function main(){
             'Unexpected horizontal overflow at CSS zoom');
           for(const r of geometry.buttons)assert.ok(r.height>=44&&r.width>=44,
             'Touch target smaller than 44 CSS px');
-          const [a,b]=geometry.buttons;
-          assert.ok(a.y+a.height<=b.y||b.y+b.height<=a.y||
-            a.x+a.width<=b.x||b.x+b.width<=a.x,'Buttons overlap');
+          for(let i=0;i<geometry.buttons.length;i++)for(let j=i+1;j<geometry.buttons.length;j++){
+            const a=geometry.buttons[i],b=geometry.buttons[j];
+            assert.ok(a.y+a.height<=b.y||b.y+b.height<=a.y||
+              a.x+a.width<=b.x||b.x+b.width<=a.x,'Buttons overlap');
+          }
           assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),before);
           await page.screenshot({path:'artifacts/browser-v2-conflict-readonly/'+
             width+'-'+theme+'-zoom200.png',fullPage:true});
