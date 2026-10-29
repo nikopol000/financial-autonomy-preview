@@ -427,6 +427,26 @@ async function main(){
       assert.deepEqual(quarantined,{ok:false,reason:'legacy-diverged'});
       assert.deepEqual(await a.evaluate(()=>window.__atomicResearch.raw()),lateRecord,
         'subsequent rejection must not mutate the committed authority');
+      // A fresh page load must not silently treat a divergent old-tab write
+      // as an empty vault or as permission to reset again. Both encrypted
+      // stores are preserved byte-for-byte while the conflict is unresolved.
+      const legacyAfterLate=await a.evaluate(()=>localStorage.getItem(
+        'financial-autonomy.preview.payload.v1'));
+      assert.ok(legacyAfterLate?.includes('synthetic-after-check'));
+      await b.reload();await install(b);
+      assert.equal(await b.evaluate(()=>localStorage.getItem(
+        'financial-autonomy.preview.payload.v1')),legacyAfterLate);
+      assert.deepEqual(await b.evaluate(()=>window.__atomicResearch.raw()),lateRecord);
+      await assert.rejects(b.evaluate(()=>window.__atomicResearch.read()),
+        /LEGACY_DIVERGED/);
+      const afterReload=await b.evaluate(()=>window.__atomicResearch.write({
+        expectedRevision:4,reset:true
+      }));
+      assert.deepEqual(afterReload,{ok:false,reason:'legacy-diverged'});
+      assert.deepEqual(await b.evaluate(()=>window.__atomicResearch.raw()),lateRecord);
+      assert.equal(await b.evaluate(()=>localStorage.getItem(
+        'financial-autonomy.preview.payload.v1')),legacyAfterLate);
+      console.log('PASS atomic IDB: reload retains divergent v1 bytes and quarantines reset without writes');
       await a.evaluate(()=>localStorage.removeItem(
         'financial-autonomy.preview.payload.v1'));
       assert.deepEqual(await b.evaluate(()=>window.__atomicResearch.read()),
