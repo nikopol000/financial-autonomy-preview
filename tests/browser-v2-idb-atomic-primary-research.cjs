@@ -48,8 +48,27 @@ async function install(page){
         throw Error('BAD_STATE');
       return {revision:record.revision,...value};
     };
-    research.write=async({expectedRevision,state=null,reset=false,fault=null})=>{
-      // Encrypt before the transaction; never await crypto while an IDB tx is active.
+    research.write=async({expectedRevision,state=null,reset=false,fault=null,
+      allowInitialize=false})=>{
+      // Authenticate the existing envelope BEFORE opening a write transaction.
+      // Never await WebCrypto while a live IndexedDB transaction is active.
+      // Explicit initialization is needed: missing authority is NOT a blank ledger.
+      const observed=await raw();
+      if(!observed){
+        if(!allowInitialize||expectedRevision!==0)
+          return {ok:false,reason:'missing-authority'};
+      }else{
+        if(!Number.isSafeInteger(observed.revision)||observed.revision<1)
+          return {ok:false,reason:'invalid-authority'};
+        try{
+          const prior=await unseal(observed.envelope);
+          if(!['active','reset'].includes(prior.status)||
+            (prior.status==='reset'&&prior.state!==null))
+            throw Error('BAD_STATE');
+        }catch(_){
+          return {ok:false,reason:'unreadable-authority'};
+        }
+      }
       const envelope=await seal({status:reset?'reset':'active',state:reset?null:state});
       const db=await open();
       try{return await new Promise((resolve,reject)=>{
@@ -64,6 +83,11 @@ async function install(page){
             outcome={ok:false,reason:'stale-revision',actualRevision:actual};
             tx.abort();return;
           }
+          // The same revision with different ciphertext is also a conflict.
+          // Compare bytes/snapshot synchronously inside the transaction.
+          if(JSON.stringify(old)!==JSON.stringify(observed)){
+            outcome={ok:false,reason:'authority-changed'};tx.abort();return;
+          }
           if(fault==='before-put'){
             outcome={ok:false,reason:'injected-before-put'};tx.abort();return;
           }
@@ -76,6 +100,14 @@ async function install(page){
         tx.oncomplete=()=>{completed=true;resolve({ok:true,revision:expectedRevision+1});};
         tx.onabort=()=>resolve(outcome??{ok:false,reason:'transaction-aborted'});
         tx.onerror=()=>{if(!completed&&tx.error)reject(tx.error);};
+      });}finally{db.close();}
+    };
+    research.deleteForTest=async()=>{
+      const db=await open();
+      try{await new Promise((resolve,reject)=>{
+        const tx=db.transaction(STORE,'readwrite');
+        tx.objectStore(STORE).delete('current');
+        tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error);
       });}finally{db.close();}
     };
     research.restoreOldForTest=async record=>{
@@ -104,7 +136,7 @@ async function main(){
       await Promise.all([a.goto(url),b.goto(url)]);
       await Promise.all([install(a),install(b)]);
       const first=await a.evaluate(()=>window.__atomicResearch.write({
-        expectedRevision:0,state:{transactions:['A']}}));
+        expectedRevision:0,allowInitialize:true,state:{transactions:['A']}}));
       assert.deepEqual(first,{ok:true,revision:1});
       assert.deepEqual((await b.evaluate(()=>window.__atomicResearch.read())).state,
         {transactions:['A']});
@@ -134,6 +166,21 @@ async function main(){
       }
       console.log('PASS atomic IDB: both injected precommit reset faults retain ledger');
 
+      const beforeCorruption=await a.evaluate(()=>window.__atomicResearch.raw());
+      await a.evaluate(record=>window.__atomicResearch.restoreOldForTest(record),
+        {revision:2,envelope:{iv:[0],cipher:[0]}});
+      await assert.rejects(
+        a.evaluate(()=>window.__atomicResearch.read()),/decrypt|OperationError|failed|error/i);
+      const refused=await b.evaluate(()=>window.__atomicResearch.write({
+        expectedRevision:2,reset:true}));
+      assert.deepEqual(refused,{ok:false,reason:'unreadable-authority'});
+      assert.deepEqual(await a.evaluate(()=>window.__atomicResearch.raw()),
+        {revision:2,envelope:{iv:[0],cipher:[0]}});
+      await a.evaluate(record=>window.__atomicResearch.restoreOldForTest(record),
+        beforeCorruption);
+      assert.deepEqual(await b.evaluate(()=>window.__atomicResearch.read()),after);
+      console.log('PASS atomic IDB: corrupt encrypted authority blocks reset without overwrite');
+
       const reset=await b.evaluate(()=>window.__atomicResearch.write({
         expectedRevision:2,reset:true}));
       assert.deepEqual(reset,{ok:true,revision:3});
@@ -147,6 +194,32 @@ async function main(){
       assert.deepEqual(stale,{ok:false,reason:'stale-revision',actualRevision:3});
       assert.equal((await b.evaluate(()=>window.__atomicResearch.read())).status,'reset');
       console.log('PASS atomic IDB: pre-reset stale writer cannot resurrect ledger');
+
+      const tombstone=await a.evaluate(()=>window.__atomicResearch.raw());
+      await a.evaluate(()=>window.__atomicResearch.deleteForTest());
+      const noImplicitInit=await b.evaluate(()=>window.__atomicResearch.write({
+        expectedRevision:0,state:{transactions:['silently-resurrected']}}));
+      assert.deepEqual(noImplicitInit,{ok:false,reason:'missing-authority'});
+      assert.equal(await b.evaluate(()=>window.__atomicResearch.raw()),null);
+      await a.evaluate(record=>window.__atomicResearch.restoreOldForTest(record),
+        tombstone);
+      assert.equal((await b.evaluate(()=>window.__atomicResearch.read())).status,'reset');
+      console.log('PASS atomic IDB: missing authority cannot auto-initialize after reset');
+
+      const denied=await b.evaluate(async()=>{
+        Object.defineProperty(indexedDB,'open',{configurable:true,value:()=>{
+          throw Error('TEST_IDB_DENIED');
+        }});
+        try{
+          await window.__atomicResearch.write({
+            expectedRevision:3,state:{transactions:['denied']}});
+          return 'UNEXPECTED_SUCCESS';
+        }catch(e){return e.message;}
+        finally{delete indexedDB.open;}
+      });
+      assert.equal(denied,'TEST_IDB_DENIED');
+      assert.deepEqual(await a.evaluate(()=>window.__atomicResearch.raw()),tombstone);
+      console.log('PASS atomic IDB: storage denial fails without modifying sealed tombstone');
 
       // Demonstrates the fundamental limit of local-only freshness.
       await a.evaluate(record=>window.__atomicResearch.restoreOldForTest(record),original);
