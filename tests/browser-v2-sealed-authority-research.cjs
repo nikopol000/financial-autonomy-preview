@@ -362,7 +362,9 @@ async function main(){
       assert.equal((await a.evaluate(()=>window.__sealedResearch.read())).status,'reset');
       console.log('PASS Chromium: missing key fails closed and restoring key recovers reset');
     }finally{await context.close();}
-    await testRealArchivedAgainstSealed(browser,'http://127.0.0.1:'+server.address().port+'/');
+    // Archived 18.33+ explicitly require the real-mode URL flag; otherwise
+    // demo-mode writes do not create the encrypted v1 storage pair.
+    await testRealArchivedAgainstSealed(browser,'http://127.0.0.1:'+server.address().port+'/?fa_real=1');
   }finally{
     if(browser)await browser.close();
     await new Promise(resolve=>server.close(resolve));
