@@ -93,3 +93,12 @@ The test deliberately asserts this **KNOWN UNSAFE migration gap** for all three 
 ## Verification of archived v1 / IDB reset characterization
 
 [PR #255](https://github.com/nikopol000/financial-autonomy-preview/pull/255) merged as `795f57e5968838d9e8d2f2cde1ef76b30c824dc4`. Candidate [Chromium #40839463565](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40839463565) **SUCCESS**; job `123332049539` contains three named `PASS KNOWN UNSAFE` assertions for archived WEB 18.27, 18.33 and 18.34. [Release #40839463830](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40839463830) **SUCCESS**. Each PASS means the experimental IDB reset **incorrectly succeeds despite changed v1 ciphertext**. The experiment is not a mitigation. Merged-main/checkpoint CI, actual iPhone Safari, portable encrypted backup and production migration are **not verified**.
+
+
+## Authenticated same-revision substitution during preflight — 2026-10-29
+
+**Test-only adversarial schedule; no product storage migration.** The IndexedDB prototype authenticates the previously observed AES-GCM record, encrypts a proposed reset, then starts a readwrite transaction. A separate injected writer commits a **different valid AES-GCM envelope with the same numeric revision** in that preflight gap. The candidate's transaction must compare the *entire observed record*, not only `revision`, and abort with `authority-changed`. The external writer's exact ciphertext must survive; no reset is allowed.
+
+The new deterministic assertion in `tests/browser-v2-idb-atomic-primary-research.cjs` checks (1) the rejected reset, (2) unchanged revision but different encrypted record, (3) successful authenticated read of the rival's synthetic ledger and (4) byte-for-byte preservation of that rival record. The rival write is intentionally injected; it is **not** an unexplained product mutation. Chromium/Release CI evidence is **pending** until the candidate run completes.
+
+**Limits:** this covers a cooperative IndexedDB transaction conflict, not a malicious actor, full-origin rollback, cached WEB v1 `localStorage` writes after the last check, key provenance, browser storage eviction, real backups or Safari durability. In particular, `authority-changed` prevents this one stale reset; it does not establish which ledger is newest. WEB 18.64 remains active; #4/#29/#35 stay open. No iOS, product bundle, version, financial formula, real data or encrypted backup format changes.
