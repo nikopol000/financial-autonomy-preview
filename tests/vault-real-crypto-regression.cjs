@@ -1035,6 +1035,35 @@ async function test(name,fn) {
     assert.equal(original.writes,originalWrites);
     assert.throws(()=>vault.loadWebVault(original),/Cheia locală există, dar datele criptate lipsesc/);
   });
+  await test('Invalid portable backup metadata and malformed files never modify protected encrypted vaults',async()=>{
+    // Real bundled module 311 parser, real PBKDF2/AES-GCM for the source
+    // envelope; all data and storage adapters are synthetic. An authenticated
+    // backup is not evidence that it is the newest ledger.
+    const password='Synthetic-Backup-2026!';
+    const original=storage({[KEY]:Buffer.from(random(32)).toString('hex')});
+    const valid=storage();
+    vault.saveWebVault(valid,sample(),random);
+    const orphanBefore=clone(original.data),validBefore=clone(valid.data);
+    const orphanWrites=original.writes,validWrites=valid.writes;
+    const realEnvelope=JSON.parse(await crypt.backup(sample(),password,random));
+    const cases=[
+      ['truncated JSON','{"format":"FinancialAutonomy"',/SyntaxError|JSON/],
+      ['unsupported format',JSON.stringify({...realEnvelope,format:'OtherApp'}),/Backup incompatibil/],
+      ['unsupported version',JSON.stringify({...realEnvelope,version:2}),/Backup incompatibil/],
+      ['unsupported KDF',JSON.stringify({...realEnvelope,kdf:'PBKDF2-SHA1'}),/Backup incompatibil/],
+      ['invalid salt length',JSON.stringify({...realEnvelope,salt:'00'}),/Backup incompatibil/],
+      ['oversized file','x'.repeat(8000001),/Backup prea mare/]
+    ];
+    for(const [name,file,error] of cases){
+      await assert.rejects(crypt.restore(file,password),error,name);
+      assert.deepEqual(original.data,orphanBefore,name+': orphan key must survive');
+      assert.deepEqual(valid.data,validBefore,name+': authenticated vault must survive');
+      assert.equal(original.writes,orphanWrites,name+': no orphan writes');
+      assert.equal(valid.writes,validWrites,name+': no valid-vault writes');
+    }
+    assert.throws(()=>vault.loadWebVault(original),/Cheia locală există, dar datele criptate lipsesc/);
+    assert.deepEqual(clone(vault.loadWebVault(valid)),sample());
+  });
   await test('F03 adversarial payload write-then-throw preserves authenticated first-save ciphertext',()=>{
     // Deliberately NONCONFORMING Storage shim: native setItem failure is atomic.
     // This checks that a caught error never justifies deleting the new key.
@@ -1274,6 +1303,6 @@ async function test(name,fn) {
   await test('First-save retry reset event while queued behind Web Lock prevents stale write',async()=>{
     await queuedFirstSaveRetryRevocation('reset');
   });
-  console.log(passed+'/64 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==64)process.exitCode=1;
+  console.log(passed+'/65 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==65)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
