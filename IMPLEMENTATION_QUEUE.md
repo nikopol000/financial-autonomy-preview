@@ -1,3 +1,9 @@
+## 2026-10-29 — #4 late legacy write AFTER final v1 fingerprint check (research candidate; production P1 OPEN)
+
+- **TEST CANDIDATE:** deterministic Chromium injection immediately after final localStorage pair check but before IDB transaction commit. A synthetic v1 write can race a successful reset; subsequent reads/quarantined writes reject divergent v1 pair without more IDB writes. `PASS KNOWN UNSAFE` means weakness characterized, NOT mitigation. Test-only fixed key, synthetic ledger; no product release.
+- **FIRST UNFINISHED:** inspect candidate Chromium named PASS log and Release CI, merge only if green, verify exact merged/checkpoint CI/Pages and update issue #4. Next: explicit nondestructive divergence UX, real archived 18.27/18.33/18.34 timing and backup/key provenance, #29/#35, IDB denial/eviction, Safari/VoiceOver. Local-only freshness and rollback are unresolved.
+- **NONURGENT DISCOVERY:** #14 budget perspectives and #25 overpayment remain analysis-only pending approved numerical contracts; #85 mobile 200% zoom remains device-unverified. No iOS, formulas, real ledger/backup, bundle/index/version or backend changes.
+
 ## 2026-10-29 — #4 v1 SHA-256 fingerprint guard research MERGED (#257); P1 production OPEN
 
 - **DONE test-only:** [PR #257](https://github.com/nikopol000/financial-autonomy-preview/pull/257), squash `6cc6c13c27da03bb6b5244c35eebd0fd08a0b6d5`; candidate [Chromium #40847285636](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40847285636) and [Release #40847285573](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40847285573) SUCCESS. Three real archived 18.27/18.33/18.34 drift+partial fault PASS cases and injected precommit legacy race PASS. Earlier Chromium #40847036961 FAILED due to invalid assumption of v1 key rotation; corrected with actual key-only/payload-only fault injection. Experimental IDB read/reset blocks divergent v1 pair without IDB writes.
