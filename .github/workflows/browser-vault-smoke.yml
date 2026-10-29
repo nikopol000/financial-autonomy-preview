@@ -12,6 +12,7 @@ on:
       - 'tests/browser-archived-v1-compatibility-research.cjs'
       - 'tests/browser-archived-v2-interleavings-research.cjs'
       - 'tests/browser-v2-sealed-authority-research.cjs'
+      - 'tests/browser-v2-idb-witness-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
@@ -27,6 +28,7 @@ on:
       - 'tests/browser-archived-v1-compatibility-research.cjs'
       - 'tests/browser-archived-v2-interleavings-research.cjs'
       - 'tests/browser-v2-sealed-authority-research.cjs'
+      - 'tests/browser-v2-idb-witness-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
@@ -58,6 +60,8 @@ jobs:
         run: node tests/browser-archived-v2-interleavings-research.cjs
       - name: Characterize sealed v2 authority, reset replay and legacy drift in two Chromium tabs (NOT PRODUCTION)
         run: node tests/browser-v2-sealed-authority-research.cjs
+      - name: Research IndexedDB witness replay detection and crash recovery in Chromium (NOT PRODUCTION)
+        run: node tests/browser-v2-idb-witness-research.cjs
       - name: Audit actual blocked WEB mobile UI in light/dark (synthetic-only)
         run: node tests/browser-vault-ui-audit.cjs
       - name: Audit populated demo budgets at 320/390px light/dark and CSS zoom stress
