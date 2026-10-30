@@ -544,6 +544,15 @@ async function main() {
     // This is an intentional counterexample, NOT a production-safe reset.
     const unsafeForeignReset=await b.evaluate(()=>window.__research.epochReset());
     assert.equal(unsafeForeignReset.ok,true);
+    // A and B are separate Chromium renderers. A Web Lock serializes writes,
+    // not propagation of localStorage mutations to the other renderer. Wait
+    // for both the new epoch and deleted ciphertext to become observable in A;
+    // this is fixture synchronization, NOT a change to the unsafe reset model.
+    await a.waitForFunction(({epochKey,recordKey,expectedEpoch})=>
+      localStorage.getItem(epochKey)===expectedEpoch &&
+      localStorage.getItem(recordKey)===null,
+      {epochKey:EPOCH,recordKey:EPOCH_V2,expectedEpoch:unsafeForeignReset.epoch},
+      {timeout:10000});
     assert.equal(await a.evaluate(key=>localStorage.getItem(key),EPOCH_V2),null);
     assert.notEqual(unsafeForeignReset.epoch,foreignEpoch);
     console.log('PASS KNOWN UNSAFE Chromium: reset accepts unauthenticated foreign UUID and deletes v2 ciphertext (migration blocker)');
