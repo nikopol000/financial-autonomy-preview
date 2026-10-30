@@ -288,6 +288,94 @@ async function run(){
     await readDeniedContext.close();
     console.log('PASS Chromium actual backup UI: denied existing-vault PAYLOAD read aborts confirmed restore without writes; newer ledger survives reload');
 
+
+    // Remaining preflight reads are as important as PAYLOAD. A denied KEY or
+    // RESET read must never be interpreted as an empty destination.
+    for(const [label,deniedName] of [['KEY',KEY],['RESET',RESET]]){
+      const readContext=await browser.newContext({viewport:{width:390,height:844},
+        isMobile:true,hasTouch:true,colorScheme:'dark'});
+      page=await readContext.newPage();
+      const before=await prepareExisting(page,url,backup,liveState);
+      await page.evaluate(name=>{
+        const originalGet=Storage.prototype.getItem;
+        window.__faReadFaultHits=0;
+        Storage.prototype.getItem=function(key){
+          if(this===localStorage&&key===name){
+            window.__faReadFaultHits++;
+            throw new DOMException('Synthetic denied authority read','SecurityError');
+          }
+          return originalGet.call(this,key)
+        };
+        window.__faDisarmReadFault=()=>{Storage.prototype.getItem=originalGet};
+      },deniedName);
+      await page.getByText('Confirm înlocuirea datelor',{exact:true}).click();
+      await page.waitForFunction(()=>window.__faReadFaultHits>0,null,{timeout:15000});
+      await page.waitForTimeout(200);
+      assert.equal(await page.getByText('Backup restaurat.',{exact:true}).count(),0,
+        'Denied '+label+' preflight read must not acknowledge restore');
+      await page.evaluate(()=>window.__faDisarmReadFault());
+      assert.deepEqual(await bytes(page),before,'Denied '+label+' read must cause zero writes');
+      await openReal(page,url);
+      const retained=await page.evaluate(async()=>window.__r(309).load());
+      assert.equal(retained.transactions.length,2);
+      assert.ok(retained.transactions.some(t=>t.id==='newer-live-only'));
+      assert.deepEqual(await bytes(page),before);
+      await readContext.close();
+      console.log('PASS Chromium actual backup UI: denied existing-vault '+label+
+        ' read aborts confirmed restore without writes; newer ledger survives reload');
+    }
+
+    // The WEB 18.64 save path re-reads revision after PAYLOAD setItem. A
+    // SecurityError on that read can make an already committed restore look
+    // unsuccessful. This is a characterization of ambiguous acknowledgment,
+    // NOT evidence of a naturally occurring browser failure.
+    const readbackContext=await browser.newContext({viewport:{width:390,height:844},
+      isMobile:true,hasTouch:true,colorScheme:'light'});
+    page=await readbackContext.newPage();
+    const beforeReadback=await prepareExisting(page,url,backup,liveState);
+    await page.evaluate(({key,payload})=>{
+      const originalSet=Storage.prototype.setItem;
+      const originalGet=Storage.prototype.getItem;
+      window.__faPayloadCommitted=false;
+      window.__faReadbackFaultHits=0;
+      Storage.prototype.setItem=function(name,value){
+        const result=originalSet.call(this,name,value);
+        if(this===localStorage&&name===payload)window.__faPayloadCommitted=true;
+        return result
+      };
+      Storage.prototype.getItem=function(name){
+        if(this===localStorage&&name===key&&window.__faPayloadCommitted){
+          window.__faReadbackFaultHits++;
+          throw new DOMException('Synthetic post-write readback denial','SecurityError');
+        }
+        return originalGet.call(this,name)
+      };
+      window.__faDisarmReadback=()=>{
+        Storage.prototype.setItem=originalSet;
+        Storage.prototype.getItem=originalGet;
+      };
+    },{key:KEY,payload:PAYLOAD});
+    await page.getByText('Confirm înlocuirea datelor',{exact:true}).click();
+    await page.waitForFunction(()=>window.__faReadbackFaultHits>0,null,{timeout:15000});
+    await page.waitForTimeout(200);
+    assert.equal(await page.getByText('Backup restaurat.',{exact:true}).count(),0,
+      'Committed-but-unverified restore must not display success');
+    await page.evaluate(()=>window.__faDisarmReadback());
+    const afterReadback=await bytes(page);
+    assert.equal(afterReadback.key,beforeReadback.key,
+      'Existing AES key must be preserved');
+    assert.notEqual(afterReadback.payload,beforeReadback.payload,
+      'PAYLOAD was committed before readback failed');
+    assert.equal(afterReadback.reset,beforeReadback.reset);
+    await openReal(page,url);
+    const readbackRestored=await page.evaluate(async()=>window.__r(309).load());
+    assert.equal(readbackRestored.transactions.length,1);
+    assert.equal(readbackRestored.transactions[0].id,fixture.transactions[0].id);
+    assert.equal(readbackRestored.transactions.some(t=>t.id==='newer-live-only'),false);
+    assert.deepEqual(await bytes(page),afterReadback);
+    await readbackContext.close();
+    console.log('PASS KNOWN AMBIGUOUS Chromium actual backup UI: post-PAYLOAD readback denial reports failure although older backup committed; reload authenticates committed state');
+
   }catch(err){
     if(page)try{console.error('Browser excerpt:',(await page.locator('body').innerText()).slice(0,1200))}
     catch{}
