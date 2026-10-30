@@ -1,6 +1,6 @@
 # Whole Chromium browser SIGKILL / persistent profile — research gate (2026-10-31)
 
-**Status: candidate, NOT VERIFIED until GitHub Actions completes.** WEB 18.64 unchanged. Issues #4, #29, #35. Starting main HEAD `5b0880a7e41b0e1dff2064316e24dc0c8ee2135d`.
+**Status: verified synthetic Chromium characterization, NOT a production fix.** WEB 18.64 unchanged. Issues #4, #29, #35. Starting main HEAD `5b0880a7e41b0e1dff2064316e24dc0c8ee2135d`.
 
 ## Test design
 
@@ -16,8 +16,8 @@ Preferred prospective UX remains read-only quarantine: “Nu putem confirma star
 
 ## Evidence gate / next work
 
-1. Run `node --check` and the exact GitHub Chromium workflow, inspect **three named PASS lines** and Release CI; repair test-only faults before merge.
-2. Verify merged-main independent Release/Chromium/Pages; Vercel and served-browser evidence are separate and must not be inferred.
+1. **Verified:** [PR #333](https://github.com/nikopol000/financial-autonomy-preview/pull/333), exact PR head `8e12551035ae43478b469fb6cea06e62615decae`, [Release CI #41142510587](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41142510587) SUCCESS and [Chromium #41142510661](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41142510661) SUCCESS. Job `124359896703` has three individually inspected named PASS lines at 23:08:46, 23:08:47 and 23:08:47 UTC (orphan-key, deleted-legacy, committed-diverged). Merged via squash `d67641c06c9a6f5ba21bd8f78fb3ce219e33007c`.
+2. Verify merged-main independent Release/Chromium/Pages; Vercel and served-browser evidence are separate and must not be inferred from PR CI.
 3. Then extend to a **genuinely in-flight** IndexedDB/localStorage crash, and draft an authenticated reset-intent and accessible read-only recovery contract for review. Safari iPhone/VoiceOver and real browser eviction remain unverified.
 
 No iOS, product bundle/index, real ledger, encrypted backup format, cloud, accounts, analytics or bank sync changes.
