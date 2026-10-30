@@ -94,6 +94,59 @@ async function install(page){
       if(result.ok&&fault==='throw-after-complete')throw Error('SYNTHETIC_POST_COMMIT_ERROR');
       return result;
     };
+
+    // Test-only v1 localStorage -> v2 IDB candidate. v1 AES-GCM envelope shape
+    // matches the actual immutable WEB 18.64 vault, independently checked by
+    // vault-real-crypto-regression.cjs. Never deletes or rewrites the v1 pair.
+    const LEGACY_KEY='financial-autonomy.preview.key.v1';
+    const LEGACY_PAYLOAD='financial-autonomy.preview.payload.v1';
+    api.legacyFootprint=()=>({key:localStorage.getItem(LEGACY_KEY),
+      payload:localStorage.getItem(LEGACY_PAYLOAD)});
+    api.seedLegacyForTest=async state=>{
+      const existing=localStorage.getItem(LEGACY_KEY);
+      const raw=existing?bytes(existing):crypto.getRandomValues(new Uint8Array(32));
+      const key=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['encrypt']);
+      const nonce=crypto.getRandomValues(new Uint8Array(12));
+      const cipher=new Uint8Array(await crypto.subtle.encrypt(
+        {name:'AES-GCM',iv:nonce},key,enc.encode(JSON.stringify(state))));
+      localStorage.setItem(LEGACY_KEY,hex(raw));
+      localStorage.setItem(LEGACY_PAYLOAD,JSON.stringify({
+        v:1,nonce:hex(nonce),data:hex(cipher)}));
+    };
+    api.migrateLegacyForTest=async({opId,fault=null})=>{
+      let source,state;
+      try{
+        if(fault==='deny-legacy-read')throw Error('SYNTHETIC_READ_DENIED');
+        source=api.legacyFootprint();
+        if(!source.key||!source.payload)
+          return {ok:false,reason:'incomplete-legacy'};
+        if(!/^[0-9a-f]{64}$/.test(source.key))
+          return {ok:false,reason:'invalid-legacy'};
+        const envelope=JSON.parse(source.payload);
+        if(envelope.v!==1||typeof envelope.nonce!=='string'||
+          !/^[0-9a-f]{24}$/.test(envelope.nonce)||
+          typeof envelope.data!=='string'||!/^(?:[0-9a-f]{2})+$/.test(envelope.data))
+          return {ok:false,reason:'invalid-legacy'};
+        const key=await crypto.subtle.importKey('raw',bytes(source.key),'AES-GCM',
+          false,['decrypt']);
+        state=JSON.parse(dec.decode(await crypto.subtle.decrypt(
+          {name:'AES-GCM',iv:bytes(envelope.nonce)},key,bytes(envelope.data))));
+        if(!state||state.version!==4||
+          !['accounts','transactions','balanceChecks'].every(k=>Array.isArray(state[k])))
+          return {ok:false,reason:'invalid-legacy'};
+      }catch{return {ok:false,reason:'unreadable-or-unauthenticated-legacy'}}
+      // Preflight check is NOT a lock against old cached v1 writers.
+      if(fault==='change-source-before-commit')
+        localStorage.setItem(LEGACY_PAYLOAD,source.payload+' ');
+      try{
+        if(JSON.stringify(api.legacyFootprint())!==JSON.stringify(source))
+          return {ok:false,reason:'legacy-changed'};
+        if((await read(opId)).current)
+          return {ok:false,reason:'existing-v2-authority'};
+      }catch{return {ok:false,reason:'preflight-unavailable'}}
+      return api.commit({opId,state,expectedRevision:0,allowInitialize:true,
+        fault:['before-put','after-put','throw-after-complete'].includes(fault)?fault:null});
+    };
     api.deleteWitnessForTest=async opId=>{
       const db=await open();
       try{await new Promise((resolve,reject)=>{
@@ -213,6 +266,97 @@ async function main(){
         before,opId,expected}),{before:afterRace,opId:sharedId,expected:sharedWinner}),'unknown');
       console.log('PASS atomic IDB restore witness: missing operation witness quarantines without repairing/deleting');
     }finally{await context.close()}
+    // Migration gate runs on independent disposable origins; never user storage.
+    async function isolated(run){
+      const ctx=await browser.newContext();
+      try{
+        const p=await ctx.newPage();
+        await p.goto(url);await install(p);
+        return await run(p);
+      }finally{await ctx.close()}
+    }
+    const fixture={version:4,accounts:[{id:'checking-test',name:'Fictiv'}],
+      transactions:[{id:'old-v1-expense',amount:200,date:'2026-10-30'}],
+      balanceChecks:[]};
+    await isolated(async p=>{
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+      const before=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      assert.match(before.key,/^[0-9a-f]{64}$/);
+      assert.deepEqual(JSON.parse(before.payload).v,1);
+      assert.ok(!before.payload.includes('old-v1-expense'));
+      const migrated=await p.evaluate(()=>window.__restoreOperationResearch.migrateLegacyForTest({
+        opId:'op-v1-migrate-0001'}));
+      assert.equal(migrated.ok,true);
+      assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),before,
+        'migration must not remove or alter v1 recovery evidence');
+      await p.reload();await install(p);
+      assert.equal(await p.evaluate(s=>window.__restoreOperationResearch.ack({
+        before:null,opId:'op-v1-migrate-0001',expected:s}),fixture),
+      'verified_committed_operation');
+      // A cached old v1 tab can still write after cutover. IDB cannot stop it.
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),
+        {...fixture,transactions:[...fixture.transactions,{id:'late-v1-write'}]});
+      assert.equal(await p.evaluate(s=>window.__restoreOperationResearch.ack({
+        before:null,opId:'op-v1-migrate-0001',expected:s}),fixture),
+      'verified_committed_operation');
+      assert.notDeepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),before);
+    });
+    console.log('PASS research v1 AES-GCM envelope migrates into IDB witness without deleting legacy bytes; KNOWN UNSAFE late v1 writer remains possible');
+    for(const kind of ['orphan-key','orphan-payload','corrupt-payload','deny-legacy-read']){
+      await isolated(async p=>{
+        await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+        await p.evaluate(kind=>{
+          const key='financial-autonomy.preview.key.v1';
+          const payload='financial-autonomy.preview.payload.v1';
+          if(kind==='orphan-key')localStorage.removeItem(payload);
+          if(kind==='orphan-payload')localStorage.removeItem(key);
+          if(kind==='corrupt-payload'){
+            const raw=JSON.parse(localStorage.getItem(payload));
+            raw.data=(raw.data[0]==='0'?'1':'0')+raw.data.slice(1);
+            localStorage.setItem(payload,JSON.stringify(raw));
+          }
+        },kind);
+        const before=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+        const result=await p.evaluate(kind=>window.__restoreOperationResearch.migrateLegacyForTest({
+          opId:'op-v1-reject-0002',fault:kind==='deny-legacy-read'?kind:null}),kind);
+        assert.equal(result.ok,false);
+        assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),before);
+        assert.equal((await p.evaluate(()=>window.__restoreOperationResearch.read('op-v1-reject-0002'))).current,null);
+      });
+    }
+    console.log('PASS research v1 migration rejects orphan KEY, orphan PAYLOAD, corrupt ciphertext and denied reads without IDB or legacy mutation');
+    for(const fault of ['before-put','after-put']){
+      await isolated(async p=>{
+        await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+        const before=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+        const result=await p.evaluate(fault=>window.__restoreOperationResearch.migrateLegacyForTest({
+          opId:'op-v1-abort-0003',fault}),fault);
+        assert.equal(result.ok,false);
+        assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),before);
+        assert.equal((await p.evaluate(()=>window.__restoreOperationResearch.read('op-v1-abort-0003'))).current,null);
+      });
+    }
+    console.log('PASS research v1 migration IDB abort before/after puts leaves legacy pair and authority unchanged');
+    await isolated(async p=>{
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+      const before=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      await assert.rejects(p.evaluate(()=>window.__restoreOperationResearch.migrateLegacyForTest({
+        opId:'op-v1-postcommit-0004',fault:'throw-after-complete'})),/SYNTHETIC_POST_COMMIT_ERROR/);
+      await p.reload();await install(p);
+      assert.equal(await p.evaluate(s=>window.__restoreOperationResearch.ack({
+        before:null,opId:'op-v1-postcommit-0004',expected:s}),fixture),
+      'verified_committed_operation');
+      assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),before);
+    });
+    console.log('PASS research v1 migration post-commit exception can authenticate witness after reload without replay');
+    await isolated(async p=>{
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+      const result=await p.evaluate(()=>window.__restoreOperationResearch.migrateLegacyForTest({
+        opId:'op-v1-changed-0005',fault:'change-source-before-commit'}));
+      assert.equal(result.reason,'legacy-changed');
+      assert.equal((await p.evaluate(()=>window.__restoreOperationResearch.read('op-v1-changed-0005'))).current,null);
+    });
+    console.log('PASS research v1 migration detects a preflight legacy source change; cannot prevent a late cached writer');
   }finally{if(browser)await browser.close();await new Promise(resolve=>server.close(resolve))}
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
