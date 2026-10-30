@@ -4,6 +4,7 @@
 // Metro modules 310..322 from the immutable bundle, and cross-check with Node OpenSSL.
 // This is a Node VM/browser-like integration test, NOT a real interactive browser test.
 const assert = require('node:assert/strict');
+const {readFootprint,classifyRestoreAcknowledgment}=require('./support/restore-acknowledgment.cjs');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const nodeCrypto = require('node:crypto');
@@ -1331,6 +1332,110 @@ async function test(name,fn) {
   await test('First-save retry reset event while queued behind Web Lock prevents stale write',async()=>{
     await queuedFirstSaveRetryRevocation('reset');
   });
-  console.log(passed+'/66 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
-  if(passed!==66)process.exitCode=1;
+
+  // A test-only acknowledgment classifier: NO production restore behavior changes.
+  // Matching authenticated data is not proof that a particular attempt committed.
+  await test('Restore acknowledgment: byte-identical live vault is verified unchanged without writes',()=>{
+    const s=storage();vault.saveWebVault(s,sample(),random);
+    const before=readFootprint(s),writes=s.writes;
+    const result=classifyRestoreAcknowledgment({
+      before,storage:s,expectedState:sample(),
+      authenticate:store=>clone(vault.loadWebVault(store))
+    });
+    assert.equal(result.status,'verified_unchanged');
+    assert.equal(s.writes,writes);
+    assert.deepEqual(readFootprint(s),before);
+  });
+  await test('Restore acknowledgment: authenticated older selected state is present, not proven newest',()=>{
+    const s=storage(),older=sample(),newer=clone(older);
+    newer.transactions.push({id:'synthetic-newer',kind:'income',amount:300});
+    vault.saveWebVault(s,newer,random);
+    const before=readFootprint(s);
+    vault.saveWebVault(s,older,random); // synthetic confirmed user-selected restore
+    const writes=s.writes;
+    const result=classifyRestoreAcknowledgment({
+      before,storage:s,expectedState:older,
+      authenticate:store=>clone(vault.loadWebVault(store))
+    });
+    assert.equal(result.status,'verified_target_present');
+    assert.equal(s.writes,writes,'Readback must not itself write');
+    assert.deepEqual(clone(vault.loadWebVault(s)),older);
+  });
+  await test('Restore acknowledgment: unexpected authenticated third state is unknown',()=>{
+    const s=storage(),beforeState=sample(),other=clone(beforeState);
+    vault.saveWebVault(s,beforeState,random);
+    const before=readFootprint(s);
+    other.transactions.push({id:'unrelated-tab',kind:'income',amount:999});
+    vault.saveWebVault(s,other,random);
+    const writes=s.writes;
+    const result=classifyRestoreAcknowledgment({
+      before,storage:s,expectedState:{...beforeState,transactions:[]},
+      authenticate:store=>clone(vault.loadWebVault(store))
+    });
+    assert.equal(result.status,'unknown');
+    assert.equal(result.reason,'unexpected_authenticated_state');
+    assert.equal(s.writes,writes);
+  });
+  await test('Restore acknowledgment: KEY-only partial write is unknown and preserved',()=>{
+    const s=storage();vault.saveWebVault(s,sample(),random);
+    const before=readFootprint(s);
+    s.removeItem(PAYLOAD); // synthetic failure footprint, not a recovery operation
+    const writes=s.writes,remaining=readFootprint(s);
+    const result=classifyRestoreAcknowledgment({
+      before,storage:s,expectedState:sample(),
+      authenticate:store=>clone(vault.loadWebVault(store))
+    });
+    assert.equal(result.status,'unknown');
+    assert.equal(result.reason,'authentication_failed');
+    assert.deepEqual(readFootprint(s),remaining);
+    assert.equal(s.writes,writes);
+  });
+  await test('Restore acknowledgment: denied protected read is unknown, not empty',()=>{
+    const s=storage();vault.saveWebVault(s,sample(),random);
+    const before=readFootprint(s),writes=s.writes;
+    const denied={getItem:key=>key===RESET?(()=>{throw Error('SecurityError')})():s.getItem(key)};
+    const result=classifyRestoreAcknowledgment({
+      before,storage:denied,expectedState:sample(),
+      authenticate:store=>clone(vault.loadWebVault(store))
+    });
+    assert.equal(result.status,'unknown');
+    assert.equal(result.reason,'read_denied');
+    assert.equal(s.writes,writes);
+  });
+  await test('Restore acknowledgment: reset epoch change invalidates target-state proof',()=>{
+    const s=storage(),older=sample(),newer=clone(older);
+    newer.transactions.push({id:'later',kind:'income',amount:100});
+    vault.saveWebVault(s,newer,random);
+    const before=readFootprint(s);
+    vault.saveWebVault(s,older,random);
+    s.setItem(RESET,'idle-v2:'+'a'.repeat(32)); // synthetic competing reset authority
+    const writes=s.writes;
+    const result=classifyRestoreAcknowledgment({
+      before,storage:s,expectedState:older,
+      authenticate:store=>clone(vault.loadWebVault(store))
+    });
+    assert.equal(result.status,'unknown');
+    assert.equal(result.reason,'reset_epoch_changed');
+    assert.equal(s.writes,writes);
+  });
+  await test('Restore acknowledgment: protected bytes changing during authentication are unknown',()=>{
+    const s=storage(),older=sample(),newer=clone(older);
+    newer.transactions.push({id:'later',kind:'income',amount:100});
+    vault.saveWebVault(s,newer,random);
+    const before=readFootprint(s);
+    vault.saveWebVault(s,older,random);
+    const result=classifyRestoreAcknowledgment({
+      before,storage:s,expectedState:older,
+      authenticate:store=>{
+        const authenticated=clone(vault.loadWebVault(store));
+        // Simulates a non-cooperating writer between two readbacks.
+        s.setItem(PAYLOAD,s.getItem(PAYLOAD)+' ');
+        return authenticated;
+      }
+    });
+    assert.equal(result.status,'unknown');
+    assert.equal(result.reason,'changed_during_verification');
+  });
+  console.log(passed+'/73 bundled AES-GCM and cross-tab synthetic regression tests passed ('+path+')');
+  if(passed!==73)process.exitCode=1;
 })().catch(error=>{console.error(error);process.exitCode=1});
