@@ -35,4 +35,4 @@ Issue #14 budget perspectives remains **DISCOVERY ONLY** pending an explicitly a
 
 ## Verification status
 
-Pending exact-head Chromium and release CI at initial commit. Update with actual run IDs and outcomes; do not infer a successful browser test from source inspection.
+[PR #310](https://github.com/nikopol000/financial-autonomy-preview/pull/310) merged as `eaf99abf0ea64874dd8d0251d128b3c57319171f`. Exact tested PR head `7810789f20af9ae648020dc7f2f8710f6827c9a0`: [Release CI #41052523486](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41052523486) SUCCESS and [Chromium #41052523477](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41052523477) SUCCESS; Chromium job `124051833886` includes both named PASS lines. Merged-main and final checkpoint checks are separate; no public browser acceptance claimed.
