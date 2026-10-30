@@ -180,6 +180,143 @@ async function install(page){
     };
   });
 }
+
+// Execute ACTUAL immutable archived v1 Metro vault modules (309/310/311)
+// in a separate Chromium tab. Only the synthetic financial model is stubbed.
+const fs=require('node:fs');
+const archivedPaths={
+  '18.27':'_expo/static/js/web/index-v01827-vault-orphan-guard-20261023.js',
+  '18.33':'_expo/static/js/web/index-v01833-demo-preload-guard-20261023.js',
+  '18.34':'_expo/static/js/web/index-v01834-multitab-vault-guard-20261024.js'
+};
+function extractArchived(source){
+  const modules={};
+  function visit(id){
+    if(id===204||id===205||modules[id])return;
+    const matches=[...source.matchAll(new RegExp('\\},'+id+',\\[([^\\]]*)\\]\\);','g'))];
+    assert.equal(matches.length,1,'Missing or duplicate archived Metro module '+id);
+    const match=matches[0],start=source.lastIndexOf('__d(function(',match.index);
+    assert.ok(start>=0,'Missing archived Metro factory '+id);
+    const deps=match[1]?match[1].split(',').map(Number):[];
+    modules[id]={factory:source.slice(start+4,match.index+1),deps};
+    deps.forEach(visit);
+  }
+  visit(309);
+  assert.ok(modules[309]&&modules[310]&&modules[311]);
+  return modules;
+}
+async function installArchived(page,defs){
+  await page.evaluate(defs=>{
+    const model={
+      emptyState:()=>({version:4,accounts:[],transactions:[],balanceChecks:[]}),
+      migrate(s){model.validateState(s);return s},
+      validateState(s){
+        if(!s||s.version!==4||!['accounts','transactions','balanceChecks']
+          .every(k=>Array.isArray(s[k])))throw Error('INVALID_SYNTHETIC_STATE');
+        return s;
+      },
+      saveTransaction:(s,t)=>({...s,transactions:[...s.transactions,t]})
+    };
+    const cache=new Map([[204,{validateState:model.validateState}],[205,model]]);
+    function load(id){
+      if(cache.has(id))return cache.get(id);
+      const def=defs[id];
+      if(!def)throw Error('MISSING_ARCHIVED_MODULE_'+id);
+      const factory=Function('return ('+def.factory+')')();
+      const module={exports:{}};
+      cache.set(id,module.exports);
+      factory(window,load,()=>{},null,module,module.exports,def.deps);
+      cache.set(id,module.exports);
+      return module.exports;
+    }
+    window.__archivedVault=load(309);
+    if(!window.__archivedVault?.load||!window.__archivedVault?.save)
+      throw Error('ARCHIVED_VAULT_EXPORTS_MISSING');
+  },defs);
+}
+async function testArchivedWriterQuarantine(browser,url){
+  for(const version of ['18.27','18.33','18.34']){
+    const ctx=await browser.newContext();
+    try{
+      const old=await ctx.newPage(),modern=await ctx.newPage();
+      await Promise.all([old.goto(url+'?fa_real=1'),modern.goto(url)]);
+      const defs=extractArchived(fs.readFileSync(archivedPaths[version],'utf8'));
+      await installArchived(old,defs);await install(modern);
+      const initial={version:4,accounts:[],balanceChecks:[],transactions:[
+        {id:'synthetic-before-cutover',kind:'expense',amount:100,
+          date:'2026-10-29',accountId:'synthetic'}
+      ]};
+      await old.evaluate(()=>window.__archivedVault.load());
+      await old.evaluate(s=>window.__archivedVault.save(s),initial);
+      const baseline=await modern.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      assert.ok(baseline.key&&baseline.payload,'actual archived AES-GCM pair required');
+      const expected=await old.evaluate(()=>window.__archivedVault.load());
+      assert.deepEqual(expected.transactions.map(t=>t.id),['synthetic-before-cutover']);
+      const opId='op-archived-migrate-'+version.replace('.','');
+      const migrated=await modern.evaluate(opId=>
+        window.__restoreOperationResearch.migrateLegacyForTest({opId}),opId);
+      assert.equal(migrated.ok,true,'archived v1 migration must commit');
+      const authority=await modern.evaluate(opId=>
+        window.__restoreOperationResearch.read(opId),opId);
+      assert.equal(await modern.evaluate(({opId,baseline,expected})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId,baseline,expected}),{opId,baseline,expected}),
+      'legacy_matches_snapshot');
+      // The cached archived tab does not know about v2 authority. Its late
+      // write must be real AES-GCM, not a test helper re-encrypting the bytes.
+      const cached=await old.evaluate(()=>window.__archivedVault.load());
+      await old.evaluate(s=>window.__archivedVault.save(s),{
+        ...cached,transactions:[...cached.transactions,{
+          id:'synthetic-late-'+version,kind:'expense',amount:50,
+          date:'2026-10-30',accountId:'synthetic'
+        }]
+      });
+      const late=await old.evaluate(()=>({
+        key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+        payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+      }));
+      assert.notEqual(late.payload,baseline.payload,
+        'archived writer must actually mutate v1 ciphertext');
+      await modern.waitForFunction(payload=>
+        localStorage.getItem('financial-autonomy.preview.payload.v1')===payload,
+        late.payload,{timeout:10000});
+      assert.equal(await modern.evaluate(({opId,baseline,expected})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId,baseline,expected}),{opId,baseline,expected}),
+      'authenticated_legacy_divergence');
+      assert.deepEqual(await modern.evaluate(()=>
+        window.__restoreOperationResearch.legacyFootprint()),late,
+      'read-only classifier must not alter archived v1 evidence');
+      assert.deepEqual(await modern.evaluate(opId=>
+        window.__restoreOperationResearch.read(opId),opId),authority,
+      'late archived write and classifier must not alter v2 authority/witness');
+      assert.equal(await modern.evaluate(({opId,expected})=>
+        window.__restoreOperationResearch.ack({before:null,opId,expected}),
+        {opId,expected}),'verified_committed_operation',
+      'v2 witness remains valid despite the legacy divergence');
+      console.log('PASS actual archived '+version+
+        ': late AES-GCM v1 writer detected, quarantined without v1/IDB writes');
+      // A deliberate test-origin rollback of only the v1 pair demonstrates
+      // that a snapshot match cannot certify freshness or recover the edit.
+      await old.evaluate(pair=>{
+        localStorage.setItem('financial-autonomy.preview.key.v1',pair.key);
+        localStorage.setItem('financial-autonomy.preview.payload.v1',pair.payload);
+      },baseline);
+      await modern.waitForFunction(pair=>
+        localStorage.getItem('financial-autonomy.preview.payload.v1')===pair.payload,
+        baseline.payload,{timeout:10000});
+      assert.equal(await modern.evaluate(({opId,baseline,expected})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId,baseline,expected}),{opId,baseline,expected}),
+      'legacy_matches_snapshot');
+      assert.deepEqual(await modern.evaluate(opId=>
+        window.__restoreOperationResearch.read(opId),opId),authority);
+      console.log('PASS KNOWN UNSAFE actual archived '+version+
+        ': restored v1 snapshot hides intervening late write; no freshness proof');
+    }finally{await ctx.close()}
+  }
+}
+
 async function main(){
   const server=http.createServer((_req,res)=>{res.writeHead(200,{'Content-Type':'text/html'});
     res.end('<!doctype html><title>synthetic restore operation witness</title>')});
@@ -364,6 +501,7 @@ async function main(){
     });
     console.log('PASS research v1 AES-GCM envelope migrates into IDB witness without deleting legacy bytes; KNOWN UNSAFE late v1 writer remains possible');
     console.log('PASS research read-only v1/v2 conflict quarantine: authenticated divergence, corruption, rollback limitation and missing witness');
+    await testArchivedWriterQuarantine(browser,url);
     for(const kind of ['orphan-key','orphan-payload','corrupt-payload','deny-legacy-read']){
       await isolated(async p=>{
         await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
