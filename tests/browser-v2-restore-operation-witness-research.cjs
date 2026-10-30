@@ -305,8 +305,8 @@ async function testArchivedWriterQuarantine(browser,url){
         localStorage.setItem('financial-autonomy.preview.key.v1',pair.key);
         localStorage.setItem('financial-autonomy.preview.payload.v1',pair.payload);
       },baseline);
-      await modern.waitForFunction(pair=>
-        localStorage.getItem('financial-autonomy.preview.payload.v1')===pair.payload,
+      await modern.waitForFunction(payload=>
+        localStorage.getItem('financial-autonomy.preview.payload.v1')===payload,
         baseline.payload,{timeout:10000});
       assert.equal(await modern.evaluate(({opId,baseline,expected})=>
         window.__restoreOperationResearch.inspectLegacyConflictForTest({
