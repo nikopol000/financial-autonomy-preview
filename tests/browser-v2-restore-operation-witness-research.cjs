@@ -55,14 +55,20 @@ async function install(page){
           ?'verified_committed_operation':'unknown';
       }catch{return 'unknown'}
     };
-    api.commit=async({opId,state,expectedRevision,allowInitialize=false,fault=null})=>{
+    api.commit=async({opId,state,expectedRevision,allowInitialize=false,fault=null,expectedEpoch=undefined})=>{
       if(typeof opId!=='string'||!/^op-[a-z0-9-]{4,}$/.test(opId))
         return {ok:false,reason:'invalid-operation-id'};
       const before=(await read(opId)).current;
       if(!before&&(!allowInitialize||expectedRevision!==0))
         return {ok:false,reason:'missing-authority'};
       if(before){
-        try{await authenticate(before)}catch{return {ok:false,reason:'invalid-authority'}}
+        let authenticated;
+        try{authenticated=await authenticate(before)}catch{return {ok:false,reason:'invalid-authority'}}
+        // Cooperative v2 writers must explicitly bind their observed reset epoch.
+        // This preflight plus the transaction CAS does NOT fence cached v1 tabs.
+        if(expectedEpoch!==undefined&&
+          (authenticated.state?.resetIntent?.epoch??null)!==expectedEpoch)
+          return {ok:false,reason:'reset-epoch-changed'};
         if(before.revision!==expectedRevision)
           return {ok:false,reason:'stale-revision'};
       }
@@ -85,7 +91,10 @@ async function install(page){
           if(JSON.stringify(current)!==JSON.stringify(before))return abort('authority-changed');
           if(priorOp!==null)return abort('duplicate-operation-id');
           if(fault==='before-put')return abort('injected-before-put');
-          v.put(next,'current');o.put(witness,opId);
+          // A synchronous quota exception after the first staged put must
+          // explicitly abort the entire transaction, including its witness.
+          try{v.put(next,'current');o.put(witness,opId)}
+          catch(e){return abort('write-'+e.name)}
           if(fault==='after-put')return abort('injected-after-put');
         };
         v.get('current').onsuccess=e=>{current=e.target.result??null;gotVault=true;stage()};
@@ -851,6 +860,95 @@ async function main(){
         window.__restoreOperationResearch.legacyFootprint()),diverged);
     });
     console.log('PASS CHARACTERIZATION pending reset-intent post-commit exception: authenticated after reload, KNOWN UNSAFE late v1 writer quarantined');
+    // Synthetic QuotaExceededError at either IDB put, including after the
+    // authority has been staged but before its witness. No production reset.
+    for(const store of ['vault','operations']){
+      await isolated(async p=>{
+        await p.evaluate(state=>window.__restoreOperationResearch.seedLegacyForTest(state),fixture);
+        const legacy=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+        const baseOp='op-quota-base-'+store;
+        assert.equal((await p.evaluate(opId=>window.__restoreOperationResearch.migrateLegacyForTest({opId}),baseOp)).ok,true);
+        const before=await p.evaluate(opId=>window.__restoreOperationResearch.read(opId),baseOp);
+        const resetOp='op-quota-reset-'+store;
+        const intent={...fixture,resetIntent:{schema:1,phase:'pending',epoch:'quota-'+store,sourceRevision:1}};
+        const result=await p.evaluate(async({store,resetOp,intent})=>{
+          const original=IDBObjectStore.prototype.put;
+          IDBObjectStore.prototype.put=function(...args){
+            if(this.name===store)throw new DOMException('Synthetic IDB quota denial','QuotaExceededError');
+            return original.apply(this,args);
+          };
+          try{return await window.__restoreOperationResearch.commit({
+            opId:resetOp,state:intent,expectedRevision:1,expectedEpoch:null
+          })}finally{IDBObjectStore.prototype.put=original}
+        },{store,resetOp,intent});
+        assert.deepEqual(result,{ok:false,reason:'write-QuotaExceededError'});
+        await p.reload();await install(p);
+        assert.deepEqual(await p.evaluate(opId=>window.__restoreOperationResearch.read(opId),baseOp),before,
+          'quota denial must not commit a partial authority or witness');
+        assert.equal(await p.evaluate(({before,resetOp,intent})=>
+          window.__restoreOperationResearch.ack({before,opId:resetOp,expected:intent}),
+          {before:before.current,resetOp,intent}),'verified_unchanged');
+        assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),legacy);
+      });
+      console.log('PASS research pending reset-intent synthetic QuotaExceededError at '+store+
+        ' put: IDB transaction aborted, v1 ciphertext and v2 witness unchanged after reload');
+    }
+    // Competing cooperating v2 tabs share an authenticated revision. The
+    // transaction CAS allows exactly one reset-intent or financial write.
+    // An epoch-bound writer cannot save after a pending reset, even when it
+    // reads the newer revision. Legacy v1 tabs still ignore this contract.
+    await isolated(async p=>{
+      const second=await p.context().newPage();await second.goto(url);await install(second);
+      await p.evaluate(state=>window.__restoreOperationResearch.seedLegacyForTest(state),fixture);
+      const legacy=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      assert.equal((await p.evaluate(()=>window.__restoreOperationResearch.migrateLegacyForTest({
+        opId:'op-race-reset-base-0017'}))).ok,true);
+      const before=await p.evaluate(()=>window.__restoreOperationResearch.read('op-race-reset-base-0017'));
+      const resetOp='op-race-reset-0018',writeOp='op-race-write-0019';
+      const intent={...fixture,resetIntent:{schema:1,phase:'pending',epoch:'race-epoch-0018',sourceRevision:1}};
+      const changed={...fixture,transactions:[...fixture.transactions,{id:'synthetic-racing-expense'}]};
+      const outcomes=await Promise.all([
+        p.evaluate(({opId,state})=>window.__restoreOperationResearch.commit({
+          opId,state,expectedRevision:1,expectedEpoch:null}),{opId:resetOp,state:intent}),
+        second.evaluate(({opId,state})=>window.__restoreOperationResearch.commit({
+          opId,state,expectedRevision:1,expectedEpoch:null}),{opId:writeOp,state:changed})
+      ]);
+      assert.equal(outcomes.filter(x=>x.ok).length,1,'reset vs write must have one atomic winner');
+      const resetWon=outcomes[0].ok;
+      const winnerOp=resetWon?resetOp:writeOp;
+      const loserOp=resetWon?writeOp:resetOp;
+      const winnerState=resetWon?intent:changed;
+      const loserState=resetWon?changed:intent;
+      assert.equal(await second.evaluate(({opId,state})=>window.__restoreOperationResearch.ack({
+        before:null,opId,expected:state}),{opId:winnerOp,state:winnerState}),
+      'verified_committed_operation');
+      assert.equal(await second.evaluate(({opId,state})=>window.__restoreOperationResearch.ack({
+        before:null,opId,expected:state}),{opId:loserOp,state:loserState}),'unknown');
+      let latest=await p.evaluate(opId=>window.__restoreOperationResearch.read(opId),winnerOp);
+      assert.equal(latest.current.revision,2);
+      if(!resetWon){
+        const committed=await p.evaluate(({opId,state,revision})=>window.__restoreOperationResearch.commit({
+          opId,state,expectedRevision:revision,expectedEpoch:null
+        }),{opId:resetOp,state:intent,revision:latest.current.revision});
+        assert.equal(committed.ok,true,'pending reset can be retried as a NEW operation after losing');
+        latest=await p.evaluate(opId=>window.__restoreOperationResearch.read(opId),resetOp);
+      }
+      const blocked=await second.evaluate(({revision,state})=>window.__restoreOperationResearch.commit({
+        opId:'op-race-after-reset-0020',state,expectedRevision:revision,expectedEpoch:null
+      }),{revision:latest.current.revision,state:changed});
+      assert.deepEqual(blocked,{ok:false,reason:'reset-epoch-changed'},
+        'a cooperative writer must not bypass pending reset using a fresh revision');
+      await p.reload();await install(p);
+      assert.deepEqual(await p.evaluate(opId=>window.__restoreOperationResearch.read(opId),resetOp),latest);
+      assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),legacy);
+      assert.equal(await p.evaluate(({opId,state})=>window.__restoreOperationResearch.ack({
+        before:null,opId,expected:state}),{opId:resetOp,state:intent}),
+      'verified_committed_operation');
+      assert.equal(await p.evaluate(({opId,state})=>window.__restoreOperationResearch.ack({
+        before:null,opId,expected:state}),{opId:'op-race-after-reset-0020',state:changed}),
+      'unknown');
+    });
+    console.log('PASS research concurrent v2 pending reset vs epoch-bound writer: one winner, post-reset writer fenced, no legacy mutation');
     // Research-only denial: browser API access may throw SecurityError. A
     // failed IDB preflight must NOT silently import v1 as authoritative.
     await isolated(async p=>{
