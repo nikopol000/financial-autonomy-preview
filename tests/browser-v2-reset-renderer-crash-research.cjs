@@ -104,7 +104,10 @@ async function inspect(page){
 
 async function run(browser,url,scenario){
   const context=await browser.newContext();
+  const cdp=await browser.newBrowserCDPSession();
   try{
+    const baseline=new Set((await cdp.send('SystemInfo.getProcessInfo')).processInfo
+      .filter(p=>p.type==='renderer').map(p=>p.id));
     const page=await context.newPage();
     await page.goto(url);
     assert.equal(await page.evaluate(()=>isSecureContext),true);
@@ -113,10 +116,14 @@ async function run(browser,url,scenario){
     assert.equal(before.authenticatedWitness,true);
     assert.equal(before.classification,'unknown');
     assert.equal(before.legacyMatches,false);
-    // Chromium's internal crash URL targets the renderer. Require an actual
-    // Playwright crash event; never treat a navigation failure as proof.
+    // Terminate only the NEW renderer process owned by this disposable page.
+    // The runner/browser process stays alive. Never kill an ambiguous PID.
+    const candidates=(await cdp.send('SystemInfo.getProcessInfo')).processInfo
+      .filter(p=>p.type==='renderer'&&!baseline.has(p.id));
+    assert.equal(candidates.length,1,
+      'Need exactly one new Chromium renderer before SIGKILL');
     const crashed=page.waitForEvent('crash',{timeout:15000});
-    void page.goto('chrome://crash').catch(()=>{});
+    process.kill(candidates[0].id,'SIGKILL');
     await crashed;
     const reopened=await context.newPage();
     await reopened.goto(url);
