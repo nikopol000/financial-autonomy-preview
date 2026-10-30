@@ -15,6 +15,7 @@ on:
       - 'tests/browser-v2-sealed-authority-research.cjs'
       - 'tests/browser-v2-idb-witness-research.cjs'
       - 'tests/browser-v2-idb-atomic-primary-research.cjs'
+      - 'tests/browser-v2-reset-renderer-crash-research.cjs'
       - 'tests/browser-v2-restore-operation-witness-research.cjs'
       - 'tests/browser-v2-conflict-readonly-ui-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
@@ -35,6 +36,7 @@ on:
       - 'tests/browser-v2-sealed-authority-research.cjs'
       - 'tests/browser-v2-idb-witness-research.cjs'
       - 'tests/browser-v2-idb-atomic-primary-research.cjs'
+      - 'tests/browser-v2-reset-renderer-crash-research.cjs'
       - 'tests/browser-v2-restore-operation-witness-research.cjs'
       - 'tests/browser-v2-conflict-readonly-ui-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
@@ -74,6 +76,8 @@ jobs:
         run: node tests/browser-v2-idb-witness-research.cjs
       - name: Research transactional IndexedDB primary authority in Chromium (NOT PRODUCTION)
         run: node tests/browser-v2-idb-atomic-primary-research.cjs
+      - name: Characterize real Chromium renderer crash at reset boundaries (NOT PRODUCTION)
+        run: node tests/browser-v2-reset-renderer-crash-research.cjs
       - name: Research atomic restore operation witness and post-commit acknowledgment (NOT PRODUCTION)
         run: node tests/browser-v2-restore-operation-witness-research.cjs
       - name: Research isolated read-only conflict screen, storage faults and mobile zoom (NOT PRODUCTION)
