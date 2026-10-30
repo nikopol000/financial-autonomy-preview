@@ -21,7 +21,7 @@ The read-only acknowledgment checks a single consistent IDB readonly transaction
 5. A stale second tab is rejected; its attempted operation remains `unknown`, never silently replayed.
 6. Deleting the operation witness in the synthetic origin forces `unknown`, not repair or success.
 
-**Verification:** inspect the exact candidate GitHub Actions Chromium and release checks and named PASS lines before claiming any case passed. A local Node syntax check passed; the local browser execution could not run because the environment blocked localhost navigation. This is not evidence of a Chromium test pass.
+**Verification (exact tested head `40eb9cbd3179a0a479be70eef1a7d79fc49f3f38`):** [Release CI #41018054520](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41018054520) **SUCCESS** and [Chromium #41018054482](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41018054482) **SUCCESS**. Chromium job `123938765929` contains **six named PASS lines**, independently inspected. The first [Chromium #41017847461](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41017847461) failed after five PASS lines due to a test-only `page.evaluate` variable not being passed into the isolated browser scope; this was corrected without changing the prototype's storage logic. Local Node syntax check passed; local browser execution was blocked by localhost navigation policy, so actual browser evidence comes from GitHub Actions. Merged-main and final checkpoint CI/Pages require separate checks.
 
 ## Alternatives and limits
 
