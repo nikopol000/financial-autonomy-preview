@@ -1084,6 +1084,9 @@ async function testArchivedCachedWriterAfterCompletedReset(browser,url){
       await modern.waitForFunction(payload=>
         localStorage.getItem('financial-autonomy.preview.payload.v1')===payload,
         baseline.payload,{timeout:10000});
+      // WEB 18.34 fences stale resetters. The resetter must first observe the
+      // saved v1 revision; only the separate writer remains intentionally stale.
+      await resetter.evaluate(()=>window.__archivedVault.load());
       const baseOp='op-completed-cached-base-'+tag;
       assert.equal((await modern.evaluate(opId=>
         window.__restoreOperationResearch.migrateLegacyForTest({opId}),baseOp)).ok,true);
