@@ -43,7 +43,10 @@ async function install(page){
     api.ack=async({before,opId,expected})=>{
       try{
         const {current,witness}=await read(opId);
-        if(JSON.stringify(current)===JSON.stringify(before))return 'verified_unchanged';
+        // A missing authority after eviction is not proof that a prior commit never happened.
+        // Only an existing matching record can support unchanged-state evidence.
+        if(current&&before&&JSON.stringify(current)===JSON.stringify(before))
+          return 'verified_unchanged';
         if(!current||current.opId!==opId||!witness||witness.opId!==opId||
           witness.revision!==current.revision||
           witness.digest!==await digest(JSON.stringify(current)))return 'unknown';
@@ -505,6 +508,69 @@ async function main(){
     console.log('PASS research v1 AES-GCM envelope migrates into IDB witness without deleting legacy bytes; KNOWN UNSAFE late v1 writer remains possible');
     console.log('PASS research read-only v1/v2 conflict quarantine: authenticated divergence, corruption, rollback limitation and missing witness');
     await testArchivedWriterQuarantine(browser,url);
+    // Research-only denial: browser API access may throw SecurityError. A
+    // failed IDB preflight must NOT silently import v1 as authoritative.
+    await isolated(async p=>{
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+      const baseline=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      const outcome=await p.evaluate(async({baseline,fixture})=>{
+        const descriptor=Object.getOwnPropertyDescriptor(window,'indexedDB');
+        Object.defineProperty(window,'indexedDB',{configurable:true,value:{
+          open(){throw new DOMException('Synthetic IndexedDB denial','SecurityError')}
+        }});
+        try{
+          const api=window.__restoreOperationResearch;
+          return {
+            ack:await api.ack({before:null,opId:'op-idb-denied-0008',expected:fixture}),
+            migration:await api.migrateLegacyForTest({opId:'op-idb-denied-0008'}),
+            conflict:await api.inspectLegacyConflictForTest({
+              opId:'op-idb-denied-0008',baseline,expected:fixture}),
+            legacy:api.legacyFootprint()
+          };
+        }finally{
+          if(descriptor)Object.defineProperty(window,'indexedDB',descriptor);
+          else delete window.indexedDB;
+        }
+      },{baseline,fixture});
+      assert.equal(outcome.ack,'unknown');
+      assert.equal(outcome.migration.ok,false);
+      assert.equal(outcome.migration.reason,'preflight-unavailable');
+      assert.equal(outcome.conflict,'unknown');
+      assert.deepEqual(outcome.legacy,baseline);
+      assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),baseline);
+      assert.equal((await p.evaluate(()=>window.__restoreOperationResearch.read('op-idb-denied-0008'))).current,null);
+    });
+    console.log('PASS research IDB SecurityError denial: migration and acknowledgment quarantine without legacy mutation or silent fallback');
+    // Eviction is simulated by explicitly deleting the disposable test DB.
+    // It does not reproduce real browser eviction policy, nor prove recency.
+    await isolated(async p=>{
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+      const baseline=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      const opId='op-idb-eviction-0009';
+      const committed=await p.evaluate(opId=>
+        window.__restoreOperationResearch.migrateLegacyForTest({opId}),opId);
+      assert.equal(committed.ok,true);
+      assert.equal(await p.evaluate(({opId,fixture})=>window.__restoreOperationResearch.ack({
+        before:null,opId,expected:fixture}),{opId,fixture}),'verified_committed_operation');
+      await p.evaluate(()=>new Promise((resolve,reject)=>{
+        const request=indexedDB.deleteDatabase('fa.restore.operation.research');
+        request.onsuccess=()=>resolve();
+        request.onerror=()=>reject(request.error);
+        request.onblocked=()=>reject(Error('SYNTHETIC_EVICTION_BLOCKED'));
+      }));
+      await p.reload();await install(p);
+      assert.equal(await p.evaluate(({opId,fixture})=>window.__restoreOperationResearch.ack({
+        before:null,opId,expected:fixture}),{opId,fixture}),'unknown',
+      'missing IDB authority is not proof that a previously committed operation never happened');
+      assert.equal(await p.evaluate(({opId,baseline,fixture})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId,baseline,expected:fixture}),{opId,baseline,fixture}),'unknown');
+      const missing=await p.evaluate(opId=>window.__restoreOperationResearch.read(opId),opId);
+      assert.equal(missing.current,null);assert.equal(missing.witness,null);
+      assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),baseline,
+        'IDB loss must not delete, replace or promote v1 evidence');
+    });
+    console.log('PASS research IDB synthetic eviction: previously authenticated operation becomes unknown; v1 bytes preserved, no auto-promotion');
     for(const kind of ['orphan-key','orphan-payload','corrupt-payload','deny-legacy-read']){
       await isolated(async p=>{
         await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
