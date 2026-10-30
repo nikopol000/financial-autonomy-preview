@@ -5,6 +5,7 @@ on:
       - 'index.html'
       - '_expo/static/js/web/**'
       - 'tests/browser-vault-recovery-smoke.cjs'
+      - 'tests/browser-confirmed-backup-restore-faults.cjs'
       - 'tests/browser-first-save-ui-retry.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
       - 'tests/browser-v2-locks-research.cjs'
@@ -23,6 +24,7 @@ on:
       - 'index.html'
       - '_expo/static/js/web/**'
       - 'tests/browser-vault-recovery-smoke.cjs'
+      - 'tests/browser-confirmed-backup-restore-faults.cjs'
       - 'tests/browser-first-save-ui-retry.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
       - 'tests/browser-v2-locks-research.cjs'
@@ -52,6 +54,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Real Chromium local-only encrypted backup and blocked-vault smoke
         run: node tests/browser-vault-recovery-smoke.cjs
+      - name: Characterize actual WEB confirmed-backup restore storage faults (synthetic only)
+        run: node tests/browser-confirmed-backup-restore-faults.cjs
       - name: Verify actual WEB first-save UI retry and reload quarantine (synthetic only)
         run: node tests/browser-first-save-ui-retry.cjs
       - name: Research real Chromium Web Locks and cached-reset hazards (synthetic only)
