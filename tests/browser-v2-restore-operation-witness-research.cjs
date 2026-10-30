@@ -735,6 +735,122 @@ async function main(){
     await testArchivedWriterQuarantine(browser,url);
     await testArchivedResetAfterMigration(browser,url);
     await testArchivedPostResetCachedWriter(browser,url);
+    // Candidate encrypted reset-intent boundary, NOT a production reset.
+    // Stage an authenticated pending intent in v2 only; preserve all legacy
+    // ciphertext. This does not prove the user confirmed deletion, prevent
+    // archived v1 writers, or protect against whole-origin rollback.
+    for(const fault of ['before-put','after-put']){
+      await isolated(async p=>{
+        await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+        const legacy=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+        const baseOp='op-reset-base-'+fault;
+        assert.equal((await p.evaluate(opId=>
+          window.__restoreOperationResearch.migrateLegacyForTest({opId}),baseOp)).ok,true);
+        const before=await p.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),baseOp);
+        const resetOp='op-reset-intent-'+fault;
+        const intent={...fixture,resetIntent:{schema:1,phase:'pending',
+          epoch:'synthetic-epoch-'+fault,sourceRevision:1}};
+        const result=await p.evaluate(({opId,state,fault})=>
+          window.__restoreOperationResearch.commit({
+            opId,state,expectedRevision:1,fault
+          }),{opId:resetOp,state:intent,fault});
+        assert.equal(result.ok,false);
+        assert.deepEqual(await p.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),baseOp),before,
+        'aborted reset intent must preserve prior authenticated v2 authority');
+        assert.equal(await p.evaluate(({opId,state,before})=>
+          window.__restoreOperationResearch.ack({
+            opId,expected:state,before
+          }),{opId:resetOp,state:intent,before:before.current}),'verified_unchanged');
+        await p.reload();await install(p);
+        assert.deepEqual(await p.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),baseOp),before);
+        assert.deepEqual(await p.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint()),legacy,
+        'no v1 deletion may precede an authenticated reset boundary');
+      });
+    }
+    console.log('PASS research pending reset-intent IDB abort before/after puts: v2 authority and legacy ciphertext preserved after reload');
+    await isolated(async p=>{
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+      const legacy=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      const baseOp='op-reset-denial-base-0013';
+      assert.equal((await p.evaluate(opId=>
+        window.__restoreOperationResearch.migrateLegacyForTest({opId}),baseOp)).ok,true);
+      const before=await p.evaluate(opId=>
+        window.__restoreOperationResearch.read(opId),baseOp);
+      const intent={...fixture,resetIntent:{schema:1,phase:'pending',
+        epoch:'synthetic-denied-epoch',sourceRevision:1}};
+      const denial=await p.evaluate(async state=>{
+        const descriptor=Object.getOwnPropertyDescriptor(window,'indexedDB');
+        Object.defineProperty(window,'indexedDB',{configurable:true,value:{
+          open(){throw new DOMException('Synthetic reset boundary denial','SecurityError')}
+        }});
+        try{
+          await window.__restoreOperationResearch.commit({
+            opId:'op-reset-denied-0014',state,expectedRevision:1
+          });
+          return 'unexpected-success';
+        }catch(e){return e.name}
+        finally{
+          if(descriptor)Object.defineProperty(window,'indexedDB',descriptor);
+          else delete window.indexedDB;
+        }
+      },intent);
+      assert.equal(denial,'SecurityError');
+      await p.reload();await install(p);
+      assert.deepEqual(await p.evaluate(opId=>
+        window.__restoreOperationResearch.read(opId),baseOp),before);
+      assert.equal(await p.evaluate(({state,before})=>
+        window.__restoreOperationResearch.ack({
+          before,opId:'op-reset-denied-0014',expected:state
+        }),{state:intent,before:before.current}),'verified_unchanged');
+      assert.deepEqual(await p.evaluate(()=>
+        window.__restoreOperationResearch.legacyFootprint()),legacy);
+    });
+    console.log('PASS research pending reset-intent IndexedDB SecurityError: no v1 deletion, no v2 revision or witness change');
+    await isolated(async p=>{
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+      const legacy=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      const baseOp='op-reset-postcommit-base-0015';
+      assert.equal((await p.evaluate(opId=>
+        window.__restoreOperationResearch.migrateLegacyForTest({opId}),baseOp)).ok,true);
+      const intent={...fixture,resetIntent:{schema:1,phase:'pending',
+        epoch:'synthetic-postcommit-epoch',sourceRevision:1}};
+      const resetOp='op-reset-postcommit-0016';
+      await assert.rejects(p.evaluate(({opId,state})=>
+        window.__restoreOperationResearch.commit({
+          opId,state,expectedRevision:1,fault:'throw-after-complete'
+        }),{opId:resetOp,state:intent}),/SYNTHETIC_POST_COMMIT_ERROR/);
+      await p.reload();await install(p);
+      assert.equal(await p.evaluate(({opId,state})=>
+        window.__restoreOperationResearch.ack({
+          before:null,opId,expected:state
+        }),{opId:resetOp,state:intent}),'verified_committed_operation');
+      assert.deepEqual(await p.evaluate(()=>
+        window.__restoreOperationResearch.legacyFootprint()),legacy,
+      'authenticated pending intent must not silently delete legacy evidence');
+      const idb=await p.evaluate(opId=>
+        window.__restoreOperationResearch.read(opId),resetOp);
+      assert.equal(idb.current.revision,2);
+      // An old v1 writer can still mutate v1 after a pending intent. Do not
+      // treat authenticated v2 intent as permission to resurrect or erase v1.
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),
+        {...fixture,transactions:[...fixture.transactions,{id:'late-after-pending-reset'}]});
+      const diverged=await p.evaluate(()=>
+        window.__restoreOperationResearch.legacyFootprint());
+      assert.equal(await p.evaluate(({opId,baseline,expected})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId,baseline,expected,resetBaseline:null
+        }),{opId:resetOp,baseline:legacy,expected:intent}),
+      'authenticated_legacy_divergence');
+      assert.deepEqual(await p.evaluate(opId=>
+        window.__restoreOperationResearch.read(opId),resetOp),idb);
+      assert.deepEqual(await p.evaluate(()=>
+        window.__restoreOperationResearch.legacyFootprint()),diverged);
+    });
+    console.log('PASS CHARACTERIZATION pending reset-intent post-commit exception: authenticated after reload, KNOWN UNSAFE late v1 writer quarantined');
     // Research-only denial: browser API access may throw SecurityError. A
     // failed IDB preflight must NOT silently import v1 as authoritative.
     await isolated(async p=>{
