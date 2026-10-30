@@ -436,6 +436,118 @@ async function testArchivedResetAfterMigration(browser,url){
   }
 }
 
+
+async function testArchivedPostResetCachedWriter(browser,url){
+  // P1 characterization only: real archived cached v1 writers AFTER an
+  // intentional or interrupted v1 reset, with an existing test-only IDB v2.
+  // No real user data, production migration, recovery or deletion is involved.
+  for(const version of ['18.27','18.33','18.34']){
+    const defs=extractArchived(fs.readFileSync(archivedPaths[version],'utf8'));
+    for(const mode of ['complete','deny-second-remove']){
+      const ctx=await browser.newContext();
+      try{
+        const old=await ctx.newPage(),modern=await ctx.newPage();
+        await Promise.all([old.goto(url+'?fa_real=1'),modern.goto(url)]);
+        await installArchived(old,defs);await install(modern);
+        const fixture={version:4,accounts:[],balanceChecks:[],transactions:[{
+          id:'synthetic-postreset-original-'+version,kind:'expense',amount:25,
+          date:'2026-10-30',accountId:'synthetic'
+        }]};
+        await old.evaluate(()=>window.__archivedVault.load());
+        await old.evaluate(s=>window.__archivedVault.save(s),fixture);
+        const cached=await old.evaluate(()=>window.__archivedVault.load());
+        const original=await old.evaluate(()=>({
+          key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+          payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+        }));
+        assert.ok(original.key&&original.payload);
+        await modern.waitForFunction(payload=>
+          localStorage.getItem('financial-autonomy.preview.payload.v1')===payload,
+          original.payload,{timeout:10000});
+        const opId='op-postreset-'+version.replace('.','')+'-'+mode;
+        assert.equal((await modern.evaluate(opId=>
+          window.__restoreOperationResearch.migrateLegacyForTest({opId}),opId)).ok,true);
+        const v2Before=await modern.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),opId);
+        const reset=await old.evaluate(async mode=>{
+          if(mode==='complete'){
+            await window.__archivedVault.resetData();
+            return {ok:true};
+          }
+          const remove=Storage.prototype.removeItem;
+          Storage.prototype.removeItem=function(key){
+            if(key==='financial-autonomy.preview.key.v1')
+              throw new DOMException('Synthetic post-reset key denial','SecurityError');
+            return remove.call(this,key);
+          };
+          try{await window.__archivedVault.resetData();return {ok:true}}
+          catch(e){return {ok:false,message:String(e.message)}}
+          finally{Storage.prototype.removeItem=remove}
+        },mode);
+        assert.equal(reset.ok,mode==='complete');
+        if(mode!=='complete')assert.match(reset.message,/Synthetic post-reset key denial/);
+        const afterReset=await old.evaluate(()=>({
+          key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+          payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+        }));
+        assert.equal(afterReset.payload,null);
+        assert.equal(afterReset.key,mode==='complete'?null:original.key);
+        const next={...cached,transactions:[...cached.transactions,{
+          id:'synthetic-postreset-late-'+version+'-'+mode,kind:'expense',
+          amount:50,date:'2026-10-30',accountId:'synthetic'
+        }]};
+        // The OLD cached code, not a test helper, attempts to write.
+        const attempt=await old.evaluate(async state=>{
+          try{await window.__archivedVault.save(state);return {ok:true}}
+          catch(e){return {ok:false,message:String(e.message)}}
+        },next);
+        const afterWrite=await old.evaluate(()=>({
+          key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+          payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+        }));
+        await modern.waitForFunction(pair=>
+          localStorage.getItem('financial-autonomy.preview.key.v1')===pair.key&&
+          localStorage.getItem('financial-autonomy.preview.payload.v1')===pair.payload,
+          afterWrite,{timeout:10000});
+        if(attempt.ok){
+          assert.ok(afterWrite.key&&afterWrite.payload,
+            'successful archived save must leave a complete v1 pair');
+          const actual=await old.evaluate(()=>window.__archivedVault.load());
+          assert.ok(actual.transactions.some(t=>
+            t.id==='synthetic-postreset-late-'+version+'-'+mode),
+            'real archived save must authenticate the late synthetic transaction');
+        }
+        const beforeInspect=await modern.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint());
+        await modern.reload();await install(modern);
+        const classification=await modern.evaluate(({opId,original,cached})=>
+          window.__restoreOperationResearch.inspectLegacyConflictForTest({
+            opId,baseline:original,expected:cached,resetBaseline:null
+          }),{opId,original,cached});
+        assert.ok(['unknown','authenticated_legacy_divergence'].includes(classification),
+          'reset followed by a cached write cannot be treated as a safe snapshot match');
+        if(attempt.ok)assert.equal(classification,'authenticated_legacy_divergence',
+          'authenticated v1 resurrection must be flagged as a divergent register');
+        assert.deepEqual(await modern.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint()),beforeInspect,
+          'read-only classifier must not repair, erase or rewrite v1 evidence');
+        assert.deepEqual(await modern.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),opId),v2Before,
+          'archived reset and late writer must not silently alter v2 authority');
+        assert.equal(await modern.evaluate(({opId,cached})=>
+          window.__restoreOperationResearch.ack({
+            before:null,opId,expected:cached
+          }),{opId,cached}),'verified_committed_operation',
+          'IDB witness authenticity is not permission to reopen v2 after reset');
+        console.log('PASS CHARACTERIZATION actual archived '+version+
+          ' post-reset cached writer '+mode+': save='+
+          (attempt.ok?'succeeded':'blocked')+', quarantine='+classification+
+          ', v2 unchanged; no automatic resurrection');
+      }finally{await ctx.close()}
+    }
+  }
+}
+
 async function main(){
   const server=http.createServer((_req,res)=>{res.writeHead(200,{'Content-Type':'text/html'});
     res.end('<!doctype html><title>synthetic restore operation witness</title>')});
@@ -622,6 +734,7 @@ async function main(){
     console.log('PASS research read-only v1/v2 conflict quarantine: authenticated divergence, corruption, rollback limitation and missing witness');
     await testArchivedWriterQuarantine(browser,url);
     await testArchivedResetAfterMigration(browser,url);
+    await testArchivedPostResetCachedWriter(browser,url);
     // Research-only denial: browser API access may throw SecurityError. A
     // failed IDB preflight must NOT silently import v1 as authoritative.
     await isolated(async p=>{
