@@ -248,6 +248,9 @@ async function testArchivedWriterQuarantine(browser,url){
       ]};
       await old.evaluate(()=>window.__archivedVault.load());
       await old.evaluate(s=>window.__archivedVault.save(s),initial);
+      await modern.waitForFunction(()=>
+        localStorage.getItem('financial-autonomy.preview.payload.v1')!==null,
+        null,{timeout:10000});
       const baseline=await modern.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
       assert.ok(baseline.key&&baseline.payload,'actual archived AES-GCM pair required');
       const expected=await old.evaluate(()=>window.__archivedVault.load());
