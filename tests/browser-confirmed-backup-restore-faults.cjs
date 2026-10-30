@@ -182,6 +182,46 @@ async function run(){
       .waitFor({state:'visible',timeout:15000});
     assert.deepEqual(await bytes(page),orphan,
       'Reload must preserve KEY-only evidence; do not auto-reset or invent payload');
+    // A blocked KEY-only origin cannot be classified as a fresh empty vault.
+    // The existing "retry opening" control must be read-only: it may report
+    // the same block again, but it must not silently delete/rekey the only
+    // remaining encrypted evidence. This is a current-UI characterization,
+    // NOT an implementation of recovery or proof of missing payload origin.
+    await page.evaluate(({key,payload,reset})=>{
+      const protectedNames=new Set([key,payload,reset]);
+      const originalSet=Storage.prototype.setItem;
+      const originalRemove=Storage.prototype.removeItem;
+      window.__faBlockedRetryWrites=[];
+      Storage.prototype.setItem=function(name,value){
+        if(this===localStorage&&protectedNames.has(name))
+          window.__faBlockedRetryWrites.push('set:'+name);
+        return originalSet.call(this,name,value)
+      };
+      Storage.prototype.removeItem=function(name){
+        if(this===localStorage&&protectedNames.has(name))
+          window.__faBlockedRetryWrites.push('remove:'+name);
+        return originalRemove.call(this,name)
+      };
+      window.__faDisarmBlockedRetry=()=>{
+        Storage.prototype.setItem=originalSet;
+        Storage.prototype.removeItem=originalRemove;
+      };
+    },{key:KEY,payload:PAYLOAD,reset:RESET});
+    await page.getByText('Reîncearcă deschiderea',{exact:true}).click();
+    await page.getByText('Datele locale nu pot fi deschise',{exact:true})
+      .waitFor({state:'visible',timeout:15000});
+    await page.waitForTimeout(250);
+    assert.deepEqual(await page.evaluate(()=>window.__faBlockedRetryWrites),[],
+      'Blocked retry must not write, remove or rotate KEY/PAYLOAD/RESET');
+    await page.evaluate(()=>window.__faDisarmBlockedRetry());
+    assert.deepEqual(await bytes(page),orphan,
+      'Blocked retry must preserve the original KEY-only footprint');
+    await openReal(page,url);
+    await page.getByText('Datele locale nu pot fi deschise',{exact:true})
+      .waitFor({state:'visible',timeout:15000});
+    assert.deepEqual(await bytes(page),orphan,
+      'Repeated reload after blocked retry must preserve KEY-only evidence');
+    console.log('PASS Chromium actual blocked KEY-only UI: retry opening makes zero vault writes and preserves orphan key across reload');
     await payloadContext.close();
     console.log('PASS KNOWN UNSAFE Chromium actual backup UI: denied PAYLOAD write strands KEY-only vault; reload blocks without deleting evidence');
 
