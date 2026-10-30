@@ -113,10 +113,10 @@ async function run(browser,url,scenario){
     assert.equal(before.authenticatedWitness,true);
     assert.equal(before.classification,'unknown');
     assert.equal(before.legacyMatches,false);
-    // DevTools Page.crash terminates the renderer, not merely closes the tab.
+    // Chromium's internal crash URL targets the renderer. Require an actual
+    // Playwright crash event; never treat a navigation failure as proof.
     const crashed=page.waitForEvent('crash',{timeout:15000});
-    const cdp=await context.newCDPSession(page);
-    void cdp.send('Page.crash').catch(()=>{});
+    void page.goto('chrome://crash').catch(()=>{});
     await crashed;
     const reopened=await context.newPage();
     await reopened.goto(url);
