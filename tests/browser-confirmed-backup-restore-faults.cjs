@@ -176,7 +176,8 @@ async function run(){
       {state:fixture,password:PASSWORD});
     const backup=Buffer.from(backupText,'utf8');
     const expectedBackupState=await page.evaluate(async ({text,password})=>
-      window.__r(311).restore(text,password),{text:backupText,password:PASSWORD});
+      window.__r(205).migrate(await window.__r(311).restore(text,password)),
+      {text:backupText,password:PASSWORD});
     assert.ok(!backupText.includes('restore-fault-expense'),
       'Portable backup must not contain plaintext financial IDs');
     await context.close();
