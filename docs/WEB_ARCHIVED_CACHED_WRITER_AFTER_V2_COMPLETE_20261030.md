@@ -8,7 +8,7 @@ An already-open archived WEB 18.27/18.33/18.34 tab retains a decrypted state whi
 
 The test adds **three cases**, one per archived version, to `tests/browser-v2-restore-operation-witness-research.cjs`. Assertions check: v1 was actually removed before v2 completion; v2 completion witness authenticated; the archived cached save's actual outcome; the v1 encrypted pair after save; v2 witness survival after tab close/reopen; read-only conflict classification; exact byte preservation under inspection.
 
-**Security conclusion to verify in CI:** a valid local v2 completion witness is not proof of global reset while old cached v1 code can still write. A reopened UI must not automatically restore, delete, merge, replay, rekey, promote or infer which ledger is newest. The classifier's caller-supplied reset baseline is **not** an authenticated production contract.
+**Version-specific observation requiring final CI verification:** WEB 18.27 and 18.33 cached writers recreate authenticated v1 after another tab resets and v2 commits; WEB 18.34 rejects the stale cached writer under this same two-tab reset race. The WEB 18.34 protection is not a general cross-version fence, and a valid v2 completion witness still does not prove global reset. A reopened UI must not automatically restore, delete, merge, replay, rekey, promote or infer which ledger is newest. The classifier's caller-supplied reset baseline is **not** an authenticated production contract.
 
 ## Alternatives
 
