@@ -35,3 +35,14 @@ A synthetic **two-transaction authenticated live v1 vault** is opened in a dispo
 - Browser lifecycle: reload, pagehide, hidden tab, Web Locks serialization, cached archived v1 tab late writes, IndexedDB denial/abort/eviction, full-origin rollback. Safari iPhone/VoiceOver and 320/390 light/dark accessibility must be verified separately.
 
 **Next implementation candidate (not yet authorized as a format change):** add read-only recovery status and a no-write `Reîncearcă verificarea` action in the blocked UI; first prove every failure class is nondestructive and that the control does not offer an impossible same-origin restore path. Then specify the exact persistent acknowledgment protocol and test its write/readback matrix before a versioned bundle. The product remains a neutral financial tool, not a coach.
+
+## Follow-up: real Chromium authority-read and post-write verification matrix (2026-10-30)
+
+[PR #290](https://github.com/nikopol000/financial-autonomy-preview/pull/290) (test-only squash `5c510029a107ce3420aea1f42d1d94530ce431bd`) extends the existing actual WEB 18.64 confirmed-backup UI suite with three synthetic disposable Chromium cases. Exact candidate `5472d23a727a162b59dfa8665f092f2c46b6db71`: [Release #40994860519](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40994860519) and [Chromium #40994860518](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/40994860518) **SUCCESS**; Chromium job `123865520223` shows three individually named PASS lines.
+
+- Existing authenticated two-transaction vault, older one-transaction backup, **KEY getItem denied** during confirmed restore: no KEY/PAYLOAD/RESET writes, no success acknowledgment, newer transaction survives reload.
+- Identical setup, **RESET marker getItem denied**: same fail-closed, zero-write result.
+- Identical setup, **PAYLOAD setItem commits**, then **KEY revision getItem denied**: actual UI reports restore failure, yet after fault removal and reload the older selected backup decrypts/authenticates. This is a deliberately injected post-commit readback denial, **not** a naturally observed browser incident. It confirms that a thrown exception alone cannot distinguish a committed restore from an unchanged one.
+
+**Decision boundary:** no release or recovery protocol is authorized by these tests. An explicit verified-committed/verified-unchanged/unknown result requires a durable authenticated readback of the exact intended state under the cooperating-tab lock, and no auto-retry when that verification cannot complete. A complete origin rollback and cached v1 writer remain outside any local proof of recency. KEY-only blocked-state recovery must preserve all remaining ciphertext/key evidence and cannot infer that the key was created by a failed first save. Next: design a no-write recovery inspection UX and acceptance matrix before touching immutable product JS.
+
