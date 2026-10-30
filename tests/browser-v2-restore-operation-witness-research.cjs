@@ -1054,6 +1054,107 @@ async function testIdbCompletionFaultAfterLegacyRetirement(browser,url){
   }
 }
 
+
+async function testArchivedCachedWriterAfterCompletedReset(browser,url){
+  // #4/#29/#35 RESEARCH ONLY: the v2 completion witness cannot fence an
+  // already-open archived v1 tab after another v1 tab has reset the vault.
+  for(const version of ['18.27','18.33','18.34']){
+    const defs=extractArchived(fs.readFileSync(archivedPaths[version],'utf8'));
+    const ctx=await browser.newContext();
+    try{
+      const writer=await ctx.newPage(),resetter=await ctx.newPage(),modern=await ctx.newPage();
+      await Promise.all([writer.goto(url+'?fa_real=1'),
+        resetter.goto(url+'?fa_real=1'),modern.goto(url)]);
+      await installArchived(writer,defs);
+      await installArchived(resetter,defs);
+      await install(modern);
+      const tag=version.replace('.','');
+      const initial={version:4,accounts:[],balanceChecks:[],transactions:[{
+        id:'synthetic-before-completed-reset-'+tag,kind:'expense',amount:25,
+        date:'2026-10-30',accountId:'synthetic'
+      }]};
+      await writer.evaluate(()=>window.__archivedVault.load());
+      await writer.evaluate(state=>window.__archivedVault.save(state),initial);
+      const cached=await writer.evaluate(()=>window.__archivedVault.load());
+      const baseline=await writer.evaluate(()=>({
+        key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+        payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+      }));
+      assert.ok(baseline.key&&baseline.payload);
+      await modern.waitForFunction(payload=>
+        localStorage.getItem('financial-autonomy.preview.payload.v1')===payload,
+        baseline.payload,{timeout:10000});
+      const baseOp='op-completed-cached-base-'+tag;
+      assert.equal((await modern.evaluate(opId=>
+        window.__restoreOperationResearch.migrateLegacyForTest({opId}),baseOp)).ok,true);
+      const epoch='synthetic-completed-cached-epoch-'+tag;
+      const pending={...cached,resetIntent:{
+        schema:1,phase:'pending',epoch,sourceRevision:1
+      }};
+      const completed={...pending,resetIntent:{...pending.resetIntent,phase:'committed'}};
+      const pendingOp='op-completed-cached-pending-'+tag;
+      const completeOp='op-completed-cached-finish-'+tag;
+      assert.equal((await modern.evaluate(({opId,state})=>
+        window.__restoreOperationResearch.commit({
+          opId,state,expectedRevision:1,expectedEpoch:null
+        }),{opId:pendingOp,state:pending})).ok,true);
+      await resetter.evaluate(()=>window.__archivedVault.resetData());
+      assert.deepEqual(await modern.evaluate(()=>
+        window.__restoreOperationResearch.legacyFootprint()),{key:null,payload:null});
+      assert.equal((await modern.evaluate(({opId,state,epoch})=>
+        window.__restoreOperationResearch.commit({
+          opId,state,expectedRevision:2,expectedEpoch:epoch
+        }),{opId:completeOp,state:completed,epoch})).ok,true);
+      const v2Before=await modern.evaluate(opId=>
+        window.__restoreOperationResearch.read(opId),completeOp);
+      assert.equal(await modern.evaluate(({opId,state})=>
+        window.__restoreOperationResearch.ack({before:null,opId,expected:state}),
+        {opId:completeOp,state:completed}),'verified_committed_operation');
+      const late={...cached,transactions:[...cached.transactions,{
+        id:'synthetic-after-completed-reset-'+tag,kind:'expense',amount:50,
+        date:'2026-10-30',accountId:'synthetic'
+      }]};
+      const save=await writer.evaluate(async state=>{
+        try{await window.__archivedVault.save(state);return {ok:true}}
+        catch(e){return {ok:false,message:String(e.message)}}
+      },late);
+      assert.equal(save.ok,true,
+        'archived cached v1 tab can resurrect deleted data after v2 completion');
+      const resurrected=await writer.evaluate(()=>window.__archivedVault.load());
+      assert.ok(resurrected.transactions.some(t=>
+        t.id==='synthetic-after-completed-reset-'+tag));
+      const v1After=await modern.evaluate(()=>
+        window.__restoreOperationResearch.legacyFootprint());
+      assert.ok(v1After.key&&v1After.payload);
+      assert.notEqual(v1After.payload,baseline.payload);
+      const resetBaseline=await modern.evaluate(()=>
+        window.__restoreOperationResearch.resetFootprint());
+      await writer.close();await resetter.close();await modern.close();
+      const reopened=await ctx.newPage();
+      await reopened.goto(url);await install(reopened);
+      assert.deepEqual(await reopened.evaluate(()=>
+        window.__restoreOperationResearch.legacyFootprint()),v1After);
+      assert.deepEqual(await reopened.evaluate(opId=>
+        window.__restoreOperationResearch.read(opId),completeOp),v2Before);
+      assert.equal(await reopened.evaluate(({opId,state})=>
+        window.__restoreOperationResearch.ack({before:null,opId,expected:state}),
+        {opId:completeOp,state:completed}),'verified_committed_operation');
+      assert.equal(await reopened.evaluate(({opId,baseline,expected,resetBaseline})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId,baseline,expected,resetBaseline
+        }),{opId:completeOp,baseline,expected:completed,resetBaseline}),
+        'authenticated_legacy_divergence',
+        'read-only classifier must not treat resurrected v1 as completed global reset');
+      assert.deepEqual(await reopened.evaluate(()=>
+        window.__restoreOperationResearch.legacyFootprint()),v1After);
+      assert.deepEqual(await reopened.evaluate(opId=>
+        window.__restoreOperationResearch.read(opId),completeOp),v2Before);
+      console.log('PASS CHARACTERIZATION archived '+version+
+        ' cached v1 writer AFTER v2 completed reset: resurrected v1 detected after reopen, no auto-repair');
+    }finally{await ctx.close()}
+  }
+}
+
 async function main(){
   const server=http.createServer((_req,res)=>{res.writeHead(200,{'Content-Type':'text/html'});
     res.end('<!doctype html><title>synthetic restore operation witness</title>')});
@@ -1245,6 +1346,7 @@ async function main(){
     await testArchivedResetFinalizationBoundary(browser,url);
     await testArchivedResetReloadGap(browser,url);
     await testIdbCompletionFaultAfterLegacyRetirement(browser,url);
+    await testArchivedCachedWriterAfterCompletedReset(browser,url);
     // Candidate encrypted reset-intent boundary, NOT a production reset.
     // Stage an authenticated pending intent in v2 only; preserve all legacy
     // ciphertext. This does not prove the user confirmed deletion, prevent
