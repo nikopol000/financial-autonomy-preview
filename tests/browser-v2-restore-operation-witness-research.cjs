@@ -103,6 +103,8 @@ async function install(page){
     // vault-real-crypto-regression.cjs. Never deletes or rewrites the v1 pair.
     const LEGACY_KEY='financial-autonomy.preview.key.v1';
     const LEGACY_PAYLOAD='financial-autonomy.preview.payload.v1';
+    const LEGACY_RESET='financial-autonomy.preview.reset.v1';
+    api.resetFootprint=()=>localStorage.getItem(LEGACY_RESET);
     api.legacyFootprint=()=>({key:localStorage.getItem(LEGACY_KEY),
       payload:localStorage.getItem(LEGACY_PAYLOAD)});
     api.seedLegacyForTest=async state=>{
@@ -154,10 +156,14 @@ async function install(page){
     // that no later legacy edit ever occurred (whole-origin rollback can mimic it).
     // A production design would have to bind the baseline to authenticated v2
     // authority, rather than accepting an arbitrary caller-supplied snapshot.
-    api.inspectLegacyConflictForTest=async({opId,baseline,expected})=>{
+    api.inspectLegacyConflictForTest=async({opId,baseline,expected,resetBaseline=null})=>{
       try{
         if(await api.ack({before:null,opId,expected})!=='verified_committed_operation')
           return 'unknown';
+        // The v1 reset journal is a separate localStorage key. A changed
+        // marker cannot be ignored even when the ciphertext pair matches.
+        // Caller-provided baseline is NOT authenticated production provenance.
+        if(api.resetFootprint()!==resetBaseline)return 'unknown';
         const now=api.legacyFootprint();
         if(!now.key||!now.payload||!/^[0-9a-f]{64}$/.test(now.key))
           return 'unknown';
@@ -173,6 +179,19 @@ async function install(page){
         return JSON.stringify(now)===JSON.stringify(baseline)
           ?'legacy_matches_snapshot':'authenticated_legacy_divergence';
       }catch{return 'unknown'}
+    };
+    // Simulates a whole-origin rollback of the test database. Never production.
+    api.rewindIdbForTest=async({current,witness})=>{
+      const db=await open();
+      try{await new Promise((resolve,reject)=>{
+        const tx=db.transaction([VAULT,OPS],'readwrite');
+        const v=tx.objectStore(VAULT),o=tx.objectStore(OPS);
+        v.clear();o.clear();
+        if(current)v.put(current,'current');
+        if(witness)o.put(witness,witness.opId);
+        tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error??Error('ROLLBACK_ABORT'));
+        tx.onerror=()=>reject(tx.error);
+      });}finally{db.close()}
     };
     api.deleteWitnessForTest=async opId=>{
       const db=await open();
@@ -571,6 +590,101 @@ async function main(){
         'IDB loss must not delete, replace or promote v1 evidence');
     });
     console.log('PASS research IDB synthetic eviction: previously authenticated operation becomes unknown; v1 bytes preserved, no auto-promotion');
+    // The real v1 reset marker is not part of the atomic IDB transaction.
+    // A marker-only change must invalidate a legacy snapshot match even when
+    // both v1 ciphertext bytes and the IDB operation witness remain valid.
+    await isolated(async p=>{
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+      const baseline=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      const opId='op-reset-marker-0010';
+      assert.equal((await p.evaluate(opId=>
+        window.__restoreOperationResearch.migrateLegacyForTest({opId}),opId)).ok,true);
+      const idbBefore=await p.evaluate(opId=>
+        window.__restoreOperationResearch.read(opId),opId);
+      assert.equal(await p.evaluate(({opId,baseline,fixture})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId,baseline,expected:fixture,resetBaseline:null
+        }),{opId,baseline,fixture}),'legacy_matches_snapshot');
+      const reset='idle-v2:'+('a'.repeat(32));
+      await p.evaluate(reset=>localStorage.setItem(
+        'financial-autonomy.preview.reset.v1',reset),reset);
+      assert.equal(await p.evaluate(({opId,baseline,fixture})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId,baseline,expected:fixture,resetBaseline:null
+        }),{opId,baseline,fixture}),'unknown');
+      assert.equal(await p.evaluate(({opId,fixture})=>
+        window.__restoreOperationResearch.ack({before:null,opId,expected:fixture}),
+        {opId,fixture}),'verified_committed_operation',
+        'IDB witness authenticates IDB state, NOT reset-journal consistency');
+      assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),
+        baseline,'read-only reset inspection must preserve v1 encrypted bytes');
+      assert.deepEqual(await p.evaluate(opId=>window.__restoreOperationResearch.read(opId),opId),
+        idbBefore,'read-only reset inspection must preserve IDB witness');
+      // Partial v1 reset: payload removed, key and reset journal retained.
+      await p.evaluate(()=>localStorage.removeItem('financial-autonomy.preview.payload.v1'));
+      const partial=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      assert.equal(partial.key,baseline.key);assert.equal(partial.payload,null);
+      await p.reload();await install(p);
+      assert.equal(await p.evaluate(()=>window.__restoreOperationResearch.resetFootprint()),reset);
+      assert.equal(await p.evaluate(({opId,baseline,fixture})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId,baseline,expected:fixture,resetBaseline:null
+        }),{opId,baseline,fixture}),'unknown');
+      assert.deepEqual(await p.evaluate(opId=>window.__restoreOperationResearch.read(opId),opId),
+        idbBefore);
+      assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),
+        partial,'no automatic recovery, key deletion or v1 fallback');
+    });
+    console.log('PASS research reset journal: marker-only drift and partial v1 deletion quarantine without IDB/v1 writes');
+
+    // Full-origin rollback can restore BOTH localStorage and IDB to an older,
+    // internally authenticated snapshot. This is a known unsolved freshness
+    // limitation of a local-only browser origin, not a successful defense.
+    await isolated(async p=>{
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
+      const oldLegacy=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      const oldOp='op-origin-old-0011',newOp='op-origin-new-0012';
+      assert.equal((await p.evaluate(opId=>
+        window.__restoreOperationResearch.migrateLegacyForTest({opId}),oldOp)).ok,true);
+      const oldIdb=await p.evaluate(opId=>window.__restoreOperationResearch.read(opId),oldOp);
+      const newer={...fixture,transactions:[...fixture.transactions,{id:'newer-unrecoverable'}]};
+      assert.equal((await p.evaluate(({opId,state})=>
+        window.__restoreOperationResearch.commit({
+          opId,state,expectedRevision:1
+        }),{opId:newOp,state:newer})).ok,true);
+      assert.equal(await p.evaluate(({opId,state})=>
+        window.__restoreOperationResearch.ack({before:null,opId,expected:state}),
+        {opId:newOp,state:newer}),'verified_committed_operation');
+      await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),newer);
+      await p.evaluate(()=>localStorage.setItem('financial-autonomy.preview.reset.v1',
+        'idle-v2:'+('b'.repeat(32))));
+      // Deliberately rewind every tracked origin component, as could occur
+      // when a complete site-data snapshot is restored by the environment.
+      await p.evaluate(snapshot=>window.__restoreOperationResearch.rewindIdbForTest(snapshot),
+        oldIdb);
+      await p.evaluate(({key,payload})=>{
+        localStorage.setItem('financial-autonomy.preview.key.v1',key);
+        localStorage.setItem('financial-autonomy.preview.payload.v1',payload);
+        localStorage.removeItem('financial-autonomy.preview.reset.v1');
+      },oldLegacy);
+      await p.reload();await install(p);
+      assert.equal(await p.evaluate(({opId,state})=>
+        window.__restoreOperationResearch.ack({before:null,opId,expected:state}),
+        {opId:oldOp,state:fixture}),'verified_committed_operation');
+      assert.equal(await p.evaluate(({opId,state})=>
+        window.__restoreOperationResearch.ack({before:null,opId,expected:state}),
+        {opId:newOp,state:newer}),'unknown');
+      assert.equal(await p.evaluate(({opId,baseline,expected})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId,baseline,expected,resetBaseline:null
+        }),{opId:oldOp,baseline:oldLegacy,expected:fixture}),'legacy_matches_snapshot');
+      assert.deepEqual(await p.evaluate(opId=>window.__restoreOperationResearch.read(opId),oldOp),
+        oldIdb);
+      assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),
+        oldLegacy);
+      assert.equal(await p.evaluate(()=>window.__restoreOperationResearch.resetFootprint()),null);
+    });
+    console.log('PASS KNOWN UNSAFE full-origin rollback: old authenticated IDB/v1/reset snapshot hides newer committed operation; no freshness guarantee');
     for(const kind of ['orphan-key','orphan-payload','corrupt-payload','deny-legacy-read']){
       await isolated(async p=>{
         await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
