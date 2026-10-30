@@ -160,9 +160,57 @@ async function main(){
         before:second,opId:'op-stale-0004',expected:{transactions:['A','B','D']}}),{second}),
       'unknown');
       console.log('PASS atomic IDB restore witness: stale tab rejected, conflicting outcome unknown and never replayed');
-      await a.evaluate(()=>window.__restoreOperationResearch.deleteWitnessForTest('op-next-0003'));
-      assert.equal(await a.evaluate(({second})=>window.__restoreOperationResearch.ack({
-        before:second,opId:'op-next-0003',expected:{transactions:['A','B','C']}}),{second}),'unknown');
+      // Competing tabs use the same previously authenticated revision. IDB must
+      // serialize both the authority CAS and the witness put, not merely the
+      // asynchronous preflight. Synthetic records only; no production migration.
+      const beforeRace=(await a.evaluate(()=>window.__restoreOperationResearch.read('op-next-0003'))).current;
+      const candidates=[
+        {opId:'op-race-left-0005',state:{transactions:['A','B','C','left']}},
+        {opId:'op-race-right-0006',state:{transactions:['A','B','C','right']}}
+      ];
+      const raced=await Promise.all([
+        a.evaluate(candidate=>window.__restoreOperationResearch.commit({...candidate,expectedRevision:3}),candidates[0]),
+        b.evaluate(candidate=>window.__restoreOperationResearch.commit({...candidate,expectedRevision:3}),candidates[1])
+      ]);
+      assert.equal(raced.filter(result=>result.ok).length,1,'exactly one distinct-ID writer must win');
+      const winnerIndex=raced.findIndex(result=>result.ok);
+      const winner=candidates[winnerIndex],loser=candidates[1-winnerIndex];
+      const afterRace=(await a.evaluate(opId=>window.__restoreOperationResearch.read(opId),winner.opId)).current;
+      assert.equal(afterRace.revision,4);
+      assert.equal(await b.evaluate(({before,opId,expected})=>window.__restoreOperationResearch.ack({
+        before,opId,expected}),{before:beforeRace,opId:winner.opId,expected:winner.state}),
+      'verified_committed_operation');
+      assert.equal(await b.evaluate(({before,opId,expected})=>window.__restoreOperationResearch.ack({
+        before,opId,expected}),{before:beforeRace,opId:loser.opId,expected:loser.state}),
+      'unknown');
+      console.log('PASS atomic IDB restore witness: two simultaneous distinct-ID writers serialize, one wins without torn witness');
+      const sharedId='op-race-shared-0007';
+      const sharedStates=[
+        {transactions:['A','B','C','shared-left']},
+        {transactions:['A','B','C','shared-right']}
+      ];
+      const shared=await Promise.all([
+        a.evaluate(({opId,state})=>window.__restoreOperationResearch.commit({
+          opId,state,expectedRevision:4}),{opId:sharedId,state:sharedStates[0]}),
+        b.evaluate(({opId,state})=>window.__restoreOperationResearch.commit({
+          opId,state,expectedRevision:4}),{opId:sharedId,state:sharedStates[1]})
+      ]);
+      assert.equal(shared.filter(result=>result.ok).length,1,'same-ID race must not double commit');
+      const sharedWinner=sharedStates[shared.findIndex(result=>result.ok)];
+      const sharedLoser=sharedStates[1-shared.findIndex(result=>result.ok)];
+      const sharedRecord=(await a.evaluate(opId=>window.__restoreOperationResearch.read(opId),sharedId));
+      assert.equal(sharedRecord.current.revision,5);
+      assert.equal(sharedRecord.witness.opId,sharedId);
+      assert.equal(await b.evaluate(({before,opId,expected})=>window.__restoreOperationResearch.ack({
+        before,opId,expected}),{before:afterRace,opId:sharedId,expected:sharedWinner}),
+      'verified_committed_operation');
+      assert.equal(await b.evaluate(({before,opId,expected})=>window.__restoreOperationResearch.ack({
+        before,opId,expected}),{before:afterRace,opId:sharedId,expected:sharedLoser}),
+      'unknown','a shared operation ID cannot authenticate the losing state');
+      console.log('PASS atomic IDB restore witness: simultaneous duplicate operation IDs cannot double commit');
+      await a.evaluate(opId=>window.__restoreOperationResearch.deleteWitnessForTest(opId),sharedId);
+      assert.equal(await a.evaluate(({before,opId,expected})=>window.__restoreOperationResearch.ack({
+        before,opId,expected}),{before:afterRace,opId:sharedId,expected:sharedWinner}),'unknown');
       console.log('PASS atomic IDB restore witness: missing operation witness quarantines without repairing/deleting');
     }finally{await context.close()}
   }finally{if(browser)await browser.close();await new Promise(resolve=>server.close(resolve))}
