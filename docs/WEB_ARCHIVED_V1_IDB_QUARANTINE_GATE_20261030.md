@@ -41,4 +41,8 @@ No production bundle, `index.html`, release version, diagnostic, financial formu
 - [MDN IndexedDB transaction](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/transaction)
 - [MDN storage quotas and eviction](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria)
 
-Test outcome and CI run links will be recorded after execution, not assumed from this document.
+## Verified evidence
+
+[PR #308](https://github.com/nikopol000/financial-autonomy-preview/pull/308) merged as `520f55938ae80c9d37eceabecb82ecdc60b78de3`. Exact tested PR head `a2e1d6b0c016b2a41fde3f755ad5a4ca5b8988c3`: [Release CI #41045356843](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41045356843) SUCCESS and [Chromium #41045356989](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41045356989) SUCCESS. Chromium job `124027998211` includes six named PASS lines: authenticated late writer quarantine and known-unsafe rollback for each of 18.27/18.33/18.34.
+
+Initial Chromium attempts [#41045072201](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41045072201) and [#41045123752](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41045123752) failed due to a test-only `waitForFunction` callback receiving a string but reading `.payload`. The callback was corrected; final exact-head Chromium and Release checks passed. No product fix is implied.
