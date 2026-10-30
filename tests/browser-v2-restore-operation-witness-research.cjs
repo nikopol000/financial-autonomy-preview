@@ -925,6 +925,135 @@ async function testArchivedResetReloadGap(browser,url){
   }
 }
 
+
+async function testIdbCompletionFaultAfterLegacyRetirement(browser,url){
+  // #4/#29/#35 CHARACTERIZATION ONLY. An archived v1 reset can retire the
+  // localStorage pair before v2 IDB completion; no cross-store transaction
+  // exists. Synthetic user intent is NOT evidence of user confirmation.
+  for(const version of ['18.27','18.33','18.34']){
+    const defs=extractArchived(fs.readFileSync(archivedPaths[version],'utf8'));
+    for(const fault of ['before-put','after-put','deny-idb-open','throw-after-complete']){
+      const ctx=await browser.newContext();
+      try{
+        const old=await ctx.newPage(),modern=await ctx.newPage();
+        await Promise.all([old.goto(url+'?fa_real=1'),modern.goto(url)]);
+        await installArchived(old,defs);await install(modern);
+        const tag=version.replace('.','')+'-'+fault;
+        const baselineState={version:4,accounts:[],balanceChecks:[],transactions:[{
+          id:'synthetic-idb-completion-'+tag,kind:'expense',amount:25,
+          date:'2026-10-30',accountId:'synthetic'
+        }]};
+        await old.evaluate(()=>window.__archivedVault.load());
+        await old.evaluate(state=>window.__archivedVault.save(state),baselineState);
+        const cached=await old.evaluate(()=>window.__archivedVault.load());
+        const baseline=await old.evaluate(()=>({
+          key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+          payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+        }));
+        assert.ok(baseline.key&&baseline.payload);
+        await modern.waitForFunction(payload=>localStorage.getItem(
+          'financial-autonomy.preview.payload.v1')===payload,baseline.payload,{timeout:10000});
+        const baseOp='op-idb-boundary-base-'+tag;
+        assert.equal((await modern.evaluate(opId=>
+          window.__restoreOperationResearch.migrateLegacyForTest({opId}),baseOp)).ok,true);
+        const epoch='synthetic-idb-boundary-epoch-'+tag;
+        const pending={...cached,resetIntent:{
+          schema:1,phase:'pending',epoch,sourceRevision:1
+        }};
+        const complete={...pending,resetIntent:{...pending.resetIntent,phase:'committed'}};
+        const pendingOp='op-idb-boundary-pending-'+tag;
+        const completeOp='op-idb-boundary-complete-'+tag;
+        assert.equal((await modern.evaluate(({opId,state})=>
+          window.__restoreOperationResearch.commit({
+            opId,state,expectedRevision:1,expectedEpoch:null
+          }),{opId:pendingOp,state:pending})).ok,true);
+        const pendingRecord=await modern.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),pendingOp);
+        assert.equal(pendingRecord.current.revision,2);
+        // Actual archived v1 reset, before attempting v2 completion.
+        await old.evaluate(()=>window.__archivedVault.resetData());
+        const retired=await modern.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint());
+        assert.deepEqual(retired,{key:null,payload:null});
+        let outcome;
+        if(fault==='deny-idb-open'){
+          outcome=await modern.evaluate(async({opId,state,epoch})=>{
+            const descriptor=Object.getOwnPropertyDescriptor(window,'indexedDB');
+            Object.defineProperty(window,'indexedDB',{configurable:true,value:{
+              open(){throw new DOMException('Synthetic completion denial','SecurityError')}
+            }});
+            try{
+              await window.__restoreOperationResearch.commit({
+                opId,state,expectedRevision:2,expectedEpoch:epoch
+              });
+              return {ok:true};
+            }catch(e){return {ok:false,name:e.name,message:String(e.message)}}
+            finally{
+              if(descriptor)Object.defineProperty(window,'indexedDB',descriptor);
+              else delete window.indexedDB;
+            }
+          },{opId:completeOp,state:complete,epoch});
+          assert.equal(outcome.ok,false);
+          assert.equal(outcome.name,'SecurityError');
+        }else if(fault==='throw-after-complete'){
+          await assert.rejects(modern.evaluate(({opId,state,epoch})=>
+            window.__restoreOperationResearch.commit({
+              opId,state,expectedRevision:2,expectedEpoch:epoch,
+              fault:'throw-after-complete'
+            }),{opId:completeOp,state:complete,epoch}),/SYNTHETIC_POST_COMMIT_ERROR/);
+        }else{
+          outcome=await modern.evaluate(({opId,state,epoch,fault})=>
+            window.__restoreOperationResearch.commit({
+              opId,state,expectedRevision:2,expectedEpoch:epoch,fault
+            }),{opId:completeOp,state:complete,epoch,fault});
+          assert.equal(outcome.ok,false);
+        }
+        // Close all tabs and reopen. This is not a browser-process crash.
+        await old.close();await modern.close();
+        const reopened=await ctx.newPage();
+        await reopened.goto(url);await install(reopened);
+        const committed=fault==='throw-after-complete';
+        const current=await reopened.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),completeOp);
+        assert.equal(current.current.revision,committed?3:2);
+        assert.equal(current.witness===null,!committed);
+        if(!committed){
+          assert.deepEqual(await reopened.evaluate(opId=>
+            window.__restoreOperationResearch.read(opId),pendingOp),pendingRecord,
+            'aborted/denied completion must retain pending v2 authority and witness');
+        }
+        assert.equal(await reopened.evaluate(({opId,state})=>
+          window.__restoreOperationResearch.ack({
+            before:null,opId,expected:state
+          }),{opId:completeOp,state:complete}),
+        committed?'verified_committed_operation':'unknown',
+        'only authenticated completed v2 operation can be acknowledged');
+        assert.equal(await reopened.evaluate(({opId,state})=>
+          window.__restoreOperationResearch.ack({
+            before:null,opId,expected:state
+          }),{opId:pendingOp,state:pending}),
+        committed?'unknown':'verified_committed_operation');
+        const activeOp=committed?completeOp:pendingOp;
+        const activeState=committed?complete:pending;
+        assert.equal(await reopened.evaluate(({opId,baseline,expected})=>
+          window.__restoreOperationResearch.inspectLegacyConflictForTest({
+            opId,baseline,expected,resetBaseline:null
+          }),{opId:activeOp,baseline,expected:activeState}),'unknown',
+        'v2 witness never proves global legacy reset or authorizes recovery');
+        assert.deepEqual(await reopened.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint()),retired,
+        'read-only inspection must not resurrect or alter v1');
+        assert.deepEqual(await reopened.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),completeOp),current,
+        'read-only inspection must not rewrite v2');
+        console.log('PASS CHARACTERIZATION archived '+version+' IDB completion '+fault+
+          ' after v1 retirement: reopened '+(committed?'v2 marker only':'pending')+
+          ', no global reset proof or automatic recovery');
+      }finally{await ctx.close()}
+    }
+  }
+}
+
 async function main(){
   const server=http.createServer((_req,res)=>{res.writeHead(200,{'Content-Type':'text/html'});
     res.end('<!doctype html><title>synthetic restore operation witness</title>')});
@@ -1115,6 +1244,7 @@ async function main(){
     await testArchivedWriterAtPendingResetBoundary(browser,url);
     await testArchivedResetFinalizationBoundary(browser,url);
     await testArchivedResetReloadGap(browser,url);
+    await testIdbCompletionFaultAfterLegacyRetirement(browser,url);
     // Candidate encrypted reset-intent boundary, NOT a production reset.
     // Stage an authenticated pending intent in v2 only; preserve all legacy
     // ciphertext. This does not prove the user confirmed deletion, prevent
