@@ -251,6 +251,43 @@ async function run(){
     await existingCommittedContext.close();
     console.log('PASS KNOWN AMBIGUOUS Chromium actual backup UI: existing vault PAYLOAD write-then-throw reports failure although explicitly confirmed older backup committed; reload authenticates older state');
 
+    // A failed read is distinct from a failed write. The restore must not
+    // treat an unreadable existing vault as an empty target or overwrite it.
+    // Inject a spec-compatible SecurityError for the existing PAYLOAD read
+    // after the backup has already been authenticated by the real UI.
+    const readDeniedContext=await browser.newContext({viewport:{width:390,height:844},
+      isMobile:true,hasTouch:true,colorScheme:'light'});
+    page=await readDeniedContext.newPage();
+    const beforeReadDenial=await prepareExisting(page,url,backup,liveState);
+    await page.evaluate(payload=>{
+      const originalGet=Storage.prototype.getItem;
+      window.__faReadFaultHits=0;
+      Storage.prototype.getItem=function(name){
+        if(this===localStorage&&name===payload){
+          window.__faReadFaultHits++;
+          throw new DOMException('Synthetic read access denied','SecurityError');
+        }
+        return originalGet.call(this,name)
+      };
+      window.__faDisarmReadFault=()=>{Storage.prototype.getItem=originalGet};
+    },PAYLOAD);
+    await page.getByText('Confirm înlocuirea datelor',{exact:true}).click();
+    await page.waitForFunction(()=>window.__faReadFaultHits>0,null,{timeout:15000});
+    await page.waitForTimeout(200);
+    assert.equal(await page.getByText('Backup restaurat.',{exact:true}).count(),0,
+      'Denied live PAYLOAD read must not be acknowledged as a restore');
+    await page.evaluate(()=>window.__faDisarmReadFault());
+    assert.deepEqual(await bytes(page),beforeReadDenial,
+      'Denied read must preserve original encrypted key, payload and reset marker');
+    await openReal(page,url);
+    const afterReadDenial=await page.evaluate(async()=>window.__r(309).load());
+    assert.equal(afterReadDenial.transactions.length,2);
+    assert.ok(afterReadDenial.transactions.some(t=>t.id==='newer-live-only'));
+    assert.deepEqual(await bytes(page),beforeReadDenial,
+      'Reload must not silently apply an older backup after denied read');
+    await readDeniedContext.close();
+    console.log('PASS Chromium actual backup UI: denied existing-vault PAYLOAD read aborts confirmed restore without writes; newer ledger survives reload');
+
   }catch(err){
     if(page)try{console.error('Browser excerpt:',(await page.locator('body').innerText()).slice(0,1200))}
     catch{}
