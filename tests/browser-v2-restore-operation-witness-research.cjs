@@ -161,8 +161,8 @@ async function main(){
       'unknown');
       console.log('PASS atomic IDB restore witness: stale tab rejected, conflicting outcome unknown and never replayed');
       await a.evaluate(()=>window.__restoreOperationResearch.deleteWitnessForTest('op-next-0003'));
-      assert.equal(await a.evaluate(()=>window.__restoreOperationResearch.ack({
-        before:second,opId:'op-next-0003',expected:{transactions:['A','B','C']}})),'unknown');
+      assert.equal(await a.evaluate(({second})=>window.__restoreOperationResearch.ack({
+        before:second,opId:'op-next-0003',expected:{transactions:['A','B','C']}}),{second}),'unknown');
       console.log('PASS atomic IDB restore witness: missing operation witness quarantines without repairing/deleting');
     }finally{await context.close()}
   }finally{if(browser)await browser.close();await new Promise(resolve=>server.close(resolve))}
