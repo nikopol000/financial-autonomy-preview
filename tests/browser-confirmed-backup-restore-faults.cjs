@@ -201,62 +201,55 @@ async function run(){
     assert.deepEqual(await bytes(page),persisted);
     await committedContext.close();
     console.log('PASS Chromium actual backup UI: PAYLOAD write-then-throw reports failure but encrypted ledger is recoverable after reload');
-    // P1 regression characterization: a confirmed restore into a NONEMPTY
-    // encrypted vault is more dangerous than the empty-target case above.
-    // This is deliberately KNOWN UNSAFE evidence, not a product fix.
+    // Existing authenticated v1 vaults reuse their AES key on save. Unlike
+    // empty targets, a denied PAYLOAD write should therefore preserve both
+    // original key and ciphertext. Confirm with real WEB UI and reload.
     const liveState={...fixture,transactions:[
       ...fixture.transactions,
       {...fixture.transactions[0],id:'newer-live-only',
         name:'Tranzacție sintetică mai recentă',amount:975}
     ]};
-    const existingKeyContext=await browser.newContext({viewport:{width:390,height:844},
+    const existingDeniedContext=await browser.newContext({viewport:{width:390,height:844},
       isMobile:true,hasTouch:true,colorScheme:'light'});
-    page=await existingKeyContext.newPage();
-    const beforeKey=await prepareExisting(page,url,backup,liveState);
-    await arm(page,'deny-key');
+    page=await existingDeniedContext.newPage();
+    const beforeDenied=await prepareExisting(page,url,backup,liveState);
+    await arm(page,'deny-payload');
     await confirmFault(page);
-    assert.deepEqual(await bytes(page),beforeKey,
-      'Denied KEY write must not damage an existing authenticated vault');
+    assert.deepEqual(await bytes(page),beforeDenied,
+      'Denied PAYLOAD write must preserve existing AES key, ciphertext and reset marker');
     await openReal(page,url);
     const stillLive=await page.evaluate(async()=>window.__r(309).load());
     assert.equal(stillLive.transactions.length,2);
     assert.ok(stillLive.transactions.some(t=>t.id==='newer-live-only'));
-    assert.deepEqual(await bytes(page),beforeKey);
-    await existingKeyContext.close();
-    console.log('PASS Chromium actual backup UI: existing live vault survives denied restore KEY write and reload');
+    assert.deepEqual(await bytes(page),beforeDenied);
+    await existingDeniedContext.close();
+    console.log('PASS Chromium actual backup UI: existing authenticated vault survives denied restore PAYLOAD write and reload without key rotation');
 
-    const existingPayloadContext=await browser.newContext({viewport:{width:390,height:844},
+    // A deliberately nonconforming Storage adapter commits PAYLOAD then
+    // throws. The UI cannot infer from the exception whether the restore
+    // committed: this must be treated as an ambiguous acknowledgment, not
+    // an invitation to silently repeat the restore.
+    const existingCommittedContext=await browser.newContext({viewport:{width:390,height:844},
       isMobile:true,hasTouch:true,colorScheme:'dark'});
-    page=await existingPayloadContext.newPage();
-    const beforePayload=await prepareExisting(page,url,backup,liveState);
-    await arm(page,'deny-payload');
+    page=await existingCommittedContext.newPage();
+    const beforeCommitted=await prepareExisting(page,url,backup,liveState);
+    await arm(page,'write-then-throw');
     await confirmFault(page);
-    const mismatched=await bytes(page);
-    assert.notEqual(mismatched.key,beforePayload.key,
-      'Restore has overwritten the original AES key before payload denial');
-    assert.equal(mismatched.payload,beforePayload.payload,
-      'Old encrypted ledger bytes survive but are no longer decryptable with new key');
-    assert.equal(mismatched.reset,beforePayload.reset);
-    const unreadable=await page.evaluate(()=>{
-      try{window.__r(310).loadWebVault(localStorage);return false}
-      catch{return true}
-    });
-    assert.equal(unreadable,true,'The original encrypted ledger must now fail authentication');
+    const afterCommitted=await bytes(page);
+    assert.equal(afterCommitted.key,beforeCommitted.key,
+      'Existing vault must reuse the authenticated AES key');
+    assert.notEqual(afterCommitted.payload,beforeCommitted.payload,
+      'The explicitly confirmed older backup may have committed before the throw');
+    assert.equal(afterCommitted.reset,beforeCommitted.reset);
     await openReal(page,url);
-    await page.getByText('Datele locale nu pot fi deschise',{exact:true})
-      .waitFor({state:'visible',timeout:15000});
-    assert.deepEqual(await bytes(page),mismatched,
-      'Reload must not silently delete the original ciphertext or overwrite the key');
-    // Test-only proof: the old key, if independently preserved, still
-    // authenticates the old payload. NEVER auto-restore it in production.
-    await page.evaluate(([keyName,oldKey])=>
-      localStorage.setItem(keyName,oldKey),[KEY,beforePayload.key]);
-    await openReal(page,url);
-    const recoveredLive=await page.evaluate(async()=>window.__r(309).load());
-    assert.equal(recoveredLive.transactions.length,2);
-    assert.ok(recoveredLive.transactions.some(t=>t.id==='newer-live-only'));
-    await existingPayloadContext.close();
-    console.log('PASS KNOWN UNSAFE Chromium actual backup UI: denied restore PAYLOAD write over existing vault overwrites KEY, strands old ciphertext, blocks reload; original key permits synthetic recovery');
+    const restoredOlder=await page.evaluate(async()=>window.__r(309).load());
+    assert.equal(restoredOlder.transactions.length,1);
+    assert.equal(restoredOlder.transactions[0].id,fixture.transactions[0].id);
+    assert.equal(restoredOlder.transactions.some(t=>t.id==='newer-live-only'),false);
+    assert.deepEqual(await bytes(page),afterCommitted,
+      'Reload must not silently replay a failed acknowledgment');
+    await existingCommittedContext.close();
+    console.log('PASS KNOWN AMBIGUOUS Chromium actual backup UI: existing vault PAYLOAD write-then-throw reports failure although explicitly confirmed older backup committed; reload authenticates older state');
 
   }catch(err){
     if(page)try{console.error('Browser excerpt:',(await page.locator('body').innerText()).slice(0,1200))}
