@@ -765,7 +765,8 @@ async function testArchivedResetFinalizationBoundary(browser,url){
           window.__restoreOperationResearch.legacyFootprint());
         await modern.reload();await install(modern);
         const afterIdb=await modern.evaluate(opId=>
-          window.__restoreOperationResearch.read(opId),pendingOp);
+          window.__restoreOperationResearch.read(opId),
+          mode==='v2-committed-before-legacy-retirement'?completeOp:pendingOp);
         if(mode==='v2-committed-before-legacy-retirement'){
           assert.deepEqual(afterIdb,completedWitness,
             'completed witness survives but is NOT proof of legacy retirement');
