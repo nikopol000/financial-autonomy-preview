@@ -147,6 +147,30 @@ async function install(page){
       return api.commit({opId,state,expectedRevision:0,allowInitialize:true,
         fault:['before-put','after-put','throw-after-complete'].includes(fault)?fault:null});
     };
+    // Research-only read-only quarantine classifier. 'matches' is NOT proof
+    // that no later legacy edit ever occurred (whole-origin rollback can mimic it).
+    // A production design would have to bind the baseline to authenticated v2
+    // authority, rather than accepting an arbitrary caller-supplied snapshot.
+    api.inspectLegacyConflictForTest=async({opId,baseline,expected})=>{
+      try{
+        if(await api.ack({before:null,opId,expected})!=='verified_committed_operation')
+          return 'unknown';
+        const now=api.legacyFootprint();
+        if(!now.key||!now.payload||!/^[0-9a-f]{64}$/.test(now.key))
+          return 'unknown';
+        const envelope=JSON.parse(now.payload);
+        if(envelope.v!==1||!/^[0-9a-f]{24}$/.test(envelope.nonce)||
+          !/^(?:[0-9a-f]{2})+$/.test(envelope.data))return 'unknown';
+        const key=await crypto.subtle.importKey('raw',bytes(now.key),'AES-GCM',false,['decrypt']);
+        const state=JSON.parse(dec.decode(await crypto.subtle.decrypt(
+          {name:'AES-GCM',iv:bytes(envelope.nonce)},key,bytes(envelope.data))));
+        if(!state||state.version!==4||
+          !['accounts','transactions','balanceChecks'].every(k=>Array.isArray(state[k])))
+          return 'unknown';
+        return JSON.stringify(now)===JSON.stringify(baseline)
+          ?'legacy_matches_snapshot':'authenticated_legacy_divergence';
+      }catch{return 'unknown'}
+    };
     api.deleteWitnessForTest=async opId=>{
       const db=await open();
       try{await new Promise((resolve,reject)=>{
@@ -293,6 +317,10 @@ async function main(){
       assert.equal(await p.evaluate(s=>window.__restoreOperationResearch.ack({
         before:null,opId:'op-v1-migrate-0001',expected:s}),fixture),
       'verified_committed_operation');
+      assert.equal(await p.evaluate(({baseline,expected})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId:'op-v1-migrate-0001',baseline,expected}),{baseline:before,expected:fixture}),
+      'legacy_matches_snapshot');
       // A cached old v1 tab can still write after cutover. IDB cannot stop it.
       await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),
         {...fixture,transactions:[...fixture.transactions,{id:'late-v1-write'}]});
@@ -300,8 +328,42 @@ async function main(){
         before:null,opId:'op-v1-migrate-0001',expected:s}),fixture),
       'verified_committed_operation');
       assert.notDeepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),before);
+      const late=await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint());
+      assert.equal(await p.evaluate(({baseline,expected})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId:'op-v1-migrate-0001',baseline,expected}),{baseline:before,expected:fixture}),
+      'authenticated_legacy_divergence');
+      assert.deepEqual(await p.evaluate(()=>window.__restoreOperationResearch.legacyFootprint()),late,
+        'read-only conflict inspection must not mutate legacy evidence');
+      await p.evaluate(()=>{
+        const key='financial-autonomy.preview.payload.v1';
+        const raw=JSON.parse(localStorage.getItem(key));
+        raw.data=(raw.data[0]==='0'?'1':'0')+raw.data.slice(1);
+        localStorage.setItem(key,JSON.stringify(raw));
+      });
+      assert.equal(await p.evaluate(({baseline,expected})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId:'op-v1-migrate-0001',baseline,expected}),{baseline:before,expected:fixture}),
+      'unknown','corrupted legacy ciphertext must not be selected as authoritative');
+      // An origin rollback can restore the exact old bytes. Matching the
+      // snapshot is not a freshness proof and cannot recover the late write.
+      await p.evaluate(({key,payload})=>{
+        localStorage.setItem('financial-autonomy.preview.key.v1',key);
+        localStorage.setItem('financial-autonomy.preview.payload.v1',payload);
+      },before);
+      assert.equal(await p.evaluate(({baseline,expected})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId:'op-v1-migrate-0001',baseline,expected}),{baseline:before,expected:fixture}),
+      'legacy_matches_snapshot');
+      await p.evaluate(()=>window.__restoreOperationResearch.deleteWitnessForTest('op-v1-migrate-0001'));
+      assert.equal(await p.evaluate(({baseline,expected})=>
+        window.__restoreOperationResearch.inspectLegacyConflictForTest({
+          opId:'op-v1-migrate-0001',baseline,expected}),{baseline:before,expected:fixture}),
+      'unknown','missing IDB witness must never be repaired or trusted');
+
     });
     console.log('PASS research v1 AES-GCM envelope migrates into IDB witness without deleting legacy bytes; KNOWN UNSAFE late v1 writer remains possible');
+    console.log('PASS research read-only v1/v2 conflict quarantine: authenticated divergence, corruption, rollback limitation and missing witness');
     for(const kind of ['orphan-key','orphan-payload','corrupt-payload','deny-legacy-read']){
       await isolated(async p=>{
         await p.evaluate(s=>window.__restoreOperationResearch.seedLegacyForTest(s),fixture);
