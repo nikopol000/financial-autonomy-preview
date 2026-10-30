@@ -650,6 +650,163 @@ async function testArchivedWriterAtPendingResetBoundary(browser,url){
   }
 }
 
+
+async function testArchivedResetFinalizationBoundary(browser,url){
+  // #4/#29/#35: CHARACTERIZATION ONLY. These are synthetic confirmations,
+  // not user consent. A v2 marker cannot make legacy localStorage deletion
+  // atomic or prevent cached WEB 18.27/18.33/18.34 JavaScript from writing.
+  for(const version of ['18.27','18.33','18.34']){
+    const defs=extractArchived(fs.readFileSync(archivedPaths[version],'utf8'));
+    for(const mode of ['legacy-key-remove-denied','idb-completion-aborted',
+      'v2-committed-before-legacy-retirement']){
+      const ctx=await browser.newContext();
+      try{
+        const old=await ctx.newPage(),modern=await ctx.newPage();
+        await Promise.all([old.goto(url+'?fa_real=1'),modern.goto(url)]);
+        await installArchived(old,defs);await install(modern);
+        const initial={version:4,accounts:[],balanceChecks:[],transactions:[{
+          id:'synthetic-finalize-baseline-'+version,kind:'expense',amount:25,
+          date:'2026-10-30',accountId:'synthetic'
+        }]};
+        await old.evaluate(()=>window.__archivedVault.load());
+        await old.evaluate(state=>window.__archivedVault.save(state),initial);
+        const cached=await old.evaluate(()=>window.__archivedVault.load());
+        const baseline=await old.evaluate(()=>({
+          key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+          payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+        }));
+        assert.ok(baseline.key&&baseline.payload);
+        await modern.waitForFunction(payload=>localStorage.getItem(
+          'financial-autonomy.preview.payload.v1')===payload,
+          baseline.payload,{timeout:10000});
+        const tag=version.replace('.','')+'-'+mode;
+        const baseOp='op-finalize-base-'+tag;
+        assert.equal((await modern.evaluate(opId=>
+          window.__restoreOperationResearch.migrateLegacyForTest({opId}),baseOp)).ok,true);
+        const epoch='synthetic-finalize-epoch-'+tag;
+        const stateFor=phase=>({...cached,resetIntent:{
+          schema:1,phase,epoch,sourceRevision:1
+        }});
+        const confirmed=stateFor('confirmed'),pending=stateFor('pending');
+        const completed=stateFor('committed');
+        const confirmOp='op-finalize-confirm-'+tag;
+        const pendingOp='op-finalize-pending-'+tag;
+        const completeOp='op-finalize-complete-'+tag;
+        assert.equal((await modern.evaluate(({opId,state})=>
+          window.__restoreOperationResearch.commit({
+            opId,state,expectedRevision:1,expectedEpoch:null
+          }),{opId:confirmOp,state:confirmed})).ok,true);
+        assert.equal((await modern.evaluate(({opId,state,epoch})=>
+          window.__restoreOperationResearch.commit({
+            opId,state,expectedRevision:2,expectedEpoch:epoch
+          }),{opId:pendingOp,state:pending,epoch})).ok,true);
+        const pendingWitness=await modern.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),pendingOp);
+        assert.equal(pendingWitness.current.revision,3);
+        assert.equal(await modern.evaluate(({opId,state})=>
+          window.__restoreOperationResearch.ack({before:null,opId,expected:state}),
+          {opId:pendingOp,state:pending}),'verified_committed_operation');
+        let completedWitness=null;
+        if(mode==='v2-committed-before-legacy-retirement'){
+          // Deliberately UNSAFE ordering: a valid v2 'committed' witness exists
+          // while an old v1 tab can still save its own stale financial state.
+          assert.equal((await modern.evaluate(({opId,state,epoch})=>
+            window.__restoreOperationResearch.commit({
+              opId,state,expectedRevision:3,expectedEpoch:epoch
+            }),{opId:completeOp,state:completed,epoch})).ok,true);
+          completedWitness=await modern.evaluate(opId=>
+            window.__restoreOperationResearch.read(opId),completeOp);
+          const late={...cached,transactions:[...cached.transactions,{
+            id:'synthetic-after-v2-committed-'+tag,kind:'expense',
+            amount:50,date:'2026-10-30',accountId:'synthetic'
+          }]};
+          const save=await old.evaluate(async state=>{
+            try{await window.__archivedVault.save(state);return {ok:true}}
+            catch(e){return {ok:false,message:String(e.message)}}
+          },late);
+          assert.equal(save.ok,true,'archived v1 still writes after v2 committed marker');
+          const decoded=await old.evaluate(()=>window.__archivedVault.load());
+          assert.ok(decoded.transactions.some(t=>t.id==='synthetic-after-v2-committed-'+tag));
+        }else{
+          const reset=await old.evaluate(async mode=>{
+            if(mode==='idb-completion-aborted'){
+              await window.__archivedVault.resetData();
+              return {ok:true};
+            }
+            const original=Storage.prototype.removeItem;
+            Storage.prototype.removeItem=function(key){
+              if(key==='financial-autonomy.preview.key.v1')
+                throw new DOMException('Synthetic finalization key denial','SecurityError');
+              return original.call(this,key);
+            };
+            try{await window.__archivedVault.resetData();return {ok:true}}
+            catch(e){return {ok:false,message:String(e.message)}}
+            finally{Storage.prototype.removeItem=original}
+          },mode);
+          assert.equal(reset.ok,mode==='idb-completion-aborted');
+          if(mode==='legacy-key-remove-denied')
+            assert.match(reset.message,/Synthetic finalization key denial/);
+          const after=await old.evaluate(()=>({
+            key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+            payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+          }));
+          assert.equal(after.payload,null);
+          assert.equal(after.key,mode==='legacy-key-remove-denied'?baseline.key:null);
+          if(mode==='idb-completion-aborted'){
+            const abort=await modern.evaluate(({opId,state,epoch})=>
+              window.__restoreOperationResearch.commit({
+                opId,state,expectedRevision:3,expectedEpoch:epoch,
+                fault:'after-put'
+              }),{opId:completeOp,state:completed,epoch});
+            assert.equal(abort.ok,false,'aborted IDB completion must not be acknowledged');
+          }
+        }
+        const afterLegacy=await modern.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint());
+        await modern.reload();await install(modern);
+        const afterIdb=await modern.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),pendingOp);
+        if(mode==='v2-committed-before-legacy-retirement'){
+          assert.deepEqual(afterIdb,completedWitness,
+            'completed witness survives but is NOT proof of legacy retirement');
+          assert.equal(await modern.evaluate(({opId,state})=>
+            window.__restoreOperationResearch.ack({
+              before:null,opId,expected:state
+            }),{opId:completeOp,state:completed}),'verified_committed_operation');
+          assert.equal(await modern.evaluate(({opId,baseline,expected})=>
+            window.__restoreOperationResearch.inspectLegacyConflictForTest({
+              opId,baseline,expected,resetBaseline:null
+            }),{opId:completeOp,baseline,expected:completed}),
+            'authenticated_legacy_divergence',
+            'valid v2 completion does not fence an archived v1 writer');
+        }else{
+          assert.deepEqual(afterIdb,pendingWitness,
+            'legacy partial deletion or IDB abort must leave pending authority intact');
+          assert.equal(await modern.evaluate(({opId,state})=>
+            window.__restoreOperationResearch.ack({
+              before:null,opId,expected:state
+            }),{opId:pendingOp,state:pending}),'verified_committed_operation');
+          assert.equal(await modern.evaluate(({opId,state})=>
+            window.__restoreOperationResearch.ack({
+              before:null,opId,expected:state
+            }),{opId:completeOp,state:completed}),'unknown',
+            'a pending reset must never be acknowledged as completed');
+          assert.equal(await modern.evaluate(({opId,baseline,expected})=>
+            window.__restoreOperationResearch.inspectLegacyConflictForTest({
+              opId,baseline,expected,resetBaseline:null
+            }),{opId:pendingOp,baseline,expected:pending}),'unknown',
+            'partial or complete legacy deletion without completion requires quarantine');
+        }
+        assert.deepEqual(await modern.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint()),afterLegacy,
+          'read-only classification must not resurrect or delete v1 evidence');
+        console.log('PASS CHARACTERIZATION actual archived '+version+' '+mode+
+          ': synthetic confirmed/pending/committed boundary quarantined; no safe global reset proof');
+      }finally{await ctx.close()}
+    }
+  }
+}
+
 async function main(){
   const server=http.createServer((_req,res)=>{res.writeHead(200,{'Content-Type':'text/html'});
     res.end('<!doctype html><title>synthetic restore operation witness</title>')});
@@ -838,6 +995,7 @@ async function main(){
     await testArchivedResetAfterMigration(browser,url);
     await testArchivedPostResetCachedWriter(browser,url);
     await testArchivedWriterAtPendingResetBoundary(browser,url);
+    await testArchivedResetFinalizationBoundary(browser,url);
     // Candidate encrypted reset-intent boundary, NOT a production reset.
     // Stage an authenticated pending intent in v2 only; preserve all legacy
     // ciphertext. This does not prove the user confirmed deletion, prevent
