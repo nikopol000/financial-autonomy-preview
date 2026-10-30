@@ -78,6 +78,24 @@ async function prepare(page,url,backup){
   assert.deepEqual(await bytes(page),{key:null,payload:null,reset:null},
     'Preview must not write the empty target')
 }
+async function prepareExisting(page,url,backup,liveState){
+  await openReal(page,url);
+  await page.evaluate(async state=>{
+    await window.__r(309).load();
+    await window.__r(309).save(state);
+  },liveState);
+  const original=await bytes(page);
+  assert.match(original.key,/^[0-9a-f]{64}$/);
+  assert.ok(original.payload?.length>50);
+  await toolsScreen(page);
+  await page.locator('input[type="password"]').first().fill(PASSWORD);
+  await selectBackup(page,backup);
+  await page.getByText(/Backup valid: 1 conturi și 1 operațiuni/)
+    .waitFor({state:'visible',timeout:60000});
+  assert.deepEqual(await bytes(page),original,
+    'Preview of older backup must not mutate the newer live vault');
+  return original
+}
 async function arm(page,mode){
   await page.evaluate(({key,payload,mode})=>{
     const original=Storage.prototype.setItem;
@@ -183,6 +201,56 @@ async function run(){
     assert.deepEqual(await bytes(page),persisted);
     await committedContext.close();
     console.log('PASS Chromium actual backup UI: PAYLOAD write-then-throw reports failure but encrypted ledger is recoverable after reload');
+    // Existing authenticated v1 vaults reuse their AES key on save. Unlike
+    // empty targets, a denied PAYLOAD write should therefore preserve both
+    // original key and ciphertext. Confirm with real WEB UI and reload.
+    const liveState={...fixture,transactions:[
+      ...fixture.transactions,
+      {...fixture.transactions[0],id:'newer-live-only',
+        name:'Tranzacție sintetică mai recentă',amount:975}
+    ]};
+    const existingDeniedContext=await browser.newContext({viewport:{width:390,height:844},
+      isMobile:true,hasTouch:true,colorScheme:'light'});
+    page=await existingDeniedContext.newPage();
+    const beforeDenied=await prepareExisting(page,url,backup,liveState);
+    await arm(page,'deny-payload');
+    await confirmFault(page);
+    assert.deepEqual(await bytes(page),beforeDenied,
+      'Denied PAYLOAD write must preserve existing AES key, ciphertext and reset marker');
+    await openReal(page,url);
+    const stillLive=await page.evaluate(async()=>window.__r(309).load());
+    assert.equal(stillLive.transactions.length,2);
+    assert.ok(stillLive.transactions.some(t=>t.id==='newer-live-only'));
+    assert.deepEqual(await bytes(page),beforeDenied);
+    await existingDeniedContext.close();
+    console.log('PASS Chromium actual backup UI: existing authenticated vault survives denied restore PAYLOAD write and reload without key rotation');
+
+    // A deliberately nonconforming Storage adapter commits PAYLOAD then
+    // throws. The UI cannot infer from the exception whether the restore
+    // committed: this must be treated as an ambiguous acknowledgment, not
+    // an invitation to silently repeat the restore.
+    const existingCommittedContext=await browser.newContext({viewport:{width:390,height:844},
+      isMobile:true,hasTouch:true,colorScheme:'dark'});
+    page=await existingCommittedContext.newPage();
+    const beforeCommitted=await prepareExisting(page,url,backup,liveState);
+    await arm(page,'write-then-throw');
+    await confirmFault(page);
+    const afterCommitted=await bytes(page);
+    assert.equal(afterCommitted.key,beforeCommitted.key,
+      'Existing vault must reuse the authenticated AES key');
+    assert.notEqual(afterCommitted.payload,beforeCommitted.payload,
+      'The explicitly confirmed older backup may have committed before the throw');
+    assert.equal(afterCommitted.reset,beforeCommitted.reset);
+    await openReal(page,url);
+    const restoredOlder=await page.evaluate(async()=>window.__r(309).load());
+    assert.equal(restoredOlder.transactions.length,1);
+    assert.equal(restoredOlder.transactions[0].id,fixture.transactions[0].id);
+    assert.equal(restoredOlder.transactions.some(t=>t.id==='newer-live-only'),false);
+    assert.deepEqual(await bytes(page),afterCommitted,
+      'Reload must not silently replay a failed acknowledgment');
+    await existingCommittedContext.close();
+    console.log('PASS KNOWN AMBIGUOUS Chromium actual backup UI: existing vault PAYLOAD write-then-throw reports failure although explicitly confirmed older backup committed; reload authenticates older state');
+
   }catch(err){
     if(page)try{console.error('Browser excerpt:',(await page.locator('body').innerText()).slice(0,1200))}
     catch{}
