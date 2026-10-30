@@ -1,3 +1,11 @@
+## 2026-10-30 — #4/#35 KEY-only blocked UI no-write retry VERIFIED/MERGED; recovery design next
+
+- **DONE TEST-ONLY:** [PR #292](https://github.com/nikopol000/financial-autonomy-preview/pull/292), squash `c45b4aef2e3b2f69b0fcb7c1168e22e8ba41934a`. Actual WEB 18.64 Chromium KEY-only after synthetic PAYLOAD write denial; clicking existing retry control causes **zero** KEY/PAYLOAD/RESET set/remove writes, preserves KEY and blocked state after repeated reload. No actual recovery implemented.
+- **VERIFIED EXACT PR HEAD:** `51e79196e381a2897cf819a8f0befe4a7b618add`, [Release #41000776646](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41000776646) and [Chromium #41000776616](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41000776616) SUCCESS; new named PASS inspected in job `123884405210`. Independently verify merged-main and final checkpoint CI/Pages.
+- **FIRST UNFINISHED P1:** [no-delete KEY-only recovery inspection UX](docs/WEB_KEY_ONLY_BLOCKED_RECOVERY_UX_20261030.md) and authenticated post-commit acknowledgment; test missing/corrupt/denied authority, read-only retry, repeated reload, old cached v1 writes, IDB faults, full-origin rollback, Safari/VoiceOver. #4/#29/#35 OPEN; never auto-delete or auto-retry ambiguous restore.
+- **DISCOVERY PERIODIC:** #14 updated with official Actual/YNAB card-payment reservation comparison and 1,000/200/800 vs false 600 example. No budget perspectives or formulas before explicit numeric contract; #25/#2 unresolved.
+- **RELEASE:** WEB 18.64 unchanged. WEB 18.65 PR #270 unmerged pending exact authorized Vercel and served-browser gate. No iOS, real financial data, encrypted backup format, backend, accounts, telemetry, bank sync or financial changes.
+
 ## 2026-10-30 — #4/#35 actual Chromium KEY/RESET read denial + post-write acknowledgment MERGED; durable recovery next
 
 - **DONE TEST-ONLY:** [PR #290](https://github.com/nikopol000/financial-autonomy-preview/pull/290), squash `5c510029a107ce3420aea1f42d1d94530ce431bd`. Three new browser cases: denied existing KEY read and denied RESET read both preserve all original encrypted bytes, abort with no success and retain newer transaction after reload. PAYLOAD write succeeds but subsequent KEY readback denial makes UI report failure although older backup committed (**KNOWN AMBIGUOUS**; no automatic replay).
