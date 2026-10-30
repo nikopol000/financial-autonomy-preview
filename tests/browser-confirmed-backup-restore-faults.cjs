@@ -78,6 +78,24 @@ async function prepare(page,url,backup){
   assert.deepEqual(await bytes(page),{key:null,payload:null,reset:null},
     'Preview must not write the empty target')
 }
+async function prepareExisting(page,url,backup,liveState){
+  await openReal(page,url);
+  await page.evaluate(async state=>{
+    await window.__r(309).load();
+    await window.__r(309).save(state);
+  },liveState);
+  const original=await bytes(page);
+  assert.match(original.key,/^[0-9a-f]{64}$/);
+  assert.ok(original.payload?.length>50);
+  await toolsScreen(page);
+  await page.locator('input[type="password"]').first().fill(PASSWORD);
+  await selectBackup(page,backup);
+  await page.getByText(/Backup valid: 1 conturi și 1 operațiuni/)
+    .waitFor({state:'visible',timeout:60000});
+  assert.deepEqual(await bytes(page),original,
+    'Preview of older backup must not mutate the newer live vault');
+  return original
+}
 async function arm(page,mode){
   await page.evaluate(({key,payload,mode})=>{
     const original=Storage.prototype.setItem;
@@ -183,6 +201,63 @@ async function run(){
     assert.deepEqual(await bytes(page),persisted);
     await committedContext.close();
     console.log('PASS Chromium actual backup UI: PAYLOAD write-then-throw reports failure but encrypted ledger is recoverable after reload');
+    // P1 regression characterization: a confirmed restore into a NONEMPTY
+    // encrypted vault is more dangerous than the empty-target case above.
+    // This is deliberately KNOWN UNSAFE evidence, not a product fix.
+    const liveState={...fixture,transactions:[
+      ...fixture.transactions,
+      {...fixture.transactions[0],id:'newer-live-only',
+        name:'Tranzacție sintetică mai recentă',amount:975}
+    ]};
+    const existingKeyContext=await browser.newContext({viewport:{width:390,height:844},
+      isMobile:true,hasTouch:true,colorScheme:'light'});
+    page=await existingKeyContext.newPage();
+    const beforeKey=await prepareExisting(page,url,backup,liveState);
+    await arm(page,'deny-key');
+    await confirmFault(page);
+    assert.deepEqual(await bytes(page),beforeKey,
+      'Denied KEY write must not damage an existing authenticated vault');
+    await openReal(page,url);
+    const stillLive=await page.evaluate(async()=>window.__r(309).load());
+    assert.equal(stillLive.transactions.length,2);
+    assert.ok(stillLive.transactions.some(t=>t.id==='newer-live-only'));
+    assert.deepEqual(await bytes(page),beforeKey);
+    await existingKeyContext.close();
+    console.log('PASS Chromium actual backup UI: existing live vault survives denied restore KEY write and reload');
+
+    const existingPayloadContext=await browser.newContext({viewport:{width:390,height:844},
+      isMobile:true,hasTouch:true,colorScheme:'dark'});
+    page=await existingPayloadContext.newPage();
+    const beforePayload=await prepareExisting(page,url,backup,liveState);
+    await arm(page,'deny-payload');
+    await confirmFault(page);
+    const mismatched=await bytes(page);
+    assert.notEqual(mismatched.key,beforePayload.key,
+      'Restore has overwritten the original AES key before payload denial');
+    assert.equal(mismatched.payload,beforePayload.payload,
+      'Old encrypted ledger bytes survive but are no longer decryptable with new key');
+    assert.equal(mismatched.reset,beforePayload.reset);
+    const unreadable=await page.evaluate(()=>{
+      try{window.__r(310).loadWebVault(localStorage);return false}
+      catch{return true}
+    });
+    assert.equal(unreadable,true,'The original encrypted ledger must now fail authentication');
+    await openReal(page,url);
+    await page.getByText('Datele locale nu pot fi deschise',{exact:true})
+      .waitFor({state:'visible',timeout:15000});
+    assert.deepEqual(await bytes(page),mismatched,
+      'Reload must not silently delete the original ciphertext or overwrite the key');
+    // Test-only proof: the old key, if independently preserved, still
+    // authenticates the old payload. NEVER auto-restore it in production.
+    await page.evaluate(([keyName,oldKey])=>
+      localStorage.setItem(keyName,oldKey),[KEY,beforePayload.key]);
+    await openReal(page,url);
+    const recoveredLive=await page.evaluate(async()=>window.__r(309).load());
+    assert.equal(recoveredLive.transactions.length,2);
+    assert.ok(recoveredLive.transactions.some(t=>t.id==='newer-live-only'));
+    await existingPayloadContext.close();
+    console.log('PASS KNOWN UNSAFE Chromium actual backup UI: denied restore PAYLOAD write over existing vault overwrites KEY, strands old ciphertext, blocks reload; original key permits synthetic recovery');
+
   }catch(err){
     if(page)try{console.error('Browser excerpt:',(await page.locator('body').innerText()).slice(0,1200))}
     catch{}
