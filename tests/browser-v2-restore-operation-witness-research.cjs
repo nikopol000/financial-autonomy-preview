@@ -342,6 +342,100 @@ async function testArchivedWriterQuarantine(browser,url){
   }
 }
 
+
+async function testArchivedResetAfterMigration(browser,url){
+  // Execute real archived v1 resetData() after experimental v2 cutover.
+  // This is a destructive operation ONLY against disposable synthetic origins.
+  for(const version of ['18.27','18.33','18.34']){
+    const defs=extractArchived(fs.readFileSync(archivedPaths[version],'utf8'));
+    for(const mode of ['complete','deny-second-remove']){
+      const ctx=await browser.newContext();
+      try{
+        const old=await ctx.newPage(),modern=await ctx.newPage();
+        await Promise.all([old.goto(url+'?fa_real=1'),modern.goto(url)]);
+        await installArchived(old,defs);await install(modern);
+        const fixture={version:4,accounts:[],balanceChecks:[],transactions:[{
+          id:'synthetic-reset-before-'+version,kind:'expense',amount:25,
+          date:'2026-10-30',accountId:'synthetic'
+        }]};
+        await old.evaluate(()=>window.__archivedVault.load());
+        await old.evaluate(s=>window.__archivedVault.save(s),fixture);
+        await modern.waitForFunction(()=>localStorage.getItem(
+          'financial-autonomy.preview.payload.v1')!==null,null,{timeout:10000});
+        const baseline=await modern.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint());
+        assert.ok(baseline.key&&baseline.payload);
+        const expected=await old.evaluate(()=>window.__archivedVault.load());
+        const opId='op-archived-reset-'+version.replace('.','')+'-'+mode;
+        assert.equal((await modern.evaluate(opId=>
+          window.__restoreOperationResearch.migrateLegacyForTest({opId}),opId)).ok,true);
+        const authority=await modern.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),opId);
+        assert.equal(await modern.evaluate(({opId,baseline,expected})=>
+          window.__restoreOperationResearch.inspectLegacyConflictForTest({
+            opId,baseline,expected,resetBaseline:null
+          }),{opId,baseline,expected}),'legacy_matches_snapshot');
+        // Real archived clearWebVault removes PAYLOAD first and KEY second.
+        // Deny the second removeItem to reproduce the P1 orphan-key risk.
+        const outcome=await old.evaluate(async mode=>{
+          if(mode==='complete'){
+            await window.__archivedVault.resetData();
+            return 'completed';
+          }
+          const original=Storage.prototype.removeItem;
+          Storage.prototype.removeItem=function(key){
+            if(key==='financial-autonomy.preview.key.v1')
+              throw new DOMException('Synthetic second-remove denial','SecurityError');
+            return original.call(this,key);
+          };
+          try{
+            await window.__archivedVault.resetData();
+            return 'unexpected-success';
+          }catch(e){return String(e.message)}
+          finally{Storage.prototype.removeItem=original}
+        },mode);
+        if(mode==='complete')assert.equal(outcome,'completed');
+        else assert.match(outcome,/Synthetic second-remove denial/);
+        const after=await old.evaluate(()=>({
+          key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+          payload:localStorage.getItem('financial-autonomy.preview.payload.v1'),
+          reset:localStorage.getItem('financial-autonomy.preview.reset.v1')
+        }));
+        assert.equal(after.payload,null,'archived reset removes v1 PAYLOAD first');
+        assert.equal(after.key,mode==='complete'?null:baseline.key,
+          'second-remove failure must retain orphan KEY, not invent recovery');
+        assert.equal(after.reset,null,
+          'archived v1 reset has no authenticated reset epoch');
+        await modern.waitForFunction(after=>
+          localStorage.getItem('financial-autonomy.preview.key.v1')===after.key&&
+          localStorage.getItem('financial-autonomy.preview.payload.v1')===after.payload,
+          after,{timeout:10000});
+        await modern.reload();await install(modern);
+        assert.equal(await modern.evaluate(({opId,baseline,expected})=>
+          window.__restoreOperationResearch.inspectLegacyConflictForTest({
+            opId,baseline,expected,resetBaseline:null
+          }),{opId,baseline,expected}),'unknown',
+          'archived reset must quarantine v1/v2 instead of promoting IDB silently');
+        assert.equal(await modern.evaluate(({opId,expected})=>
+          window.__restoreOperationResearch.ack({
+            before:null,opId,expected
+          }),{opId,expected}),'verified_committed_operation',
+          'v2 witness still authenticates itself, NOT legacy reset intent');
+        assert.deepEqual(await modern.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),opId),authority,
+          'archived reset must not mutate the experimental v2 witness');
+        assert.deepEqual(await modern.evaluate(()=>({
+          key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+          payload:localStorage.getItem('financial-autonomy.preview.payload.v1'),
+          reset:localStorage.getItem('financial-autonomy.preview.reset.v1')
+        })),after,'read-only quarantine must not modify archived reset footprint');
+        console.log('PASS actual archived '+version+' reset '+mode+
+          ': v1 evidence classified unknown, v2 witness unchanged; no automatic resurrection');
+      }finally{await ctx.close()}
+    }
+  }
+}
+
 async function main(){
   const server=http.createServer((_req,res)=>{res.writeHead(200,{'Content-Type':'text/html'});
     res.end('<!doctype html><title>synthetic restore operation witness</title>')});
@@ -527,6 +621,7 @@ async function main(){
     console.log('PASS research v1 AES-GCM envelope migrates into IDB witness without deleting legacy bytes; KNOWN UNSAFE late v1 writer remains possible');
     console.log('PASS research read-only v1/v2 conflict quarantine: authenticated divergence, corruption, rollback limitation and missing witness');
     await testArchivedWriterQuarantine(browser,url);
+    await testArchivedResetAfterMigration(browser,url);
     // Research-only denial: browser API access may throw SecurityError. A
     // failed IDB preflight must NOT silently import v1 as authoritative.
     await isolated(async p=>{
