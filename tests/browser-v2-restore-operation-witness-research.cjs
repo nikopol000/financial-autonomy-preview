@@ -557,6 +557,99 @@ async function testArchivedPostResetCachedWriter(browser,url){
   }
 }
 
+
+async function testArchivedWriterAtPendingResetBoundary(browser,url){
+  // #4/#29/#35 CHARACTERIZATION ONLY: archived WEB v1 clients do not know
+  // about the synthetic IDB reset epoch. Two deterministic orderings bound
+  // the pending window; no production reset, migration or user data.
+  for(const version of ['18.27','18.33','18.34']){
+    const defs=extractArchived(fs.readFileSync(archivedPaths[version],'utf8'));
+    for(const order of ['legacy-before-pending','legacy-after-pending']){
+      const ctx=await browser.newContext();
+      try{
+        const old=await ctx.newPage(),modern=await ctx.newPage();
+        await Promise.all([old.goto(url+'?fa_real=1'),modern.goto(url)]);
+        await installArchived(old,defs);await install(modern);
+        const initial={version:4,accounts:[],balanceChecks:[],transactions:[{
+          id:'synthetic-pending-baseline-'+version,kind:'expense',amount:25,
+          date:'2026-10-30',accountId:'synthetic'
+        }]};
+        await old.evaluate(()=>window.__archivedVault.load());
+        await old.evaluate(state=>window.__archivedVault.save(state),initial);
+        const cached=await old.evaluate(()=>window.__archivedVault.load());
+        const original=await old.evaluate(()=>({
+          key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+          payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+        }));
+        assert.ok(original.key&&original.payload);
+        await modern.waitForFunction(payload=>localStorage.getItem(
+          'financial-autonomy.preview.payload.v1')===payload,original.payload,{timeout:10000});
+        const migrateOp='op-pending-legacy-base-'+version.replace('.','')+'-'+order;
+        assert.equal((await modern.evaluate(opId=>
+          window.__restoreOperationResearch.migrateLegacyForTest({opId}),migrateOp)).ok,true);
+        const before=await modern.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),migrateOp);
+        assert.equal(before.current.revision,1);
+        const intent={...cached,resetIntent:{schema:1,phase:'pending',
+          epoch:'synthetic-legacy-boundary-'+version+'-'+order,sourceRevision:1}};
+        const resetOp='op-pending-legacy-reset-'+version.replace('.','')+'-'+order;
+        const next={...cached,transactions:[...cached.transactions,{
+          id:'synthetic-legacy-during-pending-'+version+'-'+order,
+          kind:'expense',amount:50,date:'2026-10-30',accountId:'synthetic'
+        }]};
+        async function legacySave(){
+          const attempt=await old.evaluate(async state=>{
+            try{await window.__archivedVault.save(state);return {ok:true}}
+            catch(e){return {ok:false,message:String(e.message)}}
+          },next);
+          assert.equal(attempt.ok,true,'archived cached writer must actually save v1');
+          const late=await old.evaluate(()=>({
+            key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+            payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+          }));
+          assert.notEqual(late.payload,original.payload,'v1 ciphertext must change');
+          const decoded=await old.evaluate(()=>window.__archivedVault.load());
+          assert.ok(decoded.transactions.some(t=>t.id===
+            'synthetic-legacy-during-pending-'+version+'-'+order));
+          await modern.waitForFunction(payload=>localStorage.getItem(
+            'financial-autonomy.preview.payload.v1')===payload,late.payload,{timeout:10000});
+          return late;
+        }
+        if(order==='legacy-before-pending')await legacySave();
+        const pending=await modern.evaluate(({opId,state})=>
+          window.__restoreOperationResearch.commit({
+            opId,state,expectedRevision:1,expectedEpoch:null
+          }),{opId:resetOp,state:intent});
+        assert.equal(pending.ok,true,'synthetic pending reset records only v2 intent');
+        const v2Pending=await modern.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),resetOp);
+        assert.equal(v2Pending.current.revision,2);
+        if(order==='legacy-after-pending')await legacySave();
+        const lateFootprint=await modern.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint());
+        await modern.reload();await install(modern);
+        assert.equal(await modern.evaluate(({opId,state})=>
+          window.__restoreOperationResearch.ack({before:null,opId,expected:state}),
+          {opId:resetOp,state:intent}),'verified_committed_operation');
+        assert.equal(await modern.evaluate(({opId,baseline,expected})=>
+          window.__restoreOperationResearch.inspectLegacyConflictForTest({
+            opId,baseline,expected,resetBaseline:null
+          }),{opId:resetOp,baseline:original,expected:intent}),
+        'authenticated_legacy_divergence',
+        'pending v2 witness does not fence cached v1 or authorize resurrection');
+        assert.deepEqual(await modern.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint()),lateFootprint,
+        'read-only quarantine must not rewrite v1');
+        assert.deepEqual(await modern.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),resetOp),v2Pending,
+        'read-only quarantine must not rewrite v2 authority or witness');
+        console.log('PASS KNOWN UNSAFE actual archived '+version+' '+order+
+          ': cached v1 save succeeds across pending v2 reset, divergence quarantined without writes');
+      }finally{await ctx.close()}
+    }
+  }
+}
+
 async function main(){
   const server=http.createServer((_req,res)=>{res.writeHead(200,{'Content-Type':'text/html'});
     res.end('<!doctype html><title>synthetic restore operation witness</title>')});
@@ -744,6 +837,7 @@ async function main(){
     await testArchivedWriterQuarantine(browser,url);
     await testArchivedResetAfterMigration(browser,url);
     await testArchivedPostResetCachedWriter(browser,url);
+    await testArchivedWriterAtPendingResetBoundary(browser,url);
     // Candidate encrypted reset-intent boundary, NOT a production reset.
     // Stage an authenticated pending intent in v2 only; preserve all legacy
     // ciphertext. This does not prove the user confirmed deletion, prevent
