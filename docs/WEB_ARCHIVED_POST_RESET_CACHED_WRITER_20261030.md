@@ -28,3 +28,10 @@ The six cases must record whether the **actual archived save** succeeded or fail
 - Keep #14/#25/#2 in financial DISCOVERY pending explicit numeric approval.
 
 References: [previous archived reset matrix](WEB_ARCHIVED_RESET_AFTER_IDB_GATE_20261030.md), [MDN IndexedDB transactions](https://developer.mozilla.org/en-US/docs/Web/API/IDBDatabase/transaction), [MDN storage eviction](https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria).
+
+## Verified Chromium result — PR #316
+
+- Exact PR head `7403300d3c9cc8ab01e1440a7c164199d7c612f3`: [Release CI #41076535294](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41076535294) **SUCCESS**, [Chromium CI #41076535289](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41076535289) **SUCCESS**. Inspected Chromium job `124134125001`: six individually named PASS lines at 15:00:58–15:00:59 UTC. Merged product-identical test commit: `9955b03fe0e6d0a82899cf83b2d76f8eade2e69a`. Merged-main CI and Pages must be verified separately.
+- **Complete reset:** all three archived versions **successfully re-created** authenticated v1 KEY/PAYLOAD using the cached pre-reset ledger plus a synthetic expense. Read-only v1/v2 classifier returned `authenticated_legacy_divergence`; v2 authority/witness unchanged. This is a **KNOWN UNSAFE legacy resurrection**, not a product recovery success.
+- **Interrupted reset (PAYLOAD removed, KEY removal denied):** WEB **18.27 succeeded** in re-creating authenticated v1 PAYLOAD; WEB **18.33 and 18.34 blocked** the cached save, leaving the incomplete v1 footprint and classifier `unknown`. All three preserved experimental IDB authority/witness. The different archived behavior is real code behavior in injected-fault Chromium, **not** evidence of a real browser quota/security incident.
+- The research classifier performed zero v1/IDB writes, and its `ack` authenticated only the pre-reset IDB operation. Do **not** auto-select either ledger or claim that IDB represents the latest or intended state.
