@@ -808,6 +808,123 @@ async function testArchivedResetFinalizationBoundary(browser,url){
   }
 }
 
+
+async function testArchivedResetReloadGap(browser,url){
+  // #4/#29/#35: tab-close/reopen characterization only, NOT an OS/browser
+  // crash or a production reset. All records are disposable synthetic data.
+  // v1 localStorage retirement and v2 IDB completion cannot share a transaction.
+  for(const version of ['18.27','18.33','18.34']){
+    const defs=extractArchived(fs.readFileSync(archivedPaths[version],'utf8'));
+    for(const mode of ['complete-delete-then-reload','partial-key-denial-late-save']){
+      const ctx=await browser.newContext();
+      try{
+        const old=await ctx.newPage(),modern=await ctx.newPage();
+        await Promise.all([old.goto(url+'?fa_real=1'),modern.goto(url)]);
+        await installArchived(old,defs);await install(modern);
+        const baselineState={version:4,accounts:[],balanceChecks:[],transactions:[{
+          id:'synthetic-reload-'+version,kind:'expense',amount:25,
+          date:'2026-10-30',accountId:'synthetic'
+        }]};
+        await old.evaluate(()=>window.__archivedVault.load());
+        await old.evaluate(state=>window.__archivedVault.save(state),baselineState);
+        const cached=await old.evaluate(()=>window.__archivedVault.load());
+        const beforeLegacy=await old.evaluate(()=>({
+          key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+          payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+        }));
+        assert.ok(beforeLegacy.key&&beforeLegacy.payload);
+        const tag=version.replace('.','')+'-'+mode;
+        const baseOp='op-gap-base-'+tag;
+        assert.equal((await modern.evaluate(opId=>
+          window.__restoreOperationResearch.migrateLegacyForTest({opId}),baseOp)).ok,true);
+        const epoch='synthetic-gap-epoch-'+tag;
+        const pending={...cached,resetIntent:{
+          schema:1,phase:'pending',epoch,sourceRevision:1
+        }};
+        const pendingOp='op-gap-pending-'+tag,completeOp='op-gap-complete-'+tag;
+        assert.equal((await modern.evaluate(({opId,state})=>
+          window.__restoreOperationResearch.commit({
+            opId,state,expectedRevision:1,expectedEpoch:null
+          }),{opId:pendingOp,state:pending})).ok,true);
+        const witness=await modern.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),pendingOp);
+        assert.equal(witness.current.revision,2);
+        const reset=await old.evaluate(async mode=>{
+          const original=Storage.prototype.removeItem;
+          if(mode==='partial-key-denial-late-save'){
+            Storage.prototype.removeItem=function(key){
+              if(key==='financial-autonomy.preview.key.v1')
+                throw new DOMException('Synthetic interrupted reset','SecurityError');
+              return original.call(this,key);
+            };
+          }
+          try{await window.__archivedVault.resetData();return {ok:true}}
+          catch(e){return {ok:false,message:String(e.message)}}
+          finally{Storage.prototype.removeItem=original}
+        },mode);
+        assert.equal(reset.ok,mode==='complete-delete-then-reload');
+        if(!reset.ok)assert.match(reset.message,/Synthetic interrupted reset/);
+        const retired=await old.evaluate(()=>({
+          key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+          payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+        }));
+        assert.equal(retired.payload,null);
+        assert.equal(retired.key,mode==='complete-delete-then-reload'?null:beforeLegacy.key);
+        if(mode==='partial-key-denial-late-save'){
+          const late={...cached,transactions:[...cached.transactions,{
+            id:'synthetic-gap-late-'+version,kind:'expense',amount:50,
+            date:'2026-10-30',accountId:'synthetic'
+          }]};
+          const save=await old.evaluate(async state=>{
+            try{await window.__archivedVault.save(state);return {ok:true}}
+            catch(e){return {ok:false,message:String(e.message)}}
+          },late);
+          assert.equal(save.ok,version==='18.27',
+            'archived partial-reset late writer characterization changed');
+          if(save.ok){
+            const decoded=await old.evaluate(()=>window.__archivedVault.load());
+            assert.ok(decoded.transactions.some(t=>t.id==='synthetic-gap-late-'+version));
+          }
+        }
+        const afterLegacy=await modern.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint());
+        // Close BOTH tabs, then open a fresh tab in the same isolated origin.
+        // This models a reload gap, not a killed browser process.
+        await old.close();await modern.close();
+        const reopened=await ctx.newPage();
+        await reopened.goto(url);await install(reopened);
+        assert.deepEqual(await reopened.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),pendingOp),witness,
+          'pending witness must survive tab close/reopen');
+        assert.equal(await reopened.evaluate(({opId,state})=>
+          window.__restoreOperationResearch.ack({
+            before:null,opId,expected:state
+          }),{opId:pendingOp,state:pending}),'verified_committed_operation');
+        assert.equal(await reopened.evaluate(({opId,state})=>
+          window.__restoreOperationResearch.ack({
+            before:null,opId,expected:state
+          }),{opId:completeOp,state:{...pending,resetIntent:{
+            ...pending.resetIntent,phase:'committed'
+          }}}),'unknown','pending is not completed deletion');
+        const status=await reopened.evaluate(({opId,baseline,expected})=>
+          window.__restoreOperationResearch.inspectLegacyConflictForTest({
+            opId,baseline,expected,resetBaseline:null
+          }),{opId:pendingOp,baseline:beforeLegacy,expected:pending});
+        assert.notEqual(status,'legacy_matches_snapshot',
+          'partial or completed legacy reset cannot be mistaken for original snapshot');
+        assert.deepEqual(await reopened.evaluate(()=>
+          window.__restoreOperationResearch.legacyFootprint()),afterLegacy,
+          'inspection must not repair or erase legacy evidence');
+        assert.deepEqual(await reopened.evaluate(opId=>
+          window.__restoreOperationResearch.read(opId),pendingOp),witness,
+          'inspection must not mutate IDB authority or witness');
+        console.log('PASS CHARACTERIZATION archived '+version+' '+mode+
+          ': tab close/reopen preserves pending, no false completion or auto-repair');
+      }finally{await ctx.close()}
+    }
+  }
+}
+
 async function main(){
   const server=http.createServer((_req,res)=>{res.writeHead(200,{'Content-Type':'text/html'});
     res.end('<!doctype html><title>synthetic restore operation witness</title>')});
@@ -997,6 +1114,7 @@ async function main(){
     await testArchivedPostResetCachedWriter(browser,url);
     await testArchivedWriterAtPendingResetBoundary(browser,url);
     await testArchivedResetFinalizationBoundary(browser,url);
+    await testArchivedResetReloadGap(browser,url);
     // Candidate encrypted reset-intent boundary, NOT a production reset.
     // Stage an authenticated pending intent in v2 only; preserve all legacy
     // ciphertext. This does not prove the user confirmed deletion, prevent
