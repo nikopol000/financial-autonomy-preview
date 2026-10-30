@@ -4,7 +4,7 @@ Status: **research only**, synthetic origin, no product migration or recovery im
 
 ## Why this test
 
-Previous archived WEB 18.27/18.33/18.34 tests characterized stale cached writers, IndexedDB completion failures, and close/reopen. Closing a tab is not a renderer crash. The new test sends Chromium CDP `Page.crash` to terminate the page renderer after a synthetic reset boundary, opens a new page on the **same disposable browser context**, and performs only read-only inspections. This is **not** a whole-browser kill, browser storage eviction, operating-system crash, durable disk flush or Safari result.
+Previous archived WEB 18.27/18.33/18.34 tests characterized stale cached writers, IndexedDB completion failures, and close/reopen. Closing a tab is not a renderer crash. The new test navigates to Chromium's internal `chrome://crash` URL and requires a real Playwright `crash` event to terminate the page renderer after a synthetic reset boundary, opens a new page on the **same disposable browser context**, and performs only read-only inspections. The initial CDP `Page.crash` attempt failed to emit a crash event (Chromium CI #41136133920, timed out), so the candidate was corrected and must be reverified. This is **not** a whole-browser kill, browser storage eviction, operating-system crash, durable disk flush or Safari result.
 
 ## Scenarios / assertions
 
