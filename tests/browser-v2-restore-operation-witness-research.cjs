@@ -1121,16 +1121,27 @@ async function testArchivedCachedWriterAfterCompletedReset(browser,url){
         try{await window.__archivedVault.save(state);return {ok:true}}
         catch(e){return {ok:false,message:String(e.message)}}
       },late);
-      assert.equal(save.ok,true,
-        'archived cached v1 tab can resurrect deleted data after v2 completion');
-      const resurrected=await writer.evaluate(()=>window.__archivedVault.load());
-      assert.ok(resurrected.transactions.some(t=>
-        t.id==='synthetic-after-completed-reset-'+tag));
-      const v1After=await modern.evaluate(()=>
+      // WEB 18.34 has a stale-tab guard and blocks this concurrent reset
+      // race. WEB 18.27/18.33 still resurrect authenticated v1 ciphertext.
+      const expectedResurrection=version!=='18.34';
+      assert.equal(save.ok,expectedResurrection,
+        'archived reset race changed: characterize each actual version');
+      if(expectedResurrection){
+        const resurrected=await writer.evaluate(()=>window.__archivedVault.load());
+        assert.ok(resurrected.transactions.some(t=>
+          t.id==='synthetic-after-completed-reset-'+tag));
+      }else{
+        assert.match(save.message,/modificate|altă filă|blocată|Reîncarcă/,
+          '18.34 should reject stale writes rather than fail for unrelated reasons');
+      }
+      const v1After=await modern.evaluate(() =>
         window.__restoreOperationResearch.legacyFootprint());
-      assert.ok(v1After.key&&v1After.payload);
-      assert.notEqual(v1After.payload,baseline.payload);
-      const resetBaseline=await modern.evaluate(()=>
+      if(expectedResurrection){
+        assert.ok(v1After.key&&v1After.payload);
+        assert.notEqual(v1After.payload,baseline.payload);
+      }else assert.deepEqual(v1After,{key:null,payload:null},
+        '18.34 blocked save must not recreate the deleted v1 pair');
+      const resetBaseline=await modern.evaluate(() =>
         window.__restoreOperationResearch.resetFootprint());
       await writer.close();await resetter.close();await modern.close();
       const reopened=await ctx.newPage();
@@ -1146,14 +1157,16 @@ async function testArchivedCachedWriterAfterCompletedReset(browser,url){
         window.__restoreOperationResearch.inspectLegacyConflictForTest({
           opId,baseline,expected,resetBaseline
         }),{opId:completeOp,baseline,expected:completed,resetBaseline}),
-        'authenticated_legacy_divergence',
-        'read-only classifier must not treat resurrected v1 as completed global reset');
+        expectedResurrection?'authenticated_legacy_divergence':'unknown',
+        'read-only classifier must not infer completed global reset from v2 witness');
       assert.deepEqual(await reopened.evaluate(()=>
         window.__restoreOperationResearch.legacyFootprint()),v1After);
       assert.deepEqual(await reopened.evaluate(opId=>
         window.__restoreOperationResearch.read(opId),completeOp),v2Before);
       console.log('PASS CHARACTERIZATION archived '+version+
-        ' cached v1 writer AFTER v2 completed reset: resurrected v1 detected after reopen, no auto-repair');
+        ' cached v1 writer AFTER v2 completed reset: '+
+        (expectedResurrection?'v1 resurrected':'stale write blocked')+
+        ', v2 witness preserved after reopen, no auto-repair');
     }finally{await ctx.close()}
   }
 }
