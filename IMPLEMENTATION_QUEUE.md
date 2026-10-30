@@ -1,3 +1,10 @@
+## 2026-10-30 — merged-main Chromium reset observation flake diagnosed/fixed; actual v1→IDB migration P1 NEXT
+
+- **DONE TEST ONLY:** merged-main Chromium [#41024101575](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41024101575) failed at existing `browser-v2-locks-research.cjs:547` after B's synthetic foreign-epoch reset: A's immediate cross-renderer localStorage read still returned previous ciphertext. [PR #302](https://github.com/nikopol000/financial-autonomy-preview/pull/302) squash `b22de1792b4b53ecaa827ccdf10a684e23d2d661` adds bounded synchronization on **both** epoch and ciphertext absence before retaining the original assertion. No product change.
+- **EXACT TESTED HEAD:** `e8ec19a8b27c84de197b0a5c56b8c244dce41434`; [Release #41024391139](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41024391139) and [Chromium #41024391534](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41024391534) SUCCESS. Job `123958940755` includes named foreign UUID and two-tab IDB race PASS. Final merged/checkpoint gates independent.
+- **NEXT:** actual encrypted v1 portable-backup roundtrip/migration to IDB; KEY-only/denied/corrupt source, crash/abort/reload, cached v1 late writes, origin rollback, IDB denial, Safari. #4/#29/#35 OPEN; do not deploy test-only adapter. #14/#25/#2 numeric semantics DISCOVERY ONLY.
+- **RELEASE:** WEB 18.64 unchanged, PR #270 WEB 18.65 unmerged. No iOS or financial/backup/data changes; Vercel exact HEAD and public Safari unverified.
+
 ## 2026-10-30 — #4/#29/#35 concurrent IDB operation-witness race Chromium MERGED; actual migration FIRST UNFINISHED
 
 - **DONE RESEARCH/TEST ONLY:** [PR #300](https://github.com/nikopol000/financial-autonomy-preview/pull/300) squash `c1f9f5369a8fcd7fdb63dd8b90248dfce27245db`; two new synthetic two-tab race cases, same revision/different IDs and same ID/different states. Exactly one IDB authority+witness commit succeeds, losing state cannot authenticate; missing witness is unknown/no repair. [Research contract](docs/WEB_IDB_WITNESS_CONCURRENT_WRITERS_20261030.md). No production code.
