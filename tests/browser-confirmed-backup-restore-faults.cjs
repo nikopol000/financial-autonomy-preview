@@ -175,6 +175,8 @@ async function run(){
       window.__r(311).backup(state,password,n=>crypto.getRandomValues(new Uint8Array(n))),
       {state:fixture,password:PASSWORD});
     const backup=Buffer.from(backupText,'utf8');
+    const expectedBackupState=await page.evaluate(async ({text,password})=>
+      window.__r(311).restore(text,password),{text:backupText,password:PASSWORD});
     assert.ok(!backupText.includes('restore-fault-expense'),
       'Portable backup must not contain plaintext financial IDs');
     await context.close();
@@ -210,7 +212,7 @@ async function run(){
     await arm(page,'deny-payload');
     await confirmFault(page);
     const orphan=await bytes(page);
-    const orphanAck=await observeAck(page,{key:null,payload:null,reset:null},fixture);
+    const orphanAck=await observeAck(page,{key:null,payload:null,reset:null},expectedBackupState);
     assert.equal(orphanAck.status,'unknown','KEY-only must never be accepted as a restored vault');
     console.log('PASS Chromium read-only acknowledgment: empty-target PAYLOAD denial leaves KEY-only classified unknown, zero writes');
     assert.match(orphan.key,/^[0-9a-f]{64}$/);
@@ -296,7 +298,7 @@ async function run(){
     assert.equal(beforeAck.status,'verified_unchanged');
     await arm(page,'deny-payload');
     await confirmFault(page);
-    const deniedAck=await observeAck(page,beforeDenied,fixture);
+    const deniedAck=await observeAck(page,beforeDenied,expectedBackupState);
     assert.equal(deniedAck.status,'verified_unchanged');
     console.log('PASS Chromium read-only acknowledgment: denied existing PAYLOAD write remains byte-identical, zero writes');
     assert.deepEqual(await bytes(page),beforeDenied,
@@ -320,7 +322,18 @@ async function run(){
     await arm(page,'write-then-throw');
     await confirmFault(page);
     const afterCommitted=await bytes(page);
-    const committedAck=await observeAck(page,beforeCommitted,fixture);
+    const committedAck=await observeAck(page,beforeCommitted,expectedBackupState);
+    if(committedAck.status!=='verified_target_present'){
+      const diagnosis=await page.evaluate(expected=>{
+        try{
+          const actual=window.__r(310).loadWebVault(localStorage);
+          return {actualKeys:Object.keys(actual),expectedKeys:Object.keys(expected),
+            sameJson:JSON.stringify(actual)===JSON.stringify(expected),
+            transactionCount:actual.transactions?.length};
+        }catch(error){return {errorName:error.name,errorMessage:error.message}}
+      },expectedBackupState);
+      console.log('ACK TEST DIAGNOSIS (synthetic only):',committedAck,diagnosis);
+    }
     assert.equal(committedAck.status,'verified_target_present',
       'Authenticated older target is present; this does NOT prove the attempt committed');
     console.log('PASS Chromium read-only acknowledgment: write-then-throw older target authenticated, not falsely labeled committed');
@@ -450,7 +463,7 @@ async function run(){
       'Committed-but-unverified restore must not display success');
     await page.evaluate(()=>window.__faDisarmReadback());
     const afterReadback=await bytes(page);
-    const readbackAck=await observeAck(page,beforeReadback,fixture);
+    const readbackAck=await observeAck(page,beforeReadback,expectedBackupState);
     assert.equal(readbackAck.status,'verified_target_present',
       'Post-write read denial is ambiguous even when target authenticates');
     console.log('PASS Chromium read-only acknowledgment: post-write KEY read denial yields authenticated target, no automatic retry');
