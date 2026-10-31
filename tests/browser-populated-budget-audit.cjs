@@ -410,6 +410,44 @@ async function audit(browser,url,width,scheme){
     const narrowRows=new Set(navNarrow.tabs.map(t=>Math.round(t.hitTarget.y))).size;
     assert.ok(narrowRows>=2,'Extremely narrow navigation must wrap into at least two rows');
     await page.screenshot({path:path.join(OUT,'populated-budget-'+label+'-half-width.png'),fullPage:true});
+    // #85: unlike root CSS zoom, browser zoom reduces BOTH effective layout
+    // width and height. Inspect a 50% x 50% viewport without touching the DOM,
+    // storage or formulas. Diagnostic only: do not convert known occlusion to PASS.
+    const halfHeight=Math.floor(844/2);
+    await page.setViewportSize({width:Math.floor(width/2),height:halfHeight});
+    await page.waitForTimeout(150);
+    const halfBoth=await zoomFooterGeometry(page,'half-width-half-height');
+    const halfBothShell=await page.evaluate(()=>{
+      const box=el=>{
+        if(!el)return null;
+        const r=el.getBoundingClientRect();
+        return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,
+          width:r.width,height:r.height};
+      };
+      const tabs=[...document.querySelectorAll('[role="tab"]')];
+      const root=document.getElementById('root');
+      const demoText=[...document.querySelectorAll('*')].find(el=>
+        el.children.length===0&&el.textContent?.trim()==='DEMO · DATE FICTIVE');
+      const exit=[...document.querySelectorAll('button,[role="button"]')].find(el=>
+        (el.getAttribute('aria-label')||el.textContent||'').includes('Ieși din demo'));
+      return {viewport:{width:innerWidth,height:innerHeight},
+        root:box(root),body:box(document.body),
+        demoWarning:box(demoText),demoExit:box(exit),
+        tabCount:tabs.length,tabs:tabs.map(el=>({
+          name:el.getAttribute('aria-label')||el.textContent?.trim(),
+          rect:box(el)}))};
+    });
+    assert.equal(halfBothShell.tabCount,5,
+      'Half-width/half-height diagnostic must preserve five DOM navigation tabs');
+    console.log('HALF WIDTH HEIGHT GEOMETRY #85 '+label+' '+JSON.stringify({
+      shell:halfBothShell,scroll:halfBoth.afterAutoScroll,
+      manual:halfBoth.afterManualScrollToEnd,
+      nav:halfBoth.navAncestors.slice(0,6)}));
+    await page.screenshot({path:path.join(OUT,'populated-budget-'+label+'-half-width-half-height.png'),fullPage:true});
+    // Restore the previously verified half-width layout for strict navigation
+    // operability checks; reduced-height geometry is research, not certification.
+    await page.setViewportSize({width:Math.floor(width/2),height:844});
+    await page.waitForTimeout(100);
     for(const name of ['Acasă','Finanțe','Adaugă','Istoric','Mai mult']){
       const tab=page.getByRole('tab',{name,exact:true});
       await tab.click();
@@ -421,7 +459,7 @@ async function audit(browser,url,width,scheme){
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
       limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
-      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,footerGeometry:footerZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},encryptedVaultUntouched:true};
+      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,footerGeometry:footerZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},halfWidthHalfHeight:{...halfBothShell,scroll:halfBoth},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
       '; zoom200 scrollWidth='+zoom.documentScrollWidth+
       '; nav text overlaps='+navZoom.textOverlapPairs.length+
