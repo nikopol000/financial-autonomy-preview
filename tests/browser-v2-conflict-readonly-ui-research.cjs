@@ -38,6 +38,10 @@ async function install(page){
       if(!names.some(x=>x.name===DB))return null;
       return await new Promise((resolve,reject)=>{
         const req=indexedDB.open(DB);
+        // The DB can disappear after databases() and before open(). Without
+        // aborting version creation, a supposedly read-only inspection would
+        // silently recreate an empty database during that TOCTOU race.
+        req.onupgradeneeded=()=>req.transaction.abort();
         req.onsuccess=()=>resolve(req.result);
         req.onerror=()=>reject(req.error||Error('IDB_OPEN_FAILED'));
       });
@@ -247,6 +251,56 @@ async function main(){
       assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),before);
       console.log('PASS isolated read-only conflict screen: IDB permission denial blocks without writes');
     }finally{await context.close();}
+
+    // A deleted database can race the databases() existence check. A normal
+    // indexedDB.open() would then create a ghost DB as a side effect of a
+    // supposedly read-only inspection. Abort onupgradeneeded, preserve v1.
+    const ghostContext=await browser.newContext({viewport:{width:390,height:844}});
+    try{
+      const page=await ghostContext.newPage();await page.goto(url);await install(page);
+      await page.evaluate(()=>window.__readonlyResearch.seed({scenario:'pending'}));
+      const before=await page.evaluate(async()=>{
+        const names=await indexedDB.databases();
+        const local=['financial-autonomy.preview.key.v1',
+          'financial-autonomy.preview.payload.v1'].map(k=>localStorage.getItem(k));
+        await new Promise((resolve,reject)=>{
+          const req=indexedDB.deleteDatabase('research.atomic.primary');
+          req.onsuccess=resolve;
+          req.onerror=()=>reject(req.error);
+          req.onblocked=()=>reject(Error('SYNTHETIC_DB_DELETE_BLOCKED'));
+        });
+        if((await indexedDB.databases()).some(x=>x.name==='research.atomic.primary'))
+          throw Error('SYNTHETIC_DB_NOT_DELETED');
+        // Stale metadata simulates the race between enumeration and open.
+        indexedDB.databases=()=>Promise.resolve(names);
+        const open=indexedDB.open.bind(indexedDB);
+        window.__ghostUpgradeSeen=false;
+        indexedDB.open=(...args)=>{
+          const request=open(...args);
+          request.addEventListener('upgradeneeded',()=>{window.__ghostUpgradeSeen=true;});
+          return request;
+        };
+        return {local};
+      });
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'STORAGE_UNREADABLE',blocked:true});
+      assert.match(await page.locator('h1').innerText(),/Stocarea locală/);
+      const after=await page.evaluate(async()=>{
+        const upgraded=window.__ghostUpgradeSeen;
+        delete indexedDB.databases;
+        delete indexedDB.open;
+        return {upgraded,
+          names:(await indexedDB.databases()).map(x=>x.name),
+          local:['financial-autonomy.preview.key.v1',
+            'financial-autonomy.preview.payload.v1'].map(k=>localStorage.getItem(k))};
+      });
+      assert.equal(after.upgraded,true,'Must exercise actual missing-DB upgrade path');
+      assert.equal(after.names.includes('research.atomic.primary'),false,
+        'Read-only inspection must not recreate a deleted IDB');
+      assert.deepEqual(after.local,before.local);
+      assert.equal(await page.locator('input').count(),0);
+      console.log('PASS isolated read-only quarantine: stale IDB enumeration cannot recreate deleted database; v1 unchanged');
+    }finally{await ghostContext.close();}
 
     // A quarantined tab must not unlock, repair, or silently pick a ledger
     // when an archived, non-cooperating tab writes after reset intent.
