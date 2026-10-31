@@ -64,6 +64,10 @@ async function installOld(page,modules){
 }
 function serve(req,res){
   const pathname=new URL(req.url,'http://localhost').pathname;
+  if(pathname==='/legacy-test'){
+    res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});
+    res.end('<!doctype html><title>Disposable archived writer</title>');return;
+  }
   const rel=pathname==='/'||pathname===PREFIX?'index.html':
     pathname.startsWith(PREFIX)?pathname.slice(PREFIX.length):'';
   if(!rel||rel.includes('..')){res.writeHead(404);res.end();return}
@@ -97,7 +101,7 @@ async function main(){
     context=await browser.newContext();
     const url='http://127.0.0.1:'+server.address().port+PREFIX+'?fa_real=1';
     const current=await context.newPage(),old=await context.newPage();
-    await Promise.all([openReal(current,url),old.goto(url)]);
+    await Promise.all([openReal(current,url),old.goto(new URL('/legacy-test',url).toString())]);
     await installOld(old,archivedModules());
     assert.equal(await current.evaluate(()=>isSecureContext),true);
     assert.equal(await current.evaluate(()=>typeof navigator.locks?.request),'function');
