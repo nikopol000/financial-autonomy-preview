@@ -1,5 +1,18 @@
 # WEB 18.66 — populated budget under 200% CSS zoom: actual occlusion (31 October 2026)
 
+## Measured scroll-viewport collapse under CSS zoom — follow-up 31 October 2026
+
+[PR #375](https://github.com/nikopol000/financial-autonomy-preview/pull/375), squash `8d8ae2c7a0d431653a251853c8d3df1a7f3a3b28`, added **read-only geometry instrumentation**, not a product fix. [Chromium CI #41246091172](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41246091172) and [Release #41246091251](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41246091251) both SUCCESS. The four named `ZOOM FOOTER GEOMETRY #85` lines report:
+
+| Chromium root CSS zoom 200% | Scrollable Bugete ancestor clientHeight | Navigation surface / overflow | Manual scroll-to-end |
+| --- | ---: | --- | --- |
+| 320 px, light/dark | **0 px** (bounding height 0) | navigation ancestor starts y=748; its content extends to y=1122, below 844px viewport | last budget detail remains outside viewport, moves further upward |
+| 390 px, light/dark | **7 px** (bounding height about 14 px) | navigation ancestor starts y=584; scroll ancestor top/bottom about 570/584 | last detail remains outside viewport, moves further upward |
+
+This materially changes the hypothesis: **not just a fixed footer overlay**. Under the artificial root CSS zoom, the nested flex/ScrollView viewport collapses almost to zero, so adding bottom padding or focus margin alone cannot guarantee access. Navigation ancestors are measured as `position:relative` (not a verified fixed overlay). The previously logged 4/4/3/3 occluded targets are still KNOWN UX LIMIT, and normal/half-width assertions remain strict. No Safari, native browser zoom, Dynamic Type, VoiceOver or WCAG result is established.
+
+**Revised next experiment:** test a **half-width + half-height** effective viewport (separately from root CSS zoom) and actual native browser zoom/text enlargement where available; record flex shell/header/demo/nav geometry and keyboard focus. Only after establishing a reproducible genuine viewport problem should a minimal responsive shell/navigation fix be attempted, with a new immutable release and strict browser checks. Do not suppress zoom, hide the demo warning, remove tabs or infer that `scroll-padding` solves a zero-height scroll viewport.
+
 **Status: reproduced UX defect in a Chromium CSS-zoom stress proxy, NOT fixed in the product.** Issue [#85](https://github.com/nikopol000/financial-autonomy-preview/issues/85). No Safari, native browser zoom, iOS Dynamic Type, VoiceOver or WCAG conformance verdict is claimed.
 
 ## Exact evidence
