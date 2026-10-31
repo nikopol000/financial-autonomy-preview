@@ -309,6 +309,12 @@ async function audit(browser,url,width,scheme){
     assert.deepEqual(navZoom.textOverlapPairs,[], 'Navigation labels must not overlap at 200% CSS zoom');
     assert.deepEqual(navZoom.hitTargetOverlapPairs,[], '200% CSS zoom navigation pressable targets must not overlap');
     assert.deepEqual(navZoom.textOutsideHitTarget,[], 'Navigation labels must fit hit targets at 200% CSS zoom');
+    // #85: overlapping-free labels are insufficient if budget controls are
+    // hidden by the fixed footer or keyboard focus becomes imperceptible.
+    // This remains a Chromium CSS-zoom stress proxy, NOT Safari/Dynamic Type.
+    const scrollZoom=await budgetScrollReachability(page,'csszoom200');
+    const interactiveZoom=await budgetInteractiveReachability(page,'csszoom200');
+    const focusZoom=await keyboardNavFocus(page);
     const zoom=await page.evaluate(()=>({
       viewport:innerWidth,documentScrollWidth:document.documentElement.scrollWidth,
       rootZoom:getComputedStyle(document.documentElement).zoom,
@@ -340,7 +346,7 @@ async function audit(browser,url,width,scheme){
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
       limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
-      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},encryptedVaultUntouched:true};
+      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,keyboardFocus:focusZoom,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
       '; zoom200 scrollWidth='+zoom.documentScrollWidth+
       '; nav text overlaps='+navZoom.textOverlapPairs.length+
