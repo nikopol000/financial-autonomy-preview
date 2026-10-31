@@ -10,6 +10,7 @@ on:
       - 'tests/browser-vault-ui-audit.cjs'
       - 'tests/browser-v2-locks-research.cjs'
       - 'tests/browser-v2-restore-research.cjs'
+      - 'tests/browser-authenticated-consent-legacy-writer-research.cjs'
       - 'tests/browser-archived-v1-compatibility-research.cjs'
       - 'tests/browser-archived-v2-interleavings-research.cjs'
       - 'tests/browser-v2-sealed-authority-research.cjs'
@@ -33,6 +34,7 @@ on:
       - 'tests/browser-vault-ui-audit.cjs'
       - 'tests/browser-v2-locks-research.cjs'
       - 'tests/browser-v2-restore-research.cjs'
+      - 'tests/browser-authenticated-consent-legacy-writer-research.cjs'
       - 'tests/browser-archived-v1-compatibility-research.cjs'
       - 'tests/browser-archived-v2-interleavings-research.cjs'
       - 'tests/browser-v2-sealed-authority-research.cjs'
@@ -68,6 +70,8 @@ jobs:
         run: node tests/browser-first-save-ui-retry.cjs
       - name: Research real Chromium Web Locks and cached-reset hazards (synthetic only)
         run: node tests/browser-v2-locks-research.cjs
+      - name: Research authenticated WEB backup and cached v1 writer after locked reinspection (KNOWN UNSAFE)
+        run: node tests/browser-authenticated-consent-legacy-writer-research.cjs
       - name: Research real Chromium two-tab v2 staged restore and reset (synthetic only)
         run: node tests/browser-v2-restore-research.cjs
       - name: Characterize real archived v1 modules in two Chromium tabs (KNOWN UNSAFE)
