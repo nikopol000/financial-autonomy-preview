@@ -7,7 +7,7 @@ Scope: issues [#4](https://github.com/nikopol000/financial-autonomy-preview/issu
 
 The active v1 reset flow writes a localStorage marker and then removes encrypted payload/key separately. A crash, quota/security fault, cached old writer or a second tab can leave ambiguous evidence. A **typed confirmation alone is not proof** that the data still match the screen the user saw. A delayed password verification, storage inspection or another tab can make that confirmation stale before the destructive action begins. Existing research confirms that a complete same-origin rollback can preserve internally consistent, authentic but old data; a local digest cannot establish global freshness.
 
-The new [nine-case executable model](../tests/vault-v2-reset-consent-boundary-research.cjs) checks a **non-destructive preview gate**, not deletion authorization. The only positive result is `READY_FOR_DESIGN_REVIEW`, deliberately **not** `ALLOW_RESET`; there is no `commit` function and an injected `onWrite` callback is rejected. `audit.writes` stays zero. The typed phrase `ȘTERGE DATELE LOCALE` is illustrative test data, **not approved UI wording**.
+The new [eleven-case executable model](../tests/vault-v2-reset-consent-boundary-research.cjs) checks a **non-destructive preview gate**, not deletion authorization. The only positive result is `READY_FOR_DESIGN_REVIEW`, deliberately **not** `ALLOW_RESET`; there is no `commit` function and an injected `onWrite` callback is rejected. `audit.writes` stays zero. The typed phrase `ȘTERGE DATELE LOCALE` is illustrative test data, **not approved UI wording**.
 
 ## Read-only consent proposal (not approved)
 
@@ -17,7 +17,7 @@ The new [nine-case executable model](../tests/vault-v2-reset-consent-boundary-re
 4. Take a read-only evidence snapshot. After asynchronous proof, acquire a cooperating origin-wide exclusive lock and **reinspect**. Cancel/supersede requests by monotonic epoch. If evidence, status, storage access or operation context changes, return `BLOCKED` and require a fresh user decision. A hash of evidence is an equality check, not an authentication or anti-rollback primitive.
 5. Even if these checks pass, **do not delete, merge, replay, rekey, resurrect, select a ledger, unlock editing or auto-restore**. A separate reviewed transaction protocol and explicit user approval are prerequisites. No implementation of a destructive callback is provided by this model.
 
-## Nine executable cases
+## Eleven executable cases
 
 | Scenario | Required research result |
 | --- | --- |
@@ -29,7 +29,17 @@ The new [nine-case executable model](../tests/vault-v2-reset-consent-boundary-re
 | Second inspection supersedes first | Only latest result eligible for review |
 | Missing/evicted/unknown evidence | `UNVERIFIABLE`, no initialization |
 | Attempt to supply destructive callback | Rejected by constructor |
+| User cancels while waiting for a cooperating lock | `STALE_REQUEST`; second inspection is not performed, zero writes |
+| Noncooperating archived v1 writer changes bytes **after** the final locked reinspection | **Negative boundary:** read-only review may still return; never authorize a destructive commit |
 | Fully rolled-back but internally consistent origin | **Negative boundary:** local review can pass; still no mutation or freshness claim |
+
+## Additional negative race boundary (research, 2026-10-31)
+
+The added deterministic case intentionally models a cached legacy v1 tab that **does not acquire the v2 Web Lock** and writes after the final read-only inspection. The model can return `READY_FOR_DESIGN_REVIEW` while the current ciphertext already differs from the reviewed fingerprint. This is a **passing negative test**: it proves the read-only gate cannot establish a durable authorization or fence noncooperating code. The model has no destructive operation; no financial data is touched. Merely moving the final inspection inside a Web Lock is not sufficient.
+
+A separate case holds the cooperating lock queue while the user cancels. After the queue resumes, the gate returns `STALE_REQUEST`, skips the second inspection and performs zero writes. The fixture's `withLock` is mocked, so this is **not** proof of real-browser Web Locks scheduling or Safari behavior.
+
+**Design implication:** any future destructive protocol must explicitly handle archived clients that can still write to v1 storage, including the interval after the final recheck; otherwise no commit safety guarantee is defensible. Possible research paths are (A) an independently enforced storage-generation fence understood by every supported writer, (B) a transactional new-origin/store cutover with explicit legacy quarantine and recovery semantics, or (C) keeping destructive recovery disabled while the legacy writer risk remains. None is approved or implemented. An ordinary localStorage marker or a cooperating lock alone cannot prevent a cached v1 writer that ignores them. A full-origin rollback also remains undetectable without an independent anchor.
 
 ## Alternatives and decision
 

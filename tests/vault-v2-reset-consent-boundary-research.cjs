@@ -145,3 +145,45 @@ test('negative boundary: fully rolled-back but internally consistent origin cann
   assert.equal(gate.audit.writes, 0);
   assert.equal(typeof gate.commit, 'undefined');
 });
+
+test('cancelled while queued for a lock never performs the second inspection', async () => {
+  let entered, release;
+  const enteredLock = new Promise(resolve => { entered = resolve; });
+  const heldLock = new Promise(resolve => { release = resolve; });
+  const { gate, input } = fixture({
+    withLock: async action => {
+      entered();
+      await heldLock;
+      return action();
+    },
+  });
+  const pending = gate.preview(input);
+  await enteredLock;
+  gate.cancel();
+  release();
+  assert.equal((await pending).reason, 'STALE_REQUEST');
+  assert.equal(gate.audit.inspections, 1);
+  assert.equal(gate.audit.proofs, 1);
+  assert.equal(gate.audit.writes, 0);
+  assert.equal(typeof gate.commit, 'undefined');
+});
+
+test('negative boundary: archived writer after final locked read is not fenced by a cooperating lock', async () => {
+  let evidence = { status: 'CONFLICT', bytes: 'authenticated-synthetic-revision-7', revision: 7 };
+  const { gate, input } = fixture({
+    inspect: async () => structuredClone(evidence),
+    // Models a cached v1 writer that does not participate in the v2 Web Lock.
+    withLock: async action => {
+      const result = await action();
+      evidence = { ...evidence, bytes: 'noncooperating-v1-write-after-recheck', revision: 8 };
+      return result;
+    },
+  });
+  const outcome = await gate.preview(input);
+  assert.equal(outcome.state, 'READY_FOR_DESIGN_REVIEW');
+  assert.notEqual(outcome.fingerprint, fingerprint(evidence));
+  assert.equal(gate.audit.inspections, 2);
+  assert.equal(gate.audit.writes, 0);
+  assert.equal(typeof gate.commit, 'undefined');
+  // Passing this test demonstrates a LIMIT, not safe reset/restore authorization.
+});
