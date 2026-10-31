@@ -577,6 +577,105 @@ async function main(){
       console.log('PASS isolated read-only quarantine: late completion after timeout cannot replace newer blocked result');
     }finally{await lateTimeoutContext.close();}
 
+    // Full-origin rollback limitation: both localStorage AND IndexedDB can
+    // be replayed to an older, internally authenticated snapshot. An origin-
+    // local inspector has no trusted monotonic external freshness witness.
+    // This is a NEGATIVE SECURITY CHARACTERIZATION, not a passed recovery.
+    const rollbackContext=await browser.newContext({viewport:{width:390,height:844}});
+    try{
+      const page=await rollbackContext.newPage();await page.goto(url);await install(page);
+      await page.evaluate(()=>window.__readonlyResearch.seed({scenario:'valid'}));
+      const original=await page.evaluate(()=>window.__readonlyResearch.snapshot());
+      assert.equal(original.idb.revision,1);
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.inspect()),
+        {code:'UNAPPROVED_AUTHORITY',blocked:true});
+      // Synthetic legitimate advancement: create a distinct, authenticated
+      // v2 envelope and fingerprint of the new v1 pair in one test fixture.
+      await page.evaluate(async()=>{
+        const key='financial-autonomy.preview.key.v1';
+        const payload='financial-autonomy.preview.payload.v1';
+        const cryptoKey=await crypto.subtle.importKey('raw',new Uint8Array(32).fill(7),
+          'AES-GCM',false,['encrypt','decrypt']);
+        const seal=async value=>{
+          const iv=crypto.getRandomValues(new Uint8Array(12));
+          const cipher=new Uint8Array(await crypto.subtle.encrypt(
+            {name:'AES-GCM',iv},cryptoKey,new TextEncoder().encode(JSON.stringify(value))));
+          return {iv:Array.from(iv),cipher:Array.from(cipher)};
+        };
+        localStorage.setItem(payload,JSON.stringify(await seal(
+          {version:5,transactions:['synthetic-only','synthetic-newer']})));
+        const pair=[localStorage.getItem(key),localStorage.getItem(payload)];
+        const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',
+          new TextEncoder().encode(JSON.stringify(pair))));
+        const legacyFingerprint=Array.from(digest,b=>b.toString(16).padStart(2,'0')).join('');
+        const db=await new Promise((resolve,reject)=>{
+          const req=indexedDB.open('research.atomic.primary');
+          req.onupgradeneeded=()=>req.transaction.abort();
+          req.onsuccess=()=>resolve(req.result);
+          req.onerror=()=>reject(req.error);
+        });
+        try{await new Promise((resolve,reject)=>{
+          const tx=db.transaction('vault','readwrite');
+          tx.objectStore('vault').put({
+            revision:2,
+            envelope:await seal({status:'active',state:{transactions:['synthetic-newer']}}),
+            legacyFingerprint
+          },'current');
+          tx.oncomplete=resolve;
+          tx.onabort=()=>reject(tx.error||Error('SYNTHETIC_ADVANCE_ABORTED'));
+          tx.onerror=()=>reject(tx.error);
+        });}finally{db.close();}
+      });
+      const newer=await page.evaluate(()=>window.__readonlyResearch.snapshot());
+      assert.equal(newer.idb.revision,2);
+      assert.notDeepEqual(newer,original);
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.inspect()),
+        {code:'UNAPPROVED_AUTHORITY',blocked:true},
+        'Newer authenticated snapshot must still be quarantined in research');
+      // Simulate a complete *external* origin restore of both stores. This
+      // intentionally rewinds synthetic fixture bytes, not application data.
+      await page.evaluate(async old=>{
+        const key='financial-autonomy.preview.key.v1';
+        const payload='financial-autonomy.preview.payload.v1';
+        localStorage.setItem(key,old.local[0]);
+        localStorage.setItem(payload,old.local[1]);
+        const db=await new Promise((resolve,reject)=>{
+          const req=indexedDB.open('research.atomic.primary');
+          req.onupgradeneeded=()=>req.transaction.abort();
+          req.onsuccess=()=>resolve(req.result);
+          req.onerror=()=>reject(req.error);
+        });
+        try{await new Promise((resolve,reject)=>{
+          const tx=db.transaction('vault','readwrite');
+          tx.objectStore('vault').put(old.idb,'current');
+          tx.oncomplete=resolve;
+          tx.onabort=()=>reject(tx.error||Error('SYNTHETIC_ROLLBACK_ABORTED'));
+          tx.onerror=()=>reject(tx.error);
+        });}finally{db.close();}
+      },original);
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),original);
+      await page.reload();await install(page);
+      await page.evaluate(()=>{
+        const audit={set:0,remove:0,idbReadwrite:0};
+        const set=Storage.prototype.setItem,remove=Storage.prototype.removeItem;
+        const transaction=IDBDatabase.prototype.transaction;
+        Storage.prototype.setItem=function(...args){audit.set++;return set.apply(this,args);};
+        Storage.prototype.removeItem=function(...args){audit.remove++;return remove.apply(this,args);};
+        IDBDatabase.prototype.transaction=function(...args){
+          if(args[1]==='readwrite')audit.idbReadwrite++;
+          return transaction.apply(this,args);
+        };
+        window.__rollbackInspectionAudit=audit;
+      });
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'UNAPPROVED_AUTHORITY',blocked:true});
+      assert.deepEqual(await page.evaluate(()=>window.__rollbackInspectionAudit),
+        {set:0,remove:0,idbReadwrite:0});
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),original);
+      assert.equal(await page.locator('input').count(),0);
+      console.log('PASS NEGATIVE characterization: full-origin rollback of authenticated v1/v2 is locally indistinguishable; inspector stays blocked with zero writes (NO freshness guarantee)');
+    }finally{await rollbackContext.close();}
+
     fs.mkdirSync('artifacts/browser-v2-conflict-readonly',{recursive:true});
     for(const width of [320,390]){
       for(const theme of ['light','dark']){
