@@ -101,7 +101,7 @@ async function main(){
     context=await browser.newContext();
     const url='http://127.0.0.1:'+server.address().port+PREFIX+'?fa_real=1';
     const current=await context.newPage(),old=await context.newPage();
-    await Promise.all([openReal(current,url),old.goto(new URL('/legacy-test',url).toString())]);
+    await Promise.all([openReal(current,url),old.goto(new URL('/legacy-test?fa_real=1',url).toString())]);
     await installOld(old,archivedModules());
     assert.equal(await current.evaluate(()=>isSecureContext),true);
     assert.equal(await current.evaluate(()=>typeof navigator.locks?.request),'function');
