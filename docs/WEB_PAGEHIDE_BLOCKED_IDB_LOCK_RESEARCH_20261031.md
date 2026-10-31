@@ -21,3 +21,11 @@ This test cannot prove Safari/iPhone page lifecycle, browser-process crashes, pe
 ## Verification
 
 CI is the source of truth. Record exact PR/merged-main Chromium and release workflow results after they reach terminal state; do not interpret an unrun test as passing. The next unverified P1 is renderer/browser crash during queued/blocked operations, followed by real Safari/VoiceOver and an accessible blocked/cancel/retry interaction review.
+
+## Primary references and verified outcome
+
+- [MDN — Using IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB): an open connection in another tab blocks a version upgrade; the application must account for `blocked` and `versionchange`.
+- [MDN — Web Locks API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API): same-origin lock coordination, `AbortSignal` for queued requests, and `navigator.locks.query()` diagnostics.
+- [W3C — Indexed Database API 3.0](https://www.w3.org/TR/IndexedDB/): upgrade requires other clients to close their database connections.
+
+[PR #369](https://github.com/nikopol000/financial-autonomy-preview/pull/369) merged as `0d60a5ba8b8a51f55bd8b30c3c0ec15c2fdc279e`. [PR Chromium #41232091077](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41232091077), [PR Release #41232091176](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41232091176), [merged Chromium #41232294387](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41232294387), [merged Release #41232294349](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41232294349) and [merged Pages #41232294347](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41232294347) all **SUCCESS**. Both named Chromium lifecycle assertions passed. This is evidence for these specific Chromium cases, not Safari, user-data durability or destructive recovery safety.
