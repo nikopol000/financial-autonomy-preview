@@ -17,6 +17,7 @@ on:
       - 'tests/browser-v2-idb-atomic-primary-research.cjs'
       - 'tests/browser-v2-reset-renderer-crash-research.cjs'
       - 'tests/browser-v2-reset-whole-browser-crash-research.cjs'
+      - 'tests/browser-v2-reset-inflight-browser-crash-research.cjs'
       - 'tests/browser-v2-restore-operation-witness-research.cjs'
       - 'tests/browser-v2-conflict-readonly-ui-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
@@ -39,6 +40,7 @@ on:
       - 'tests/browser-v2-idb-atomic-primary-research.cjs'
       - 'tests/browser-v2-reset-renderer-crash-research.cjs'
       - 'tests/browser-v2-reset-whole-browser-crash-research.cjs'
+      - 'tests/browser-v2-reset-inflight-browser-crash-research.cjs'
       - 'tests/browser-v2-restore-operation-witness-research.cjs'
       - 'tests/browser-v2-conflict-readonly-ui-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
@@ -82,6 +84,8 @@ jobs:
         run: node tests/browser-v2-reset-renderer-crash-research.cjs
       - name: Characterize whole Chromium browser SIGKILL with disposable persistent profile (NOT PRODUCTION)
         run: node tests/browser-v2-reset-whole-browser-crash-research.cjs
+      - name: Characterize in-flight IDB and legacy deletion crash boundaries (NOT PRODUCTION)
+        run: node tests/browser-v2-reset-inflight-browser-crash-research.cjs
       - name: Research atomic restore operation witness and post-commit acknowledgment (NOT PRODUCTION)
         run: node tests/browser-v2-restore-operation-witness-research.cjs
       - name: Research isolated read-only conflict screen, storage faults and mobile zoom (NOT PRODUCTION)
