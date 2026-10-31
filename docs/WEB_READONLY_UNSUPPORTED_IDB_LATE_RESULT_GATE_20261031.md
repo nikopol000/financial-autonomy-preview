@@ -32,3 +32,8 @@ The current inspector uses `indexedDB.databases()` to check for an existing auth
 Test real archived v1 writers, browsers without Web Locks, IndexedDB permission/eviction faults, full-origin rollback, cross-tab revisions, late Promise completion, reset consent, backup interoperability, and exact-byte preservation. Verify Chrome and actual Safari/iPhone with VoiceOver/Dynamic Type; Chromium CSS zoom is not Safari evidence. Define an explicit authenticated reset/restore consent protocol and a way to preserve the last recoverable encrypted copy. Only then consider immutable WEB version bump with synchronized index/bundle/diagnostic, CI, Vercel and served-browser checks.
 
 **Not an accounting contract:** issue #14 budget perspectives and #25 overpayment remain analysis-only. No formulas or financial semantics changed.
+
+## Platform references (consulted 2026-10-31)
+- MDN [`IDBFactory.databases()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBFactory/databases): enumeration returns a snapshot, with newer baseline support; do not assume availability on every older browser.
+- MDN [`IDBFactory.open()`](https://developer.mozilla.org/en-US/docs/Web/API/IDBFactory/open): opening may trigger `upgradeneeded`; it is not a side-effect-free existence test.
+- MDN [Web Locks API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Locks_API): origin-scoped coordination for participating contexts, not a transactional guarantee across independent storage APIs or noncooperating archived code.
