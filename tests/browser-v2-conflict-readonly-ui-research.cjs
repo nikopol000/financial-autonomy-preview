@@ -280,6 +280,8 @@ async function main(){
         window.__quarantineWriteAudit=audit;
       });
       await blocked.getByRole('button',{name:'Verifică din nou'}).click();
+      await blocked.waitForFunction(()=>document.querySelector('h1')?.textContent===
+        'Datele locale nu coincid');
       assert.match(await blocked.locator('h1').innerText(),/Datele locale nu coincid/);
       assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.inspect()),
         {code:'LEGACY_DIVERGED',blocked:true});
