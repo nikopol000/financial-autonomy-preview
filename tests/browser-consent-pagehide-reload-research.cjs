@@ -52,6 +52,9 @@ async function main(){
       localStorage.setItem(PAY,initial[1]);
       localStorage.setItem(RESET,initial[2]);
     },{KEY,PAY,RESET,initial});
+    await worker.waitForFunction(expected=>
+      JSON.stringify(['financial-autonomy.preview.key.v1','financial-autonomy.preview.payload.v1','financial-autonomy.preview.reset.v1'].map(key=>localStorage.getItem(key)))===JSON.stringify(expected),
+      initial,{timeout:10000});
     assert.deepEqual(await worker.evaluate(vault),initial);
     await openDatabase(holder);
 
@@ -95,6 +98,9 @@ async function main(){
     },DB);
     assert.deepEqual(evidence,{version:1,value:'original'},
       'reload must not promote blocked v2 upgrade or rewrite v1');
+    await worker.waitForFunction(expected=>
+      JSON.stringify(['financial-autonomy.preview.key.v1','financial-autonomy.preview.payload.v1','financial-autonomy.preview.reset.v1'].map(key=>localStorage.getItem(key)))===JSON.stringify(expected),
+      initial,{timeout:10000});
     assert.deepEqual(await worker.evaluate(vault),initial);
     console.log('PASS Chromium pagehide/reload during real blocked IDB upgrade: v1 schema/sentinel and synthetic encrypted footprint unchanged');
 
@@ -133,6 +139,9 @@ async function main(){
     },LOCK,{timeout:10000});
     assert.equal(await worker.evaluate(marker=>localStorage.getItem(marker),CALLBACK),null,
       'a cancelled page must never execute a late lock callback');
+    await worker.waitForFunction(expected=>
+      JSON.stringify(['financial-autonomy.preview.key.v1','financial-autonomy.preview.payload.v1','financial-autonomy.preview.reset.v1'].map(key=>localStorage.getItem(key)))===JSON.stringify(expected),
+      initial,{timeout:10000});
     assert.deepEqual(await worker.evaluate(vault),initial);
     console.log('PASS Chromium pagehide/reload while real Web Lock queued: aborted/no late callback; synthetic encrypted footprint unchanged');
     console.log('KNOWN UNSAFE: cached noncooperating v1 writers still bypass modern Web Locks; NO destructive recovery authorized');
