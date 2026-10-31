@@ -13,7 +13,7 @@ const PAY='financial-autonomy.preview.payload.v1';
 const RESET='financial-autonomy.preview.reset.v1';
 const CALLBACK='fa.research.only.unexpected-lock-callback';
 const initial=['SYNTHETIC-KEY-NOT-REAL','SYNTHETIC-CIPHERTEXT-NOT-REAL','synthetic-reset-marker'];
-const vault=()=>[localStorage.getItem(KEY),localStorage.getItem(PAY),localStorage.getItem(RESET)];
+const vault=()=>['financial-autonomy.preview.key.v1','financial-autonomy.preview.payload.v1','financial-autonomy.preview.reset.v1'].map(key=>localStorage.getItem(key));
 
 async function openDatabase(page){
   await page.evaluate(async name=>{
