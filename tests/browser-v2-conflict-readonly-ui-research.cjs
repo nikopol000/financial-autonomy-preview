@@ -444,6 +444,72 @@ async function main(){
       console.log('PASS isolated read-only quarantine: overlapping inspections cannot replace newer legacy divergence; bytes unchanged');
     }finally{await raceContext.close();}
 
+
+    // Unsupported IDB enumeration + absent Web Locks is a real compatibility
+    // boundary (e.g. some Safari environments). Read-only inspection must
+    // fail closed rather than try indexedDB.open() and create an empty DB.
+    const unsupportedContext=await browser.newContext({viewport:{width:390,height:844}});
+    try{
+      const page=await unsupportedContext.newPage();await page.goto(url);await install(page);
+      await page.evaluate(()=>window.__readonlyResearch.seed({scenario:'valid'}));
+      const before=await page.evaluate(()=>window.__readonlyResearch.snapshot());
+      await page.evaluate(()=>{
+        const audit={set:0,remove:0,idbReadwrite:0};
+        const set=Storage.prototype.setItem,remove=Storage.prototype.removeItem;
+        const transaction=IDBDatabase.prototype.transaction;
+        Storage.prototype.setItem=function(...args){audit.set++;return set.apply(this,args);};
+        Storage.prototype.removeItem=function(...args){audit.remove++;return remove.apply(this,args);};
+        IDBDatabase.prototype.transaction=function(...args){
+          if(args[1]==='readwrite')audit.idbReadwrite++;
+          return transaction.apply(this,args);
+        };
+        window.__unsupportedAudit=audit;
+        Object.defineProperty(indexedDB,'databases',{configurable:true,value:undefined});
+        Object.defineProperty(navigator,'locks',{configurable:true,value:undefined});
+      });
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'STORAGE_UNREADABLE',blocked:true});
+      assert.match(await page.locator('h1').innerText(),/Stocarea locală/);
+      assert.equal(await page.locator('input').count(),0);
+      assert.deepEqual(await page.evaluate(()=>window.__unsupportedAudit),
+        {set:0,remove:0,idbReadwrite:0});
+      await page.evaluate(()=>{delete indexedDB.databases;delete navigator.locks;});
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),before);
+      await page.reload();await install(page);
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'UNAPPROVED_AUTHORITY',blocked:true});
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),before);
+      console.log('PASS isolated read-only quarantine: missing IDB enumeration and Web Locks fail closed, zero writes, reload unchanged');
+    }finally{await unsupportedContext.close();}
+
+    // A timed-out read may still resolve after a newer successful reinspection.
+    // Its late result must never replace the newer blocked message or mutate
+    // storage. Promise.race does not cancel the underlying IndexedDB read.
+    const lateTimeoutContext=await browser.newContext({viewport:{width:320,height:640}});
+    try{
+      const page=await lateTimeoutContext.newPage();await page.goto(url);await install(page);
+      await page.evaluate(()=>window.__readonlyResearch.seed({scenario:'valid'}));
+      const before=await page.evaluate(()=>window.__readonlyResearch.snapshot());
+      await page.evaluate(()=>{
+        const original=indexedDB.databases.bind(indexedDB);
+        window.__originalDatabases=original;
+        indexedDB.databases=()=>new Promise((resolve,reject)=>{
+          window.__releaseTimedOutRead=()=>original().then(resolve,reject);
+        });
+      });
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'STORAGE_UNREADABLE',blocked:true});
+      await page.evaluate(()=>{indexedDB.databases=window.__originalDatabases;});
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'UNAPPROVED_AUTHORITY',blocked:true});
+      await page.evaluate(()=>window.__releaseTimedOutRead());
+      await page.waitForTimeout(100);
+      assert.match(await page.locator('h1').innerText(),/Verificarea este doar experimentală/);
+      assert.equal(await page.locator('input').count(),0);
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),before);
+      console.log('PASS isolated read-only quarantine: late completion after timeout cannot replace newer blocked result');
+    }finally{await lateTimeoutContext.close();}
+
     fs.mkdirSync('artifacts/browser-v2-conflict-readonly',{recursive:true});
     for(const width of [320,390]){
       for(const theme of ['light','dark']){
