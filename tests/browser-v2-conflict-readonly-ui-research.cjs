@@ -62,7 +62,17 @@ async function install(page){
         const observed=pair();
         if((observed[0]===null)!==(observed[1]===null))
           return {code:'INCOMPLETE_V1',blocked:true};
-        const record=await raw();
+        // Bound a stalled read-only IDB inspection. Browser permission prompts,
+        // blocked APIs or a test-injected never-settling enumeration must not
+        // leave a recovery screen indefinitely awaiting a verdict.
+        // A timeout is NOT permission to initialize or unlock a vault.
+        const record=await new Promise((resolve,reject)=>{
+          const timer=setTimeout(()=>reject(Error('IDB_INSPECTION_TIMEOUT')),800);
+          Promise.resolve().then(raw).then(
+            value=>{clearTimeout(timer);resolve(value);},
+            error=>{clearTimeout(timer);reject(error);}
+          );
+        });
         if(!record)return {code:'MISSING_AUTHORITY',blocked:true};
         if(!Number.isSafeInteger(record.revision)||record.revision<1)
           return {code:'UNREADABLE_AUTHORITY',blocked:true};
@@ -251,6 +261,39 @@ async function main(){
       assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),before);
       console.log('PASS isolated read-only conflict screen: IDB permission denial blocks without writes');
     }finally{await context.close();}
+
+    // Synthetic never-settling IDB enumeration: read-only inspection must
+    // fail closed within a bounded time, permit explicit reinspection after
+    // the injected fault clears, and preserve every existing storage byte.
+    // This does not prove Safari permission behavior or disk durability.
+    const hangContext=await browser.newContext({viewport:{width:320,height:640}});
+    try{
+      const page=await hangContext.newPage();await page.goto(url);await install(page);
+      await page.evaluate(()=>window.__readonlyResearch.seed({scenario:'valid'}));
+      const before=await page.evaluate(()=>window.__readonlyResearch.snapshot());
+      await page.evaluate(()=>{
+        window.__realDatabases=indexedDB.databases;
+        indexedDB.databases=()=>new Promise(()=>{});
+      });
+      const start=Date.now();
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'STORAGE_UNREADABLE',blocked:true});
+      assert.ok(Date.now()-start<3500,'Read-only inspection must time out promptly');
+      assert.match(await page.locator('h1').innerText(),/Stocarea locală/);
+      assert.equal(await page.locator('input').count(),0);
+      await page.evaluate(()=>{indexedDB.databases=window.__realDatabases;});
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),before);
+      await page.getByRole('button',{name:'Verifică din nou'}).click();
+      await page.waitForFunction(()=>document.querySelector('h1')?.textContent===
+        'Verificarea este doar experimentală');
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),before);
+      assert.equal(await page.locator('input').count(),0);
+      await page.reload();await install(page);
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'UNAPPROVED_AUTHORITY',blocked:true});
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),before);
+      console.log('PASS isolated read-only quarantine: stalled IDB enumeration times out, reinspection and reload preserve exact bytes');
+    }finally{await hangContext.close();}
 
     // A deleted database can race the databases() existence check. A normal
     // indexedDB.open() would then create a ghost DB as a side effect of a
