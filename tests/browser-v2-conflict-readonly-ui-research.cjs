@@ -482,6 +482,73 @@ async function main(){
       console.log('PASS isolated read-only quarantine: missing IDB enumeration and Web Locks fail closed, zero writes, reload unchanged');
     }finally{await unsupportedContext.close();}
 
+    // A real IndexedDB schema loss (object store removed in a synthetic
+    // version upgrade) must be classified as unreadable, not as an empty
+    // ledger or a reason to recreate a store. Fixture damage is deliberate;
+    // the read-only inspector itself must perform zero writes.
+    const schemaContext=await browser.newContext({viewport:{width:390,height:844}});
+    try{
+      const page=await schemaContext.newPage();await page.goto(url);await install(page);
+      await page.evaluate(()=>window.__readonlyResearch.seed({scenario:'valid'}));
+      const before=await page.evaluate(()=>[
+        localStorage.getItem('financial-autonomy.preview.key.v1'),
+        localStorage.getItem('financial-autonomy.preview.payload.v1')
+      ]);
+      await page.evaluate(async()=>{
+        await new Promise((resolve,reject)=>{
+          const req=indexedDB.open('research.atomic.primary',2);
+          req.onupgradeneeded=()=>req.result.deleteObjectStore('vault');
+          req.onsuccess=()=>{req.result.close();resolve();};
+          req.onerror=()=>reject(req.error||Error('SYNTHETIC_SCHEMA_UPGRADE_FAILED'));
+          req.onblocked=()=>reject(Error('SYNTHETIC_SCHEMA_UPGRADE_BLOCKED'));
+        });
+        const audit={set:0,remove:0,idbReadwrite:0};
+        const set=Storage.prototype.setItem,remove=Storage.prototype.removeItem;
+        const transaction=IDBDatabase.prototype.transaction;
+        Storage.prototype.setItem=function(...args){audit.set++;return set.apply(this,args);};
+        Storage.prototype.removeItem=function(...args){audit.remove++;return remove.apply(this,args);};
+        IDBDatabase.prototype.transaction=function(...args){
+          if(args[1]==='readwrite')audit.idbReadwrite++;
+          return transaction.apply(this,args);
+        };
+        window.__schemaLossAudit=audit;
+      });
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'STORAGE_UNREADABLE',blocked:true});
+      assert.match(await page.locator('h1').innerText(),/Stocarea locală/);
+      assert.equal(await page.locator('input').count(),0);
+      await page.getByRole('button',{name:'Verifică din nou'}).click();
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.inspect()),
+        {code:'STORAGE_UNREADABLE',blocked:true});
+      assert.deepEqual(await page.evaluate(()=>window.__schemaLossAudit),
+        {set:0,remove:0,idbReadwrite:0});
+      const after=await page.evaluate(async()=>{
+        const db=await new Promise((resolve,reject)=>{
+          const req=indexedDB.open('research.atomic.primary');
+          req.onupgradeneeded=()=>req.transaction.abort();
+          req.onsuccess=()=>resolve(req.result);
+          req.onerror=()=>reject(req.error);
+        });
+        const schema={version:db.version,stores:Array.from(db.objectStoreNames)};
+        db.close();
+        return {schema,local:[
+          localStorage.getItem('financial-autonomy.preview.key.v1'),
+          localStorage.getItem('financial-autonomy.preview.payload.v1')
+        ]};
+      });
+      assert.deepEqual(after.local,before,'Read-only inspector changed legacy bytes');
+      assert.deepEqual(after.schema,{version:2,stores:[]},
+        'Inspector must not recreate a missing vault object store');
+      await page.reload();await install(page);
+      assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'STORAGE_UNREADABLE',blocked:true});
+      assert.deepEqual(await page.evaluate(()=>[
+        localStorage.getItem('financial-autonomy.preview.key.v1'),
+        localStorage.getItem('financial-autonomy.preview.payload.v1')
+      ]),before);
+      console.log('PASS isolated read-only quarantine: missing IndexedDB object store fails closed, zero inspector writes, legacy bytes survive reload');
+    }finally{await schemaContext.close();}
+
     // A timed-out read may still resolve after a newer successful reinspection.
     // Its late result must never replace the newer blocked message or mutate
     // storage. Promise.race does not cancel the underlying IndexedDB read.
