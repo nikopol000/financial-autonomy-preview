@@ -364,6 +364,16 @@ async function main() {
     const repeatedOnce=await a.evaluate(()=>window.__research.epochReset());
     assert.equal(repeatedOnce.ok,true);
     assert.notEqual(repeatedOnce.epoch,epochBeforeRetry);
+    // The lock completion in renderer A does not synchronously publish both
+    // localStorage mutations to renderer B. Observe the exact committed reset
+    // marker AND absent ciphertext before testing B's read. This only waits
+    // for fixture propagation; it does not retry, repair, or bypass a rejected
+    // financial read/write. A missing observation still fails after 10 s.
+    await b.waitForFunction(({epochKey,recordKey,expectedEpoch}) =>
+      localStorage.getItem(epochKey)===expectedEpoch &&
+      localStorage.getItem(recordKey)===null,
+      {epochKey:EPOCH,recordKey:EPOCH_V2,expectedEpoch:repeatedOnce.epoch},
+      {timeout:10000});
     assert.deepEqual(await b.evaluate(()=>window.__research.epochRead()),{
       ok:true,epoch:repeatedOnce.epoch,raw:null,state:null
     });
