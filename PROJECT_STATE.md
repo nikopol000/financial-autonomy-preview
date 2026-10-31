@@ -1,3 +1,11 @@
+## 2026-10-31 — P1 unsupported-IDB/late-inspection research PR #342 (CI PENDING)
+
+- **START HEAD:** `f36f46220122407e6760acfb2c7862c3124530d1`; read mandatory AGENTS, RELEASE_PROCESS, PROJECT_STATE, IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, canonical `docs/WEB_VISUAL_REVIEW.md` (root path absent), active WEB 18.64 index, open issues including #4/#29/#35 and DISCOVERY #14/#17/#25/#85, and unmerged WEB 18.65 copy-only PR #270.
+- **IN PROGRESS:** [PR #342](https://github.com/nikopol000/financial-autonomy-preview/pull/342), branch `research/web-readonly-unsupported-idb-late-timeout-20261031`, research commit `622dc4b9757bf3455d2946aa00c899e4cf600207`. Two isolated Chromium cases: absent `indexedDB.databases()` and Web Locks must fail closed without creating/writing; a timed-out read resolving after newer reinspection must not overwrite its warning. [Threat model and alternatives](docs/WEB_READONLY_UNSUPPORTED_IDB_LATE_RESULT_GATE_20261031.md). Synthetic only, **not** a product fix. Exact PR-head CI and named Chromium PASS **not yet verified**.
+- **FIRST UNFINISHED ACTION:** verify PR #342 Release CI and Chromium named cases, fix failures, merge only after checks; independently verify merged main, then update issues #4/#29/#35/#85 with evidence. Production reset/restore/quarantine contract still BLOCKED pending legacy writers, Safari, storage eviction/rollback and authenticated consent.
+- **SEPARATE RELEASE BLOCKER:** PR #270 copy-only 18.65 has prior Release CI/Chromium SUCCESS but Vercel commit status **failure** (`upgradeToPro=build-rate-limit`); do not merge/publish until deployment gate can be satisfied. Active product remains WEB 18.64.
+- **FINANCIAL BOUNDARY:** #14 budget perspectives and #25 overpayment remain analysis-only, no approved formula/mode changes. No iOS, real ledger, encrypted backup, backend, telemetry or bank sync changes.
+
 ## 2026-10-31 — P1 stalled IndexedDB read-only inspection gate VERIFIED; production vault still BLOCKED
 
 - **REAL START HEAD:** `9767e5f05f8e66bd010ba8e847ddef3a9c4728e3`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, canonical `docs/WEB_VISUAL_REVIEW.md` (root path absent), WEB 18.64 index, all nine open issues including DISCOVERY #14/#17/#25/#85, and separate unmerged copy-only PR #270.
