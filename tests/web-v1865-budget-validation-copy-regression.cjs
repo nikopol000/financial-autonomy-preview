@@ -5,7 +5,6 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const old=fs.readFileSync('_expo/static/js/web/index-v01864-backup-async-epoch-20261029.js','utf8');
 const next=fs.readFileSync('_expo/static/js/web/index-v01865-budget-validation-romanian-20261029.js','utf8');
-const html=fs.readFileSync('index.html','utf8');
 const replacements=[
   ['Numai Budgeted Expense poate avea buget.',
    'Doar cheltuielile alocate unui buget pot avea o categorie de buget.'],
@@ -22,9 +21,10 @@ for(const [from,to] of replacements){
   expected=expected.replace(from,to);
 }
 assert.equal(next,expected,'Only three Romanian copy strings and diagnostic version/name may change');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\.65"/);
-assert.match(html,/index-v01865-budget-validation-romanian-20261029\.js\?build=18\.65\.1/);
-assert.doesNotMatch(html,/index-v01864-backup-async-epoch-20261029/);
+// Historical release checks must survive later immutable releases. The current
+// HTML activation is checked by the newest version-specific regression.
+assert.match(next,/version:"18\.65"/);
+assert.match(next,/financial-autonomy-diagnostic-unic-v18\.65\.json/);
 for(const obsolete of ['Numai Budgeted Expense poate avea buget.','Unbudgeted nu achit\\u0103 automat o obliga\\u021bie.','Name \\xb7 denumire'])
   assert.ok(!next.includes(obsolete),'Untranslated copy must not remain: '+obsolete);
 console.log('PASS WEB 18.65: exact Romanian copy-only immutable diff, no formula/vault/backup code changes');
