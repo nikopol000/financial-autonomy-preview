@@ -104,8 +104,13 @@ async function install(page){
       'overflow-wrap:anywhere}body[data-theme="dark"] button{background:#403452;'+
       'color:#fff;border-color:#c6a7ee}';
     document.head.append(style);
+    // A delayed older inspection must never replace a newer blocked state.
+    // This is only a synthetic research UI, not a production recovery gate.
+    let renderEpoch=0;
     async function render(){
+      const epoch=++renderEpoch;
       const result=await inspect();
+      if(epoch!==renderEpoch)return result;
       const [title,explanation]=messages[result.code];
       const root=document.getElementById('root');
       root.replaceChildren();
@@ -295,6 +300,52 @@ async function main(){
       assert.equal(await blocked.locator('input').count(),0);
       console.log('PASS isolated read-only quarantine: archived late writer after pending reset remains blocked, zero reinspection writes, reload unchanged');
     }finally{await lateContext.close();}
+
+
+    // Race: an older read starts before a non-cooperating legacy write, then
+    // resolves after a newer read. The older result must NOT overwrite the
+    // newer, more restrictive blocked UI. All evidence remains byte-identical.
+    const raceContext=await browser.newContext({viewport:{width:390,height:844}});
+    try{
+      const blocked=await raceContext.newPage();await blocked.goto(url);await install(blocked);
+      await blocked.evaluate(()=>window.__readonlyResearch.seed({scenario:'pending'}));
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'UNAPPROVED_AUTHORITY',blocked:true});
+      await blocked.evaluate(()=>{
+        const original=indexedDB.databases.bind(indexedDB);
+        let reads=0;
+        indexedDB.databases=()=>{
+          if(++reads!==1)return original();
+          return new Promise((resolve,reject)=>{
+            window.__releaseOlderInspection=()=>original().then(resolve,reject);
+          });
+        };
+        window.__olderInspection=window.__readonlyResearch.render();
+      });
+      await blocked.waitForFunction(()=>typeof window.__releaseOlderInspection==='function');
+      const writer=await raceContext.newPage();await writer.goto(url);
+      await writer.evaluate(()=>{
+        const k='financial-autonomy.preview.payload.v1';
+        localStorage.setItem(k,localStorage.getItem(k)+'-RACE-WRITER');
+      });
+      const afterWriter=await blocked.evaluate(()=>window.__readonlyResearch.snapshot());
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'LEGACY_DIVERGED',blocked:true});
+      assert.match(await blocked.locator('h1').innerText(),/Datele locale nu coincid/);
+      await blocked.evaluate(()=>window.__releaseOlderInspection());
+      assert.deepEqual(await blocked.evaluate(()=>window.__olderInspection),
+        {code:'UNAPPROVED_AUTHORITY',blocked:true});
+      // The stale result is intentionally returned to the caller, but cannot
+      // replace the more recent UI. Never auto-unlock even if both are blocked.
+      assert.match(await blocked.locator('h1').innerText(),/Datele locale nu coincid/);
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.snapshot()),afterWriter);
+      assert.equal(await blocked.locator('input').count(),0);
+      await blocked.reload();await install(blocked);
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'LEGACY_DIVERGED',blocked:true});
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.snapshot()),afterWriter);
+      console.log('PASS isolated read-only quarantine: overlapping inspections cannot replace newer legacy divergence; bytes unchanged');
+    }finally{await raceContext.close();}
 
     fs.mkdirSync('artifacts/browser-v2-conflict-readonly',{recursive:true});
     for(const width of [320,390]){
