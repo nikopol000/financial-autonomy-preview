@@ -317,6 +317,116 @@ async function main(){
     assert.equal(await current.evaluate(()=>typeof window.__consentResearch.commit),'undefined');
     console.log('PASS Chromium final locked reinspection SecurityError after real AES-GCM authentication blocks without gate writes');
 
+
+    // Real Chromium IndexedDB lifecycle, following authentic WEB backup proof.
+    // This is an independent READ-ONLY research preflight, not a product gate.
+    // IndexedDB may be missing, evicted, denied, or missing a required store;
+    // NONE of those states proves the encrypted localStorage ledger is empty.
+    const idbName='fa-consent-disposable-idb-20261031';
+    await current.evaluate(async name=>{
+      const opened=indexedDB.open(name,1);
+      opened.onupgradeneeded=()=>opened.result.createObjectStore('authority');
+      const db=await new Promise((resolve,reject)=>{
+        opened.onsuccess=()=>resolve(opened.result);
+        opened.onerror=()=>reject(opened.error);
+      });
+      try{
+        await new Promise((resolve,reject)=>{
+          const tx=db.transaction('authority','readwrite');
+          tx.objectStore('authority').put('synthetic-marker','sentinel');
+          tx.oncomplete=resolve;
+          tx.onerror=()=>reject(tx.error);
+          tx.onabort=()=>reject(tx.error);
+        });
+      }finally{db.close();}
+      window.__consentResearch.idbReadOnly=async(name,store)=>{
+        try{
+          // Do not open an unknown DB: an ordinary IDB open may create it.
+          const entries=await indexedDB.databases();
+          if(!Array.isArray(entries)||!entries.some(x=>x.name===name))
+            return {code:'IDB_MISSING'};
+          const request=indexedDB.open(name);
+          // If a race removes the DB after enumeration, abort its implicit
+          // creation rather than silently initializing an empty authority.
+          request.onupgradeneeded=()=>request.transaction.abort();
+          const existing=await new Promise((resolve,reject)=>{
+            request.onsuccess=()=>resolve(request.result);
+            request.onerror=()=>reject(request.error);
+          });
+          try{
+            if(!existing.objectStoreNames.contains(store))
+              return {code:'IDB_STORE_MISSING'};
+            const value=await new Promise((resolve,reject)=>{
+              const tx=existing.transaction(store,'readonly');
+              const read=tx.objectStore(store).get('sentinel');
+              read.onsuccess=()=>resolve(read.result);
+              read.onerror=()=>reject(read.error);
+              tx.onabort=()=>reject(tx.error);
+            });
+            return {code:value==='synthetic-marker'?'READ_ONLY_EVIDENCE':'IDB_UNVERIFIABLE'};
+          }finally{existing.close();}
+        }catch(_){return {code:'IDB_UNAVAILABLE'};}
+      };
+    },idbName);
+    // Authenticate a genuine WEB v4 AES-GCM backup before the IDB read-only
+    // preflight; this proves control of the FILE, not IDB authority/freshness.
+    assert.equal(await current.evaluate(async({text,password})=>
+      (await window.__r(311).restore(text,password)).version,
+      {text:backup,password:PASSWORD}),4);
+    assert.equal((await current.evaluate(name=>
+      window.__consentResearch.idbReadOnly(name,'authority'),idbName)).code,
+      'READ_ONLY_EVIDENCE');
+    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
+    assert.equal(await current.evaluate(()=>window.__consentResearch.gateWrites),0);
+    console.log('PASS Chromium real IndexedDB readonly evidence after authentic WEB backup proof; zero vault writes');
+
+    // A real version upgrade removes the expected object store. The read-only
+    // preflight MUST refuse the incomplete schema without recreating it.
+    await current.evaluate(async name=>{
+      const req=indexedDB.open(name,2);
+      req.onupgradeneeded=()=>req.result.deleteObjectStore('authority');
+      const db=await new Promise((resolve,reject)=>{
+        req.onsuccess=()=>resolve(req.result);
+        req.onerror=()=>reject(req.error);
+      });
+      db.close();
+    },idbName);
+    assert.equal((await current.evaluate(name=>
+      window.__consentResearch.idbReadOnly(name,'authority'),idbName)).code,
+      'IDB_STORE_MISSING');
+    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
+    console.log('PASS Chromium real IndexedDB missing object store blocks readonly authority; ciphertext preserved');
+
+    // Simulate origin-local eviction by deleting only the disposable IDB.
+    // No IDB is automatically recreated by the preflight.
+    await current.evaluate(async name=>{
+      const req=indexedDB.deleteDatabase(name);
+      await new Promise((resolve,reject)=>{
+        req.onsuccess=resolve;
+        req.onerror=()=>reject(req.error);
+        req.onblocked=()=>reject(Error('Disposable IDB deletion blocked'));
+      });
+    },idbName);
+    assert.equal((await current.evaluate(name=>
+      window.__consentResearch.idbReadOnly(name,'authority'),idbName)).code,
+      'IDB_MISSING');
+    assert.equal(await current.evaluate(name=>
+      indexedDB.databases().then(xs=>xs.some(x=>x.name===name)),idbName),false);
+    console.log('PASS Chromium real IndexedDB deletion treated as missing, not empty; no implicit recreation');
+
+    // A synthetic permission denial on the IDB enumeration must also block.
+    // This is fault injection, NOT evidence of an actual browser permission bug.
+    assert.equal(await current.evaluate(async name=>{
+      Object.defineProperty(indexedDB,'databases',{configurable:true,
+        value:()=>Promise.reject(new DOMException('Synthetic IDB denial','SecurityError'))});
+      try{return (await window.__consentResearch.idbReadOnly(name,'authority')).code;}
+      finally{delete indexedDB.databases;}
+    },idbName),'IDB_UNAVAILABLE');
+    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
+    assert.equal(await current.evaluate(()=>window.__consentResearch.gateWrites),0);
+    assert.equal(await current.evaluate(()=>typeof window.__consentResearch.commit),'undefined');
+    console.log('PASS Chromium injected IndexedDB SecurityError blocks readonly preflight; zero vault writes; NO destructive authority');
+
     await current.evaluate(()=>window.__consentResearch.disarm());
     console.log('PASS KNOWN UNSAFE Chromium: authentic backup and final locked recheck DO NOT fence archived v1 writer after reinspection; no reset/restore exists');
   }finally{
