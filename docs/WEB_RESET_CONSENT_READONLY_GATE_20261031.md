@@ -61,3 +61,19 @@ Prove actual v1/v2 cross-tab and cached-writer behavior, real AES-GCM source val
 - [MDN IndexedDB transactions](https://developer.mozilla.org/en-US/docs/Web/API/IDBTransaction) — atomicity applies to a transaction, not arbitrary localStorage/IDB combinations.
 
 **Next step:** replace mocked preconditions with a *read-only* real-browser inspection and authenticated backup-verification fixture; reproduce a cached-v1 late writer between proof and commit boundary. Keep all destructive actions disabled until the operation contract and regression suite are approved.
+
+
+## Actual Chromium authenticated-source / archived-writer validation (31 October 2026)
+
+[PR #355](https://github.com/nikopol000/financial-autonomy-preview/pull/355) added [a separate browser test](../tests/browser-authenticated-consent-legacy-writer-research.cjs), executed by the Chromium workflow. Unlike the eleven-case Node gate above, this fixture uses the **active immutable WEB 18.66 Metro module 311** to create and authenticate a genuine password-protected PBKDF2 (600,000 iterations) / AES-GCM backup of a complete **synthetic v4** ledger. It also loads the **real archived WEB 18.33 modules 309/310/311** into a separate, disposable same-origin Chromium tab with explicit test-only real-mode opt-in. The archived tab does not cooperate with the experimental Web Lock.
+
+Expected and observed boundaries on [PR head `10975b49`](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41199677886) (Chromium SUCCESS):
+
+- Wrong password, modified ciphertext and absent Web Locks fail closed with **zero writes by the read-only gate**. A successful backup authentication is evidence of control of *that file*, not authority to erase local data or proof of latest ledger freshness.
+- A genuine archived writer changes v1 ciphertext **while the new tab holds a real exclusive Web Lock**, before the final reinspection. The gate detects the change and returns `EVIDENCE_CHANGED`.
+- The archived writer changes v1 ciphertext **after** the final locked reinspection. The gate can return `READ_ONLY_REVIEW_ONLY` based on the now-stale fingerprint. This is an intentionally **passing negative security finding**, not a successful reset/restore. The test asserts the returned fingerprint differs from current origin evidence and that the gate has no `commit` function or writes.
+- Test data live only in disposable localhost Chromium contexts. No production bundle, backup format, storage schema, financial formula or user ledger changed.
+
+**Design options remain:** (A) ship a typed-confirmation + Web Lock reset — **reject**, as the archived client ignores the lock; (B) add a cooperating generation/epoch marker — useful for updated clients but **insufficient** for cached v1 writers; (C) use a separate transactional authority with explicit legacy quarantine and independently reviewed migration/commit protocol — **research candidate**, not yet proven against all crash and legacy races; (D) keep destructive recovery disabled while source provenance and write fencing cannot be guaranteed — **safe current position**. Full-origin rollback cannot be detected reliably using only origin-local evidence.
+
+**Next unfinished work:** a reviewed operation-specific reset/restore contract with explicit consequences and source selection; actual Safari iPhone/VoiceOver; tab-close/crash, no-Web-Locks and IDB-denial acceptance; and a proven way to prevent noncooperating cached clients from silently becoming authoritative. No destructive action is authorized by this research. The first CI attempt used an incomplete synthetic v4 fixture; a later attempt omitted the archived tab's explicit `fa_real=1` test opt-in. Both were corrected before the successful exact PR-head Chromium run. Do not misreport those red attempts as product regressions.
