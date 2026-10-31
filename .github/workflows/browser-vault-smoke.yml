@@ -12,6 +12,7 @@ on:
       - 'tests/browser-v2-restore-research.cjs'
       - 'tests/browser-authenticated-consent-legacy-writer-research.cjs'
       - 'tests/browser-consent-pagehide-reload-research.cjs'
+      - 'tests/browser-consent-blocked-browser-sigkill-research.cjs'
       - 'tests/browser-archived-v1-compatibility-research.cjs'
       - 'tests/browser-archived-v2-interleavings-research.cjs'
       - 'tests/browser-v2-sealed-authority-research.cjs'
@@ -37,6 +38,7 @@ on:
       - 'tests/browser-v2-restore-research.cjs'
       - 'tests/browser-authenticated-consent-legacy-writer-research.cjs'
       - 'tests/browser-consent-pagehide-reload-research.cjs'
+      - 'tests/browser-consent-blocked-browser-sigkill-research.cjs'
       - 'tests/browser-archived-v1-compatibility-research.cjs'
       - 'tests/browser-archived-v2-interleavings-research.cjs'
       - 'tests/browser-v2-sealed-authority-research.cjs'
@@ -76,6 +78,8 @@ jobs:
         run: node tests/browser-authenticated-consent-legacy-writer-research.cjs
       - name: Research actual Chromium pagehide/reload with blocked IDB and queued Web Lock (NOT PRODUCTION)
         run: node tests/browser-consent-pagehide-reload-research.cjs
+      - name: Research whole-browser SIGKILL while blocked IDB or Web Lock queued (NOT PRODUCTION)
+        run: node tests/browser-consent-blocked-browser-sigkill-research.cjs
       - name: Research real Chromium two-tab v2 staged restore and reset (synthetic only)
         run: node tests/browser-v2-restore-research.cjs
       - name: Characterize real archived v1 modules in two Chromium tabs (KNOWN UNSAFE)
