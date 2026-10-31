@@ -114,8 +114,18 @@ async function main(){
       [PAY,initial],{timeout:10000});
 
     // Actual active immutable module 311: PBKDF2 (600k) + AES-GCM, not mock proof.
-    // Generate a valid, empty synthetic state with the REAL current model.
-    const fixture=await current.evaluate(()=>window.__r(205).emptyState());
+    // Match the actual WEB v4 portable-backup schema (synthetic only).
+    const date=new Date().toISOString().slice(0,10);
+    const fixture={
+      version:4,names:[],nameChanges:[],rolesEffectiveFrom:date,
+      balanceChecks:[],checkAudit:[],currency:'RON',started:date,
+      accounts:[{id:'consent-synthetic',name:'Cont de test',kind:'current',opening:10000,date}],
+      incomes:[],expenses:[],debts:[],recurring:[],
+      transactions:[{id:'consent-synthetic-expense',name:'Operațiune test',kind:'expense',
+        accountId:'consent-synthetic',amount:125,date,details:[]}],
+      monthPlans:[{month:date.slice(0,7),budgets:[],expenses:[],debtPayments:[],contribution:0}],
+      goals:[],plans:[],reviews:{},audit:[]
+    };
     const backup=await current.evaluate(async({state,password})=>
       window.__r(311).backup(state,password,n=>crypto.getRandomValues(new Uint8Array(n))),
       {state:fixture,password:PASSWORD});
