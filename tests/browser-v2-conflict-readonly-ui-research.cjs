@@ -614,11 +614,12 @@ async function main(){
           req.onsuccess=()=>resolve(req.result);
           req.onerror=()=>reject(req.error);
         });
+        const envelope=await seal({status:'active',state:{transactions:['synthetic-newer']}});
         try{await new Promise((resolve,reject)=>{
           const tx=db.transaction('vault','readwrite');
           tx.objectStore('vault').put({
             revision:2,
-            envelope:await seal({status:'active',state:{transactions:['synthetic-newer']}}),
+            envelope,
             legacyFingerprint
           },'current');
           tx.oncomplete=resolve;
