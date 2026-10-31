@@ -291,6 +291,32 @@ async function main(){
     assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
     console.log('PASS Chromium denied localStorage read fails closed and preserves encrypted evidence');
 
+    // Fault injected AFTER authenticating the real AES-GCM backup, but BEFORE
+    // the final read under the real Web Lock. An earlier successful read must
+    // never be treated as permission to proceed when later storage is denied.
+    await current.evaluate(()=>{window.__consentResearch.phase=null;});
+    const deniedAtFinal=current.evaluate(({text,password})=>
+      window.__consentResearch.preview(text,password,'before'),
+      {text:backup,password:PASSWORD});
+    await current.waitForFunction(()=>window.__consentResearch.phase==='before',
+      null,{timeout:20000});
+    await current.evaluate(key=>{
+      const original=Storage.prototype.getItem;
+      window.__consentResearch.restoreFinalRead=()=>{Storage.prototype.getItem=original;};
+      Storage.prototype.getItem=function(name){
+        if(this===localStorage&&name===key)
+          throw new DOMException('Synthetic final-read denial','SecurityError');
+        return original.call(this,name);
+      };
+    },PAY);
+    await current.evaluate(()=>window.__consentResearch.release());
+    assert.equal((await deniedAtFinal).code,'STORAGE_UNAVAILABLE');
+    await current.evaluate(()=>window.__consentResearch.restoreFinalRead());
+    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
+    assert.equal(await current.evaluate(()=>window.__consentResearch.gateWrites),0);
+    assert.equal(await current.evaluate(()=>typeof window.__consentResearch.commit),'undefined');
+    console.log('PASS Chromium final locked reinspection SecurityError after real AES-GCM authentication blocks without gate writes');
+
     await current.evaluate(()=>window.__consentResearch.disarm());
     console.log('PASS KNOWN UNSAFE Chromium: authentic backup and final locked recheck DO NOT fence archived v1 writer after reinspection; no reset/restore exists');
   }finally{
