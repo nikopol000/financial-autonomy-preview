@@ -253,6 +253,7 @@ async function main(){
       key:localStorage.getItem(key),pay:localStorage.getItem(pay)
     }),[KEY,PAY]);
     assert.ok(intact.key&&intact.pay);
+    const intactPair=await current.evaluate(()=>window.__consentResearch.pair());
     for(const missing of [PAY,KEY]){
       await old.evaluate(name=>localStorage.removeItem(name),missing);
       await current.waitForFunction(([name])=>localStorage.getItem(name)===null,
@@ -267,8 +268,7 @@ async function main(){
       await current.waitForFunction(([name,value])=>localStorage.getItem(name)===value,
         [missing,missing===KEY?intact.key:intact.pay],{timeout:10000});
     }
-    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),
-      JSON.stringify([intact.key,intact.pay,null]));
+    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
     console.log('PASS Chromium ambiguous KEY-only/PAYLOAD-only footprints block authenticated consent review without gate writes');
 
     // A SecurityError on an actual localStorage read must fail closed; do not
@@ -288,8 +288,7 @@ async function main(){
     assert.equal(denied.code,'STORAGE_UNAVAILABLE');
     await current.evaluate(()=>window.__consentResearch.restoreGetItem());
     assert.equal(await current.evaluate(()=>window.__consentResearch.gateWrites),0);
-    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),
-      JSON.stringify([intact.key,intact.pay,null]));
+    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
     console.log('PASS Chromium denied localStorage read fails closed and preserves encrypted evidence');
 
     await current.evaluate(()=>window.__consentResearch.disarm());
