@@ -157,7 +157,9 @@ async function install(page){
           req.onerror=()=>reject(req.error);
         });
         const envelope=scenario==='corrupt'?{iv:[0],cipher:[0]}:
-          await seal({status:'active',state:{transactions:['synthetic']}}); 
+          await seal(scenario==='pending'?
+            {status:'reset',state:null,operationId:'SYNTHETIC-NOT-CONSENT'}:
+            {status:'active',state:{transactions:['synthetic']}}); 
         try{await new Promise((resolve,reject)=>{
           const tx=db.transaction(STORE,'readwrite');
           tx.objectStore(STORE).put({revision:1,envelope,legacyFingerprint:fp},'current');
@@ -192,7 +194,8 @@ async function main(){
       ['payload-only','INCOMPLETE_V1'],
       ['missing','MISSING_AUTHORITY'],
       ['corrupt','UNREADABLE_AUTHORITY'],
-      ['valid','UNAPPROVED_AUTHORITY']
+      ['valid','UNAPPROVED_AUTHORITY'],
+      ['pending','UNAPPROVED_AUTHORITY']
     ];
     for(const [scenario,expected] of scenarios){
       const context=await browser.newContext({viewport:{width:320,height:640}});
@@ -239,6 +242,60 @@ async function main(){
       assert.deepEqual(await page.evaluate(()=>window.__readonlyResearch.snapshot()),before);
       console.log('PASS isolated read-only conflict screen: IDB permission denial blocks without writes');
     }finally{await context.close();}
+
+    // A quarantined tab must not unlock, repair, or silently pick a ledger
+    // when an archived, non-cooperating tab writes after reset intent.
+    // This is an isolated synthetic writer, NOT a product reset implementation.
+    const lateContext=await browser.newContext({viewport:{width:320,height:640}});
+    try{
+      const blocked=await lateContext.newPage();
+      await blocked.goto(url);await install(blocked);
+      await blocked.evaluate(()=>window.__readonlyResearch.seed({scenario:'pending'}));
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'UNAPPROVED_AUTHORITY',blocked:true});
+      const baseline=await blocked.evaluate(()=>window.__readonlyResearch.snapshot());
+      const legacy=await lateContext.newPage();await legacy.goto(url);
+      await legacy.evaluate(()=>{
+        const key='financial-autonomy.preview.payload.v1';
+        const old=localStorage.getItem(key);
+        if(!old)throw Error('MISSING_SYNTHETIC_PAYLOAD');
+        localStorage.setItem(key,old+'-ARCHIVED-WRITER-AFTER-PENDING');
+      });
+      const afterLegacy=await blocked.evaluate(()=>window.__readonlyResearch.snapshot());
+      assert.equal(afterLegacy.local[0],baseline.local[0]);
+      assert.notEqual(afterLegacy.local[1],baseline.local[1]);
+      assert.deepEqual(afterLegacy.idb,baseline.idb);
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.inspect()),
+        {code:'LEGACY_DIVERGED',blocked:true});
+      await blocked.evaluate(()=>{
+        const audit={set:0,remove:0,idbReadwrite:0};
+        const set=Storage.prototype.setItem,remove=Storage.prototype.removeItem;
+        const transaction=IDBDatabase.prototype.transaction;
+        Storage.prototype.setItem=function(...args){audit.set++;return set.apply(this,args);};
+        Storage.prototype.removeItem=function(...args){audit.remove++;return remove.apply(this,args);};
+        IDBDatabase.prototype.transaction=function(...args){
+          if(args[1]==='readwrite')audit.idbReadwrite++;
+          return transaction.apply(this,args);
+        };
+        window.__quarantineWriteAudit=audit;
+      });
+      await blocked.getByRole('button',{name:'Verifică din nou'}).click();
+      await blocked.waitForFunction(()=>document.querySelector('h1')?.textContent===
+        'Datele locale nu coincid');
+      assert.match(await blocked.locator('h1').innerText(),/Datele locale nu coincid/);
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.inspect()),
+        {code:'LEGACY_DIVERGED',blocked:true});
+      assert.deepEqual(await blocked.evaluate(()=>window.__quarantineWriteAudit),
+        {set:0,remove:0,idbReadwrite:0});
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.snapshot()),afterLegacy);
+      await blocked.reload();await install(blocked);
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.render()),
+        {code:'LEGACY_DIVERGED',blocked:true});
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.snapshot()),afterLegacy);
+      assert.equal(await blocked.locator('input').count(),0);
+      console.log('PASS isolated read-only quarantine: archived late writer after pending reset remains blocked, zero reinspection writes, reload unchanged');
+    }finally{await lateContext.close();}
+
     fs.mkdirSync('artifacts/browser-v2-conflict-readonly',{recursive:true});
     for(const width of [320,390]){
       for(const theme of ['light','dark']){
