@@ -1,3 +1,11 @@
+## Actual Chromium orphan-pair and denied-read boundary (31 October 2026)
+
+[PR #357](https://github.com/nikopol000/financial-autonomy-preview/pull/357) extends the actual-browser [authenticated backup/archived-writer fixture](../tests/browser-authenticated-consent-legacy-writer-research.cjs), without importing it into the product. A read-only research preview now explicitly refuses **KEY-only** and **PAYLOAD-only** localStorage footprints, and returns `STORAGE_UNAVAILABLE` on a synthetic `SecurityError` during a storage read. Both orphan footprints may have multiple provenances (interrupted first save, partial reset, eviction, external deletion); they must not be treated as empty or automatically cleaned. The test restores the exact synthetic storage pair after each fault and confirms **zero gate writes**. It still authenticates a genuine WEB 18.66 PBKDF2/AES-GCM backup and retains the archived 18.33 late-writer **KNOWN UNSAFE** case.
+
+[Release CI #41204177525](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41204177525) and [Chromium #41204177494](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41204177494) completed SUCCESS; browser job logs include the named PASS lines. These are disposable browser fault simulations, **not** evidence that production recovery is safe, nor a report of a real user's failure. No destructive operation, financial formula, backup format or product bundle changed.
+
+**Unresolved design:** read-only authentication cannot fence a cached v1 writer after final reinspection; full-origin rollback remains locally undetectable. Before product reset/restore, define and explicitly approve an operation-specific transactional authority, crash/reload and legacy-client handling, plus accessible Safari/VoiceOver UX. Until then, no auto-delete, replay, rekey, resurrect, unlock or destructive commit.
+
 # WEB reset/restore consent: read-only evidence binding (2026-10-31)
 
 **Status: RESEARCH ONLY — NOT A PRODUCT FIX OR APPROVED DESTRUCTIVE CONTRACT.**
