@@ -150,7 +150,13 @@ async function main(){
         return originalRemove.call(this,name);
       };
       window.__consentResearch.preview=async(text,password,mode='none',locksAvailable=true)=>{
-        const before=pair();
+        let before;
+        try{before=pair();}catch(_){return {code:'STORAGE_UNAVAILABLE'};}
+        // An orphan KEY or PAYLOAD is ambiguous: interrupted initialization,
+        // deletion, reset or eviction cannot be distinguished by this origin.
+        const initialPair=JSON.parse(before);
+        if(Boolean(initialPair[0])!==Boolean(initialPair[1]))
+          return {code:'AMBIGUOUS_V1_PAIR'};
         if(!locksAvailable||typeof navigator.locks?.request!=='function')
           return {code:'NO_LOCKS'};
         let validated;
@@ -165,7 +171,11 @@ async function main(){
             window.__consentResearch.phase='before';
             await new Promise(resolve=>window.__consentResearch.release=resolve);
           }
-          const after=pair();
+          let after;
+          try{after=pair();}catch(_){return {code:'STORAGE_UNAVAILABLE'};}
+          const checkedPair=JSON.parse(after);
+          if(Boolean(checkedPair[0])!==Boolean(checkedPair[1]))
+            return {code:'AMBIGUOUS_V1_PAIR'};
           if(after!==before)return {code:'EVIDENCE_CHANGED'};
           if(mode==='after'){
             window.__consentResearch.phase='after';
@@ -235,6 +245,52 @@ async function main(){
     assert.notEqual(result.reviewed,await current.evaluate(()=>window.__consentResearch.pair()));
     assert.equal(await current.evaluate(()=>window.__consentResearch.gateWrites),0);
     assert.equal(await current.evaluate(()=>typeof window.__consentResearch.commit),'undefined');
+    // Real same-origin localStorage footprints with one surviving half must not
+    // be interpreted as empty or as authorization to replace an encrypted vault.
+    // All removals below are test-fixture operations in a disposable Chromium
+    // origin; the consent gate itself must perform ZERO storage writes.
+    const intact=await old.evaluate(([key,pay])=>({
+      key:localStorage.getItem(key),pay:localStorage.getItem(pay)
+    }),[KEY,PAY]);
+    assert.ok(intact.key&&intact.pay);
+    const intactPair=await current.evaluate(()=>window.__consentResearch.pair());
+    for(const missing of [PAY,KEY]){
+      await old.evaluate(name=>localStorage.removeItem(name),missing);
+      await current.waitForFunction(([name])=>localStorage.getItem(name)===null,
+        [missing],{timeout:10000});
+      const response=await current.evaluate(({text,password})=>
+        window.__consentResearch.preview(text,password),
+        {text:backup,password:PASSWORD});
+      assert.equal(response.code,'AMBIGUOUS_V1_PAIR',missing+' missing');
+      assert.equal(await current.evaluate(()=>window.__consentResearch.gateWrites),0);
+      await old.evaluate(([name,value])=>localStorage.setItem(name,value),
+        [missing,missing===KEY?intact.key:intact.pay]);
+      await current.waitForFunction(([name,value])=>localStorage.getItem(name)===value,
+        [missing,missing===KEY?intact.key:intact.pay],{timeout:10000});
+    }
+    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
+    console.log('PASS Chromium ambiguous KEY-only/PAYLOAD-only footprints block authenticated consent review without gate writes');
+
+    // A SecurityError on an actual localStorage read must fail closed; do not
+    // infer that inaccessible encrypted evidence is absent or disposable.
+    await current.evaluate(key=>{
+      const original=Storage.prototype.getItem;
+      window.__consentResearch.restoreGetItem=()=>{Storage.prototype.getItem=original;};
+      Storage.prototype.getItem=function(name){
+        if(this===localStorage&&name===key)
+          throw new DOMException('Synthetic denied read','SecurityError');
+        return original.call(this,name);
+      };
+    },KEY);
+    const denied=await current.evaluate(({text,password})=>
+      window.__consentResearch.preview(text,password),
+      {text:backup,password:PASSWORD});
+    assert.equal(denied.code,'STORAGE_UNAVAILABLE');
+    await current.evaluate(()=>window.__consentResearch.restoreGetItem());
+    assert.equal(await current.evaluate(()=>window.__consentResearch.gateWrites),0);
+    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
+    console.log('PASS Chromium denied localStorage read fails closed and preserves encrypted evidence');
+
     await current.evaluate(()=>window.__consentResearch.disarm());
     console.log('PASS KNOWN UNSAFE Chromium: authentic backup and final locked recheck DO NOT fence archived v1 writer after reinspection; no reset/restore exists');
   }finally{
