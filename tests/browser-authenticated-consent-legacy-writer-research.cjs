@@ -356,12 +356,17 @@ async function main(){
           try{
             if(!existing.objectStoreNames.contains(store))
               return {code:'IDB_STORE_MISSING'};
+            // A successful get() event is NOT a committed IDB transaction.
+            // Wait for oncomplete; an abort after onsuccess invalidates proof.
             const value=await new Promise((resolve,reject)=>{
               const tx=existing.transaction(store,'readonly');
               const read=tx.objectStore(store).get('sentinel');
-              read.onsuccess=()=>resolve(read.result);
-              read.onerror=()=>reject(read.error);
-              tx.onabort=()=>reject(tx.error);
+              let observed;
+              read.onsuccess=()=>{observed=read.result;};
+              read.onerror=()=>reject(read.error||Error('IDB read failed'));
+              tx.oncomplete=()=>resolve(observed);
+              tx.onerror=()=>reject(tx.error||Error('IDB transaction error'));
+              tx.onabort=()=>reject(tx.error||Error('IDB transaction aborted'));
             });
             return {code:value==='synthetic-marker'?'READ_ONLY_EVIDENCE':'IDB_UNVERIFIABLE'};
           }finally{existing.close();}
@@ -379,6 +384,38 @@ async function main(){
     assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
     assert.equal(await current.evaluate(()=>window.__consentResearch.gateWrites),0);
     console.log('PASS Chromium real IndexedDB readonly evidence after authentic WEB backup proof; zero vault writes');
+
+    // Force a REAL readonly transaction abort after get() reports success.
+    // The old helper returned READ_ONLY_EVIDENCE from get.onsuccess, before
+    // transaction completion. That event alone must not grant authority.
+    const abortedRead=await current.evaluate(async name=>{
+      const originalGet=IDBObjectStore.prototype.get;
+      let injected=false;
+      IDBObjectStore.prototype.get=function(key){
+        const request=originalGet.call(this,key);
+        if(this.name==='authority'&&key==='sentinel'){
+          const transaction=this.transaction;
+          request.addEventListener('success',()=>{
+            injected=true;
+            transaction.abort();
+          },{once:true});
+        }
+        return request;
+      };
+      try{
+        const result=await window.__consentResearch.idbReadOnly(name,'authority');
+        return {code:result.code,injected};
+      }finally{IDBObjectStore.prototype.get=originalGet;}
+    },idbName);
+    assert.equal(abortedRead.injected,true,'real get() success event reached');
+    assert.equal(abortedRead.code,'IDB_UNAVAILABLE',
+      'aborted readonly transaction must never count as verified evidence');
+    assert.equal((await current.evaluate(name=>
+      window.__consentResearch.idbReadOnly(name,'authority'),idbName)).code,
+      'READ_ONLY_EVIDENCE','retry must read the original synthetic sentinel');
+    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
+    assert.equal(await current.evaluate(()=>window.__consentResearch.gateWrites),0);
+    console.log('PASS Chromium real IDB abort AFTER get success blocks authority until transaction complete; retry read-only; zero vault writes');
 
     // A real version upgrade removes the expected object store. The read-only
     // preflight MUST refuse the incomplete schema without recreating it.
