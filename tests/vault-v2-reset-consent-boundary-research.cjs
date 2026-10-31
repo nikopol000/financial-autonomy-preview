@@ -7,47 +7,82 @@ const { createHash } = require('node:crypto');
 const PHRASE = 'ȘTERGE DATELE LOCALE';
 const fingerprint = evidence => createHash('sha256').update(JSON.stringify(evidence)).digest('hex');
 
-function createGate({ inspect, authenticate, withLock, onWrite }) {
+function createGate({ inspect, authenticate, withLock, onWrite, timeoutMs = 15000 }) {
   let epoch = 0;
   let cancelled = false;
+  let invalidateActive = null;
   const audit = { writes: 0, inspections: 0, proofs: 0 };
   const block = reason => Object.freeze({ state: 'BLOCKED', reason });
+  const STALE = Symbol('STALE_REQUEST');
+  const TIMEOUT = Symbol('TIMEOUT');
+  if (!Number.isFinite(timeoutMs) || timeoutMs < 1) throw Error('Invalid research timeout');
   const gate = {
     audit,
-    cancel() { epoch++; cancelled = true; },
+    cancel() {
+      epoch++;
+      cancelled = true;
+      invalidateActive?.();
+      invalidateActive = null;
+    },
     async preview({ phrase, backupVerified, selectedSource, locksAvailable }) {
       const ticket = ++epoch;
+      // Supersede an older pending inspection even when its IDB/lock promise
+      // never settles. No operation in this gate has a write capability.
+      invalidateActive?.();
       cancelled = false;
-      if (!locksAvailable) return block('NO_LOCKS');
-      if (phrase !== PHRASE) return block('NO_EXPLICIT_PHRASE');
-      if (!backupVerified || selectedSource !== 'verified-backup') return block('NO_VERIFIED_SOURCE');
-      if (typeof inspect !== 'function' || typeof authenticate !== 'function' || typeof withLock !== 'function') return block('UNSUPPORTED');
-      const current = () => !cancelled && ticket === epoch;
+      let invalidate;
+      const invalidated = new Promise(resolve => {
+        invalidate = () => resolve(STALE);
+      });
+      invalidateActive = invalidate;
+      let timer;
+      let expired = false;
+      const deadline = new Promise(resolve => {
+        timer = setTimeout(() => { expired = true; resolve(TIMEOUT); }, timeoutMs);
+      });
+      const current = () => !cancelled && !expired && ticket === epoch;
+      const wait = promise => Promise.race([Promise.resolve(promise), invalidated, deadline]);
+      const interruption = (value, reason) =>
+        value === STALE ? block('STALE_REQUEST') :
+        value === TIMEOUT ? block(reason) : null;
       try {
-        // A snapshot is only evidence, never proof of freshness outside this origin.
+        if (!locksAvailable) return block('NO_LOCKS');
+        if (phrase !== PHRASE) return block('NO_EXPLICIT_PHRASE');
+        if (!backupVerified || selectedSource !== 'verified-backup') return block('NO_VERIFIED_SOURCE');
+        if (typeof inspect !== 'function' || typeof authenticate !== 'function' || typeof withLock !== 'function') return block('UNSUPPORTED');
         audit.inspections++;
-        const before = await inspect();
+        const before = await wait(inspect());
+        const interruptedBefore = interruption(before, 'INSPECTION_TIMEOUT');
+        if (interruptedBefore) return interruptedBefore;
         if (!current()) return block('STALE_REQUEST');
         if (!before || before.status !== 'CONFLICT' || !before.bytes) return block('UNVERIFIABLE');
         const beforeDigest = fingerprint(before);
         audit.proofs++;
-        const proved = await authenticate(); // mock proof; do not retain passwords.
+        const proved = await wait(authenticate()); // mock proof; do not retain passwords.
+        const interruptedProof = interruption(proved, 'PROOF_TIMEOUT');
+        if (interruptedProof) return interruptedProof;
         if (!current()) return block('STALE_REQUEST');
         if (proved !== true) return block('AUTH_FAILED');
-        // This is a read-only reinspection under a cooperating lock, not a write.
-        return await withLock(async () => {
+        const locked = await wait(withLock(async () => {
           if (!current()) return block('STALE_REQUEST');
           audit.inspections++;
-          const after = await inspect();
+          const after = await wait(inspect());
+          const interruptedAfter = interruption(after, 'REINSPECTION_TIMEOUT');
+          if (interruptedAfter) return interruptedAfter;
           if (!current()) return block('STALE_REQUEST');
           if (!after || after.status !== 'CONFLICT' || fingerprint(after) !== beforeDigest) return block('EVIDENCE_CHANGED');
-          // No commit/delete/restore capability is exposed by this research gate.
+          // This is never authorization to delete, reset, restore or migrate.
           return Object.freeze({ state: 'READY_FOR_DESIGN_REVIEW', reason: 'READ_ONLY_RECHECK', fingerprint: beforeDigest });
-        });
-      } catch { return block('UNVERIFIABLE'); }
+        }));
+        return interruption(locked, 'LOCK_TIMEOUT') || locked;
+      } catch {
+        return block('UNVERIFIABLE');
+      } finally {
+        clearTimeout(timer);
+        if (invalidateActive === invalidate) invalidateActive = null;
+      }
     },
   };
-  // Explicitly reject any attempted injection of a destructive callback.
   if (onWrite !== undefined) throw Error('Research gate cannot accept a write callback');
   return gate;
 }
@@ -186,4 +221,62 @@ test('negative boundary: archived writer after final locked read is not fenced b
   assert.equal(gate.audit.writes, 0);
   assert.equal(typeof gate.commit, 'undefined');
   // Passing this test demonstrates a LIMIT, not safe reset/restore authorization.
+});
+
+test('bounded pending IDB-like inspection fails closed and later result cannot authorize a write', async () => {
+  let release;
+  let calls = 0;
+  const { gate, input } = fixture({
+    timeoutMs: 30,
+    inspect: () => ++calls === 1 ?
+      new Promise(resolve => { release = resolve; }) :
+      Promise.resolve({ status: 'CONFLICT', bytes: 'synthetic-retry', revision: 7 }),
+  });
+  const first = await gate.preview(input);
+  assert.equal(first.reason, 'INSPECTION_TIMEOUT');
+  assert.equal(gate.audit.inspections, 1);
+  release({ status: 'CONFLICT', bytes: 'late-untrusted-result', revision: 7 });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(gate.audit.writes, 0);
+  assert.equal(typeof gate.commit, 'undefined');
+  const retry = await gate.preview(input);
+  assert.equal(retry.state, 'READY_FOR_DESIGN_REVIEW');
+  assert.equal(gate.audit.writes, 0);
+});
+
+test('cancel immediately supersedes a never-settling lock without waiting for its release', async () => {
+  let entered, release;
+  const enteredLock = new Promise(resolve => { entered = resolve; });
+  const heldLock = new Promise(resolve => { release = resolve; });
+  const { gate, input } = fixture({
+    timeoutMs: 5000,
+    withLock: async action => { entered(); await heldLock; return action(); },
+  });
+  const pending = gate.preview(input);
+  await enteredLock;
+  gate.cancel();
+  assert.equal((await pending).reason, 'STALE_REQUEST');
+  assert.equal(gate.audit.inspections, 1);
+  release();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(gate.audit.inspections, 1);
+  assert.equal(gate.audit.writes, 0);
+});
+
+test('bounded lock timeout prevents late reinspection even if a legacy tab later releases it', async () => {
+  let entered, release;
+  const enteredLock = new Promise(resolve => { entered = resolve; });
+  const heldLock = new Promise(resolve => { release = resolve; });
+  const { gate, input } = fixture({
+    timeoutMs: 30,
+    withLock: async action => { entered(); await heldLock; return action(); },
+  });
+  const pending = gate.preview(input);
+  await enteredLock;
+  assert.equal((await pending).reason, 'LOCK_TIMEOUT');
+  release();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(gate.audit.inspections, 1);
+  assert.equal(gate.audit.writes, 0);
+  assert.equal(typeof gate.commit, 'undefined');
 });
