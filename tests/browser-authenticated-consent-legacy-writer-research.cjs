@@ -464,6 +464,103 @@ async function main(){
     assert.equal(await current.evaluate(()=>typeof window.__consentResearch.commit),'undefined');
     console.log('PASS Chromium injected IndexedDB SecurityError blocks readonly preflight; zero vault writes; NO destructive authority');
 
+
+    // Real cross-tab IndexedDB version upgrade blocked by an old connection.
+    // A deadline must not promote a late request into recovery authority.
+    const blockedDb='fa-consent-disposable-blocked-upgrade-20261031';
+    await old.evaluate(async name=>{
+      const request=indexedDB.open(name,1);
+      request.onupgradeneeded=()=>request.result.createObjectStore('synthetic');
+      window.__blockedDbConnection=await new Promise((resolve,reject)=>{
+        request.onsuccess=()=>resolve(request.result);
+        request.onerror=()=>reject(request.error);
+      });
+    },blockedDb);
+    const blockedOutcome=await current.evaluate(async name=>{
+      const probe={blocked:false,timedOut:false,upgradeSeen:false,
+        lateError:null,unexpectedSuccess:false};
+      window.__consentResearch.blockedIdbProbe=probe;
+      const request=indexedDB.open(name,2);
+      request.onblocked=()=>{probe.blocked=true;};
+      request.onupgradeneeded=()=>{
+        probe.upgradeSeen=true;
+        // A late upgrade must not initialize or mutate authority.
+        request.transaction.abort();
+      };
+      request.onsuccess=()=>{
+        probe.unexpectedSuccess=true;
+        request.result.close();
+      };
+      request.onerror=()=>{probe.lateError=request.error?.name||'unknown';};
+      await new Promise(resolve=>setTimeout(resolve,300));
+      probe.timedOut=true;
+      return 'INSPECTION_TIMEOUT';
+    },blockedDb);
+    assert.equal(blockedOutcome,'INSPECTION_TIMEOUT');
+    await current.waitForFunction(()=>window.__consentResearch.blockedIdbProbe.blocked,
+      null,{timeout:10000});
+    assert.equal(await current.evaluate(()=>
+      window.__consentResearch.blockedIdbProbe.upgradeSeen),false);
+    await old.evaluate(()=>window.__blockedDbConnection.close());
+    await current.waitForFunction(()=>window.__consentResearch.blockedIdbProbe.lateError,
+      null,{timeout:10000});
+    const blockedProof=await current.evaluate(()=>
+      window.__consentResearch.blockedIdbProbe);
+    assert.equal(blockedProof.upgradeSeen,true);
+    assert.equal(blockedProof.unexpectedSuccess,false);
+    assert.equal(blockedProof.lateError,'AbortError');
+    const unchangedVersion=await current.evaluate(async name=>{
+      const request=indexedDB.open(name);
+      const db=await new Promise((resolve,reject)=>{
+        request.onsuccess=()=>resolve(request.result);
+        request.onerror=()=>reject(request.error);
+      });
+      const version=db.version;
+      db.close();
+      return version;
+    },blockedDb);
+    assert.equal(unchangedVersion,1,'timed-out upgrade must not change schema');
+    assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
+    assert.equal(await current.evaluate(()=>window.__consentResearch.gateWrites),0);
+    console.log('PASS Chromium REAL blocked IndexedDB upgrade: timeout, late abort, unchanged schema and encrypted vault');
+
+    // A queued REAL Web Lock is cancellable with AbortSignal, before the
+    // callback begins. Exercise user cancellation and deadline separately.
+    for(const reason of ['CANCELLED','LOCK_TIMEOUT']){
+      const heldLock=LOCK+'-queued-'+reason;
+      await old.evaluate(()=>{
+        window.__researchLockHeld=false;
+        window.__researchLockRelease=null;
+      });
+      const holding=old.evaluate(name=>navigator.locks.request(name,
+        {mode:'exclusive'},async()=>{
+          window.__researchLockHeld=true;
+          await new Promise(resolve=>{window.__researchLockRelease=resolve;});
+        }),heldLock);
+      await old.waitForFunction(()=>window.__researchLockHeld===true,
+        null,{timeout:10000});
+      const queued=await current.evaluate(async name=>{
+        const controller=new AbortController();
+        let entered=false;
+        const pending=navigator.locks.request(name,
+          {mode:'exclusive',signal:controller.signal},async()=>{
+            entered=true;
+            return 'UNSAFE_LATE_CALLBACK';
+          }).then(()=> 'UNEXPECTED_SUCCESS',error=>error.name);
+        await new Promise(resolve=>setTimeout(resolve,200));
+        controller.abort();
+        return {outcome:await pending,entered};
+      },heldLock);
+      assert.equal(queued.outcome,'AbortError');
+      assert.equal(queued.entered,false);
+      await old.evaluate(()=>window.__researchLockRelease());
+      await holding;
+      assert.equal(await current.evaluate(()=>window.__consentResearch.pair()),intactPair);
+      assert.equal(await current.evaluate(()=>window.__consentResearch.gateWrites),0);
+      console.log('PASS Chromium REAL queued Web Lock '+reason+
+        ': AbortSignal prevents late callback, encrypted vault preserved');
+    }
+
     await current.evaluate(()=>window.__consentResearch.disarm());
     console.log('PASS KNOWN UNSAFE Chromium: authentic backup and final locked recheck DO NOT fence archived v1 writer after reinspection; no reset/restore exists');
   }finally{
