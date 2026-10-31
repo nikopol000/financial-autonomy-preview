@@ -110,7 +110,8 @@ async function main(){
       [PAY,initial],{timeout:10000});
 
     // Actual active immutable module 311: PBKDF2 (600k) + AES-GCM, not mock proof.
-    const fixture={version:4,accounts:[],transactions:[],balanceChecks:[]};
+    // Generate a valid, empty synthetic state with the REAL current model.
+    const fixture=await current.evaluate(()=>window.__r(205).emptyState());
     const backup=await current.evaluate(async({state,password})=>
       window.__r(311).backup(state,password,n=>crypto.getRandomValues(new Uint8Array(n))),
       {state:fixture,password:PASSWORD});
