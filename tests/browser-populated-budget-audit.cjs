@@ -215,6 +215,67 @@ async function budgetInteractiveReachability(page,phase,allowOcclusion=false){
     caveat:'Chromium DOM-order/focus/geometry only; not Safari, VoiceOver or text-only enlargement'};
 }
 
+/**
+ * #85: locate the *actual* navigation surface and the scrollable budget
+ * ancestor at 200% CSS zoom. Record a manual scroll-to-end probe separately
+ * from Playwright's scrollIntoViewIfNeeded() result. Diagnostic only: no
+ * DOM/CSS changes, no storage writes, no Safari accessibility claim.
+ */
+async function zoomFooterGeometry(page,phase){
+  const detail=page.getByText(/Lunar · principală/).last();
+  return detail.evaluate(async (el,phase)=>{
+    const round=n=>Math.round(n*100)/100;
+    const box=node=>{
+      const r=node.getBoundingClientRect();
+      return {top:round(r.top),bottom:round(r.bottom),left:round(r.left),
+        right:round(r.right),width:round(r.width),height:round(r.height)};
+    };
+    const describe=node=>{
+      const s=getComputedStyle(node);
+      return {tag:node.tagName,role:node.getAttribute('role'),
+        position:s.position,overflowY:s.overflowY,pointerEvents:s.pointerEvents,
+        zIndex:s.zIndex,rect:box(node)};
+    };
+    const tabs=[...document.querySelectorAll('[role="tab"]')];
+    const navAncestors=[];
+    for(let node=tabs[0];node&&navAncestors.length<12;node=node.parentElement)
+      navAncestors.push(describe(node));
+    const scrollNodes=[];
+    for(let node=el.parentElement;node;node=node.parentElement){
+      const s=getComputedStyle(node);
+      if(node.scrollHeight>node.clientHeight+2&&/auto|scroll/.test(s.overflowY))
+        scrollNodes.push(node);
+    }
+    const snapshot=()=>{
+      const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+      const hit=x>=0&&x<innerWidth&&y>=0&&y<innerHeight?
+        document.elementFromPoint(x,y):null;
+      const hitPath=[];
+      for(let node=hit;node&&hitPath.length<7;node=node.parentElement)
+        hitPath.push({tag:node.tagName,role:node.getAttribute('role'),
+          className:typeof node.className==='string'?node.className.slice(0,70):''});
+      return {target:box(el),centerExposed:!!hit&&(hit===el||el.contains(hit)),
+        hitPath,scrollAncestors:scrollNodes.slice(0,5).map(node=>({
+          ...describe(node),scrollTop:round(node.scrollTop),
+          maxScroll:round(node.scrollHeight-node.clientHeight),
+          scrollHeight:node.scrollHeight,clientHeight:node.clientHeight}))};
+    };
+    const afterAutoScroll=snapshot();
+    let afterManualScrollToEnd=null;
+    if(scrollNodes.length){
+      const node=scrollNodes[0],before=node.scrollTop;
+      try{
+        node.scrollTop=node.scrollHeight;
+        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+        afterManualScrollToEnd=snapshot();
+      }finally{node.scrollTop=before;}
+    }
+    return {phase,viewport:{width:innerWidth,height:innerHeight},tabCount:tabs.length,
+      navAncestors,afterAutoScroll,afterManualScrollToEnd,
+      caveat:'CSS zoom proxy and manual scroll probe; not Safari/Dynamic Type/VoiceOver'};
+  },phase);
+}
+
 async function audit(browser,url,width,scheme){
   const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:2,
     isMobile:true,hasTouch:true,colorScheme:scheme,timezoneId:'Europe/Bucharest',reducedMotion:'reduce'});
@@ -316,6 +377,13 @@ async function audit(browser,url,width,scheme){
     // This remains a Chromium CSS-zoom stress proxy, NOT Safari/Dynamic Type.
     const scrollZoom=await budgetScrollReachability(page,'csszoom200',true);
     const interactiveZoom=await budgetInteractiveReachability(page,'csszoom200',true);
+    const footerZoom=await zoomFooterGeometry(page,'csszoom200');
+    assert.equal(footerZoom.tabCount,5,'Footer diagnosis must inspect all five navigation tabs');
+    assert.ok(footerZoom.afterAutoScroll.scrollAncestors.length>0,
+      'Footer diagnosis must identify a scrollable budget ancestor');
+    console.log('ZOOM FOOTER GEOMETRY #85 '+label+' '+JSON.stringify({
+      nav:footerZoom.navAncestors.slice(0,6),auto:footerZoom.afterAutoScroll,
+      manual:footerZoom.afterManualScrollToEnd}));
     // CSS zoom can expose a real hit-test occlusion even when nav labels fit.
     // Preserve it in geometry instead of silently converting it to a pass.
     const zoomOccluded=(!scrollZoom.centerExposed?1:0)+
@@ -353,7 +421,7 @@ async function audit(browser,url,width,scheme){
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
       limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
-      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},encryptedVaultUntouched:true};
+      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,footerGeometry:footerZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
       '; zoom200 scrollWidth='+zoom.documentScrollWidth+
       '; nav text overlaps='+navZoom.textOverlapPairs.length+
