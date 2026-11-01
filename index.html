@@ -50,8 +50,10 @@
         }
         /* WEB 18.72: Chromium dark forced-colors suppresses box-shadow
            and RN Web zeroes outline width on arrangement Pressables. */
-        #root [role="button"]:focus-visible {
-          outline: 3px solid Highlight !important;
+        #root [role="button"]:focus-visible:focus {
+          outline-width: 3px !important;
+          outline-style: solid !important;
+          outline-color: Highlight !important;
           outline-offset: 3px;
         }
       }
