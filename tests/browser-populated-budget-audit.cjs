@@ -519,26 +519,6 @@ async function audit(browser,url,width,scheme){
         outlineColor:css.outlineColor,boxShadow:css.boxShadow};
     });
     console.log('FORCED COLORS #400 '+label+' '+JSON.stringify(forcedColorsFocus));
-    // Diagnostic only: temporary CSS is removed before the product assertion.
-    // Distinguish RN Web outline-width overrides from forced-colors border paint.
-    const forcedColorCandidates=await actionsUp.evaluate(el=>{
-      const style=document.createElement('style');
-      document.head.appendChild(style);
-      const rules=[
-        '#root [role="button"]:focus-visible { outline-width: 3px !important; outline-style: solid !important; outline-color: Highlight !important; }',
-        '#root [role="button"]:focus-visible { outline: 3px solid Highlight !important; outline-width: 3px !important; }',
-        '#root [role="button"]:focus-visible { border: 3px solid Highlight !important; }'
-      ];
-      const values=rules.map(rule=>{
-        style.textContent=rule;
-        const css=getComputedStyle(el);
-        return {rule,outlineWidth:css.outlineWidth,outlineStyle:css.outlineStyle,
-          borderTopWidth:css.borderTopWidth,borderTopStyle:css.borderTopStyle};
-      });
-      style.remove();
-      return values;
-    });
-    console.log('FORCED COLORS CANDIDATES #400 '+label+' '+JSON.stringify(forcedColorCandidates));
     assert.equal(forcedColorsFocus.focused,true,
       'Forced-colors focus must stay on the active Dashboard reorder button');
     assert.equal(forcedColorsFocus.focusVisible,true,
