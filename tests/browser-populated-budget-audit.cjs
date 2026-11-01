@@ -513,6 +513,9 @@ async function focusFollowingZoomNavInput(page,label,css){
       await page.keyboard.press('Enter');
       const keyboardRow=page.getByText('Bugete',{exact:true}).last();
       await keyboardRow.waitFor({state:'visible',timeout:3000});
+      // The menu rerender may drop focus to body. Seed the *tab*, never the
+      // menu row, then use only natural Tab traversal to reach the target.
+      await moreTab.focus();
       keyboardPatch=await keyboardRow.evaluate(el=>{
         let scroll=null;
         for(let node=el.parentElement;node;node=node.parentElement){
@@ -538,8 +541,9 @@ async function focusFollowingZoomNavInput(page,label,css){
           const x=r?(r.left+r.right)/2:-1,y=r?(r.top+r.bottom)/2:-1;
           const hit=x>=0&&x<innerWidth&&y>=0&&y<innerHeight?
             document.elementFromPoint(x,y):null;
-          return {name:(active?.getAttribute('aria-label')||active?.textContent||'').trim().slice(0,75),
-            target:!!active&&(active===row||row.contains(active)||active.contains(el)),
+          return {name:active===document.body?'[body]':
+              (active?.getAttribute('aria-label')||active?.textContent||'').trim().slice(0,75),
+            target:!!active&&active!==document.body&&(active===row||row.contains(active)),
             focusVisible:!!active&&active.matches(':focus-visible'),
             centerExposed:!!hit&&(hit===active||active?.contains(hit))};
         });
