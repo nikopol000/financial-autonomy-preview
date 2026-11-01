@@ -352,7 +352,9 @@ async function shortHeightLayoutCandidate(page,label,name,css){
     if(name==='outer-scroll'){
       const probe=async (locator,description,focus=false)=>{
         await locator.evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest'}));
-        if(focus)await locator.focus();
+        // Establish keyboard input modality before focusing; programmatic
+        // focus after a pointer click does not necessarily match :focus-visible.
+        if(focus){await page.keyboard.press('Tab');await locator.focus();}
         await page.waitForTimeout(60);
         const state=await locator.evaluate(el=>{
           const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
