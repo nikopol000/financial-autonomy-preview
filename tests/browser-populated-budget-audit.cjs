@@ -233,6 +233,93 @@ async function naturalZoomNavInput(page,label,css){
   }
 }
 
+
+/**
+ * #85 DISCOVERY C2: test-only focus-following scroll in the actual DEMO
+ * navigation. Unlike C, the scrolling rule is installed in the candidate
+ * itself, never rescued by a Playwright scrollIntoViewIfNeeded call.
+ * Diagnostic results are NOT Safari / VoiceOver / WCAG acceptance.
+ */
+async function focusFollowingZoomNavInput(page,label,css){
+  const style=await page.addStyleTag({content:css+
+    '#root :has(> [role="tab"]){scroll-snap-type:none!important;'+
+    'scrollbar-width:thin!important;scrollbar-color:currentColor transparent!important}'});
+  const names=['Acasă','Finanțe','Adaugă','Istoric','Mai mult'];
+  try{
+    await page.evaluate(()=>{
+      const tabs=[...document.querySelectorAll('[role="tab"]')];
+      const strip=tabs[0]?.parentElement;
+      if(tabs.length!==5||!strip||tabs.some(tab=>tab.parentElement!==strip))
+        throw Error('C2 needs exactly five sibling tabs in the real navigation strip');
+      const follow=event=>{
+        const tab=event.target.closest?.('[role="tab"]');
+        if(!tab||tab.parentElement!==strip)return;
+        const outer=strip.getBoundingClientRect();
+        const target=tab.getBoundingClientRect();
+        // getBoundingClientRect is zoomed, scrollLeft/clientWidth are not.
+        const scale=outer.width/strip.clientWidth||1;
+        strip.scrollLeft+=((target.left+target.right)-(outer.left+outer.right))/(2*scale);
+      };
+      strip.addEventListener('focusin',follow);
+      strip.__web85C2Follow=follow;
+    });
+    const inspect=()=>page.evaluate(()=>{
+      const tab=document.activeElement;
+      const strip=tab.parentElement;
+      const r=tab.getBoundingClientRect();
+      const x=(r.left+r.right)/2,y=(r.top+r.bottom)/2;
+      const hit=x>=0&&x<innerWidth&&y>=0&&y<innerHeight?
+        document.elementFromPoint(x,y):null;
+      return {name:tab.getAttribute('aria-label')||tab.textContent?.trim(),
+        role:tab.getAttribute('role'),focusVisible:tab.matches(':focus-visible'),
+        centerExposed:!!hit&&(hit===tab||tab.contains(hit)),
+        scrollLeft:strip.scrollLeft,scrollWidth:strip.scrollWidth,
+        clientWidth:strip.clientWidth,scrollbarWidth:getComputedStyle(strip).scrollbarWidth};
+    });
+    await page.getByRole('tab',{name:names[0],exact:true}).focus();
+    await page.waitForTimeout(80);
+    const forward=[await inspect()];
+    for(let i=1;i<names.length;i++){
+      await page.keyboard.press('Tab');
+      await page.waitForTimeout(80);
+      forward.push(await inspect());
+    }
+    const reverse=[];
+    for(let i=names.length-2;i>=0;i--){
+      await page.keyboard.press('Shift+Tab');
+      await page.waitForTimeout(80);
+      reverse.push(await inspect());
+    }
+    const forwardOrder=forward.every((item,i)=>item.role==='tab'&&item.name===names[i]);
+    const reverseOrder=reverse.every((item,i)=>item.role==='tab'&&item.name===names[names.length-2-i]);
+    const exposed=forward.concat(reverse).every(item=>item.centerExposed&&item.focusVisible);
+    const demo=await page.evaluate(()=>({
+      warning:[...document.querySelectorAll('*')].some(el=>
+        el.children.length===0&&el.textContent?.trim()==='DEMO · DATE FICTIVE'),
+      exit:[...document.querySelectorAll('button,[role="button"]')].some(el=>
+        (el.getAttribute('aria-label')||el.textContent||'').includes('Ieși din demo'))
+    }));
+    assert.ok(demo.warning&&demo.exit,'C2 research must retain DEMO warning and exit');
+    const vault=await page.evaluate(keys=>keys.map(key=>localStorage.getItem(key)),VAULT_KEYS);
+    assert.deepEqual(vault,[null,null,null],'C2 research must not write encrypted vault');
+    const result={forward,reverse,forwardOrder,reverseOrder,exposed,demo,
+      caveat:'Reversible focusin handler on disposable Chromium CSS zoom; not shipped or native Safari evidence'};
+    console.log('FOCUS FOLLOW ZOOM NAV C2 #85 '+label+' '+JSON.stringify(result));
+    await page.screenshot({path:path.join(OUT,'zoom-nav-focus-follow-c2-'+label+'.png'),fullPage:true});
+    return result;
+  }finally{
+    await page.evaluate(()=>{
+      const strip=document.querySelector('[role="tab"]')?.parentElement;
+      if(strip?.__web85C2Follow){
+        strip.removeEventListener('focusin',strip.__web85C2Follow);
+        delete strip.__web85C2Follow;
+      }
+    });
+    await style.evaluate(el=>el.remove());
+    await page.waitForTimeout(60);
+  }
+}
+
 /**
  * #85: real keyboard traversal and visible focus in Chromium. This checks
  * DOM keyboard order and CSS :focus-visible; it is NOT VoiceOver/Safari.
@@ -786,6 +873,7 @@ async function audit(browser,url,width,scheme){
       horizontal:await zoomNavigationCandidate(page,label,'horizontal-scroll',scrollNavCSS)
     };
     const naturalNav=await naturalZoomNavInput(page,label,scrollNavCSS);
+    const focusFollowingC2=await focusFollowingZoomNavInput(page,label,scrollNavCSS);
     assert.deepEqual(navZoom.textOverlapPairs,[], 'Navigation labels must not overlap at 200% CSS zoom');
     assert.deepEqual(navZoom.hitTargetOverlapPairs,[], '200% CSS zoom navigation pressable targets must not overlap');
     assert.deepEqual(navZoom.textOutsideHitTarget,[], 'Navigation labels must fit hit targets at 200% CSS zoom');
@@ -911,7 +999,7 @@ async function audit(browser,url,width,scheme){
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
       limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
-      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,navCandidates,naturalNav,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,footerGeometry:footerZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},halfWidthHalfHeight:{...halfBothShell,scroll:halfBoth},shortHeightCandidates:{product:productShort,outer:candidateOuter,shell:candidateShell,
+      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,navCandidates,naturalNav,focusFollowingC2,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,footerGeometry:footerZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},halfWidthHalfHeight:{...halfBothShell,scroll:halfBoth},shortHeightCandidates:{product:productShort,outer:candidateOuter,shell:candidateShell,
         productReduced,reduced:candidateReduced},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
       '; zoom200 scrollWidth='+zoom.documentScrollWidth+
