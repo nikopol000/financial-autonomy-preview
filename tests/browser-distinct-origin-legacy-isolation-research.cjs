@@ -222,6 +222,64 @@ async function main(){
       [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),newBeforeCollision,
       'read-only new-origin inspection must not write its encrypted envelope');
 
+    // Time-of-check/time-of-use adversary: a complete, read-only inspection
+    // can truthfully find equal ledgers, then become stale before a cutover.
+    // This is sequential and deterministic, not a claim of atomic handoff.
+    const inspectedState=state('post-inspection-same-id');
+    await old.evaluate(s=>window.__oldVault.save(s),inspectedState);
+    await fresh.evaluate(s=>window.__oldVault.save(s),inspectedState);
+    const oldAtInspection=await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]);
+    const newAtInspection=await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]);
+    const inspectedOld=await old.evaluate(()=>window.__oldVault.load());
+    const inspectedNew=await fresh.evaluate(()=>window.__oldVault.load());
+    assert.deepEqual(inspectedOld,inspectedNew,
+      'complete decrypted states are identical at the read-only inspection point');
+    assert.deepEqual(await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),oldAtInspection,
+      'old-origin read-only inspection cannot mutate its encrypted envelope');
+    assert.deepEqual(await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),newAtInspection,
+      'new-origin read-only inspection cannot mutate its encrypted envelope');
+
+    const afterInspection=state('post-inspection-same-id');
+    afterInspection.transactions[0].amount=205;
+    afterInspection.transactions.push({
+      id:'post-inspection-new-expense',kind:'expense',amount:40,
+      date:'2026-11-01',accountId:'synthetic'
+    });
+    await old.evaluate(s=>window.__oldVault.save(s),afterInspection);
+    const oldAfterInspection=await old.evaluate(()=>window.__oldVault.load());
+    const newAfterInspection=await fresh.evaluate(()=>window.__oldVault.load());
+    assert.deepEqual(oldAfterInspection,afterInspection,
+      'archived old tab commits changed amount and new transaction after equality check');
+    assert.deepEqual(newAfterInspection,inspectedNew,
+      'independent origin retains its previously inspected state');
+    assert.notDeepEqual(oldAfterInspection,newAfterInspection,
+      'one-time full-state equality does not confer future source freshness');
+    assert.deepEqual(inspectedOld,inspectedNew,
+      'previously observed equality remains a stale observation, not authority');
+    assert.notDeepEqual(await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),oldAtInspection,
+      'post-inspection old-origin write must change the archived envelope');
+    assert.deepEqual(await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),newAtInspection,
+      'post-inspection old-origin write must not touch the independent envelope');
+    const oldAfterRead=await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]);
+    const newAfterRead=await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]);
+    assert.deepEqual(await old.evaluate(()=>window.__oldVault.load()),afterInspection);
+    assert.deepEqual(await fresh.evaluate(()=>window.__oldVault.load()),inspectedNew);
+    assert.deepEqual(await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),oldAfterRead,
+      'detecting divergence is read-only on the old origin');
+    assert.deepEqual(await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),newAfterRead,
+      'detecting divergence is read-only on the new origin');
+
+    console.log('PASS RESEARCH: complete read-only equality becomes stale after later archived write');
     console.log('PASS RESEARCH: same-origin paths share archived v1 ledger');
     console.log('PASS RESEARCH: late archived v1 AES-GCM write cannot alter second-origin localStorage');
     console.log('PASS RESEARCH: same-name IndexedDB databases are origin-isolated');
