@@ -18,8 +18,7 @@ for(const [from,to] of [
 }
 assert.equal(current,expected,'WEB 18.71 JS must change ONLY diagnostic version and filename');
 const html=read('index.html');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\.71"/);
-assert.match(html,/index-v01871-dashboard-keyboard-focus-20261101\.js\?build=18\.71\.1/);
+// Archived WEB 18.71 immutable diff guard; current HTML is validated by active-version tests.
 assert.match(html,/#root \[role="button"\]:focus-visible\s*\{\s*box-shadow:\s*inset 0 0 0 3px #159cb4 !important;/);
 assert.match(html,/#root \[role="tab"\]:focus-visible/,'Existing keyboard tab focus must remain');
 assert.match(html,/@media \(forced-colors: active\)/,'Forced colors fallback must remain');

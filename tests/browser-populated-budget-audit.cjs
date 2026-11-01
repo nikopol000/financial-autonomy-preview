@@ -511,6 +511,9 @@ async function audit(browser,url,width,scheme){
     // Browser CSS box-shadows may be suppressed; log actual focus treatment
     // without claiming Safari, Windows AT, or WCAG conformance.
     await page.emulateMedia({forcedColors:'active'});
+    // Media change may rerender RN Web classes; inspect the settled state,
+    // not a synchronous intermediate style while the DOM is reconciling.
+    await page.waitForTimeout(250);
     const forcedColorsFocus=await actionsUp.evaluate(el=>{
       const css=getComputedStyle(el);
       return {focused:document.activeElement===el,
@@ -519,6 +522,13 @@ async function audit(browser,url,width,scheme){
         outlineColor:css.outlineColor,boxShadow:css.boxShadow};
     });
     console.log('FORCED COLORS #400 '+label+' '+JSON.stringify(forcedColorsFocus));
+    assert.equal(forcedColorsFocus.focused,true,
+      'Forced-colors focus must stay on the active Dashboard reorder button');
+    assert.equal(forcedColorsFocus.focusVisible,true,
+      'Forced-colors focused Dashboard button must match :focus-visible');
+    assert.ok(forcedColorsFocus.outlineStyle!=='none'&&forcedColorsFocus.outlineWidth>=2,
+      'Forced-colors Dashboard button must retain a real outline, not only a suppressed shadow: '+
+        JSON.stringify(forcedColorsFocus));
     await page.emulateMedia({forcedColors:'none'});
     assert.equal(await actionsUp.evaluate(el=>document.activeElement===el),true,
       'Changing forced-colors media must preserve focused reorder control');
