@@ -25,7 +25,7 @@ assert.equal(next,expected,'18.70 may change ONLY Budget/QuickActions render ord
 assert.doesNotMatch(next,/de=K\.map\(e=>le\[e\]\)\.filter\(e=>!!e\)\.sort\(/,
   'Dashboard must not override normalized user order with a render-only sort');
 const html=read('index.html');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\.70"/);
-assert.match(html,/index-v01870-dashboard-budget-actions-order-20261101\.js\?build=18\.70\.1/);
+// Archived WEB 18.70 bundle remains immutable after activation of later versions.
+// Active HTML version/path is guarded by the newest release regression.
 assert.match(html,/@media \(max-width: 430px\) and \(max-height: 540px\)/);
 console.log('PASS WEB 18.70: Budget/QuickActions render respects user order; immutable exact diff and synchronized metadata');
