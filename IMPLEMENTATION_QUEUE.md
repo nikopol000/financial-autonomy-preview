@@ -1,3 +1,12 @@
+## 2026-11-01 — #85 measured B/C CSS zoom research; no product change
+
+- **DONE / TEST-ONLY:** [PR #416](https://github.com/nikopol000/financial-autonomy-preview/pull/416) merged `257fbcb3c7f2453c6f8480ae0c5e747e0a8efdb8`. Added reversible populated DEMO Chromium two-row and horizontal-scroll probes; [Release #41314607848](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41314607848) and [Chromium #41314607842](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41314607842) **SUCCESS**, 4/4 budget cases. Source WEB **18.72** unchanged.
+- **DISCOVERY #85 / NOT READY TO SHIP:** B wraps into **three**, not two, rows, bottom extends below viewport at 320/390 CSS px + root 200% zoom. C stays one row but internal scrollWidth 632 vs clientWidth 160/195 and focus exposure was measured only after explicit programmatic scrolling. [Measured alternatives](docs/WEB_ZOOM_NAV_CANDIDATE_EVIDENCE_20261101.md). **Next:** inspect screenshots/JSON, test natural Tab/touch/scroll cues, last budget control + DEMO warning/exit; Safari/VoiceOver/text-only enlargement separately. Do not promote CSS to product based on diagnostic CI.
+- **P1 #4/#29/#35 OPEN:** encrypted ledger lost-update/reset/first-save provenance; continue no-write/approved contract and synthetic regression. No automatic migration, reset, merge or backup change.
+- **#14/#25/#2 FINANCIAL DISCOVERY:** numeric contract approval still required; no new modes, reservations or formulas.
+- **PUBLISH BLOCKER:** last verified Vercel production **18.71** `dpl_2qhkKuC1surXmkyqBUbord63Bn5Y`, not source WEB **18.72**. **First unfinished:** check merged-main CI for #416, wait for authorized 18.72 production READY, then independently inspect served HTML/bundle/header and Safari. Do not bypass quota.
+- **INVARIANTS:** no iOS, real data, financial formulas, local-only architecture, vault/backup format, telemetry or bank connection changes.
+
 ## 2026-11-01 — WEB 18.72 merged, CI green, Vercel publication blocked; #85 research complete
 
 - **LATEST PRODUCT:** [PR #414](https://github.com/nikopol000/financial-autonomy-preview/pull/414) merged at `72c9906b5301d7b31091615b3106d7c69314ccf0`. Immutable WEB **18.72** fixes dark Chromium forced-colors Dashboard keyboard focus with a system `Highlight` outline. JS differs from 18.71 only by diagnostic version/export name; index version/build synchronized. No formula/storage/iOS changes.
