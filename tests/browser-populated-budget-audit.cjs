@@ -507,6 +507,21 @@ async function audit(browser,url,width,scheme){
       keyboardReorderFocus.boxShadow.includes('inset');
     assert.equal(keyboardFocusRing,true,
       'Keyboard reorder control must show a perceptible focus ring: '+JSON.stringify(keyboardReorderFocus));
+    // #400/#85 DISCOVERY: Windows high-contrast / forced-colors Chromium proxy.
+    // Browser CSS box-shadows may be suppressed; log actual focus treatment
+    // without claiming Safari, Windows AT, or WCAG conformance.
+    await page.emulateMedia({forcedColors:'active'});
+    const forcedColorsFocus=await actionsUp.evaluate(el=>{
+      const css=getComputedStyle(el);
+      return {focused:document.activeElement===el,
+        focusVisible:el.matches(':focus-visible'),
+        outlineStyle:css.outlineStyle,outlineWidth:parseFloat(css.outlineWidth)||0,
+        outlineColor:css.outlineColor,boxShadow:css.boxShadow};
+    });
+    console.log('FORCED COLORS #400 '+label+' '+JSON.stringify(forcedColorsFocus));
+    await page.emulateMedia({forcedColors:'none'});
+    assert.equal(await actionsUp.evaluate(el=>document.activeElement===el),true,
+      'Changing forced-colors media must preserve focused reorder control');
     await page.keyboard.press('Enter');
     assert.ok(await actionsY()<await budgetY(),
       'Enter on focused Acțiuni rapide reorder control must actually move its card');
