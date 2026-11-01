@@ -511,6 +511,9 @@ async function audit(browser,url,width,scheme){
     // Browser CSS box-shadows may be suppressed; log actual focus treatment
     // without claiming Safari, Windows AT, or WCAG conformance.
     await page.emulateMedia({forcedColors:'active'});
+    // Media change may rerender RN Web classes; inspect the settled state,
+    // not a synchronous intermediate style while the DOM is reconciling.
+    await page.waitForTimeout(250);
     const forcedColorsFocus=await actionsUp.evaluate(el=>{
       const css=getComputedStyle(el);
       return {focused:document.activeElement===el,
