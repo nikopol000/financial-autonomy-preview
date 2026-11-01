@@ -1,3 +1,9 @@
+## 2026-11-01 — CORRECTED publication: Vercel WEB 18.67 READY via Git auto-deploy
+
+- **NEW VERIFIED PRODUCTION METADATA:** `dpl_3X2QDN93GShZ1UBkoAcFqaSFGQ2F` READY, primary alias `financial-autonomy-preview.vercel.app`, exact main SHA `06ba3014477e0fa9fc9af3a6f6639a069a9caf2e`. HTML/bundle WEB 18.67 identical to previous `eabca7fc` checkpoint (only test + workflow changed). This **supersedes** the earlier statement that primary remained WEB 18.66.
+- **STILL OPEN:** served HTML/header/interactive browser cannot be fetched through available protected Vercel URL (HTTP 403); real Safari iPhone/VoiceOver/200% zoom unverified. Manual production-create API also 403, but automatic Git integration legitimately deployed. Do not conflate API restriction with production not published.
+- **NEXT:** verify exact served HTML/bundle/header and short-height 320/390 light/dark with authorized browser; then #85 accessibility acceptance, #17 populated-copy/accessible-name review, and P1 #4/#29/#35 safe authority research. #14/#25/#2 no financial semantics changes without explicit approval. No iOS, data, backup or formula edits.
+
 ## 2026-11-01 — WEB 18.67 follow-up: Chromium recovered, copy regression merged, production still BLOCKED
 
 - **DONE / VERIFIED:** [PR #385](https://github.com/nikopol000/financial-autonomy-preview/pull/385) squash `06ba3014` adds a static regression for the *active* budget bundle, checking absent legacy English/technical labels and present Romanian terms; [PR Release #41263483572](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41263483572) SUCCESS. #17 updated; remains OPEN for populated light/dark/Safari accessible names. No product bundle/HTML changes; WEB **18.67** remains repository candidate.
