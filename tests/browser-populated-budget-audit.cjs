@@ -84,6 +84,72 @@ async function navFootprint(page){
 }
 
 
+
+/**
+ * #85 DISCOVERY: compare two reversible navigation layouts in the ACTUAL
+ * populated DEMO UI under Chromium root CSS zoom. CSS is injected only into
+ * this disposable page and removed before continuing. Geometry is evidence,
+ * not a shipped fix or Safari / WCAG / Dynamic Type certification.
+ */
+async function zoomNavigationCandidate(page,label,variant,css){
+  const style=await page.addStyleTag({content:css});
+  try{
+    await page.waitForTimeout(100);
+    const footprint=await navFootprint(page);
+    const geometry=await page.evaluate(()=>{
+      const tabs=[...document.querySelectorAll('[role="tab"]')];
+      const parent=tabs[0]?.parentElement;
+      const box=el=>{
+        const r=el.getBoundingClientRect();
+        return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+          width:r.width,height:r.height};
+      };
+      const computed=parent?getComputedStyle(parent):null;
+      return {viewport:{width:innerWidth,height:innerHeight},
+        parent:parent?{tag:parent.tagName,role:parent.getAttribute('role'),
+          display:computed.display,flexWrap:computed.flexWrap,
+          overflowX:computed.overflowX,scrollWidth:parent.scrollWidth,
+          clientWidth:parent.clientWidth,rect:box(parent)}:null,
+        rows:new Set(tabs.map(t=>Math.round(box(t).top))).size,
+        tabs:tabs.map(t=>({name:t.getAttribute('aria-label')||t.textContent.trim(),
+          rect:box(t)}))};
+    });
+    // A scrollable strip must expose every destination after focus and
+    // scrollIntoView; do not confuse a DOM-present tab with a visible tab.
+    const focusReachability=[];
+    for(const name of ['Acasă','Finanțe','Adaugă','Istoric','Mai mult']){
+      const tab=page.getByRole('tab',{name,exact:true});
+      await tab.focus();
+      await tab.scrollIntoViewIfNeeded();
+      const check=await tab.evaluate(el=>{
+        const r=el.getBoundingClientRect();
+        const x=r.left+r.width/2,y=r.top+r.height/2;
+        const hit=x>=0&&x<innerWidth&&y>=0&&y<innerHeight?
+          document.elementFromPoint(x,y):null;
+        return {focused:document.activeElement===el,
+          centerExposed:!!hit&&(hit===el||el.contains(hit)),
+          rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom},
+          parentScrollLeft:el.parentElement?.scrollLeft||0};
+      });
+      focusReachability.push({name,...check});
+    }
+    await page.screenshot({path:path.join(OUT,'zoom-nav-'+variant+'-'+label+'.png'),
+      fullPage:true});
+    const result={variant,geometry,footprint,
+      focusReachability,allFiveFocusExposed:focusReachability.every(t=>t.focused&&t.centerExposed),
+      caveat:'Disposable Chromium root CSS zoom; no Safari, Dynamic Type or WCAG pass claim'};
+    console.log('ZOOM NAV CANDIDATE #85 '+label+' '+JSON.stringify({
+      variant,rows:geometry.rows,parent:geometry.parent,
+      overlaps:footprint.textOverlapPairs.length,
+      outside:footprint.textOutsideHitTarget,
+      allFiveFocusExposed:result.allFiveFocusExposed}));
+    return result;
+  }finally{
+    await style.evaluate(el=>el.remove());
+    await page.waitForTimeout(60);
+  }
+}
+
 /**
  * #85: real keyboard traversal and visible focus in Chromium. This checks
  * DOM keyboard order and CSS :focus-visible; it is NOT VoiceOver/Safari.
@@ -621,6 +687,21 @@ async function audit(browser,url,width,scheme){
     await page.evaluate(()=>{document.documentElement.style.zoom='200%';});
     await page.screenshot({path:path.join(OUT,'populated-budget-'+label+'-csszoom200.png'),fullPage:true});
     const navZoom=await navFootprint(page);
+    // #85: B/C comparison is read-only research in disposable DEMO Chromium.
+    // Use CSS :has() to target the existing RN Web parent of the five tabs.
+    // These candidates are NOT product changes; restore the DOM after each.
+    const twoRowNavCSS=
+      '#root :has(> [role="tab"]){flex-wrap:wrap!important;overflow-x:visible!important}'+
+      '#root [role="tab"]{flex:0 0 33.333%!important;min-width:0!important}';
+    const scrollNavCSS=
+      '#root :has(> [role="tab"]){flex-wrap:nowrap!important;overflow-x:auto!important;'+
+      'scrollbar-width:auto!important;scroll-snap-type:x proximity}'+
+      '#root [role="tab"]{flex:0 0 120px!important;min-width:120px!important;'+
+      'scroll-snap-align:center}';
+    const navCandidates={
+      twoRow:await zoomNavigationCandidate(page,label,'two-row',twoRowNavCSS),
+      horizontal:await zoomNavigationCandidate(page,label,'horizontal-scroll',scrollNavCSS)
+    };
     assert.deepEqual(navZoom.textOverlapPairs,[], 'Navigation labels must not overlap at 200% CSS zoom');
     assert.deepEqual(navZoom.hitTargetOverlapPairs,[], '200% CSS zoom navigation pressable targets must not overlap');
     assert.deepEqual(navZoom.textOutsideHitTarget,[], 'Navigation labels must fit hit targets at 200% CSS zoom');
@@ -746,7 +827,7 @@ async function audit(browser,url,width,scheme){
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
       limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
-      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,footerGeometry:footerZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},halfWidthHalfHeight:{...halfBothShell,scroll:halfBoth},shortHeightCandidates:{product:productShort,outer:candidateOuter,shell:candidateShell,
+      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,navCandidates,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,footerGeometry:footerZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},halfWidthHalfHeight:{...halfBothShell,scroll:halfBoth},shortHeightCandidates:{product:productShort,outer:candidateOuter,shell:candidateShell,
         productReduced,reduced:candidateReduced},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
       '; zoom200 scrollWidth='+zoom.documentScrollWidth+
