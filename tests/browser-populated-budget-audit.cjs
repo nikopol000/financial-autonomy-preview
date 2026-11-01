@@ -438,6 +438,18 @@ async function audit(browser,url,width,scheme){
     // WEB 18.57: test the real disclosure UI, not only a static bundle string.
     // Demo is in memory and no financial vault is created.
     await page.getByRole('tab',{name:'Acasă'}).click();
+    // WEB 18.68: real disposable-demo Dashboard reset control, light/dark at 320/390.
+    // This action belongs to the explicit card-arrangement mode.
+    await page.getByRole('button',{name:'Aranjează',exact:true}).click();
+    const layoutReset=page.getByRole('button',{name:'Restabilește ordinea cardurilor de pe Acasă',exact:true});
+    assert.equal(await layoutReset.count(),1,'Dashboard layout reset needs one accessible button');
+    assert.equal(await layoutReset.innerText(),'Restabilește ordinea','Reset action must use visible Romanian copy');
+    const layoutResetBox=await layoutReset.boundingBox();
+    assert.ok(layoutResetBox&&layoutResetBox.height>=43.5,
+      'Dashboard layout reset touch target must be at least 44 CSS px tall');
+    await layoutReset.click();
+    assert.equal(await layoutReset.count(),1,'Reset control must remain available after restoring default card order');
+    await page.getByRole('button',{name:'Gata',exact:true}).click();
     const disclosureButtons=page.getByRole('button',{name:'Vezi calculul',exact:true});
     assert.ok(await disclosureButtons.count()>=2,'Home must expose labeled calculation disclosures');
     const firstDisclosure=disclosureButtons.first();
