@@ -321,12 +321,57 @@ async function focusFollowingZoomNavInput(page,label,css){
       assert.equal(selected,'true',
         'C2 research: keyboard Enter must activate '+name);
     }
+    // #85 DISCOVERY: preserve the *natural pointer* actionability result
+    // before using a harness-only DOM click to restore the budget page.
+    // A Playwright trial click scrolls as a normal click would, but never
+    // activates the row. A failure is recorded as a known UX limitation,
+    // not turned into a false passing click or a shipped-product failure.
+    const menuRow=page.getByText('Bugete',{exact:true}).last();
+    const readMenuGeometry=()=>menuRow.evaluate(el=>{
+      const box=node=>{
+        const r=node.getBoundingClientRect();
+        return {x:+r.x.toFixed(1),y:+r.y.toFixed(1),
+          width:+r.width.toFixed(1),height:+r.height.toFixed(1)};
+      };
+      const r=el.getBoundingClientRect();
+      const x=r.left+r.width/2,y=r.top+r.height/2;
+      const inside=x>=0&&x<innerWidth&&y>=0&&y<innerHeight;
+      const hit=inside?document.elementFromPoint(x,y):null;
+      const row=el.closest('button,[role="button"],[role="menuitem"],a,[tabindex]')||el.parentElement;
+      const ancestors=[];
+      for(let node=el.parentElement;node&&ancestors.length<9;node=node.parentElement){
+        const style=getComputedStyle(node);
+        ancestors.push({tag:node.tagName,role:node.getAttribute('role'),
+          position:style.position,overflowY:style.overflowY,
+          scrollTop:node.scrollTop,scrollHeight:node.scrollHeight,
+          clientHeight:node.clientHeight,rect:box(node)});
+      }
+      return {viewport:{width:innerWidth,height:innerHeight},
+        target:box(el),row:row?box(row):null,centerInsideViewport:inside,
+        centerHitTarget:!!hit&&(hit===el||el.contains(hit)||(row&&(hit===row||row.contains(hit)))),
+        hit:hit?{tag:hit.tagName,role:hit.getAttribute('role'),
+          text:(hit.getAttribute('aria-label')||hit.textContent||'').trim().slice(0,100),
+          position:getComputedStyle(hit).position,rect:box(hit)}:null,
+        ancestors};
+    });
+    const menuBefore=await readMenuGeometry();
+    let pointerTrial={actionable:false,error:null};
+    try{
+      await menuRow.click({trial:true,timeout:1600});
+      pointerTrial={actionable:true,error:null};
+    }catch(error){
+      pointerTrial={actionable:false,error:String(error.message).split('\\n')[0].slice(0,240)};
+    }
+    const menuAfter=await readMenuGeometry();
+    const menuOcclusion={before:menuBefore,after:menuAfter,pointerTrial,
+      caveat:'Disposable Chromium 200% CSS zoom. Trial click is not activation, and DOM restore below is harness-only.'};
+    console.log('MORE MENU POINTER GEOMETRY #85 '+label+' '+JSON.stringify(menuOcclusion));
     // Return to the same configured DEMO budget so subsequent checks are
     // unaffected by this reversible navigation research.
     console.log('C2 ENTER ACTIVATION #85 '+label+' '+JSON.stringify(activation));
     // Harness-only restoration: this click is NOT counted as natural input
     // evidence. At CSS zoom 200% the menu row may be covered by fixed nav.
-    await page.getByText('Bugete',{exact:true}).last().evaluate(el=>el.click());
+    await menuRow.evaluate(el=>el.click());
     await page.getByText(/Lunar · principală/).last().waitFor({state:'visible',timeout:10000});
     const demo=await page.evaluate(()=>({
       warning:[...document.querySelectorAll('*')].some(el=>
@@ -337,7 +382,7 @@ async function focusFollowingZoomNavInput(page,label,css){
     assert.ok(demo.warning&&demo.exit,'C2 research must retain DEMO warning and exit');
     const vault=await page.evaluate(keys=>keys.map(key=>localStorage.getItem(key)),VAULT_KEYS);
     assert.deepEqual(vault,[null,null,null],'C2 research must not write encrypted vault');
-    const result={forward,reverse,forwardOrder,reverseOrder,exposed,activation,demo,
+    const result={forward,reverse,forwardOrder,reverseOrder,exposed,activation,menuOcclusion,demo,
       caveat:'Reversible focusin handler on disposable Chromium CSS zoom; not shipped or native Safari evidence'};
     console.log('FOCUS FOLLOW ZOOM NAV C2 #85 '+label+' '+JSON.stringify(result));
     await page.screenshot({path:path.join(OUT,'zoom-nav-focus-follow-c2-'+label+'.png'),fullPage:true});
