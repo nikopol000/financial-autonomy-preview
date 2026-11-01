@@ -16,6 +16,8 @@ const ARCHIVED={
 const html=fs.readFileSync('index.html','utf8');
 const active=html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=/)?.[1];
 assert.ok(active,'Active immutable bundle reference is required');
+const CURRENT_VERSION=html.match(/name="financial-autonomy-version" content="([^"]+)"/)?.[1];
+assert.ok(CURRENT_VERSION,'Active WEB version metadata is required');
 const CURRENT='_expo/static/js/web/'+active.replace(/^_expo\/static\/js\/web\//,'');
 const KEY='financial-autonomy.preview.key.v1';
 const PAY='financial-autonomy.preview.payload.v1';
@@ -128,7 +130,7 @@ async function staleSave(browser,version,guarded){
       assert.deepEqual((await b.evaluate(()=>window.__archivedVault.load())).transactions
         .map(x=>x.id),['legacy-stale']);
       console.log('PASS KNOWN UNSAFE: real Chromium '+version+
-        ' cached tab overwrites 18.62 ledger');
+        ' cached tab overwrites WEB '+CURRENT_VERSION+' ledger');
     }
   });
 }
@@ -177,7 +179,7 @@ async function resetResurrection(browser,version){
     assert.deepEqual((await b.evaluate(()=>window.__archivedVault.load())).transactions
       .map(x=>x.id),[expectedId]);
     console.log('PASS KNOWN UNSAFE: real Chromium '+version+
-      ' cached tab resurrects v1 ledger after 18.62 reset');
+      ' cached tab resurrects v1 ledger after WEB '+CURRENT_VERSION+' reset');
   });
 }
 async function main(){
@@ -193,6 +195,8 @@ async function main(){
     await staleSave(browser,'18.27',false);
     await staleSave(browser,'18.33',false);
     await staleSave(browser,'18.34',true);
+    // Earliest archived cached writer must also be covered after a committed reset.
+    await resetResurrection(browser,'18.27');
     await resetResurrection(browser,'18.33');
     await resetResurrection(browser,'18.34');
   }finally{
