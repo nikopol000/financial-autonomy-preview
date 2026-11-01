@@ -188,10 +188,45 @@ async function main(){
     assert.deepEqual(await sameOrigin.evaluate(async()=>
       (await window.__oldVault.load()).transactions.map(t=>t.id)),oldAfter);
 
+    // ID-only comparison is unsafe: independent edits can retain the same
+    // transaction identifier while changing the financial amount. A read-only
+    // comparison must not mutate either encrypted origin, and identical IDs
+    // must never be presented as proof that ledgers match or are current.
+    await old.evaluate(s=>window.__oldVault.save(s),state('same-transaction-id'));
+    await fresh.evaluate(s=>window.__oldVault.save(s),state('same-transaction-id'));
+    const oldBeforeCollision=await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]);
+    const newBeforeCollision=await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]);
+    const changedAmount=state('same-transaction-id');
+    changedAmount.transactions[0].amount=175;
+    await old.evaluate(s=>window.__oldVault.save(s),changedAmount);
+    const oldAfterCollision=await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]);
+    assert.notDeepEqual(oldAfterCollision,oldBeforeCollision,
+      'the legacy origin must actually commit the synthetic changed amount');
+    const oldCollisionRows=await old.evaluate(async()=>
+      (await window.__oldVault.load()).transactions.map(t=>({id:t.id,amount:t.amount})));
+    const newCollisionRows=await fresh.evaluate(async()=>
+      (await window.__oldVault.load()).transactions.map(t=>({id:t.id,amount:t.amount})));
+    assert.deepEqual(oldCollisionRows.map(t=>t.id),newCollisionRows.map(t=>t.id),
+      'identical transaction IDs must be an explicit collision fixture');
+    assert.deepEqual(oldCollisionRows,[{id:'same-transaction-id',amount:175}]);
+    assert.deepEqual(newCollisionRows,[{id:'same-transaction-id',amount:125}]);
+    assert.notDeepEqual(oldCollisionRows,newCollisionRows,
+      'identical IDs do not establish equal financial content');
+    assert.deepEqual(await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),oldAfterCollision,
+      'read-only old-origin inspection must not write its encrypted envelope');
+    assert.deepEqual(await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),newBeforeCollision,
+      'read-only new-origin inspection must not write its encrypted envelope');
+
     console.log('PASS RESEARCH: same-origin paths share archived v1 ledger');
     console.log('PASS RESEARCH: late archived v1 AES-GCM write cannot alter second-origin localStorage');
     console.log('PASS RESEARCH: same-name IndexedDB databases are origin-isolated');
     console.log('PASS RESEARCH: identical synthetic checkpoints diverge after late old-origin edit');
+    console.log('PASS RESEARCH: identical transaction IDs can hide changed amounts without inspection writes');
     console.log('LIMIT: no encrypted-file handoff, freshness proof, Safari, or production cutover tested');
   }finally{
     if(browser)await browser.close();

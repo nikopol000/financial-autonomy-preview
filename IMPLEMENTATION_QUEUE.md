@@ -1,3 +1,9 @@
+## 2026-11-01 — P1 #4/#29/#35 same-ID divergence adversarial regression (PR #394)
+
+- **IN PROGRESS / CI PENDING:** [PR #394](https://github.com/nikopol000/financial-autonomy-preview/pull/394) tests an archived v18.33 AES-GCM old-origin edit to the amount of an existing transaction ID while the independent new-origin copy remains unchanged; read-only comparison must not write KEY/PAYLOAD. [Research contract](docs/WEB_ORIGIN_SAME_ID_DIFFERENT_AMOUNT_RESEARCH_20261101.md). This proves no production migration, backup handoff, atomicity, or freshness.
+- **FIRST UNFINISHED:** inspect PR Chromium/Release CI and named test result; fix failures before merge; merge only after verified success; record final main SHA and CI evidence. Issues #4/#29/#35 remain OPEN. No migration, reset, restore, rekey, delete, replay or merge without approved user contract.
+- **NONURGENT / P2:** #14/#25 remain discovery-only; #85/#17 actual served mobile light/dark and Safari iPhone/VoiceOver remain unverified. WEB 18.67 product unchanged; no version bump or iOS changes.
+
 ## 2026-11-01 — P1 #4/#29/#35 identical synthetic checkpoint divergence; read-only contract
 
 - **MERGED / PR TESTS SUCCESS:** [#392](https://github.com/nikopol000/financial-autonomy-preview/pull/392), squash `34498c0908dd21ea2c69ab605507e22f1678b289`. [Chromium #41271391740](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41271391740) and [Release #41271391746](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41271391746) SUCCESS. Actual archived v18.33 AES-GCM code in disposable Chromium: same initial synthetic ledger at both origins; old-origin late edit produces different old/new histories and leaves new-origin KEY/PAYLOAD unchanged. This proves **isolation without freshness or sync**, NOT a migrated backup or safe commit. No product files changed; WEB **18.67** unchanged.
