@@ -1,3 +1,9 @@
+## 2026-11-02 — P1 #4 browser evidence corrected; reset-fault CI gate
+
+- **DONE DISCOVERY:** existing actual archived 18.27/18.33/18.34 two-tab Chromium test already passed [#41345566012](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41345566012) on WEB 18.72; prior “browser proof missing” checkpoint superseded. Four KNOWN UNSAFE browser scenarios are real synthetic characterizations, not fixes.
+- **IN PROGRESS:** [PR #436](https://github.com/nikopol000/financial-autonomy-preview/pull/436) adds archived 18.27 reset resurrection and current-version log labels. Release CI #41355317416 passed; browser run #41355317400 passed the changed step but failed separately in IDB completion after legacy retirement: KEY unexpectedly survived a reset while PAYLOAD was null. Failed-job rerun requested; investigate and do not weaken expected zero-write/retirement assertions.
+- **NEXT:** inspect rerun, verify/merge test PR if safe, then agree version-skew authority/cutover/no-write contract for #4/#29/#35. #85 320px focus and Safari remain open; #14 stays DISCOVERY, no budget modes/formula changes. Update checkpoint with exact final CI/merge. Product WEB 18.72 unchanged; no iOS or real ledger access.
+
 ## 2026-11-01 — P1 #4 safety gate PR merged, browser validation next
 
 - **DONE:** [PR #434](https://github.com/nikopol000/financial-autonomy-preview/pull/434) merged `ba696aad8ef954d6f7d4c0d21b11c0f6ff4e27a3`; [Release CI #41350188110](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41350188110) SUCCESS. [P1 release-gate analysis](docs/WEB_VAULT_P1_RELEASE_GATE_20261101.md) and #4 comment checkpoint current source and 10 existing cross-version tests (4 KNOWN UNSAFE). Docs-only, WEB 18.72 unchanged.
