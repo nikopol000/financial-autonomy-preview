@@ -393,7 +393,7 @@ async function shortHeightLayoutCandidate(page,label,name,css){
       // Leave the synthetic page on Bugete for the next candidate and
       // ensure switching destinations did not lose the configured budget.
       await page.getByText('Bugete',{exact:true}).last().click({timeout:5000});
-      await page.getByText('Alimente DEMO · TEST',{exact:true}).first()
+      await page.getByText(/Alimente DEMO · TEST/).first()
         .waitFor({state:'visible',timeout:5000});
       strict={warning,exit,filters,activations,returnedToBudget:true};
     }
