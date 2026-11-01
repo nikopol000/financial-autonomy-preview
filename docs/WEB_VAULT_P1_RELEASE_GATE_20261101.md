@@ -2,6 +2,12 @@
 
 **DISCOVERY / READ-ONLY.** Active product WEB **18.72**, source `_expo/static/js/web/index-v01872-forced-colors-focus-20261101.js` (Git blob `1f08ec30dec2198773257bd17f21e78733d07e9d`). Inspected actual bundled modules **309/310** and the named tests in `tests/vault-real-crypto-regression.cjs` (73 test declarations). This document changes no product, financial calculation, local storage, backup, or iOS code. No real financial data was accessed.
 
+## 2026-11-02 — cross-tab reset visibility diagnostic gate (PR #439)
+
+[PR #439](https://github.com/nikopol000/financial-autonomy-preview/pull/439) is **TEST-ONLY / CI PENDING**. The first attempt of [Chromium run 41355317400](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41355317400) failed after an archived v1 reset because the *receiving* tab read KEY present / PAYLOAD absent, while a rerun without code changes passed. It is not yet known whether the initiating tab failed to delete KEY or whether the receiving tab saw delayed cross-renderer visibility.
+
+The new test asserts the initiating tab has both components removed **immediately**, records only boolean presence from both tabs (never the AES key or ciphertext), and waits at most 3 seconds for the receiving tab **only when** its immediate snapshot differs. A persistent KEY-only or PAYLOAD-only footprint still fails. This is diagnostic synchronization, not a fix, not an automatic recovery, and not a proof of safe legacy reset. Inspect the exact PR-head CI log for `RESET FOOTPRINT OBSERVATION`, `CONVERGED` or `PERSISTENT`; green CI alone does not resolve the intermittent cause. Do not deploy a same-origin v1/v2 migration or change vault behavior without an approved isolation/consent contract.
+
 ## 2026-11-02 — browser evidence gate result (test-only)
 
 - [PR #436](https://github.com/nikopol000/financial-autonomy-preview/pull/436) **MERGED** as `480a537443742c1a5e4577885effc3d76e3db651`; [Release CI #41355317416](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41355317416) SUCCESS and [Chromium #41355317400](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41355317400) SUCCESS **after a failed-job rerun** (job `124994609906`). Actual archived 18.27 now also **resurrects a v1 ledger after current WEB 18.72 reset** in disposable Chromium. The suite logs five named **KNOWN UNSAFE** results (two stale overwrites, three reset resurrections), plus partial 18.34 guards. These are verified vulnerabilities in synthetic test conditions, not a deployed repair.

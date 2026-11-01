@@ -1,3 +1,9 @@
+## 2026-11-02 — P1 #4/#29/#35 cross-tab reset observation, PR #439 pending CI
+
+- **IN PROGRESS / TEST-ONLY:** [PR #439](https://github.com/nikopol000/financial-autonomy-preview/pull/439) instruments the intermittent KEY-only Chromium observation from run 41355317400 attempt 1; initiating and receiving tab footprints are checked separately, presence-only diagnostic emitted, bounded 3-second convergence permitted for receiving-tab visibility, **persistent partial state fails**. Existing five archived-writer **KNOWN UNSAFE** cases are unchanged and NOT fixed. No product release.
+- **EXACT NEXT:** verify PR-head Release + Chromium, inspect logs for RESET FOOTPRINT OBSERVATION/CONVERGED/PERSISTENT; if green merge and verify merged-main CI, update issue #4 and continuity with exact SHA. If red, preserve failure, diagnose reset/renderer timing without loosening safety. Then review approved fail-closed legacy-origin cutover and #29/#35 provenance. #85 320px focus and Safari pending; #14 budget perspectives remain analysis-only until explicit numeric financial contract.
+- **GUARDS:** no migration, destructive reset, auto-delete/rekey/merge, real vault access, formula, backup format, iOS or new version. WEB 18.72.
+
 ## 2026-11-02 — P1 #4 five Chromium KNOWN UNSAFE cases verified; reset witness flake next
 
 - **DONE TEST:** [PR #436](https://github.com/nikopol000/financial-autonomy-preview/pull/436) merged `480a537443742c1a5e4577885effc3d76e3db651`. Release #41355317416 SUCCESS; Chromium #41355317400 SUCCESS on rerun. Real archived 18.27/18.33/18.34 synthetic two-tab tests now characterize **two stale overwrites and three post-reset resurrections** against WEB 18.72. Partial 18.34 guards observed. Green KNOWN UNSAFE is not a product fix. [PR #437](https://github.com/nikopol000/financial-autonomy-preview/pull/437) merged corrected browser-evidence checkpoint; docs release #41355669661 SUCCESS.

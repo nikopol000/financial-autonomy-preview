@@ -971,10 +971,46 @@ async function testIdbCompletionFaultAfterLegacyRetirement(browser,url){
           window.__restoreOperationResearch.read(opId),pendingOp);
         assert.equal(pendingRecord.current.revision,2);
         // Actual archived v1 reset, before attempting v2 completion.
+        // Diagnose both renderer views independently. A completed reset must
+        // retire BOTH v1 components in the initiating tab; waiting must never
+        // turn a persistent KEY-only footprint into a passing test.
         await old.evaluate(()=>window.__archivedVault.resetData());
-        const retired=await modern.evaluate(()=>
-          window.__restoreOperationResearch.legacyFootprint());
-        assert.deepEqual(retired,{key:null,payload:null});
+        const footprint=page=>page.evaluate(()=>
+          window.__restoreOperationResearch?.legacyFootprint?.()??{
+            key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+            payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+          });
+        const presence=pair=>({key:pair.key!==null,payload:pair.payload!==null});
+        const retiredInOld=await footprint(old);
+        const initialModern=await footprint(modern);
+        if(retiredInOld.key!==null||retiredInOld.payload!==null||
+          initialModern.key!==null||initialModern.payload!==null)
+          console.log('RESET FOOTPRINT OBSERVATION '+tag+' '+
+            JSON.stringify({old:presence(retiredInOld),modern:presence(initialModern)}));
+        assert.deepEqual(retiredInOld,{key:null,payload:null},
+          'initiating archived tab must fully retire both v1 components');
+        // If the other renderer briefly reports a partial old snapshot,
+        // measure bounded visibility convergence instead of accepting it.
+        // Persistent KEY-only or PAYLOAD-only still FAILS after 3 seconds.
+        if(initialModern.key!==null||initialModern.payload!==null){
+          try{
+            await modern.waitForFunction(()=>
+              localStorage.getItem('financial-autonomy.preview.key.v1')===null&&
+              localStorage.getItem('financial-autonomy.preview.payload.v1')===null,
+              null,{timeout:3000,polling:50});
+          }catch(e){
+            const persistent=await footprint(modern);
+            console.error('RESET FOOTPRINT PERSISTENT '+tag+' '+
+              JSON.stringify({old:presence(await footprint(old)),
+                modern:presence(persistent)}));
+            throw e;
+          }
+          console.log('RESET FOOTPRINT CONVERGED '+tag+
+            ' after bounded cross-tab visibility wait');
+        }
+        const retired=await footprint(modern);
+        assert.deepEqual(retired,{key:null,payload:null},
+          'receiving tab must observe full retirement, never a partial reset');
         let outcome;
         if(fault==='deny-idb-open'){
           outcome=await modern.evaluate(async({opId,state,epoch})=>{
