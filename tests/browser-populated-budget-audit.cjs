@@ -505,7 +505,7 @@ async function audit(browser,url,width,scheme){
     assert.equal(keyboardReorderFocus.centerExposed,true,'Keyboard reorder control must not be covered');
     assert.ok((keyboardReorderFocus.outlineStyle!=='none'&&keyboardReorderFocus.outlineWidth>=2)||
       keyboardReorderFocus.boxShadow.includes('inset'),
-      'Keyboard reorder control must have a perceptible focus indicator');
+      'Keyboard reorder control must have a perceptible focus indicator: '+JSON.stringify(keyboardReorderFocus));
     await page.keyboard.press('Enter');
     assert.ok(await actionsY()<await budgetY(),
       'Enter on focused Acțiuni rapide reorder control must actually move its card');
