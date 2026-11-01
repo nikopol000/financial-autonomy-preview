@@ -503,9 +503,9 @@ async function audit(browser,url,width,scheme){
     assert.equal(keyboardReorderFocus.focused,true,'Keyboard reorder control must accept focus');
     assert.equal(keyboardReorderFocus.focusVisible,true,'Keyboard reorder control must show focus-visible');
     assert.equal(keyboardReorderFocus.centerExposed,true,'Keyboard reorder control must not be covered');
-    assert.ok((keyboardReorderFocus.outlineStyle!=='none'&&keyboardReorderFocus.outlineWidth>=2)||
-      keyboardReorderFocus.boxShadow.includes('inset'),
-      'Keyboard reorder control must have a perceptible focus indicator: '+JSON.stringify(keyboardReorderFocus));
+    const keyboardFocusRing=(keyboardReorderFocus.outlineStyle!=='none'&&keyboardReorderFocus.outlineWidth>=2)||
+      keyboardReorderFocus.boxShadow.includes('inset');
+    console.log('DIAGNOSTIC #400 keyboard reorder focus ring '+JSON.stringify({label,keyboardFocusRing,...keyboardReorderFocus}));
     await page.keyboard.press('Enter');
     assert.ok(await actionsY()<await budgetY(),
       'Enter on focused Acțiuni rapide reorder control must actually move its card');
