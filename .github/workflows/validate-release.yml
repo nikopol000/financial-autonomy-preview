@@ -61,6 +61,8 @@ jobs:
         run: node tests/web-v1869-dashboard-order-regression.cjs
       - name: WEB 18.70 Budget and Quick Actions order and immutable diff
         run: node tests/web-v1870-dashboard-budget-actions-regression.cjs
+      - name: WEB 18.71 keyboard Dashboard reorder focus and immutable diagnostic-only JS
+        run: node tests/web-v1871-dashboard-keyboard-focus-regression.cjs
       - name: Verify v18.22 candidate reconciliation independently of active release
         run: |
           node tests/reconciliation-v1822-candidate.cjs
