@@ -22,3 +22,11 @@ Review actual CI JSON/screenshots and compare to the baseline before selecting a
 ## Independent P1 / financial constraints
 
 #4/#29/#35 remain open: cached noncooperating v1 writers bypass modern same-origin locks; no destructive reset/restore, origin cutover, migration, deletion or recovery without an approved crash-safe authority and consent contract. #14/#25/#2 remain financial-contract discovery; no new budget modes, credit-as-cash or formula changes.
+
+## Verified disposable Chromium results — PR #380
+
+[Chromium workflow #41255351743](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41255351743) **SUCCESS**; [Release validation #41255351735](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41255351735) **SUCCESS**. Eight named candidate probes (2 candidate overrides × 2 viewport widths × 2 themes) all reported `fullyReachable:true`, with the synthetic last budget detail and all five tab centers hit-test exposed after browser scrolling. No horizontal overflow; each tab retained `:focus-visible` and a 52–54px-tall hit target; all three encrypted vault entries stayed absent.
+
+At 160×422, **outer-scroll** changes the document to 2,674px scroll height (422px viewport); the last detail is centered at y=183…239 after scrolling the document to y=1,324, and the five tabs can be brought into y=246…414 at document scrollTop=2,252. At 195×422, document scroll height is 2,257px; last detail y=183…239 at scrollTop=1,113 and all tabs y=302…414 at scrollTop=1,835. Both light/dark results match. The broader **shell-flow** candidate yielded the same measurements; prefer the smaller outer-scroll override for a subsequent implementation trial.
+
+**Important limitations:** the DEMO warning and exit were verified **present**, but were above the viewport after scrolling to the bottom; their independent scroll-to-view/hit-test operability was **not** verified by this probe. Tab click activation under the short-height override was also not exercised. These are necessary strict checks before shipping. Existing 200% root CSS-zoom remains a known occlusion proxy; no native Safari, VoiceOver, dynamic text or WCAG certification. **No product fix shipped by this PR.**
