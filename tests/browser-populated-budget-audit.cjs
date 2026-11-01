@@ -323,7 +323,10 @@ async function focusFollowingZoomNavInput(page,label,css){
     }
     // Return to the same configured DEMO budget so subsequent checks are
     // unaffected by this reversible navigation research.
-    await page.getByText('Bugete',{exact:true}).last().click();
+    console.log('C2 ENTER ACTIVATION #85 '+label+' '+JSON.stringify(activation));
+    // Harness-only restoration: this click is NOT counted as natural input
+    // evidence. At CSS zoom 200% the menu row may be covered by fixed nav.
+    await page.getByText('Bugete',{exact:true}).last().evaluate(el=>el.click());
     await page.getByText(/Lunar · principală/).last().waitFor({state:'visible',timeout:10000});
     const demo=await page.evaluate(()=>({
       warning:[...document.querySelectorAll('*')].some(el=>
