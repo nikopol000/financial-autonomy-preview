@@ -486,6 +486,34 @@ async function audit(browser,url,width,scheme){
     assert.equal(await autonomyUp.isDisabled(),true,
       'Reset must restore Autonomie to the first position, not merely acknowledge a click');
     assert.equal(await layoutReset.count(),1,'Reset control must remain available after restoring default card order');
+    // #400: keyboard-only reorder and reset must work in the rendered DEMO.
+    // Unlike a mouse-click test, this detects inaccessible Pressable handlers.
+    // Chromium focus/activation evidence is not Safari or VoiceOver acceptance.
+    await page.keyboard.press('Tab');
+    await actionsUp.focus();
+    const keyboardReorderFocus=await actionsUp.evaluate(el=>{
+      const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+      const hit=document.elementFromPoint(x,y);
+      const css=getComputedStyle(el);
+      return {focused:document.activeElement===el,focusVisible:el.matches(':focus-visible'),
+        centerExposed:!!hit&&(hit===el||el.contains(hit)),
+        outlineWidth:parseFloat(css.outlineWidth)||0,outlineStyle:css.outlineStyle,
+        boxShadow:css.boxShadow};
+    });
+    assert.equal(keyboardReorderFocus.focused,true,'Keyboard reorder control must accept focus');
+    assert.equal(keyboardReorderFocus.focusVisible,true,'Keyboard reorder control must show focus-visible');
+    assert.equal(keyboardReorderFocus.centerExposed,true,'Keyboard reorder control must not be covered');
+    assert.ok((keyboardReorderFocus.outlineStyle!=='none'&&keyboardReorderFocus.outlineWidth>=2)||
+      keyboardReorderFocus.boxShadow.includes('inset'),
+      'Keyboard reorder control must have a perceptible focus indicator');
+    await page.keyboard.press('Enter');
+    assert.ok(await actionsY()<await budgetY(),
+      'Enter on focused Acțiuni rapide reorder control must actually move its card');
+    await layoutReset.focus();
+    await page.keyboard.press('Enter');
+    assert.ok(await budgetY()<await actionsY(),
+      'Enter on focused reset control must restore default card order');
+    console.log('PASS #400: keyboard Enter reorders and resets Dashboard with visible focus ('+label+')');
     await page.getByRole('button',{name:'Gata',exact:true}).click();
     const disclosureButtons=page.getByRole('button',{name:'Vezi calculul',exact:true});
     assert.ok(await disclosureButtons.count()>=2,'Home must expose labeled calculation disclosures');
