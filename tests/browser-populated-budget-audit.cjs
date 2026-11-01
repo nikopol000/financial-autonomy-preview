@@ -345,10 +345,66 @@ async function shortHeightLayoutCandidate(page,label,name,css){
     assert.equal(demo.tabCount,5,'All five navigation destinations must remain in the DOM');
     assert.equal(demo.warningPresent,true,'DEMO warning must remain present');
     assert.equal(demo.exitPresent,true,'DEMO exit must remain present');
-    const outcome={label,candidate:name,lastDetail,tabs,demo,
+    // Strict operability is exercised only for the smaller outer-scroll
+    // candidate. The shell-flow alternative remains a geometry comparator.
+    // These actions run exclusively against the disposable in-memory DEMO.
+    let strict=null;
+    if(name==='outer-scroll'){
+      const probe=async (locator,description,focus=false)=>{
+        await locator.evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest'}));
+        // Establish keyboard input modality before focusing; programmatic
+        // focus after a pointer click does not necessarily match :focus-visible.
+        if(focus){await page.keyboard.press('Tab');await locator.focus();}
+        await page.waitForTimeout(60);
+        const state=await locator.evaluate(el=>{
+          const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+          const hit=x>=0&&x<innerWidth&&y>=0&&y<innerHeight?
+            document.elementFromPoint(x,y):null;
+          return {centerInViewport:x>=0&&x<innerWidth&&y>=0&&y<innerHeight,
+            hitOwnOrRelated:!!hit&&(hit===el||el.contains(hit)||hit.contains(el)),
+            focused:document.activeElement===el,
+            focusVisible:el.matches(':focus-visible'),
+            scrollTop:document.scrollingElement?.scrollTop||0};
+        });
+        assert.ok(state.centerInViewport&&state.hitOwnOrRelated,
+          'Short-height '+description+' must be reachable: '+JSON.stringify(state));
+        if(focus)assert.ok(state.focused&&state.focusVisible,
+          'Short-height '+description+' must retain visible keyboard focus: '+JSON.stringify(state));
+        return state;
+      };
+      const warning=await probe(page.getByText('DEMO · DATE FICTIVE',{exact:true}),
+        'DEMO warning');
+      const exit=await probe(page.getByRole('button',{name:'Ieși din demo'}),
+        'DEMO exit (not activated)',true);
+      const filters=[];
+      for(const filterName of ['După fereastră','După buget']){
+        const control=page.getByRole('button',{name:filterName,exact:true});
+        const state=await probe(control,'budget filter '+filterName,true);
+        await control.click({timeout:5000});
+        filters.push({name:filterName,...state,clicked:true});
+      }
+      const activations=[];
+      for(const tabName of ['Acasă','Finanțe','Adaugă','Istoric','Mai mult']){
+        const tab=page.getByRole('tab',{name:tabName,exact:true});
+        const state=await probe(tab,'navigation '+tabName,true);
+        await tab.click({timeout:5000});
+        assert.equal(await tab.getAttribute('aria-selected'),'true',
+          'Short-height navigation must actually activate '+tabName);
+        activations.push({name:tabName,...state,activated:true});
+      }
+      // Leave the synthetic page on Bugete for the next candidate and
+      // ensure switching destinations did not lose the configured budget.
+      await page.getByText('Bugete',{exact:true}).last().click({timeout:5000});
+      await page.getByText(/Alimente DEMO · TEST/).first()
+        .waitFor({state:'visible',timeout:5000});
+      strict={warning,exit,filters,activations,returnedToBudget:true};
+    }
+    const outcome={label,candidate:name,lastDetail,tabs,demo,strict,
       fullyReachable:lastDetail.centerInViewport&&
         (lastDetail.hitOwnOrDescendant||lastDetail.hitAncestor)&&
-        tabs.every(t=>t.centerInViewport&&t.hitTab)&&!demo.horizontalOverflow};
+        tabs.every(t=>t.centerInViewport&&t.hitTab)&&!demo.horizontalOverflow&&
+        (name!=='outer-scroll'||(strict?.returnedToBudget&&
+          strict.activations.length===5))};
     console.log('REVERSIBLE SHORT HEIGHT CANDIDATE #85 '+JSON.stringify(outcome));
     await page.screenshot({path:path.join(OUT,
       'short-height-candidate-'+name+'-'+label+'.png'),fullPage:false});
@@ -530,16 +586,28 @@ async function audit(browser,url,width,scheme){
     await page.screenshot({path:path.join(OUT,'populated-budget-'+label+'-half-width-half-height.png'),fullPage:true});
     // Two reversible candidates; never modify the product CSS or classify
     // diagnostic CI success as an accessibility fix.
-    const candidateOuter=await shortHeightLayoutCandidate(page,label,'outer-scroll',
+    const outerScrollCSS=
       'html,body{height:auto!important;min-height:100vh!important;overflow-y:auto!important}'+
-      '#root{height:auto!important;min-height:100vh!important;overflow:visible!important}');
+      '#root{height:auto!important;min-height:100vh!important;overflow:visible!important}';
+    const candidateOuter=await shortHeightLayoutCandidate(page,label,'outer-scroll',outerScrollCSS);
+    assert.equal(candidateOuter.fullyReachable,true,
+      'Strict outer-scroll half-width/half-height candidate must be fully operable');
     const candidateShell=await shortHeightLayoutCandidate(page,label,'shell-flow',
       'html,body{height:auto!important;min-height:100vh!important;overflow-y:auto!important}'+
       '#root{height:auto!important;min-height:100vh!important;overflow:visible!important}'+
       '#root>div{height:auto!important;min-height:100vh!important;overflow:visible!important}'+
       '#root>div>div{height:auto!important;min-height:0!important;overflow:visible!important}');
+    // Also exercise the actual 320/390px width at reduced 422px height.
+    // The previous test only exercised 160/195px at 422px.
+    await page.setViewportSize({width,height:halfHeight});
+    await page.waitForTimeout(100);
+    const candidateReduced=await shortHeightLayoutCandidate(page,
+      label+'-reduced-height','outer-scroll',outerScrollCSS);
+    assert.equal(candidateReduced.fullyReachable,true,
+      'Strict outer-scroll reduced-height candidate must be fully operable');
     console.log('SHORT HEIGHT CANDIDATE COMPARISON #85 '+label+' '+
-      JSON.stringify({outer:candidateOuter.fullyReachable,shell:candidateShell.fullyReachable}));
+      JSON.stringify({outer:candidateOuter.fullyReachable,
+        shell:candidateShell.fullyReachable,reduced:candidateReduced.fullyReachable}));
     // Restore the previously verified half-width layout for strict navigation
     // operability checks; reduced-height geometry is research, not certification.
     await page.setViewportSize({width:Math.floor(width/2),height:844});
@@ -555,7 +623,7 @@ async function audit(browser,url,width,scheme){
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
       limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
-      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,footerGeometry:footerZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},halfWidthHalfHeight:{...halfBothShell,scroll:halfBoth},shortHeightCandidates:{outer:candidateOuter,shell:candidateShell},encryptedVaultUntouched:true};
+      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,footerGeometry:footerZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},halfWidthHalfHeight:{...halfBothShell,scroll:halfBoth},shortHeightCandidates:{outer:candidateOuter,shell:candidateShell,reduced:candidateReduced},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
       '; zoom200 scrollWidth='+zoom.documentScrollWidth+
       '; nav text overlaps='+navZoom.textOverlapPairs.length+
