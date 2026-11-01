@@ -1,3 +1,9 @@
+## 2026-11-01 — P1 #4 gate merged and validated; no product release
+
+- **MERGED:** [PR #434](https://github.com/nikopol000/financial-autonomy-preview/pull/434), squash `ba696aad8ef954d6f7d4c0d21b11c0f6ff4e27a3`. [Release CI #41350188110](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41350188110) **SUCCESS** on exact PR head `1ce275667ec515df74f1c50136a1b21bd7a641f6`; initial PR head CI #41350072044 also SUCCESS. Issue #4 received comment with evidence, residual risk and first unfinished action.
+- **DISCOVERY:** [P1 source-grounded release gate](docs/WEB_VAULT_P1_RELEASE_GATE_20261101.md) confirms the *existing* 10-case archived cross-version test already has four KNOWN UNSAFE legacy overwrite/resurrection scenarios; next step is **disposable Chromium two-tab reproduction and explicit fail-closed cutover contract**, not a redundant Node VM test. #29/#35 remain OPEN. Product WEB **18.72** unchanged.
+- **FIRST UNFINISHED:** verify this checkpoint's merged-main Release/Pages CI; browser-version-skew test and reviewed cutover design; #85 320px focus occlusion and Safari; #14 approval-gated. Served Vercel fetch remains blocked by project/team 403; no browser claim. No iOS, real data, formulas or backup changes.
+
 ## 2026-11-01 — P1 vault release gate documented; cross-version writer next; WEB 18.72 unchanged
 
 - **REAL START HEAD:** `e07950adbb8061e198132f81cb48ad8f52a29c5c`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, canonical `docs/WEB_VISUAL_REVIEW.md` (root path absent), open issues incl. DISCOVERY #14/#17/#25/#85 and P1 #4/#29/#35, active 18.72 bundle modules 309/310 and 73 named synthetic vault tests.
