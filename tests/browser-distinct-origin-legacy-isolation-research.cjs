@@ -160,9 +160,38 @@ async function main(){
     assert.equal(await getIdb(old),'legacy-idb');
     assert.equal(await getIdb(fresh),'new-origin-idb');
 
+    // A deliberately identical synthetic checkpoint is NOT an encrypted-file import.
+    // It models a user selecting the same snapshot in two independent locations.
+    // A cached old tab can then accept a later edit, but the new location has no
+    // way to infer that change from its own storage; never silently claim sync.
+    await old.evaluate(s=>window.__oldVault.save(s),state('same-synthetic-checkpoint'));
+    await fresh.evaluate(s=>window.__oldVault.save(s),state('same-synthetic-checkpoint'));
+    const newOriginCheckpoint=await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]);
+    assert.deepEqual(await old.evaluate(async()=>
+      (await window.__oldVault.load()).transactions.map(t=>t.id)),
+      ['same-synthetic-checkpoint']);
+    assert.deepEqual(await fresh.evaluate(async()=>
+      (await window.__oldVault.load()).transactions.map(t=>t.id)),
+      ['same-synthetic-checkpoint']);
+    await old.evaluate(s=>window.__oldVault.save(s),state('late-old-origin-only-edit'));
+    const oldAfter=await old.evaluate(async()=>
+      (await window.__oldVault.load()).transactions.map(t=>t.id));
+    const newAfter=await fresh.evaluate(async()=>
+      (await window.__oldVault.load()).transactions.map(t=>t.id));
+    assert.deepEqual(oldAfter,['late-old-origin-only-edit']);
+    assert.deepEqual(newAfter,['same-synthetic-checkpoint']);
+    assert.notDeepEqual(oldAfter,newAfter,'histories must be explicitly recognized as divergent');
+    assert.deepEqual(await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),
+      newOriginCheckpoint,'late old-origin edit must not touch independent checkpoint');
+    assert.deepEqual(await sameOrigin.evaluate(async()=>
+      (await window.__oldVault.load()).transactions.map(t=>t.id)),oldAfter);
+
     console.log('PASS RESEARCH: same-origin paths share archived v1 ledger');
     console.log('PASS RESEARCH: late archived v1 AES-GCM write cannot alter second-origin localStorage');
     console.log('PASS RESEARCH: same-name IndexedDB databases are origin-isolated');
+    console.log('PASS RESEARCH: identical synthetic checkpoints diverge after late old-origin edit');
     console.log('LIMIT: no encrypted-file handoff, freshness proof, Safari, or production cutover tested');
   }finally{
     if(browser)await browser.close();
