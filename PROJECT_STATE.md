@@ -1,3 +1,10 @@
+## 2026-11-01 — P1 vault release gate documented; cross-version writer next; WEB 18.72 unchanged
+
+- **REAL START HEAD:** `e07950adbb8061e198132f81cb48ad8f52a29c5c`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, canonical `docs/WEB_VISUAL_REVIEW.md` (root path absent), open issues incl. DISCOVERY #14/#17/#25/#85 and P1 #4/#29/#35, active 18.72 bundle modules 309/310 and 73 named synthetic vault tests.
+- **DONE RESEARCH / P1:** [Current vault protection/release gate](docs/WEB_VAULT_P1_RELEASE_GATE_20261101.md) maps actual Web Locks + revision, durable pending/idle reset epoch, bounded same-tab first-save retry, restore acknowledgment, and *remaining* cached legacy writer / KEY-only / split-store risks. **No new vault behavior shipped.** Created on branch `research/web-vault-p1-gate-20261101-2302` at commit `e79680528f70d74e856995c6e62120ef3978bd9c`. PR/CI/merge status to be checked separately; do not report them as complete before evidence.
+- **PUBLICATION:** Vercel alias metadata READY `dpl_5fSc3QwppsqQHaxJXpmUWxsctrYo`, product-equivalent WEB 18.72 source SHA `83fc01da0d2491c177d2c2f656eabaea96469f40`; served-HTML fetch returned **HTTP 403 authorization denied**, so live header/bundle and physical Safari/VoiceOver remain unverified. No bypass.
+- **FIRST UNFINISHED:** #4 disposable *cross-version* cached old writer vs WEB 18.72, then #29/#35 safe no-write UX/fault matrix; verify this documentation PR CI and merged-main HEAD. #85 focus exposure 320px remains open; #14 financial perspectives remain approval-gated. No iOS, real ledger, formulas, backup, backend, telemetry or bank integration changes.
+
 ## 2026-11-01 — #85 keyboard activation works but 320px focus remains hidden; WEB 18.72 unchanged
 
 - **REAL START HEAD:** `ceecb8784cf60658580ebd7c3f4f32fc3cdfbbff`. Read mandatory AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, canonical `docs/WEB_VISUAL_REVIEW.md` (root absent), current open issues incl. DISCOVERY #14/#17/#25/#85 and P1 #4/#29/#35; checked live Vercel production metadata.
