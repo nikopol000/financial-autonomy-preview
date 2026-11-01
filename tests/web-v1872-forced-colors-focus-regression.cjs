@@ -18,10 +18,10 @@ for(const [from,to] of [
 }
 assert.equal(current,expected,'WEB 18.72 JS must change ONLY diagnostic version and filename');
 const html=read('index.html');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\\.72"/);
-assert.match(html,/index-v01872-forced-colors-focus-20261101\\.js\\?build=18\\.72\\.1/);
-assert.match(html,/#root \\[role="button"\\]:focus-visible\\s*\\{\\s*box-shadow:\\s*inset 0 0 0 3px #159cb4 !important;/,
+assert.match(html,/<meta name="financial-autonomy-version" content="18\.72"/);
+assert.match(html,/index-v01872-forced-colors-focus-20261101\.js\?build=18\.72\.1/);
+assert.match(html,/#root \[role="button"\]:focus-visible\s*\{\s*box-shadow:\s*inset 0 0 0 3px #159cb4 !important;/,
   'Ordinary keyboard focus shadow must remain');
-assert.match(html,/@media \\(forced-colors: active\\)\\s*\\{[\\s\\S]*?#root \\[role="button"\\]:focus-visible\\s*\\{\\s*outline:\\s*3px solid Highlight !important;/,
+assert.match(html,/@media \(forced-colors: active\)\s*\{[\s\S]*?#root \[role="button"\]:focus-visible\s*\{\s*outline:\s*3px solid Highlight !important;/,
   'Forced-colors role-button focus must use an actual 3px system-color outline');
 console.log('PASS WEB 18.72: forced-colors outline, immutable diagnostic-only JS, synchronized release');
