@@ -1,3 +1,10 @@
+## 2026-11-01 — P1 same-ID cross-origin amount divergence test, PR #394 pending verification
+
+- **REAL START HEAD:** `7ae1e57a17fae09804c6ddf8d6112bd8f2c092d9`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, canonical `docs/WEB_VISUAL_REVIEW.md` (root path absent), open GitHub issues and active index WEB 18.67. No iOS work.
+- **IN PROGRESS:** [PR #394](https://github.com/nikopol000/financial-autonomy-preview/pull/394) adds a disposable Chromium regression against actual archived WEB 18.33 AES-GCM modules: same synthetic transaction ID on both origins, legacy old-origin amount 125→175 RON, new origin remains 125; both read-only inspections must preserve exact KEY/PAYLOAD bytes. [Research](docs/WEB_ORIGIN_SAME_ID_DIFFERENT_AMOUNT_RESEARCH_20261101.md). **PR CI not yet confirmed at checkpoint write**; do not claim test passed or merged until verified.
+- **P1 DECISION GATE:** identical IDs/counts do not prove equal content, and equal content at one instant does not prove freshness. #4/#29/#35 OPEN; no migration, restore, reset, rekey, merge, deletion or source-freshness claim without explicit approval. **FIRST UNFINISHED:** inspect PR Chromium and Release CI, correct any test failure, merge only on green, update issues/checkpoint with exact SHA. Then verify merged-main CI and served Vercel/browser where authorized.
+- **PRODUCT:** WEB 18.67 unchanged (test/docs only), no version bump. #14/#25 financial-contract discovery only; no formulas/modes. #85/#17 populated Safari iPhone/VoiceOver and public browser remain unverified. No real data, backup changes, backend, account, telemetry or bank sync.
+
 ## 2026-11-01 — P1 equal-checkpoint old-origin divergence reproduced (WEB 18.67 unchanged)
 
 - **REAL START HEAD:** `67c7c793eb8cf654b7f11c7cd01d255c2605c60b`. Read mandatory AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, canonical `docs/WEB_VISUAL_REVIEW.md` (root path absent), index WEB 18.67, all nine open GitHub issues and recent merged commits. No open PR at start.
