@@ -460,6 +460,20 @@ async function audit(browser,url,width,scheme){
     assert.equal(await autonomyUp.isEnabled(),true,
       'Moving Autonomie down must change the actual dashboard order');
     await layoutReset.click();
+    // #400: Budget and Quick Actions must respect the user's order, including
+    // the default order. This catches a hidden render-only .sort override.
+    const budgetUp=page.getByRole('button',{name:'Mută Buget mai sus',exact:true});
+    const actionsUp=page.getByRole('button',{name:'Mută Acțiuni rapide mai sus',exact:true});
+    const budgetY=async()=> (await budgetUp.boundingBox()).y;
+    const actionsY=async()=> (await actionsUp.boundingBox()).y;
+    assert.ok(await budgetY()<await actionsY(),
+      'Default Dashboard order must place Buget before Acțiuni rapide');
+    await actionsUp.click();
+    assert.ok(await actionsY()<await budgetY(),
+      'Moving Acțiuni rapide up must display it above Buget');
+    await layoutReset.click();
+    assert.ok(await budgetY()<await actionsY(),
+      'Reset must restore Buget above Acțiuni rapide');
     assert.equal(await autonomyUp.isDisabled(),true,
       'Reset must restore Autonomie to the first position, not merely acknowledge a click');
     assert.equal(await layoutReset.count(),1,'Reset control must remain available after restoring default card order');

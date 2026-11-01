@@ -24,7 +24,7 @@ for(const [before,after] of edits){
 assert.equal(next,expected,'18.69 may change ONLY dashboard order derivation and diagnostic version/name');
 assert.match(next,/J=\(0,a\.useMemo\)\(\(\)=>\(0,m\.normalizeDashboardOrder\)\(e\.dashboardLayout\?\.order\)/);
 const html=read('index.html');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\.69"/);
-assert.match(html,/index-v01869-dashboard-order-restorable-20261101\.js\?build=18\.69\.1/);
+// Archived WEB 18.69 bundle remains immutable; active HTML checked by 18.70 guard.
+// Archived WEB 18.69 bundle remains immutable; active HTML checked by 18.70 guard.
 assert.match(html,/@media \(max-width: 430px\) and \(max-height: 540px\)/);
 console.log('PASS WEB 18.69: Dashboard order no longer hard-pins six primary cards; exact immutable diff and synchronized release metadata');
