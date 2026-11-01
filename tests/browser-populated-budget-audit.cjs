@@ -293,6 +293,41 @@ async function focusFollowingZoomNavInput(page,label,css){
     const forwardOrder=forward.every((item,i)=>item.role==='tab'&&item.name===names[i]);
     const reverseOrder=reverse.every((item,i)=>item.role==='tab'&&item.name===names[names.length-2-i]);
     const exposed=forward.concat(reverse).every(item=>item.centerExposed&&item.focusVisible);
+    // #85 C2 FOLLOW-UP (diagnostic only): actual keyboard Enter navigation
+    // must be checked separately from focusing the five tabs. A React
+    // rerender can replace the tab strip and discard a DOM-attached handler.
+    // Record focus/selected exposure after activation without claiming
+    // Safari, touch, or a production fix from Chromium CSS zoom.
+    const activation=[];
+    for(const name of ['Istoric','Mai mult']){
+      const tab=page.getByRole('tab',{name,exact:true});
+      await tab.focus();
+      await page.waitForTimeout(80);
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(200);
+      const selected=await tab.getAttribute('aria-selected');
+      const geometry=await tab.evaluate(el=>{
+        const r=el.getBoundingClientRect();
+        const x=r.left+r.width/2,y=r.top+r.height/2;
+        const hit=x>=0&&x<innerWidth&&y>=0&&y<innerHeight?
+          document.elementFromPoint(x,y):null;
+        const strip=el.parentElement;
+        return {centerExposed:!!hit&&(hit===el||el.contains(hit)),
+          focusRetained:document.activeElement===el,
+          scrollLeft:strip.scrollLeft,
+          followListenerRetained:!!strip.__web85C2Follow};
+      });
+      activation.push({name,selected, ...geometry});
+      assert.equal(selected,'true',
+        'C2 research: keyboard Enter must activate '+name);
+    }
+    // Return to the same configured DEMO budget so subsequent checks are
+    // unaffected by this reversible navigation research.
+    console.log('C2 ENTER ACTIVATION #85 '+label+' '+JSON.stringify(activation));
+    // Harness-only restoration: this click is NOT counted as natural input
+    // evidence. At CSS zoom 200% the menu row may be covered by fixed nav.
+    await page.getByText('Bugete',{exact:true}).last().evaluate(el=>el.click());
+    await page.getByText(/Lunar · principală/).last().waitFor({state:'visible',timeout:10000});
     const demo=await page.evaluate(()=>({
       warning:[...document.querySelectorAll('*')].some(el=>
         el.children.length===0&&el.textContent?.trim()==='DEMO · DATE FICTIVE'),
@@ -302,7 +337,7 @@ async function focusFollowingZoomNavInput(page,label,css){
     assert.ok(demo.warning&&demo.exit,'C2 research must retain DEMO warning and exit');
     const vault=await page.evaluate(keys=>keys.map(key=>localStorage.getItem(key)),VAULT_KEYS);
     assert.deepEqual(vault,[null,null,null],'C2 research must not write encrypted vault');
-    const result={forward,reverse,forwardOrder,reverseOrder,exposed,demo,
+    const result={forward,reverse,forwardOrder,reverseOrder,exposed,activation,demo,
       caveat:'Reversible focusin handler on disposable Chromium CSS zoom; not shipped or native Safari evidence'};
     console.log('FOCUS FOLLOW ZOOM NAV C2 #85 '+label+' '+JSON.stringify(result));
     await page.screenshot({path:path.join(OUT,'zoom-nav-focus-follow-c2-'+label+'.png'),fullPage:true});
