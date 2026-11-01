@@ -482,6 +482,15 @@ async function audit(browser,url,width,scheme){
     assert.ok(setupBox&&setupBox.height>=43.5,'Budget setup target must be at least 44 CSS px tall');
     await setup.click();
     await page.getByText('Categorie de buget',{exact:true}).waitFor({state:'visible',timeout:10000});
+    // #17: assert the ACTUAL editor copy, not just literals in the bundle.
+    // Chromium / disposable memory-only DEMO; no Safari or VoiceOver certification.
+    await page.getByText('Alte perioade urmărite',{exact:true})
+      .waitFor({state:'visible',timeout:10000});
+    for(const legacy of ['Primary window','Additional tracking windows',
+      'Budget ID explicit','Fixed, Debt, Savings, Transfer, Unbudgeted']){
+      assert.equal(await page.getByText(legacy,{exact:false}).count(),0,
+        'Budget editor must not expose legacy technical copy: '+legacy);
+    }
     await page.getByRole('textbox',{name:'Nume'}).fill('Alimente DEMO · TEST');
     await page.getByRole('textbox',{name:'Limită pentru perioada principală · RON'}).fill('2000');
     await page.getByRole('button',{name:'Salvează configurația'}).click();
