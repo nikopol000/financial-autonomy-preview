@@ -519,6 +519,21 @@ async function audit(browser,url,width,scheme){
         outlineColor:css.outlineColor,boxShadow:css.boxShadow};
     });
     console.log('FORCED COLORS #400 '+label+' '+JSON.stringify(forcedColorsFocus));
+    const cascadeProbe=await actionsUp.evaluate(el=>{
+      const snapshot=()=>({width:getComputedStyle(el).outlineWidth,
+        focus:el.matches(':focus'),focusVisible:el.matches(':focus-visible')});
+      const style=document.createElement('style');
+      style.textContent='#root [role="button"]:focus-visible:focus { outline-width: 3px !important; outline-style: solid !important; }';
+      document.head.insertBefore(style,document.head.firstChild);
+      const early=snapshot();
+      document.head.appendChild(style);
+      const late=snapshot();
+      style.remove();
+      return {inlineStyle:el.getAttribute('style'),classes:el.className,
+        htmlHasFix:document.getElementById('expo-reset')?.textContent.includes('WEB 18.72'),
+        original:snapshot(),early,late};
+    });
+    console.log('FORCED COLORS CASCADE #400 '+label+' '+JSON.stringify(cascadeProbe));
     assert.equal(forcedColorsFocus.focused,true,
       'Forced-colors focus must stay on the active Dashboard reorder button');
     assert.equal(forcedColorsFocus.focusVisible,true,
