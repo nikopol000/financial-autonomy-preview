@@ -5,7 +5,6 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const before=fs.readFileSync("_expo/static/js/web/index-v01865-budget-validation-romanian-20261029.js",'utf8');
 const after=fs.readFileSync("_expo/static/js/web/index-v01866-romanian-name-terminology-20261031.js",'utf8');
-const html=fs.readFileSync('index.html','utf8');
 const replacements=[
   [
     "Introdu un Name de cel mult120caractere.",
@@ -42,9 +41,7 @@ for(const [from,to] of replacements){
   expected=expected.replace(from,to);
 }
 assert.equal(after,expected,'Immutable WEB 18.66 must change only approved copy and diagnostic metadata');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\.66"/);
-assert.match(html,/index-v01866-romanian-name-terminology-20261031\.js\?build=18\.66\.1/);
-assert.doesNotMatch(html,/index-v01865-budget-validation-romanian-20261029\.js\?build=/);
+// Active HTML belongs to the current release guard; this checks immutable history.
 for(const [from] of replacements.slice(0,5))
   assert.ok(!after.includes(from),'English user-facing naming copy remains: '+from);
 console.log('PASS WEB 18.66: five Romanian naming copy fixes, immutable exact diff, financial/vault/backup unchanged');
