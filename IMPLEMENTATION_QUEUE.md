@@ -1,3 +1,9 @@
+## 2026-11-01 — P1 #4 safety gate PR merged, browser validation next
+
+- **DONE:** [PR #434](https://github.com/nikopol000/financial-autonomy-preview/pull/434) merged `ba696aad8ef954d6f7d4c0d21b11c0f6ff4e27a3`; [Release CI #41350188110](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41350188110) SUCCESS. [P1 release-gate analysis](docs/WEB_VAULT_P1_RELEASE_GATE_20261101.md) and #4 comment checkpoint current source and 10 existing cross-version tests (4 KNOWN UNSAFE). Docs-only, WEB 18.72 unchanged.
+- **NEXT P1:** disposable Chromium old cached tab vs current 18.72 two-tab reproduction, then explicit fail-closed version-skew/cutover conflict contract; #29/#35 no-write provenance and reset boundaries. No destructive changes or automatic recovery.
+- **NEXT UX/FINANCIAL:** #85 320px focus exposure and Safari/VoiceOver still OPEN; #14 perspectives remain DISCOVERY until explicit numeric contract. Vercel served HTML unauthorized HTTP 403; no live browser acceptance. Verify this checkpoint CI.
+
 ## 2026-11-01 — P1 encrypted-vault safety gate: documented; next cross-version test
 
 - **DONE RESEARCH / NOT PRODUCT:** [P1 release-gate and failure-boundary matrix](docs/WEB_VAULT_P1_RELEASE_GATE_20261101.md) grounded in current WEB 18.72 modules 309/310 and 73 existing synthetic AES-GCM tests. Documented protection vs residual risk for #4 concurrent legacy writers, #29 committed-but-partial reset, #35 KEY-only provenance and restore acknowledgment. Branch `research/web-vault-p1-gate-20261101-2302`, initial doc commit `e79680528f70d74e856995c6e62120ef3978bd9c`. PR/CI/merge not yet verified at this checkpoint.
