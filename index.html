@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <meta name="financial-autonomy-version" content="18.66" />
+    <meta name="financial-autonomy-version" content="18.67" />
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="Financial Autonomy — bugete, conturi și claritate financiară, cu date păstrate local." />
@@ -53,6 +53,20 @@
           scroll-behavior: auto !important;
         }
       }
+      /* WEB 18.67: accessible document scrolling when a narrow mobile
+         viewport also has very little height. Preserve normal-height shell. */
+      @media (max-width: 430px) and (max-height: 540px) {
+        html, body {
+          height: auto !important;
+          min-height: 100vh !important;
+          overflow-y: auto !important;
+        }
+        #root {
+          height: auto !important;
+          min-height: 100vh !important;
+          overflow: visible !important;
+        }
+      }
     </style>
     <!-- Night-mode action color refresh v18.24. -->
 </head>
@@ -64,6 +78,6 @@
     </noscript>
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
-  <script src="/financial-autonomy-preview/_expo/static/js/web/index-v01866-romanian-name-terminology-20261031.js?build=18.66.1" defer></script>
+  <script src="/financial-autonomy-preview/_expo/static/js/web/index-v01867-short-height-scroll-20261101.js?build=18.67.1" defer></script>
 </body>
 </html>
