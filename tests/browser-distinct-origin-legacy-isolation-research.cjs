@@ -120,9 +120,9 @@ async function main(){
     const old=await context.newPage(),sameOrigin=await context.newPage(),
       fresh=await context.newPage();
     await Promise.all([
-      old.goto(oldOrigin+'/archived',{waitUntil:'domcontentloaded'}),
-      sameOrigin.goto(oldOrigin+'/different-path',{waitUntil:'domcontentloaded'}),
-      fresh.goto(newOrigin+'/new',{waitUntil:'domcontentloaded'})
+      old.goto(oldOrigin+'/archived?fa_real=1',{waitUntil:'domcontentloaded'}),
+      sameOrigin.goto(oldOrigin+'/different-path?fa_real=1',{waitUntil:'domcontentloaded'}),
+      fresh.goto(newOrigin+'/new?fa_real=1',{waitUntil:'domcontentloaded'})
     ]);
     const defs=definitions();
     await Promise.all([install(old,defs),install(sameOrigin,defs),install(fresh,defs)]);
