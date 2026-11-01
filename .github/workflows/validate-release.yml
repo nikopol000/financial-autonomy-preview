@@ -63,6 +63,8 @@ jobs:
         run: node tests/web-v1870-dashboard-budget-actions-regression.cjs
       - name: WEB 18.71 keyboard Dashboard reorder focus and immutable diagnostic-only JS
         run: node tests/web-v1871-dashboard-keyboard-focus-regression.cjs
+      - name: WEB 18.72 forced-colors focus and immutable diagnostic-only JS
+        run: node tests/web-v1872-forced-colors-focus-regression.cjs
       - name: Verify v18.22 candidate reconciliation independently of active release
         run: |
           node tests/reconciliation-v1822-candidate.cjs
