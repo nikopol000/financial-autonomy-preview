@@ -519,6 +519,13 @@ async function audit(browser,url,width,scheme){
         outlineColor:css.outlineColor,boxShadow:css.boxShadow};
     });
     console.log('FORCED COLORS #400 '+label+' '+JSON.stringify(forcedColorsFocus));
+    assert.equal(forcedColorsFocus.focused,true,
+      'Forced-colors focus must stay on the active Dashboard reorder button');
+    assert.equal(forcedColorsFocus.focusVisible,true,
+      'Forced-colors focused Dashboard button must match :focus-visible');
+    assert.ok(forcedColorsFocus.outlineStyle!=='none'&&forcedColorsFocus.outlineWidth>=2,
+      'Forced-colors Dashboard button must retain a real outline, not only a suppressed shadow: '+
+        JSON.stringify(forcedColorsFocus));
     await page.emulateMedia({forcedColors:'none'});
     assert.equal(await actionsUp.evaluate(el=>document.activeElement===el),true,
       'Changing forced-colors media must preserve focused reorder control');
