@@ -8,7 +8,7 @@ Can a previously loaded, noncooperating archived writer directly modify a propos
 
 The new test `tests/browser-distinct-origin-legacy-isolation-research.cjs` creates two HTTP loopback origins with the same hostname but **different ports**. This is a valid origin boundary (scheme, host, port) for the browser experiment; it is **not** a production domain proposal. It also opens two paths on the old origin as a negative control.
 
-Expected observations, to be accepted only after named CI assertions pass:
+**Verified in PR Chromium CI** (synthetic Chromium, not production):
 
 1. Two paths on the **same** origin see the same archived v1 AES-GCM ledger; a versioned URL path alone does not isolate storage.
 2. The independent origin initially has neither the old KEY nor PAYLOAD, even though the old origin has saved a ledger.
@@ -43,4 +43,4 @@ Relevant browser platform references: [MDN same-origin policy](https://developer
 
 ## Execution evidence
 
-PR #390 introduces the test and the existing Chromium CI workflow invocation. **Do not mark results PASS until the actual PR run and merged-main run are checked.** A green test characterizes only the limited browser isolation boundary, not recovery safety. Issues #4/#29/#35 stay OPEN.
+[PR #390](https://github.com/nikopol000/financial-autonomy-preview/pull/390) merged as `841713cb1fce20919476f914b450bf74b529495c`. PR-head `609b67dbd04b30dc330fa067411020bc4449fb1e`: [Chromium #41267843565](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41267843565) **SUCCESS**, including the named independent-origin test step, and [Release CI #41267843522](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41267843522) **SUCCESS**. Earlier Chromium run [#41267685464](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41267685464) **FAILED** because the disposable pages omitted `?fa_real=1` and the actual archived vault correctly refused saving before demo/real-mode selection; the harness was corrected before merge. Do not misreport that initial attempt as passing. Merged-main [Chromium #41268026945](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41268026945), [Release #41268026951](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41268026951), [Pages #41268026909](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41268026909) and [Pages build #41268026453](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41268026453) are **SUCCESS**; the merged-main Chromium job also reports the named origin-isolation step **SUCCESS**. A green test characterizes only browser isolation, not recovery safety. Issues #4/#29/#35 remain OPEN.
