@@ -276,6 +276,90 @@ async function zoomFooterGeometry(page,phase){
   },phase);
 }
 
+/**
+ * #85: reversible layout candidate probe in a disposable Chromium demo only.
+ * No product stylesheet, persisted vault, formulas, or accessibility pass claim.
+ * Record failures explicitly rather than treating a green diagnostic as a fix.
+ */
+async function shortHeightLayoutCandidate(page,label,name,css){
+  const style=await page.addStyleTag({content:css});
+  const box=el=>{
+    const r=el.getBoundingClientRect();
+    return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,
+      width:r.width,height:r.height};
+  };
+  try{
+    await page.waitForTimeout(80);
+    const detail=page.getByText(/Lunar · principală/).last();
+    await detail.evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest'}));
+    await page.waitForTimeout(80);
+    const lastDetail=await detail.evaluate(el=>{
+      const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+      const hit=(x>=0&&x<innerWidth&&y>=0&&y<innerHeight)?
+        document.elementFromPoint(x,y):null;
+      return {rect:{top:r.top,bottom:r.bottom,left:r.left,right:r.right},
+        centerInViewport:y>=0&&y<innerHeight,
+        hitOwnOrDescendant:!!hit&&(hit===el||el.contains(hit)),
+        hitAncestor:!!hit&&hit.contains(el),
+        hitTag:hit?.tagName||null,
+        bodyScrollTop:document.scrollingElement?.scrollTop||0};
+    });
+    const tabs=[];
+    for(const tabName of ['Acasă','Finanțe','Adaugă','Istoric','Mai mult']){
+      const tab=page.getByRole('tab',{name:tabName,exact:true});
+      let error=null;
+      try{
+        await tab.focus();
+        await tab.scrollIntoViewIfNeeded({timeout:2000});
+      }catch(e){error=String(e.message).slice(0,180);}
+      const state=await tab.evaluate(el=>{
+        const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+        const hit=(x>=0&&x<innerWidth&&y>=0&&y<innerHeight)?
+          document.elementFromPoint(x,y):null;
+        return {top:r.top,bottom:r.bottom,focused:document.activeElement===el,
+          centerInViewport:y>=0&&y<innerHeight,
+          hitTab:!!hit&&(hit===el||el.contains(hit)),
+          focusVisible:el.matches(':focus-visible'),
+          scrollTop:document.scrollingElement?.scrollTop||0};
+      });
+      tabs.push({name:tabName,error,...state});
+    }
+    const demo=await page.evaluate(()=>{
+      const leaf=[...document.querySelectorAll('*')].find(el=>
+        el.children.length===0&&el.textContent?.trim()==='DEMO · DATE FICTIVE');
+      const exit=[...document.querySelectorAll('button,[role="button"]')].find(el=>
+        (el.getAttribute('aria-label')||el.textContent||'').includes('Ieși din demo'));
+      const rect=el=>{if(!el)return null;const r=el.getBoundingClientRect();
+        return {top:r.top,bottom:r.bottom,height:r.height};};
+      return {warningPresent:!!leaf,exitPresent:!!exit,warning:rect(leaf),exit:rect(exit),
+        tabCount:document.querySelectorAll('[role="tab"]').length,
+        bodyOverflowY:getComputedStyle(document.body).overflowY,
+        rootHeight:document.getElementById('root')?.getBoundingClientRect().height,
+        documentScrollHeight:document.scrollingElement?.scrollHeight,
+        documentClientHeight:document.scrollingElement?.clientHeight,
+        documentScrollTop:document.scrollingElement?.scrollTop||0,
+        horizontalOverflow:document.documentElement.scrollWidth>innerWidth+1};
+    });
+    const vault=await page.evaluate(keys=>keys.map(k=>localStorage.getItem(k)),VAULT_KEYS);
+    assert.deepEqual(vault,[null,null,null],'Experimental layout must never write a real encrypted vault');
+    assert.equal(demo.tabCount,5,'All five navigation destinations must remain in the DOM');
+    assert.equal(demo.warningPresent,true,'DEMO warning must remain present');
+    assert.equal(demo.exitPresent,true,'DEMO exit must remain present');
+    const outcome={label,candidate:name,lastDetail,tabs,demo,
+      fullyReachable:lastDetail.centerInViewport&&
+        (lastDetail.hitOwnOrDescendant||lastDetail.hitAncestor)&&
+        tabs.every(t=>t.centerInViewport&&t.hitTab)&&!demo.horizontalOverflow};
+    console.log('REVERSIBLE SHORT HEIGHT CANDIDATE #85 '+JSON.stringify(outcome));
+    await page.screenshot({path:path.join(OUT,
+      'short-height-candidate-'+name+'-'+label+'.png'),fullPage:false});
+    return outcome;
+  }finally{
+    await style.evaluate(el=>el.remove());
+    await page.evaluate(()=>{if(document.scrollingElement)document.scrollingElement.scrollTop=0;});
+    await page.waitForTimeout(60);
+  }
+}
+
 async function audit(browser,url,width,scheme){
   const context=await browser.newContext({viewport:{width,height:844},deviceScaleFactor:2,
     isMobile:true,hasTouch:true,colorScheme:scheme,timezoneId:'Europe/Bucharest',reducedMotion:'reduce'});
@@ -444,6 +528,18 @@ async function audit(browser,url,width,scheme){
       manual:halfBoth.afterManualScrollToEnd,
       nav:halfBoth.navAncestors.slice(0,6)}));
     await page.screenshot({path:path.join(OUT,'populated-budget-'+label+'-half-width-half-height.png'),fullPage:true});
+    // Two reversible candidates; never modify the product CSS or classify
+    // diagnostic CI success as an accessibility fix.
+    const candidateOuter=await shortHeightLayoutCandidate(page,label,'outer-scroll',
+      'html,body{height:auto!important;min-height:100vh!important;overflow-y:auto!important}'+
+      '#root{height:auto!important;min-height:100vh!important;overflow:visible!important}');
+    const candidateShell=await shortHeightLayoutCandidate(page,label,'shell-flow',
+      'html,body{height:auto!important;min-height:100vh!important;overflow-y:auto!important}'+
+      '#root{height:auto!important;min-height:100vh!important;overflow:visible!important}'+
+      '#root>div{height:auto!important;min-height:100vh!important;overflow:visible!important}'+
+      '#root>div>div{height:auto!important;min-height:0!important;overflow:visible!important}');
+    console.log('SHORT HEIGHT CANDIDATE COMPARISON #85 '+label+' '+
+      JSON.stringify({outer:candidateOuter.fullyReachable,shell:candidateShell.fullyReachable}));
     // Restore the previously verified half-width layout for strict navigation
     // operability checks; reduced-height geometry is research, not certification.
     await page.setViewportSize({width:Math.floor(width/2),height:844});
@@ -459,7 +555,7 @@ async function audit(browser,url,width,scheme){
     assert.equal(normal.colorScheme,scheme,'Actual theme must match requested palette');
     const result={viewport:width,scheme,configuredBudget:'Alimente DEMO · TEST',
       limitRON:2000,englishPrimaryRowCount:englishPrimaryRow,
-      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,footerGeometry:footerZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},halfWidthHalfHeight:{...halfBothShell,scroll:halfBoth},encryptedVaultUntouched:true};
+      normal:{...normal,navigation:navNormal,keyboardFocus:focusNormal,budgetScroll:scrollNormal,budgetInteractive:interactiveNormal},zoom:{...zoom,navigation:navZoom,budgetScroll:scrollZoom,budgetInteractive:interactiveZoom,footerGeometry:footerZoom,occludedTargets:zoomOccluded},halfWidth:{width:Math.floor(width/2),navigation:navNarrow,keyboardFocus:focusNarrow,budgetScroll:scrollNarrow,budgetInteractive:interactiveNarrow,rows:narrowRows},halfWidthHalfHeight:{...halfBothShell,scroll:halfBoth},shortHeightCandidates:{outer:candidateOuter,shell:candidateShell},encryptedVaultUntouched:true};
     console.log('PASS populated budget Chromium '+label+'; Primary row='+englishPrimaryRow+
       '; zoom200 scrollWidth='+zoom.documentScrollWidth+
       '; nav text overlaps='+navZoom.textOverlapPairs.length+
