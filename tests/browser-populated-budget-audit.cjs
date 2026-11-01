@@ -458,10 +458,48 @@ async function focusFollowingZoomNavInput(page,label,css){
     // Return to the same configured DEMO budget so subsequent checks are
     // unaffected by this reversible navigation research.
     console.log('C2 ENTER ACTIVATION #85 '+label+' '+JSON.stringify(activation));
-    // Harness-only restoration: this click is NOT counted as natural input
-    // evidence. At CSS zoom 200% the menu row may be covered by fixed nav.
-    await menuRow.evaluate(el=>el.click());
-    await page.getByText(/Lunar · principală/).last().waitFor({state:'visible',timeout:10000});
+    // Stronger follow-up: activate Bugete with a REAL Playwright pointer
+    // click under the reversible flow candidate. Unlike trial:true, this
+    // verifies React navigation. Fall back to harness-only DOM restoration
+    // only when the candidate fails, and record that failure explicitly.
+    const activationPatch=await menuRow.evaluate(el=>{
+      let scroll=null;
+      for(let node=el.parentElement;node;node=node.parentElement){
+        const style=getComputedStyle(node);
+        if(/auto|scroll/.test(style.overflowY)&&node.scrollHeight>node.clientHeight+2){
+          scroll=node;break;
+        }
+      }
+      if(!scroll)throw Error('No scrollable More-menu ancestor for natural activation');
+      const original=scroll.getAttribute('style');
+      scroll.setAttribute('data-web85-flow-activation','');
+      scroll.style.setProperty('overflow-y','auto','important');
+      scroll.style.setProperty('min-height','120px','important');
+      scroll.style.setProperty('flex-shrink','0','important');
+      return {original};
+    });
+    const flowActivation={attempted:true,passed:false,error:null};
+    try{
+      await menuRow.click({timeout:3500});
+      await page.getByText(/Lunar · principală/).last().waitFor({state:'visible',timeout:10000});
+      flowActivation.passed=true;
+    }catch(error){
+      flowActivation.error=String(error.message).split('\\n')[0].slice(0,240);
+    }finally{
+      await page.evaluate(original=>{
+        const scroll=document.querySelector('[data-web85-flow-activation]');
+        if(!scroll)return;
+        if(original===null)scroll.removeAttribute('style');
+        else scroll.setAttribute('style',original);
+        scroll.removeAttribute('data-web85-flow-activation');
+      },activationPatch.original);
+    }
+    console.log('MORE MENU FLOW NATURAL ACTIVATION #85 '+label+' '+JSON.stringify(flowActivation));
+    if(!flowActivation.passed){
+      // This is ONLY test-harness recovery; never count it as acceptance.
+      await menuRow.evaluate(el=>el.click());
+      await page.getByText(/Lunar · principală/).last().waitFor({state:'visible',timeout:10000});
+    }
     const demo=await page.evaluate(()=>({
       warning:[...document.querySelectorAll('*')].some(el=>
         el.children.length===0&&el.textContent?.trim()==='DEMO · DATE FICTIVE'),
