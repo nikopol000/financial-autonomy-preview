@@ -1,3 +1,9 @@
+## 2026-11-02 — P1 #4 five Chromium KNOWN UNSAFE cases verified; reset witness flake next
+
+- **DONE TEST:** [PR #436](https://github.com/nikopol000/financial-autonomy-preview/pull/436) merged `480a537443742c1a5e4577885effc3d76e3db651`. Release #41355317416 SUCCESS; Chromium #41355317400 SUCCESS on rerun. Real archived 18.27/18.33/18.34 synthetic two-tab tests now characterize **two stale overwrites and three post-reset resurrections** against WEB 18.72. Partial 18.34 guards observed. Green KNOWN UNSAFE is not a product fix. [PR #437](https://github.com/nikopol000/financial-autonomy-preview/pull/437) merged corrected browser-evidence checkpoint; docs release #41355669661 SUCCESS.
+- **NEXT P1 / INVESTIGATE:** first Chromium attempt observed KEY-only in a separate IDB completion test immediately after archived reset; retry passed unchanged. Add both-tab before/after footprint diagnostics and bounded propagation check; **do not weaken** persistent KEY-only or no-write assertions. Then review fail-closed cutover/conflict contract for cached v1, reset #29 and KEY-only #35. Keep issues OPEN; no automatic migration/reset/rekey/merge/restore.
+- **NEXT UX/FINANCIAL:** #85 focus exposure at 320px and physical Safari/VoiceOver; #14 perspectives DISCOVERY only pending explicit financial contract. No formula or iOS changes. Product WEB 18.72, production served verification remains unconfirmed.
+
 ## 2026-11-02 — P1 #4 browser evidence corrected; reset-fault CI gate
 
 - **DONE DISCOVERY:** existing actual archived 18.27/18.33/18.34 two-tab Chromium test already passed [#41345566012](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41345566012) on WEB 18.72; prior “browser proof missing” checkpoint superseded. Four KNOWN UNSAFE browser scenarios are real synthetic characterizations, not fixes.
