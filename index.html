@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
-    <meta name="financial-autonomy-version" content="18.71" />
+    <meta name="financial-autonomy-version" content="18.72" />
     <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="Financial Autonomy — bugete, conturi și claritate financiară, cu date păstrate local." />
@@ -48,6 +48,12 @@
         #root :is(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible {
           outline-color: Highlight !important;
         }
+        /* WEB 18.72: Chromium dark forced-colors suppresses box-shadow
+           and RN Web zeroes outline width on arrangement Pressables. */
+        #root [role="button"]:focus-visible {
+          outline: 3px solid Highlight !important;
+          outline-offset: 3px;
+        }
       }
       /* Respect the system preference while leaving financial calculations untouched. */
       @media (prefers-reduced-motion: reduce) {
@@ -83,6 +89,6 @@
     </noscript>
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
-  <script src="/financial-autonomy-preview/_expo/static/js/web/index-v01871-dashboard-keyboard-focus-20261101.js?build=18.71.1" defer></script>
+  <script src="/financial-autonomy-preview/_expo/static/js/web/index-v01872-forced-colors-focus-20261101.js?build=18.72.1" defer></script>
 </body>
 </html>
