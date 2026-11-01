@@ -471,6 +471,15 @@ async function audit(browser,url,width,scheme){
     await actionsUp.click();
     assert.ok(await actionsY()<await budgetY(),
       'Moving Acțiuni rapide up must display it above Buget');
+    // #400: the selected order must survive leaving arrangement mode and
+    // switching sections, not merely a transient drag/reorder render.
+    // This remains disposable DEMO memory; never touch the encrypted vault.
+    await page.getByRole('button',{name:'Gata',exact:true}).click();
+    await page.getByRole('tab',{name:'Finanțe',exact:true}).click();
+    await page.getByRole('tab',{name:'Acasă',exact:true}).click();
+    await page.getByRole('button',{name:'Aranjează',exact:true}).click();
+    assert.ok(await actionsY()<await budgetY(),
+      'Custom Dashboard order must survive leaving arrangement mode and navigating away/back');
     await layoutReset.click();
     assert.ok(await budgetY()<await actionsY(),
       'Reset must restore Buget above Acțiuni rapide');
