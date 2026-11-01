@@ -1,3 +1,10 @@
+## 2026-11-01 — WEB 18.67 follow-up: Chromium recovered, copy regression merged, production still BLOCKED
+
+- **DONE / VERIFIED:** [PR #385](https://github.com/nikopol000/financial-autonomy-preview/pull/385) squash `06ba3014` adds a static regression for the *active* budget bundle, checking absent legacy English/technical labels and present Romanian terms; [PR Release #41263483572](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41263483572) SUCCESS. #17 updated; remains OPEN for populated light/dark/Safari accessible names. No product bundle/HTML changes; WEB **18.67** remains repository candidate.
+- **CHROMIUM CHECKPOINT:** merged-main [#41260749924](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41260749924) attempt 1 CANCELLED before browser tests; reran specific job, attempt 2 **SUCCESS**. Do not misreport first attempt as PASS.
+- **FIRST UNFINISHED PUBLISH:** Vercel production creation rejected HTTP **403** even with correct explicit team/project and exact Git SHA. Primary alias still READY at `dpl_BeEKaMKdP2fU8bSKUaHwyguCyrLB` / `66fe1ebc` / WEB **18.66**. Needs legitimate production permission/owner intervention; then verify exact 18.67 deployment, served HTML/bundle/header, interactive mobile UI. GitHub Pages and CI green do not replace this gate. No bypass.
+- **REMAINING:** #85 Safari iPhone/VoiceOver/actual 200% zoom acceptance, P1 #4/#29/#35 legacy-writer authority/cutover and safe recovery (no destructive actions), DISCOVERY #14/#25/#2 financial contract (no implementation without approval). No iOS, real data, vault/backup, formula, backend, account, telemetry or bank connection edits.
+
 ## 2026-11-01 — WEB 18.67 merged / Vercel primary NOT VERIFIED
 
 - **MERGED #85 STRICT TESTS:** [PR #382](https://github.com/nikopol000/financial-autonomy-preview/pull/382) `149bddd0`; Chromium #41260009117 + Release #41260009115 SUCCESS. Synthetic 160/195 and 320/390 × 422, light/dark: DEMO warning/exit independently scrollable/hit-testable, visible keyboard-modality focus, two filters operable, five tab clicks activate, budget preserved, no vault writes.
