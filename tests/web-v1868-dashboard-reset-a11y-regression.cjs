@@ -30,9 +30,9 @@ assert.equal(next, expected, '18.68 may change ONLY the reset control copy/targe
 assert.doesNotMatch(next, /Reset la default/, 'Mixed-language reset label must not survive');
 assert.match(next, /minHeight:44,justifyContent:"center",paddingVertical:10,paddingHorizontal:12/, '44px minimum reset target missing');
 assert.match(next, /accessibilityLabel:"Restabilește ordinea cardurilor de pe Acasă"/);
+// Archived WEB 18.68 must remain immutable even after 18.69 becomes active.
+// Current HTML/version/bundle activation is checked by the 18.69 guard.
 const html = read('index.html');
-assert.match(html, /<meta name="financial-autonomy-version" content="18\.68"/);
-assert.match(html, /index-v01868-dashboard-reset-a11y-20261101\.js\?build=18\.68\.1/);
 assert.match(html, /@media \(max-width: 430px\) and \(max-height: 540px\)/,
   'Preserve short-height mobile scrolling fallback');
 console.log('PASS WEB 18.68 dashboard reset control: Romanian copy, accessible name, >=44px target; exact immutable diff, no financial changes');

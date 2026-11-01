@@ -447,7 +447,21 @@ async function audit(browser,url,width,scheme){
     const layoutResetBox=await layoutReset.boundingBox();
     assert.ok(layoutResetBox&&layoutResetBox.height>=43.5,
       'Dashboard layout reset touch target must be at least 44 CSS px tall');
+    // #400: verify the reset ACTUALLY restores a changed order, not just that
+    // the button is clickable while the default order is already selected.
+    // Use the real accessible reorder controls; never mutate app state directly.
+    const autonomyUp=page.getByRole('button',{name:'Mută Autonomie mai sus',exact:true});
+    const autonomyDown=page.getByRole('button',{name:'Mută Autonomie mai jos',exact:true});
+    assert.equal(await autonomyUp.isDisabled(),true,
+      'Autonomie must start first in the default dashboard order');
+    assert.equal(await autonomyDown.isEnabled(),true,
+      'Autonomie must be movable down before resetting the order');
+    await autonomyDown.click();
+    assert.equal(await autonomyUp.isEnabled(),true,
+      'Moving Autonomie down must change the actual dashboard order');
     await layoutReset.click();
+    assert.equal(await autonomyUp.isDisabled(),true,
+      'Reset must restore Autonomie to the first position, not merely acknowledge a click');
     assert.equal(await layoutReset.count(),1,'Reset control must remain available after restoring default card order');
     await page.getByRole('button',{name:'Gata',exact:true}).click();
     const disclosureButtons=page.getByRole('button',{name:'Vezi calculul',exact:true});
