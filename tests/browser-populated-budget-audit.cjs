@@ -500,6 +500,82 @@ async function focusFollowingZoomNavInput(page,label,css){
       await menuRow.evaluate(el=>el.click());
       await page.getByText(/Lunar · principală/).last().waitFor({state:'visible',timeout:10000});
     }
+    // #85: natural Tab -> Enter proof for the reversible flow candidate.
+    // Starting focus is seeded on the real Mai mult tab; the Bugete row
+    // itself is NEVER focused/clicked by Playwright. Log a negative result
+    // rather than converting a diagnostic failure into a passing test.
+    const keyboardFlow={attempted:true,tabReached:false,passed:false,
+      steps:[],error:null,caveat:'Chromium CSS zoom proxy only; not Safari/VoiceOver'};
+    let keyboardPatch=null;
+    try{
+      const moreTab=page.getByRole('tab',{name:'Mai mult',exact:true});
+      await moreTab.focus();
+      await page.keyboard.press('Enter');
+      const keyboardRow=page.getByText('Bugete',{exact:true}).last();
+      await keyboardRow.waitFor({state:'visible',timeout:3000});
+      keyboardPatch=await keyboardRow.evaluate(el=>{
+        let scroll=null;
+        for(let node=el.parentElement;node;node=node.parentElement){
+          const css=getComputedStyle(node);
+          if(/auto|scroll/.test(css.overflowY)&&node.scrollHeight>node.clientHeight+2){
+            scroll=node;break;
+          }
+        }
+        if(!scroll)throw Error('No scrollable More-menu ancestor for keyboard probe');
+        const original=scroll.getAttribute('style');
+        scroll.setAttribute('data-web85-keyboard-flow','');
+        scroll.style.setProperty('overflow-y','auto','important');
+        scroll.style.setProperty('min-height','120px','important');
+        scroll.style.setProperty('flex-shrink','0','important');
+        return {original};
+      });
+      for(let step=0;step<18;step++){
+        await page.keyboard.press('Tab');
+        const state=await keyboardRow.evaluate(el=>{
+          const active=document.activeElement;
+          const row=el.closest('button,[role="button"],[role="menuitem"],a,[tabindex]')||el.parentElement;
+          const r=active?.getBoundingClientRect();
+          const x=r?(r.left+r.right)/2:-1,y=r?(r.top+r.bottom)/2:-1;
+          const hit=x>=0&&x<innerWidth&&y>=0&&y<innerHeight?
+            document.elementFromPoint(x,y):null;
+          return {name:(active?.getAttribute('aria-label')||active?.textContent||'').trim().slice(0,75),
+            target:!!active&&(active===row||row.contains(active)||active.contains(el)),
+            focusVisible:!!active&&active.matches(':focus-visible'),
+            centerExposed:!!hit&&(hit===active||active?.contains(hit))};
+        });
+        keyboardFlow.steps.push(state);
+        if(state.target){
+          keyboardFlow.tabReached=true;
+          keyboardFlow.focusVisible=state.focusVisible;
+          keyboardFlow.centerExposed=state.centerExposed;
+          await page.keyboard.press('Enter');
+          await page.getByText(/Lunar · principală/).last().waitFor({state:'visible',timeout:3500});
+          keyboardFlow.passed=true;
+          break;
+        }
+      }
+    }catch(error){
+      keyboardFlow.error=String(error.message).split('\\n')[0].slice(0,240);
+    }finally{
+      if(keyboardPatch){
+        await page.evaluate(original=>{
+          const scroll=document.querySelector('[data-web85-keyboard-flow]');
+          if(!scroll)return;
+          if(original===null)scroll.removeAttribute('style');
+          else scroll.setAttribute('style',original);
+          scroll.removeAttribute('data-web85-keyboard-flow');
+        },keyboardPatch.original);
+      }
+    }
+    console.log('MORE MENU FLOW NATURAL KEYBOARD #85 '+label+' '+JSON.stringify(keyboardFlow));
+    if(!keyboardFlow.passed){
+      // Harness-only restoration is not keyboard acceptance evidence.
+      const recoveryRow=page.getByText('Bugete',{exact:true}).last();
+      if(await recoveryRow.isVisible())await recoveryRow.evaluate(el=>el.click());
+      await page.getByText(/Lunar · principală/).last().waitFor({state:'visible',timeout:10000});
+    }
+    assert.deepEqual(await page.evaluate(keys=>keys.map(k=>localStorage.getItem(k)),VAULT_KEYS),
+      [null,null,null],'Keyboard research must never create real vault keys');
     const demo=await page.evaluate(()=>({
       warning:[...document.querySelectorAll('*')].some(el=>
         el.children.length===0&&el.textContent?.trim()==='DEMO · DATE FICTIVE'),
@@ -509,7 +585,7 @@ async function focusFollowingZoomNavInput(page,label,css){
     assert.ok(demo.warning&&demo.exit,'C2 research must retain DEMO warning and exit');
     const vault=await page.evaluate(keys=>keys.map(key=>localStorage.getItem(key)),VAULT_KEYS);
     assert.deepEqual(vault,[null,null,null],'C2 research must not write encrypted vault');
-    const result={forward,reverse,forwardOrder,reverseOrder,exposed,activation,menuOcclusion,demo,
+    const result={forward,reverse,forwardOrder,reverseOrder,exposed,activation,menuOcclusion,keyboardFlow,demo,
       caveat:'Reversible focusin handler on disposable Chromium CSS zoom; not shipped or native Safari evidence'};
     console.log('FOCUS FOLLOW ZOOM NAV C2 #85 '+label+' '+JSON.stringify(result));
     await page.screenshot({path:path.join(OUT,'zoom-nav-focus-follow-c2-'+label+'.png'),fullPage:true});
