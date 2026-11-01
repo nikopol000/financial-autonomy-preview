@@ -55,6 +55,8 @@ jobs:
         run: node tests/web-v1866-name-copy-regression.cjs
       - name: WEB 18.67 immutable diagnostic and short-height accessibility CSS contract
         run: node tests/web-v1867-short-height-regression.cjs
+      - name: WEB 18.68 accessible dashboard layout reset and immutable diff
+        run: node tests/web-v1868-dashboard-reset-a11y-regression.cjs
       - name: Verify v18.22 candidate reconciliation independently of active release
         run: |
           node tests/reconciliation-v1822-candidate.cjs
