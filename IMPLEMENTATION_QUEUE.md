@@ -1,8 +1,8 @@
-## 2026-11-01 — P1 #4/#29/#35 same-ID divergence adversarial regression (PR #394)
+## 2026-11-01 — P1 #4/#29/#35 same-ID divergence research merged and verified
 
-- **IN PROGRESS / CI PENDING:** [PR #394](https://github.com/nikopol000/financial-autonomy-preview/pull/394) tests an archived v18.33 AES-GCM old-origin edit to the amount of an existing transaction ID while the independent new-origin copy remains unchanged; read-only comparison must not write KEY/PAYLOAD. [Research contract](docs/WEB_ORIGIN_SAME_ID_DIFFERENT_AMOUNT_RESEARCH_20261101.md). This proves no production migration, backup handoff, atomicity, or freshness.
-- **FIRST UNFINISHED:** inspect PR Chromium/Release CI and named test result; fix failures before merge; merge only after verified success; record final main SHA and CI evidence. Issues #4/#29/#35 remain OPEN. No migration, reset, restore, rekey, delete, replay or merge without approved user contract.
-- **NONURGENT / P2:** #14/#25 remain discovery-only; #85/#17 actual served mobile light/dark and Safari iPhone/VoiceOver remain unverified. WEB 18.67 product unchanged; no version bump or iOS changes.
+- **DONE / MERGED:** [PR #394](https://github.com/nikopol000/financial-autonomy-preview/pull/394) squash `02c646346530d623b3dcb16cf6f6eb8bd291ec9f`. [Release #41275385107](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41275385107) and [Chromium #41275385121](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41275385121) **SUCCESS**; named PASS proves a shared synthetic transaction ID can conceal different 125/175 RON amounts after old-origin write, with unchanged new-origin encrypted envelope and zero read-only inspection writes. [Research](docs/WEB_ORIGIN_SAME_ID_DIFFERENT_AMOUNT_RESEARCH_20261101.md). WEB 18.67 product unchanged.
+- **FIRST UNFINISHED:** verify merged-main Release/Chromium/Pages terminal results; investigate read-only comparisons followed by another old-tab edit, and accessible explicit UNKNOWN/divergence UX in synthetic tests. #4/#29/#35 remain OPEN; no migration, restore, reset, merge, replay, rekey, deletion or production origin switch before explicit approval of the full contract.
+- **P2 / DISCOVERY:** #85/#17 real served WEB 18.67 browser/Safari/VoiceOver and 200% zoom unverified. #14/#25/#2 require numeric financial contract approval; no modes or formulas. No iOS, real ledger, backup, login, backend, telemetry or bank integration.
 
 ## 2026-11-01 — P1 #4/#29/#35 identical synthetic checkpoint divergence; read-only contract
 
