@@ -2,6 +2,10 @@
 
 **DISCOVERY / READ-ONLY.** Active product WEB **18.72**, source `_expo/static/js/web/index-v01872-forced-colors-focus-20261101.js` (Git blob `1f08ec30dec2198773257bd17f21e78733d07e9d`). Inspected actual bundled modules **309/310** and the named tests in `tests/vault-real-crypto-regression.cjs` (73 test declarations). This document changes no product, financial calculation, local storage, backup, or iOS code. No real financial data was accessed.
 
+## 2026-11-02 — diagnostic merged and verified (not a safety fix)
+
+[PR #439](https://github.com/nikopol000/financial-autonomy-preview/pull/439) merged as `a4746a4e50f0ceb9f0e4096c46785781f0b5717b`. Exact PR-head [Release #41360728352](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41360728352) and [Chromium #41360728362](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41360728362) both **SUCCESS**. All 12 archived-reset/IDB-completion combinations passed; no `RESET FOOTPRINT OBSERVATION` occurred in this single run. The intermittent earlier KEY-only case was **not reproduced**; its root cause and any real-world impact remain **unknown**. The test retains strict persistent partial-state failures. Five separate **KNOWN UNSAFE** cached legacy writer cases remain. Verify merged-main CI, then continue fail-closed cutover research; do not infer a repaired vault or approve automatic migration.
+
 ## 2026-11-02 — cross-tab reset visibility diagnostic gate (PR #439)
 
 [PR #439](https://github.com/nikopol000/financial-autonomy-preview/pull/439) is **TEST-ONLY / CI PENDING**. The first attempt of [Chromium run 41355317400](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41355317400) failed after an archived v1 reset because the *receiving* tab read KEY present / PAYLOAD absent, while a rerun without code changes passed. It is not yet known whether the initiating tab failed to delete KEY or whether the receiving tab saw delayed cross-renderer visibility.

@@ -1,3 +1,8 @@
+## 2026-11-02 — P1 #439 merged; no reset flake in one Chromium run
+
+- **DONE / TEST-ONLY:** [PR #439](https://github.com/nikopol000/financial-autonomy-preview/pull/439) merged `a4746a4e50f0ceb9f0e4096c46785781f0b5717b`; exact head Release [#41360728352](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41360728352) SUCCESS, Chromium [#41360728362](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41360728362) SUCCESS. All 12 archived reset completion cases passed without `RESET FOOTPRINT OBSERVATION` on this run; intermittent KEY-only remains unexplained. Five KNOWN UNSAFE cached legacy writer cases remain.
+- **NEXT P1:** check merged-main CI; stress/reproduce partial reset without hiding persistent KEY-only; review independent-origin cutover, authenticated user-controlled handoff, old-tab divergence, #29/#35 provenance and no-write UX before any implementation. #85 320px focus/Safari and #14 approval-gated numeric budget contract remain pending. WEB **18.72**, no product or iOS change.
+
 ## 2026-11-02 — P1 #4/#29/#35 cross-tab reset observation, PR #439 pending CI
 
 - **IN PROGRESS / TEST-ONLY:** [PR #439](https://github.com/nikopol000/financial-autonomy-preview/pull/439) instruments the intermittent KEY-only Chromium observation from run 41355317400 attempt 1; initiating and receiving tab footprints are checked separately, presence-only diagnostic emitted, bounded 3-second convergence permitted for receiving-tab visibility, **persistent partial state fails**. Existing five archived-writer **KNOWN UNSAFE** cases are unchanged and NOT fixed. No product release.
