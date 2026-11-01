@@ -366,6 +366,95 @@ async function focusFollowingZoomNavInput(page,label,css){
     const menuOcclusion={before:menuBefore,after:menuAfter,pointerTrial,
       caveat:'Disposable Chromium 200% CSS zoom. Trial click is not activation, and DOM restore below is harness-only.'};
     console.log('MORE MENU POINTER GEOMETRY #85 '+label+' '+JSON.stringify(menuOcclusion));
+    // #85: two *reversible, diagnostic-only* vertical-space candidates.
+    // Preserve the baseline pointer failure above. These are not production
+    // styles and a successful trial click is not actual menu activation.
+    const menuVerticalCandidates=[];
+    for(const variant of ['flow-min-height','fixed-panel']){
+      const patch=await menuRow.evaluate((el,kind)=>{
+        let scroll=null;
+        for(let node=el.parentElement;node;node=node.parentElement){
+          const style=getComputedStyle(node);
+          if(/auto|scroll/.test(style.overflowY)&&node.scrollHeight>node.clientHeight+2){
+            scroll=node;break;
+          }
+        }
+        if(!scroll)return {error:'No vertically scrollable menu ancestor'};
+        const original=scroll.getAttribute('style');
+        const nav=document.querySelector('[role="tab"]')?.parentElement?.getBoundingClientRect();
+        if(!nav)return {error:'Navigation rectangle missing'};
+        scroll.setAttribute('data-web85-vertical-probe','');
+        scroll.style.setProperty('overflow-y','auto','important');
+        scroll.style.setProperty('min-height','120px','important');
+        scroll.style.setProperty('flex-shrink','0','important');
+        if(kind==='fixed-panel'){
+          // Root CSS zoom=200% scales CSS lengths; convert measured pixels
+          // to the local CSS coordinate system. Keep above the fixed nav.
+          const scale=Number(getComputedStyle(document.documentElement).zoom)||1;
+          scroll.style.setProperty('position','fixed','important');
+          scroll.style.setProperty('top',Math.max(120,(nav.top-340)/scale)+'px','important');
+          scroll.style.setProperty('bottom',Math.max(16,(innerHeight-nav.top+8)/scale)+'px','important');
+          scroll.style.setProperty('left','8px','important');
+          scroll.style.setProperty('right','8px','important');
+          scroll.style.setProperty('height','auto','important');
+          scroll.style.setProperty('max-height','none','important');
+          scroll.style.setProperty('z-index','40','important');
+          scroll.style.setProperty('background','Canvas','important');
+        }
+        return {original,variant:kind,navTop:nav.top};
+      },variant);
+      let trial={actionable:false,error:null},after=null,safety=null;
+      try{
+        if(!patch.error){
+          try{
+            await menuRow.click({trial:true,timeout:1600});
+            trial.actionable=true;
+          }catch(error){
+            trial.error=String(error.message).split('\\n')[0].slice(0,240);
+          }
+          after=await readMenuGeometry();
+          safety=await page.evaluate(()=>{
+            const point=el=>{
+              if(!el)return {present:false,exposed:false};
+              const r=el.getBoundingClientRect();
+              const x=r.left+r.width/2,y=r.top+r.height/2;
+              const hit=x>=0&&x<innerWidth&&y>=0&&y<innerHeight?
+                document.elementFromPoint(x,y):null;
+              return {present:true,exposed:!!hit&&(hit===el||el.contains(hit)),
+                top:r.top,bottom:r.bottom};
+            };
+            const warning=[...document.querySelectorAll('*')].find(el=>
+              el.children.length===0&&el.textContent?.trim()==='DEMO · DATE FICTIVE');
+            const exit=[...document.querySelectorAll('button,[role="button"]')].find(el=>
+              (el.getAttribute('aria-label')||el.textContent||'').includes('Ieși din demo'));
+            const scroll=document.querySelector('[data-web85-vertical-probe]');
+            return {warning:point(warning),exit:point(exit),
+              menuClientHeight:scroll?.clientHeight??null,
+              menuScrollHeight:scroll?.scrollHeight??null,
+              menuRect:scroll?.getBoundingClientRect().toJSON()??null};
+          });
+        }
+      }finally{
+        await page.evaluate(original=>{
+          const scroll=document.querySelector('[data-web85-vertical-probe]');
+          if(!scroll)return;
+          if(original===null)scroll.removeAttribute('style');
+          else scroll.setAttribute('style',original);
+          scroll.removeAttribute('data-web85-vertical-probe');
+        },patch.original??null);
+      }
+      const result={variant,patchError:patch.error||null,trial,
+        menuClientHeight:safety?.menuClientHeight??null,
+        targetCenterExposed:after?.centerHitTarget??null,
+        demoWarning:safety?.warning??null,demoExit:safety?.exit??null,
+        caveat:'Test-only Chromium CSS-zoom geometry; no actual click or Safari proof'};
+      menuVerticalCandidates.push(result);
+      console.log('MORE MENU VERTICAL CANDIDATE #85 '+label+' '+JSON.stringify(result));
+    }
+    assert.equal(menuVerticalCandidates.length,2,'Both reversible menu candidates must be measured');
+    assert.deepEqual(await page.evaluate(keys=>keys.map(k=>localStorage.getItem(k)),VAULT_KEYS),
+      [null,null,null],'Vertical-space probes must never create real vault keys');
+
     // Return to the same configured DEMO budget so subsequent checks are
     // unaffected by this reversible navigation research.
     console.log('C2 ENTER ACTIVATION #85 '+label+' '+JSON.stringify(activation));
