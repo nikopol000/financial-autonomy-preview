@@ -1,0 +1,33 @@
+# WEB P1 encrypted-vault integrity — current protection and release gate (2026-11-01)
+
+**DISCOVERY / READ-ONLY.** Active product WEB **18.72**, source `_expo/static/js/web/index-v01872-forced-colors-focus-20261101.js` (Git blob `1f08ec30dec2198773257bd17f21e78733d07e9d`). Inspected actual bundled modules **309/310** and the named tests in `tests/vault-real-crypto-regression.cjs` (73 test declarations). This document changes no product, financial calculation, local storage, backup, or iOS code. No real financial data was accessed.
+
+## What is already protected, and what is not
+
+| Boundary | Current source/test evidence | Residual limitation |
+| --- | --- | --- |
+| Concurrent *cooperating* real-mode tabs (#4) | `faExclusiveVaultWrite` requires an exclusive origin Web Lock; `faAssertCurrentVault` compares KEY/PAYLOAD/RESET revisions. Tests 9–14, 20–22, 60 cover stale saves, resets and reset-epoch ABA. Without Web Locks, real save and reset fail closed (tests 11–12). | A cached older bundle or non-cooperating writer need not honor the current Web Lock/revision protocol. No cross-version origin cutover or physical multi-tab browser acceptance. Do **not** call this globally atomic. |
+| Intentional destructive reset (#29) | Module 309 writes and reads back `pending-v2:<random epoch>` **before** deleting PAYLOAD then KEY, then records `idle-v2:<same epoch>`. It retains the epoch to reject pre-reset stale tabs. Tests 23–37 inject marker/read/deletion faults and retry committed reset. | A pending marker is a durable *delete intent*, **not** a recoverable ciphertext copy. A failure after deleting PAYLOAD can leave KEY-only until a permitted finalization; no generic rollback or guarantee against browser storage loss. Cached legacy writers and multi-store/IndexedDB partial reset remain separate unresolved threats. |
+| First save / KEY-only (#35) | Module 310 writes KEY before PAYLOAD on first creation. A PAYLOAD write failure can leave KEY-only; tests 38–43 characterize this. The current same-tab bounded retry can commit only its exact prepared payload under the lock (tests 44–51, 61–66). | After reload, token expiry, or lost provenance, KEY-only **cannot** establish whether this was a failed first write or deleted existing ciphertext. Never auto-delete KEY, generate a new key, or call an empty vault safe. |
+| Restoring an encrypted backup | Tests 53–57 and 67–73 distinguish clean isolated restore, valid-but-older backup, unchanged, target-present, and **unknown** acknowledgment. | Authenticated backup content does **not** prove it is the newest ledger. Unknown/read-denied/changed-during-read must remain read-only; do not silently merge or overwrite an ambiguous live origin. |
+
+## Proposed acceptance gate before any further vault release
+
+1. **No destructive recovery by inference.** KEY-only, PAYLOAD-only, invalid marker, denied read, pending reset, and divergent authenticated backups are *unknown* states. Preserve bytes and explain that status without presenting them as an empty account. Never silently erase, replay, merge or rekey.
+2. **No false atomicity claim.** Web Locks serializes cooperating clients; `localStorage` KEY/PAYLOAD/RESET operations remain individually fallible. Every test report must distinguish an expected **blocked** result from an actual successful recovery.
+3. **Version-skew threat model first.** Test the current 18.72 tab against a genuinely cached pre-lock/pre-epoch writer using a disposable origin. Identify whether old code can write after the new code has saved/reset. If it can, design a conservative, explicit user-facing read-only/cutover contract; do not ship an origin migration based only on same-version tests.
+4. **Fault matrix.** For reset, first save and restore, inject failures both *before* and *after* a storage operation commits, then reload, retry, open a second tab, deny storage reads, and verify no unapproved write to KEY/PAYLOAD/RESET. Include AES-GCM authentication and byte-for-byte preservation of the last confirmed ciphertext when the operation is not committed.
+5. **Browser acceptance separately.** Use a synthetic, disposable Chromium origin for actual cross-tab, reload and storage-fault UI behavior; separately verify iPhone Safari/Web Locks availability and VoiceOver blocked-state copy. Node VM synthetic tests are not browser or crash certification.
+6. **Release gate.** Only after a reviewed recovery/reset contract: immutable bundle, synchronized HTML/build/diagnostic, exact-diff guard, `scripts/check_release.py`, `node --check`, relevant synthetic + Chromium tests, merged-main CI, Vercel exact SHA and independent served-browser verification.
+
+## Decision and sequencing
+
+**Recommended next engineering work:** a *test-only* cross-version cached-writer reproduction for #4, with immutable archived bundles, explicit write provenance and zero real data. This can determine whether a safe read-only compatibility boundary is necessary before changing reset or first-save semantics. Continue to treat #29/#35 as open, even though the current code has substantial fault handling.
+
+**Do not** implement a new vault format, background cleanup, automatic reset, backup replay or cross-origin migration in this discovery. A durable reset marker prevents a class of stale writes; it is not a backup. An authenticated restored state proves integrity, not recency.
+
+## Publication evidence and limits
+
+At this run, Vercel metadata for production alias `financial-autonomy-preview.vercel.app` returned **READY**, deployment `dpl_5fSc3QwppsqQHaxJXpmUWxsctrYo`, source SHA `83fc01da0d2491c177d2c2f656eabaea96469f40` (product-equivalent WEB 18.72), aliasError=null. An authenticated fetch of the served HTML was **denied HTTP 403** by the Vercel connector's project/team authorization, so the live served header/bundle and Safari remain **unverified**. No access restriction was bypassed.
+
+**Priority:** #4/#29/#35 P1; #85 and other UX DISCOVERY may continue only without weakening data-integrity safeguards. #14 remains a financial-contract DISCOVERY requiring explicit approval before any budget perspective or formula change.
