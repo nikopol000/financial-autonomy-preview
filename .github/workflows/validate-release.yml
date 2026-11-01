@@ -23,6 +23,8 @@ jobs:
         run: node tests/budget-copy-regression.cjs
       - name: Verify v18.43 budget UI copy is engine-identical to v18.42
         run: node tests/budget-copy-followup-regression.cjs
+      - name: Guard active WEB Romanian budget terminology (#17)
+        run: node tests/web-active-budget-copy-regression.cjs
       - name: Verify immutable v18.48 Romanian budget row is copy-only
         run: node tests/budget-primary-label-v1848-regression.cjs
       - name: Accessibility shell and unchanged financial engine
