@@ -207,6 +207,71 @@ async function main(){
     assert.deepEqual((await page.evaluate(()=>window.__r(309).load())).transactions.map(t=>t.id),
       ['p1-lock-expense'],'lock request denials must not alter reloaded ledger');
     console.log('PASS P1 real WEB 18.72: present LockManager async rejection blocks update/reset; authenticated ledger unchanged');
+    // Characterize the ACTUAL reset-confirmation UI after a LockManager denial.
+    // The UI may keep the confirmation modal open while placing its error alert
+    // behind that modal. This is research, NOT a destructive reset workaround.
+    await ready(page,url);
+    await page.getByRole('button',{name:'Setări de aspect'}).waitFor({state:'visible',timeout:15000});
+    for(let step=0;step<6;step++){
+      const recap=await page.getByText(/RECAPITULARE\\s*·/).count();
+      if(!recap)break;
+      const next=page.getByRole('button',{name:/Am văzut|Continuă|Gata|Închide/i}).first();
+      if(!(await next.count()))break;
+      await next.click({timeout:3000});
+    }
+    await page.getByRole('button',{name:'Setări de aspect'}).click({timeout:5000});
+    await page.getByRole('button',{name:'Șterge toate datele',exact:true}).click({timeout:5000});
+    await page.getByRole('button',{name:'Da, șterge toate datele'}).waitFor({state:'visible'});
+    const beforeUiDenied=await snapshot(page);
+    await page.evaluate(names=>{
+      const set=Storage.prototype.setItem,remove=Storage.prototype.removeItem,clear=Storage.prototype.clear;
+      window.__p1DeniedUi={writes:0,requests:0,restore(){
+        delete navigator.locks;
+        Storage.prototype.setItem=set;Storage.prototype.removeItem=remove;Storage.prototype.clear=clear;
+      }};
+      Storage.prototype.setItem=function(k,v){
+        if(this===localStorage&&names.includes(k))window.__p1DeniedUi.writes++;
+        return set.call(this,k,v);
+      };
+      Storage.prototype.removeItem=function(k){
+        if(this===localStorage&&names.includes(k))window.__p1DeniedUi.writes++;
+        return remove.call(this,k);
+      };
+      Storage.prototype.clear=function(){
+        if(this===localStorage)window.__p1DeniedUi.writes++;
+        return clear.call(this);
+      };
+      Object.defineProperty(navigator,'locks',{configurable:true,value:{
+        request(){window.__p1DeniedUi.requests++;return Promise.reject(
+          new DOMException('Synthetic Web Lock permission denied','SecurityError'));}
+      }});
+    },NAMES);
+    let deniedUi;
+    try{
+      await page.getByRole('button',{name:'Da, șterge toate datele'}).click({timeout:5000});
+      await page.waitForFunction(()=>[...document.querySelectorAll('[role="alert"]')]
+        .some(el=>el.textContent.includes('Synthetic Web Lock permission denied')),
+        null,{timeout:8000});
+      deniedUi=await page.evaluate(()=>{
+        const alerts=[...document.querySelectorAll('[role="alert"]')];
+        const error=alerts.find(el=>el.textContent.includes('Synthetic Web Lock permission denied'));
+        const heading=[...document.querySelectorAll('*')].find(el=>
+          el.children.length===0&&el.textContent?.trim()==='Ștergi toate datele?');
+        const visible=el=>!!el&&!!el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden';
+        return {writes:window.__p1DeniedUi.writes,requests:window.__p1DeniedUi.requests,
+          errorInDom:!!error,errorVisibleByCss:visible(error),
+          confirmationStillVisible:visible(heading),
+          errorText:error?.textContent.slice(0,180)||''};
+      });
+    }finally{await page.evaluate(()=>window.__p1DeniedUi?.restore());}
+    assert.equal(deniedUi.requests,1,'UI reset must request one lock');
+    assert.equal(deniedUi.writes,0,'UI denial must not touch protected storage');
+    assert.deepEqual(await snapshot(page),beforeUiDenied,'UI denial preserves ciphertext');
+    await ready(page,url);
+    assert.deepEqual((await page.evaluate(()=>window.__r(309).load())).transactions.map(t=>t.id),
+      ['p1-lock-expense'],'UI denial reload must authenticate original transaction');
+    console.log('PASS P1 WEB 18.72 UI reset LockManager denial: '+JSON.stringify(deniedUi));
+    console.log('UI RESEARCH LIMIT: DOM alert and modal visibility do not prove screen-reader announcement or Safari behavior');
     console.log('LIMIT: cooperative current bundle only; archived v1 cached writers remain KNOWN UNSAFE; no Safari, crash, cutover or recovery proof');
     await context.close();
   }finally{
