@@ -77,28 +77,71 @@ async function selectAndInspect(page,{name,text,password,expectSuccess}){
     const set=Storage.prototype.setItem,remove=Storage.prototype.removeItem,
       clear=Storage.prototype.clear,open=indexedDB.open,del=indexedDB.deleteDatabase;
     let writes=0;
+    // An already-open IDBDatabase bypasses an indexedDB.open-only guard.
+    // Instrument write transactions and mutation methods as well.
+    const originalTransaction=IDBDatabase.prototype.transaction;
+    const idbMutators=[
+      [IDBDatabase.prototype,'createObjectStore'],
+      [IDBDatabase.prototype,'deleteObjectStore'],
+      [IDBObjectStore.prototype,'add'],
+      [IDBObjectStore.prototype,'put'],
+      [IDBObjectStore.prototype,'delete'],
+      [IDBObjectStore.prototype,'clear'],
+      [IDBCursor.prototype,'update'],
+      [IDBCursor.prototype,'delete']
+    ];
+    const idbOriginals=idbMutators.map(([target,method])=>target[method]);
+    let idbGuardProbeBlocked=false;
     Storage.prototype.setItem=function(){writes++;throw Error('RESEARCH_WRITE_FORBIDDEN')};
     Storage.prototype.removeItem=function(){writes++;throw Error('RESEARCH_DELETE_FORBIDDEN')};
     Storage.prototype.clear=function(){writes++;throw Error('RESEARCH_CLEAR_FORBIDDEN')};
     indexedDB.open=function(){writes++;throw Error('RESEARCH_IDB_OPEN_FORBIDDEN')};
     indexedDB.deleteDatabase=function(){writes++;throw Error('RESEARCH_IDB_DELETE_FORBIDDEN')};
+    IDBDatabase.prototype.transaction=function(names,mode,...rest){
+      if(mode && mode!=='readonly'){
+        writes++;throw Error('RESEARCH_IDB_TRANSACTION_FORBIDDEN');
+      }
+      return originalTransaction.call(this,names,mode,...rest);
+    };
+    for(const [target,method] of idbMutators){
+      target[method]=function(){writes++;throw Error('RESEARCH_IDB_MUTATION_FORBIDDEN')};
+    }
     try{
+      // Positive control: reject a write transaction on a connection opened
+      // BEFORE guards were installed. This is a deliberately blocked probe,
+      // excluded from the selected-file operation's write-attempt count.
+      try{window.__h05ExistingDb.transaction('probe','readwrite')}
+      catch(error){idbGuardProbeBlocked=error.message==='RESEARCH_IDB_TRANSACTION_FORBIDDEN'}
+      if(!idbGuardProbeBlocked)throw Error('RESEARCH_IDB_GUARD_NOT_ACTIVE');
+      writes=0;
       const selected=document.querySelector('#h05-selected-file').files[0];
       if(!selected)throw Error('NO_SELECTED_FILE');
       const raw=await selected.text();
       const decoded=await window.__r(311).restore(raw,password);
       window.__r(205).validateState(decoded);
       const state=window.__r(205).migrate(decoded);
-      return {status:'AUTHENTICATED_SELECTED_FILE',writes,
+      return {status:'AUTHENTICATED_SELECTED_FILE',writes,idbGuardProbeBlocked,
         transactionIds:state.transactions.map(t=>t.id)};
     }catch(error){
-      return {status:'BLOCKED_READ_ONLY',writes};
+      return {status:'BLOCKED_READ_ONLY',writes,idbGuardProbeBlocked};
     }finally{
       Storage.prototype.setItem=set;Storage.prototype.removeItem=remove;
       Storage.prototype.clear=clear;indexedDB.open=open;indexedDB.deleteDatabase=del;
+      IDBDatabase.prototype.transaction=originalTransaction;
+      for(let i=0;i<idbMutators.length;i++){
+        const [target,method]=idbMutators[i];target[method]=idbOriginals[i];
+      }
     }
   },password);
   const after=await footprint(page);
+  const sentinel=await page.evaluate(()=>new Promise((resolve,reject)=>{
+    const tx=window.__h05ExistingDb.transaction('probe','readonly');
+    const request=tx.objectStore('probe').get('sentinel');
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+  }));
+  assert.equal(sentinel,'unchanged',name+' must preserve existing IndexedDB record');
+  assert.equal(result.idbGuardProbeBlocked,true,name+' must block an existing IDB connection');
   assert.equal(result.writes,0,name+' selected-file authentication must not write');
   assert.deepEqual(after,before,name+' must preserve all destination storage/IDB');
   assert.equal(result.status,expectSuccess?'AUTHENTICATED_SELECTED_FILE':'BLOCKED_READ_ONLY',name);
@@ -125,6 +168,23 @@ async function main(){
       input.style.position='fixed';input.style.top='0';input.style.left='0';
       input.style.zIndex='2147483647';document.body.appendChild(input);
     });
+    // Seed a synthetic IDB record and keep the connection open throughout
+    // every File API authentication; opening a new DB is not the only write path.
+    await page.evaluate(async()=>{
+      const db=await new Promise((resolve,reject)=>{
+        const request=indexedDB.open('fa-h05-h06-existing-connection-probe',1);
+        request.onupgradeneeded=()=>request.result.createObjectStore('probe');
+        request.onsuccess=()=>resolve(request.result);
+        request.onerror=()=>reject(request.error);
+      });
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction('probe','readwrite');
+        tx.objectStore('probe').put('unchanged','sentinel');
+        tx.oncomplete=()=>resolve();
+        tx.onerror=()=>reject(tx.error);
+      });
+      window.__h05ExistingDb=db;
+    });
     const old=fixture();
     const newer={...old,transactions:[...old.transactions,
       {...old.transactions[0],id:'h05-newer-not-in-backup',amount:775}]};
@@ -150,8 +210,9 @@ async function main(){
     ];
     for(const [name,text,password] of cases)
       await selectAndInspect(page,{name,text,password,expectSuccess:false});
+    await page.evaluate(()=>window.__h05ExistingDb.close());
     await context.close();
-    console.log('LIMIT: test-only File API + actual WEB crypto/schema; no import, newest-history assertion, HTTPS cutover, atomic commit or Safari verification');
+    console.log('LIMIT: read-only File API crypto/schema + existing-IDB-connection guards; no atomic cross-tab isolation, import, newest-history assertion, HTTPS cutover or Safari verification');
   }finally{
     if(browser)await browser.close();
     await new Promise(resolve=>server.close(resolve));
