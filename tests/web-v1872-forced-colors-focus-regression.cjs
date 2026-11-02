@@ -18,8 +18,10 @@ for(const [from,to] of [
 }
 assert.equal(current,expected,'WEB 18.72 JS must change ONLY diagnostic version and filename');
 const html=read('index.html');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\.72"/);
-assert.match(html,/index-v01872-forced-colors-focus-20261101\.js\?build=18\.72\.1/);
+const activeVersion=html.match(/<meta name="financial-autonomy-version" content="(\\d+\\.\\d+)"/)?.[1];
+assert.ok(activeVersion&&Number(activeVersion)>=18.72,'Current release must not regress below 18.72');
+assert.ok(fs.existsSync(path.join(root,'_expo/static/js/web/index-v01872-forced-colors-focus-20261101.js')),
+  'Immutable 18.72 bundle must remain available after later releases');
 assert.match(html,/#root \[role="button"\]:focus-visible\s*\{\s*box-shadow:\s*inset 0 0 0 3px #159cb4 !important;/,
   'Ordinary keyboard focus shadow must remain');
 assert.match(html,/@media \(forced-colors: active\)\s*\{[\s\S]*?#root \[role="button"\]:focus-visible\s*\{\s*outline-width:\s*3px !important;\s*outline-style:\s*solid !important;\s*outline-color:\s*Highlight !important;/,
