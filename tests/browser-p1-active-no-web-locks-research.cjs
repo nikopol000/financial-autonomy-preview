@@ -93,6 +93,60 @@ async function denyLocks(page,action,state){
     }
   },{names:NAMES,action,state});
 }
+
+async function rejectLockRequest(page,action,state,mode){
+  // A LockManager can exist but deny an individual request. This is distinct
+  // from navigator.locks being absent, and canWriteReal() still returns true.
+  return page.evaluate(async({names,action,state,mode})=>{
+    const set=Storage.prototype.setItem,remove=Storage.prototype.removeItem;
+    const clear=Storage.prototype.clear;
+    let writes=0,requests=0,callbackCalled=false;
+    Storage.prototype.setItem=function(k,v){
+      if(this===localStorage&&names.includes(k))writes++;
+      return set.call(this,k,v);
+    };
+    Storage.prototype.removeItem=function(k){
+      if(this===localStorage&&names.includes(k))writes++;
+      return remove.call(this,k);
+    };
+    Storage.prototype.clear=function(){
+      if(this===localStorage)writes++;
+      return clear.call(this);
+    };
+    Object.defineProperty(navigator,'locks',{configurable:true,value:{
+      request(_name,_options,_callback){
+        requests++;
+        if(mode==='throw')throw new DOMException('Synthetic Web Lock permission denied','SecurityError');
+        return Promise.reject(new DOMException('Synthetic Web Lock permission denied','SecurityError'));
+      }
+    }});
+    const advertised=window.__r(309).canWriteReal();
+    let rejected=false,message='';
+    try{
+      if(action==='save')await window.__r(309).save(state);
+      else await window.__r(309).resetData();
+    }catch(error){rejected=true;message=String(error?.message||error)}
+    finally{
+      delete navigator.locks;
+      Storage.prototype.setItem=set;
+      Storage.prototype.removeItem=remove;
+      Storage.prototype.clear=clear;
+    }
+    return {rejected,message,writes,requests,callbackCalled,advertised,
+      lockRestored:typeof navigator.locks?.request==='function'};
+  },{names:NAMES,action,state,mode});
+}
+function expectRejectedLock(result,label){
+  assert.equal(result.rejected,true,label+' must reject lock request failure');
+  assert.match(result.message,/Synthetic Web Lock permission denied/,label+' must surface rejection');
+  assert.equal(result.requests,1,label+' must request one exclusive lock');
+  assert.equal(result.writes,0,label+' must not mutate encrypted vault');
+  assert.equal(result.lockRestored,true,label+' must restore native lock implementation');
+  // Characterization: the synchronous UI predicate sees a request method,
+  // not the outcome of the later async request. This is not a safe UI signal.
+  assert.equal(result.advertised,true,label+' exposes canWriteReal false-positive');
+}
+
 function expectDenied(result,label){
   assert.equal(result.rejected,true,label+' must fail closed');
   assert.match(result.message,/Web Locks/,label+' must give actionable reason');
@@ -120,6 +174,12 @@ async function main(){
     expectDenied(deniedEmptyReset,'empty reset without Web Locks');
     assert.deepEqual(await snapshot(page),before,'empty reset denial must preserve vault');
     console.log('PASS P1 real WEB 18.72: missing Web Locks rejects first save and reset, zero protected writes');
+    for(const action of ['save','reset']){
+      const denied=await rejectLockRequest(page,action,action==='save'?fixture():null,'throw');
+      expectRejectedLock(denied,'fresh '+action+' synchronous LockManager SecurityError');
+      assert.deepEqual(await snapshot(page),before,'lock-request throw must preserve empty vault');
+    }
+    console.log('PASS P1 real WEB 18.72: present LockManager synchronous denial rejects first save/reset with zero writes; UI predicate overstates availability');
 
     await page.evaluate(state=>window.__r(309).save(state),fixture());
     const committed=await snapshot(page);
@@ -138,6 +198,15 @@ async function main(){
       'reload must authenticate the original synthetic transaction only');
     assert.deepEqual(await snapshot(page),committed);
     console.log('PASS P1 real WEB 18.72: missing Web Locks rejects update and destructive reset; reload retains authenticated ledger');
+    for(const action of ['save','reset']){
+      const denied=await rejectLockRequest(page,action,action==='save'?changed:null,'reject');
+      expectRejectedLock(denied,'existing '+action+' async LockManager SecurityError');
+      assert.deepEqual(await snapshot(page),committed,'async lock denial must preserve authenticated bytes');
+    }
+    await ready(page,url);
+    assert.deepEqual((await page.evaluate(()=>window.__r(309).load())).transactions.map(t=>t.id),
+      ['p1-lock-expense'],'lock request denials must not alter reloaded ledger');
+    console.log('PASS P1 real WEB 18.72: present LockManager async rejection blocks update/reset; authenticated ledger unchanged');
     console.log('LIMIT: cooperative current bundle only; archived v1 cached writers remain KNOWN UNSAFE; no Safari, crash, cutover or recovery proof');
     await context.close();
   }finally{
