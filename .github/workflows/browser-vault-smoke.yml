@@ -7,6 +7,7 @@ on:
       - 'tests/browser-vault-recovery-smoke.cjs'
       - 'tests/browser-confirmed-backup-restore-faults.cjs'
       - 'tests/browser-first-save-ui-retry.cjs'
+      - 'tests/browser-p1-active-no-web-locks-research.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
       - 'tests/browser-v2-locks-research.cjs'
       - 'tests/browser-v2-restore-research.cjs'
@@ -45,6 +46,7 @@ on:
       - 'tests/browser-vault-recovery-smoke.cjs'
       - 'tests/browser-confirmed-backup-restore-faults.cjs'
       - 'tests/browser-first-save-ui-retry.cjs'
+      - 'tests/browser-p1-active-no-web-locks-research.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
       - 'tests/browser-v2-locks-research.cjs'
       - 'tests/browser-v2-restore-research.cjs'
@@ -96,6 +98,8 @@ jobs:
         run: node tests/browser-confirmed-backup-restore-faults.cjs
       - name: Verify actual WEB first-save UI retry and reload quarantine (synthetic only)
         run: node tests/browser-first-save-ui-retry.cjs
+      - name: Verify actual WEB 18.72 fail-closed real-vault writes without Web Locks (synthetic only)
+        run: node tests/browser-p1-active-no-web-locks-research.cjs
       - name: Research real Chromium Web Locks and cached-reset hazards (synthetic only)
         run: node tests/browser-v2-locks-research.cjs
       - name: Research authenticated WEB backup and cached v1 writer after locked reinspection (KNOWN UNSAFE)
