@@ -120,6 +120,7 @@ function geometry(){
      try{await budget.click({timeout:1200});pointer=(await page.evaluate(()=>window.c11().lastAction))==='Bugete';}
      catch(e){error=String(e.message).split('\n')[0].slice(0,160);}
      const accepted=safe&&listUsable&&pointer;
+     await page.screenshot({path:path.join(OUT,label+'.png')});
      await page.keyboard.press('Escape');
      const focusRestored=await page.locator('#trigger').evaluate(el=>document.activeElement===el);
      assert.equal(focusRestored,true,'Escape must restore focus to More trigger');
@@ -130,7 +131,6 @@ function geometry(){
       scope:'isolated HTML prototype; not actual WEB, Safari, VoiceOver, or WCAG certification'};
      results.push(result);
      console.log('C11 ADAPTIVE SHEET #85 '+JSON.stringify(result));
-     await page.screenshot({path:path.join(OUT,label+'.png')});
     }finally{await page.close();}
    }
   assert.equal(results.length,16);
