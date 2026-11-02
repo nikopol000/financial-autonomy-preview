@@ -213,7 +213,7 @@ async function main(){
     await ready(page,url);
     await page.getByRole('button',{name:'Setări de aspect'}).waitFor({state:'visible',timeout:15000});
     for(let step=0;step<6;step++){
-      const recap=await page.getByText(/RECAPITULARE\\s*·/).count();
+      const recap=await page.getByText(/RECAPITULARE\s*·/).count();
       if(!recap)break;
       const next=page.getByRole('button',{name:/Am văzut|Continuă|Gata|Închide/i}).first();
       if(!(await next.count()))break;
@@ -301,7 +301,7 @@ async function main(){
     await ready(partialPage,url);
     await partialPage.getByRole('button',{name:'Setări de aspect'}).waitFor({state:'visible'});
     for(let step=0;step<6;step++){
-      if(!(await partialPage.getByText(/RECAPITULARE\\s*·/).count()))break;
+      if(!(await partialPage.getByText(/RECAPITULARE\s*·/).count()))break;
       const next=partialPage.getByRole('button',{name:/Am văzut|Continuă|Gata|Închide/i}).first();
       if(!(await next.count()))break;
       await next.click({timeout:3000});
