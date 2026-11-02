@@ -24,3 +24,17 @@ Green CI means the eight cases ran, the immutable release guard matched, and no 
 If real WEB controls fail after legitimate recap dismissal, isolate the minimal failing DOM behavior before changing the product. Any product correction requires a **new immutable WEB version**, exact bundle diff guard, release/syntax/functional checks, successful GitHub CI, Vercel READY for exact commit, and served-browser verification. Physical iPhone Safari/VoiceOver and true browser zoom remain separate outstanding checks. Do not ship rejected C13 CSS.
 
 **P1:** #4/#29/#35 cached legacy writers still KNOWN UNSAFE; do not trigger restore/reset/migration or infer safety from green research tests. **DISCOVERY:** #14/#25/#2 remain approval-gated; no financial semantics implemented. **Nonurgent:** #400 dashboard reset-order copy/touch remains a browser-acceptance follow-up, not a reason to change financial code.
+
+## Verified PR-head outcome — 2026-11-02
+
+Exact C16 test head `78ce8c0e244b41e7bc64224e80babedaa3d16351`. [Chromium #41487252445](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41487252445) **SUCCESS**, [Release #41487252455](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41487252455) **SUCCESS**. Inspected all eight named `C16 WEB85` lines and the `C16 COMPLETE` summary in job `125420741192`:
+
+- Recap dismissed with real pointer **8/8**.
+- Original `Mai mult` reached by Tab and activated with Enter **8/8** (20 Tabs from document focus in this synthetic session).
+- Original `Bugete` reached by Tab and activated with Enter **8/8** (4 Tabs after opening More).
+- Escape returned actual focus to `Mai mult` **8/8**.
+- Actual `Ieși din demo` pointer click accepted **8/8**; the warning was visible again afterward. This proves click acceptance, not a complete persisted-session/logout audit.
+- Five original tabs showed **zero pairwise rectangular overlap** in these baseline/pinch geometry measurements; pinch visualViewport.scale reported **2** in **8/8**. No encrypted-vault keys written.
+- **Important short-height observation:** after the menu was closed and focus returned to the bottom tab, the DEMO heading and exit were offscreen at 320/390 × 422 in **4/4** cases during pinch. At 844 they were center-hit-testable **4/4**. This is a **closed-menu scroll-position observation**, not evidence of occlusion *inside the open More menu*. Do not ship a fixed header based on it. C17 should inspect the open menu at native pinch and distinguish normal document scrolling from a genuinely inaccessible control.
+
+**Remaining limits:** CDP pinch != desktop browser zoom, Safari Dynamic Type or VoiceOver; test has no screen-reader semantics audit or physical iPhone. C16 is characterization, **not** a shipped fix. WEB 18.72 remains unchanged.
