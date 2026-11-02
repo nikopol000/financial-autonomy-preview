@@ -530,11 +530,11 @@ async function focusFollowingZoomNavInput(page,label,css){
         scroll.style.setProperty('overflow-y','auto','important');
         scroll.style.setProperty('min-height','120px','important');
         scroll.style.setProperty('flex-shrink','0','important');
-        // C4 diagnostic: reserve scroll runway for the focused row without
+        // C5 diagnostic: reserve more scroll runway for the focused row without
         // changing focus order or running a focusin handler. This is a
         // disposable Chromium candidate, not a shipped accessibility fix.
-        scroll.style.setProperty('padding-bottom','64px','important');
-        scroll.style.setProperty('scroll-padding-bottom','48px','important');
+        scroll.style.setProperty('padding-bottom','96px','important');
+        scroll.style.setProperty('scroll-padding-bottom','64px','important');
         return {original,scrollRunway:true};
       });
       for(let step=0;step<18;step++){
@@ -581,7 +581,7 @@ async function focusFollowingZoomNavInput(page,label,css){
         },keyboardPatch.original);
       }
     }
-    console.log('MORE MENU C4 SCROLL-RUNWAY KEYBOARD #85 '+label+' '+JSON.stringify(keyboardFlow));
+    console.log('MORE MENU C5 SCROLL-RUNWAY KEYBOARD #85 '+label+' '+JSON.stringify(keyboardFlow));
     if(!keyboardFlow.passed){
       // Harness-only restoration is not keyboard acceptance evidence.
       const recoveryRow=page.getByText('Bugete',{exact:true}).last();
