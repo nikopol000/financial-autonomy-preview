@@ -831,7 +831,7 @@ async function focusFollowingZoomNavInput(page,label,css){
     const c10ShortHeight=[];
     const c10OriginalViewport=page.viewportSize();
     try{
-      await page.setViewportSize({width,height:422});
+      await page.setViewportSize({width:c10OriginalViewport.width,height:422});
       for(const zoom of ['200%','100%']){
         await page.evaluate(value=>{document.documentElement.style.zoom=value;},zoom);
         await page.getByRole('tab',{name:'Mai mult',exact:true}).click();
