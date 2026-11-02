@@ -17,6 +17,7 @@ on:
       - 'tests/browser-distinct-origin-legacy-isolation-research.cjs'
       - 'tests/browser-origin-handoff-preflight-research.cjs'
       - 'tests/browser-origin-handoff-selected-file-auth-research.cjs'
+      - 'tests/browser-origin-handoff-cross-tab-idb-race-research.cjs'
       - 'tests/browser-archived-v2-interleavings-research.cjs'
       - 'tests/browser-v2-sealed-authority-research.cjs'
       - 'tests/browser-v2-idb-witness-research.cjs'
@@ -46,6 +47,7 @@ on:
       - 'tests/browser-distinct-origin-legacy-isolation-research.cjs'
       - 'tests/browser-origin-handoff-preflight-research.cjs'
       - 'tests/browser-origin-handoff-selected-file-auth-research.cjs'
+      - 'tests/browser-origin-handoff-cross-tab-idb-race-research.cjs'
       - 'tests/browser-archived-v2-interleavings-research.cjs'
       - 'tests/browser-v2-sealed-authority-research.cjs'
       - 'tests/browser-v2-idb-witness-research.cjs'
@@ -96,6 +98,8 @@ jobs:
         run: node tests/browser-origin-handoff-preflight-research.cjs
       - name: Research selected encrypted file authentication H05 H06 in Chromium (NOT PRODUCTION)
         run: node tests/browser-origin-handoff-selected-file-auth-research.cjs
+      - name: Characterize queued cross-tab IndexedDB writer after read-only preflight (NOT PRODUCTION)
+        run: node tests/browser-origin-handoff-cross-tab-idb-race-research.cjs
       - name: Characterize actual cached v1 writers against isolated v2 authority (synthetic only)
         run: node tests/browser-archived-v2-interleavings-research.cjs
       - name: Characterize sealed v2 authority, reset replay and legacy drift in two Chromium tabs (NOT PRODUCTION)
