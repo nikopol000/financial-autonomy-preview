@@ -32,6 +32,7 @@ on:
       - 'tests/browser-web85-real-dom-topology-research.cjs'
       - 'tests/browser-web85-c13-real-bounded-layout-research.cjs'
       - 'tests/browser-web85-c14-occluder-ancestry-research.cjs'
+      - 'tests/browser-web85-c15-recap-dismissal-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
     branches: [main]
@@ -66,6 +67,7 @@ on:
       - 'tests/browser-web85-real-dom-topology-research.cjs'
       - 'tests/browser-web85-c13-real-bounded-layout-research.cjs'
       - 'tests/browser-web85-c14-occluder-ancestry-research.cjs'
+      - 'tests/browser-web85-c15-recap-dismissal-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
   contents: read
@@ -138,12 +140,22 @@ jobs:
         run: node tests/browser-web85-c13-real-bounded-layout-research.cjs
       - name: Diagnose C14 real original-control hit-test occluder ancestry (NOT PRODUCT)
         run: node tests/browser-web85-c14-occluder-ancestry-research.cjs
+      - name: C15 dismiss foreground recap with real pointer before More/DEMO/Bugete tests (NOT PRODUCT)
+        run: node tests/browser-web85-c15-recap-dismissal-research.cjs
       - name: Retain synthetic-only read-only conflict screen screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: browser-v2-conflict-readonly-ui-research
           path: artifacts/browser-v2-conflict-readonly/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Retain C15 legitimate recap-dismissal and original WEB hit tests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web85-c15-recap-dismissal
+          path: artifacts/web85-c15-real-dom/
           if-no-files-found: ignore
           retention-days: 7
       - name: Retain C14 original-control hit-test ancestry and screenshots
