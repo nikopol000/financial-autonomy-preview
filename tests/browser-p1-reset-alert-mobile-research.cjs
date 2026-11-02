@@ -37,7 +37,6 @@ async function ready(page,url){
   await page.waitForFunction(()=>typeof window.__r==='function'&&
     typeof window.__r(309).save==='function'&&typeof window.__r(309).resetData==='function',
     null,{timeout:30000});
-  await page.getByRole('button',{name:'Setări de aspect'}).waitFor({state:'visible',timeout:15000});
 }
 async function dismissRecap(page){
   for(let i=0;i<6;i++){
@@ -67,6 +66,7 @@ async function probe(browser,url,width,height,theme){
     await page.evaluate(state=>window.__r(309).save(state),fixture());
     await ready(page,url);
     await dismissRecap(page);
+    await page.getByRole('button',{name:'Setări de aspect'}).waitFor({state:'visible',timeout:15000});
     const before=await digest(page);
     assert.deepEqual(before.present.slice(0,2),[true,true],label+' must start with encrypted fixture');
     await page.getByRole('button',{name:'Setări de aspect'}).click({timeout:10000});
