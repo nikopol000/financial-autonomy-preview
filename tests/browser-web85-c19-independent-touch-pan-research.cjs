@@ -147,10 +147,19 @@ async function touchDrag(cdp,x0,y0,x1,y1){
       const target=before.exit?.touchCandidate;
       if(target?.hit){
         touchReached=true;
-        exitTouch=await safe(()=>page.touchscreen.tap(target.x,target.y));
+        const playwrightTap=await safe(()=>page.touchscreen.tap(target.x,target.y));
         await page.waitForTimeout(180);
-        const stillDemo=await page.getByText('DEMO · DATE FICTIVE',{exact:true}).isVisible().catch(()=>false);
-        exitTouch={...exitTouch,stillDemo,verifiedExit:exitTouch.ok&&!stillDemo};
+        let stillDemo=await page.getByText('DEMO · DATE FICTIVE',{exact:true}).isVisible().catch(()=>false);
+        let cdpTap={ok:false,skipped:true};
+        if(stillDemo){
+          cdpTap=await safe(async()=>{
+            await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:target.x,y:target.y}]});
+            await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+          });
+          await page.waitForTimeout(180);
+          stillDemo=await page.getByText('DEMO · DATE FICTIVE',{exact:true}).isVisible().catch(()=>false);
+        }
+        exitTouch={playwrightTap,cdpTap,stillDemo,verifiedExit:!stillDemo&&(playwrightTap.ok||cdpTap.ok)};
         history.push({index:i,action:'tap-exit',candidate:target,exitTouch,after:await page.evaluate(measure)});
         break;
       }
