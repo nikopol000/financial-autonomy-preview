@@ -66,7 +66,8 @@ async function probe(browser,url,width,height,theme){
   try{
     await ready(page,url);
     await page.evaluate(state=>window.__r(309).save(state),fixture());
-    await ready(page,url);
+    // Keep the already-mounted real-mode shell; the reset UI test does not
+    // require a second mount before exercising the denied-lock handler.
     await dismissRecap(page);
     // Narrow WEB shell exposes Settings inside the original More tab.
     const more=page.getByRole('tab',{name:'Mai mult',exact:true});
@@ -140,7 +141,8 @@ async function probe(browser,url,width,height,theme){
       fs.mkdirSync(folder,{recursive:true});
       await page.screenshot({path:path.join(folder,label+'.png'),fullPage:true});
     }finally{await page.evaluate(()=>window.__mobileP1?.restore());}
-    await ready(page,url);
+    await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
+    await page.waitForFunction(()=>typeof window.__r==='function'&&typeof window.__r(309).load==='function',null,{timeout:30000});
     const loaded=await page.evaluate(()=>window.__r(309).load());
     assert.deepEqual(loaded.transactions.map(t=>t.id),['mobile-p1-expense'],
       label+' reload must authenticate original ledger');
