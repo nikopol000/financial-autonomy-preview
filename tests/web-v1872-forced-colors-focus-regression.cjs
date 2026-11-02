@@ -18,7 +18,7 @@ for(const [from,to] of [
 }
 assert.equal(current,expected,'WEB 18.72 JS must change ONLY diagnostic version and filename');
 const html=read('index.html');
-const activeVersion=html.match(/<meta name="financial-autonomy-version" content="(\\d+\\.\\d+)"/)?.[1];
+const activeVersion=html.match(/<meta name="financial-autonomy-version" content="(\d+\.\d+)"/)?.[1];
 assert.ok(activeVersion&&Number(activeVersion)>=18.72,'Current release must not regress below 18.72');
 assert.ok(fs.existsSync(path.join(root,'_expo/static/js/web/index-v01872-forced-colors-focus-20261101.js')),
   'Immutable 18.72 bundle must remain available after later releases');
