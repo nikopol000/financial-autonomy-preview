@@ -23,7 +23,7 @@ for(const [from,to] of replacements){
 }
 assert.equal(current,expected,'WEB 18.73 must change only reset error presentation and diagnostic version');
 const html=read('index.html');
-const active=html.match(/<meta name="financial-autonomy-version" content="(\\d+\\.\\d+)"/)?.[1];
+const active=html.match(/<meta name="financial-autonomy-version" content="(\d+\.\d+)"/)?.[1];
 assert.ok(active&&Number(active)>=18.73,'Current version must not regress below 18.73');
 assert.ok(fs.existsSync(path.join(root,'_expo/static/js/web/index-v01873-reset-error-visibility-20261103.js')),
   'Immutable WEB 18.73 bundle must remain available');
