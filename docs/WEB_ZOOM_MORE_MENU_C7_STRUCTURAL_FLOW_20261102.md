@@ -20,6 +20,13 @@ The **strict C7 acceptance** requires all conditions, especially simultaneous sa
 
 The harness only uses disposable memory-only DEMO, restores styles, and falls back to a DOM click solely to restore the test page after a failed candidate. The fallback is never counted as a natural interaction pass. Root `style.zoom=200%` is a Chromium stress proxy, not Safari Dynamic Type, browser zoom, VoiceOver, or WCAG certification. A product release would additionally require 320/390 light/dark, normal/enlarged text, actual touch, keyboard, focus, persistent safety header, exact bundle version, CI, Vercel and independent served-browser/Safari evidence.
 
+
+## C8 follow-up — persistent real DEMO safety controls (pending CI)
+
+C7's first exact-head Chromium job [#41425826981](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41425826981) passed the test runner but its **strict candidate acceptance was 2/4**: natural Tab, reverse Tab, focus-visible, center exposure, pointer trial and Enter succeeded 4/4, while at **320px** the actual DEMO warning scrolled above the viewport (top **−320px**, bottom **−232px**). Exit remained exposed at **92–188px**; Bugete was exposed at **436–548px**. At **390px**, warning/exit/Bugete were all exposed, but this is still a Chromium proxy, not Safari.
+
+C8 keeps C7's real document flow and **temporarily positions the original DEMO warning and original exit button** as a fixed safety header (no clones), above the actual More menu. It checks the same 4 combinations, pointer trial, forward/reverse keyboard, Enter and hit tests, and restores original inline styles. This is **not a shipped solution**; a future production sheet must also ensure the safety header does not overlap text, remains legible, preserves memory-only disclosure and passes actual iPhone testing. **C8 CI and acceptance pending.**
+
 ## Status
 
 **PENDING CI:** test-only candidate on `research/web85-c7-flow-more-20261102-1202`. Record exact CI run IDs and 4/4 C7 diagnostics after execution. Do not publish any UI change based on unverified results. #4/#29/#35 P1 integrity issues remain open (five cached old-writer scenarios known unsafe); #14/#25/#2 financial contracts remain approval-gated. No iOS, ledger, encrypted backup, formula, server, account, telemetry or WEB version change.
