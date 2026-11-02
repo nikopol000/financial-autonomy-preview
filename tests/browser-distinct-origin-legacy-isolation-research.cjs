@@ -279,6 +279,57 @@ async function main(){
       [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),newAfterRead,
       'detecting divergence is read-only on the new origin');
 
+    // Both directions of destructive reset are origin-scoped, too. This is
+    // disposable browser research only; NEVER treat an independent-origin
+    // reset as consent to erase the other origin or as a completed handoff.
+    const oldBeforeReset=await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]);
+    const newBeforeReset=await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]);
+    const oldLedgerBeforeReset=await old.evaluate(()=>window.__oldVault.load());
+    const newLedgerBeforeReset=await fresh.evaluate(()=>window.__oldVault.load());
+    const oldIdbBeforeReset=await getIdb(old);
+    const newIdbBeforeReset=await getIdb(fresh);
+    assert.ok(oldBeforeReset.every(Boolean)&&newBeforeReset.every(Boolean),
+      'both disposable origins must have authenticated envelopes before reset');
+    await old.evaluate(()=>window.__oldVault.resetData());
+    assert.deepEqual(await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),[null,null],
+      'archived reset must actually remove its own origin envelope');
+    assert.deepEqual(await sameOrigin.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),[null,null],
+      'different URL paths share the archived origin reset');
+    assert.deepEqual(await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),newBeforeReset,
+      'archived reset must not delete independent origin envelope');
+    assert.deepEqual(await fresh.evaluate(()=>window.__oldVault.load()),newLedgerBeforeReset,
+      'archived reset must not alter independent origin decrypted ledger');
+    assert.equal(await getIdb(fresh),newIdbBeforeReset,
+      'archived reset must not alter independent origin IndexedDB');
+    console.log('PASS RESEARCH: archived v1 reset deletes same-origin pair but not independent origin ledger');
+
+    // Restore only the synthetic old-origin fixture for the reverse-direction
+    // test. No backup import, migration, or recovery logic is exercised.
+    await old.evaluate(s=>window.__oldVault.save(s),oldLedgerBeforeReset);
+    assert.ok((await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD])).every(Boolean),
+      'disposable old origin must reinitialize for reverse-direction reset');
+    const restoredOld=await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]);
+    await fresh.evaluate(()=>window.__oldVault.resetData());
+    assert.deepEqual(await fresh.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),[null,null],
+      'independent origin reset must remove only its own pair');
+    assert.deepEqual(await old.evaluate(([k,p])=>
+      [localStorage.getItem(k),localStorage.getItem(p)],[KEY,PAYLOAD]),restoredOld,
+      'new origin reset must preserve old origin ciphertext exactly');
+    assert.deepEqual(await old.evaluate(()=>window.__oldVault.load()),oldLedgerBeforeReset,
+      'new origin reset must preserve old origin financial history');
+    assert.equal(await getIdb(old),oldIdbBeforeReset,
+      'new origin reset must not alter old origin IndexedDB');
+    console.log('PASS RESEARCH: independent origin reset does not erase archived origin ledger');
+    console.log('LIMIT: isolated resets do not resolve stale old-origin edits, provenance or user consent');
+
     console.log('PASS RESEARCH: complete read-only equality becomes stale after later archived write');
     console.log('PASS RESEARCH: same-origin paths share archived v1 ledger');
     console.log('PASS RESEARCH: late archived v1 AES-GCM write cannot alter second-origin localStorage');
