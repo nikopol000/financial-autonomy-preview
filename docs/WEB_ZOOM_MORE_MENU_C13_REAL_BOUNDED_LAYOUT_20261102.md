@@ -29,3 +29,18 @@ No modifications to immutable bundle, `index.html`, formulas, #14 budget perspec
 ## First unfinished step
 
 Inspect exact PR-head Chromium C13 logs and screenshots, count **real More pointer**, **exit pointer trial**, **actual Bugete click**, and whether full warning is visible at 422px/200%. Correct only harness errors if needed; reject candidate on actual accessibility failures. Then checkpoint issue #85, PROJECT_STATE and IMPLEMENTATION_QUEUE with exact evidence. No product version bump until real-app strict acceptance and RELEASE_PROCESS.md verification.
+
+
+## Verified PR-head result — REJECT candidate (2026-11-02)
+
+[PR #471](https://github.com/nikopol000/financial-autonomy-preview/pull/471) merged at `a4a6504ab6d7ff69233f391b623d81ec641810c5`. Exact test head `b4f4a6d6b15a9dd74ee3f5df3e9ec000d6e46d6c`: [Chromium #41469588069](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41469588069) **SUCCESS** and [Release #41469588068](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41469588068) **SUCCESS**. Inspected all **16 C13 named Chromium logs**, not just workflow status.
+
+- Reversible bounded CSS applied to original nodes: **16/16**. Original full warning copy remained in the DOM, with banner height **177px at 320px width** and **152px at 390px width**. At 422px viewport height the measured destination scroll region was **173px / 198px**, respectively.
+- **Real `Mai mult` pointer: 0/16** (harness bypass only for topology).
+- **Original `Ieși din demo` pointer trial: 0/16**. This trial does **not** activate exit.
+- **Original `Bugete` button real pointer: 0/16**. Its measured center was not hit-testable in **16/16**. The candidate did **not** solve the interactive occlusion.
+- Warning heading geometric visibility was restored (16/16), but its text-leaf center hit-test is not a meaningful accessibility proof; the original exit button center remained blocked. **Strict accessibility acceptance: 0/16.**
+
+**DECISION: REJECT C13 bounded CSS as a product solution.** Green CI means the 16 negative-characterization cases ran successfully. Do not copy fixed `z-index`/72px bottom guesses into production. The real hit-test obstruction must be identified before changing the actual React component.
+
+**First unfinished step (C14):** instrument `document.elementFromPoint` at the centers of the original `Mai mult`, `Ieși din demo` and `Bugete` **button elements**, record the covering element's ancestor chain, computed `pointer-events`, `position`, `z-index`, and stacking/overflow context before/after bounded layout. Test a *minimal reversible occluder fix* on disposable DEMO, with real pointer and keyboard focus. Do not infer from text-leaf geometry or bypassed clicks. Keep P1 #4/#29/#35 and #14 approval gates intact. Physical Safari/VoiceOver and exact Vercel deployment remain unverified; WEB 18.72 product unchanged.
