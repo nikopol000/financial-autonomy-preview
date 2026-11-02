@@ -35,6 +35,7 @@ on:
       - 'tests/browser-web85-c15-recap-dismissal-research.cjs'
       - 'tests/browser-web85-c16-keyboard-pinch-research.cjs'
       - 'tests/browser-web85-c17-open-menu-pinch-research.cjs'
+      - 'tests/browser-web85-c18-touch-only-scroll-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
     branches: [main]
@@ -72,6 +73,7 @@ on:
       - 'tests/browser-web85-c15-recap-dismissal-research.cjs'
       - 'tests/browser-web85-c16-keyboard-pinch-research.cjs'
       - 'tests/browser-web85-c17-open-menu-pinch-research.cjs'
+      - 'tests/browser-web85-c18-touch-only-scroll-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
   contents: read
@@ -150,6 +152,16 @@ jobs:
         run: node tests/browser-web85-c16-keyboard-pinch-research.cjs
       - name: C17 measure original open More safety controls under mobile pinch (NOT PRODUCT)
         run: node tests/browser-web85-c17-open-menu-pinch-research.cjs
+      - name: C18 characterize original More touch-only scroll and DEMO exit (NOT PRODUCT)
+        run: node tests/browser-web85-c18-touch-only-scroll-research.cjs
+      - name: Retain C18 touch-only reduced-height research
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web85-c18-touch-only-scroll
+          path: artifacts/web85-c18-open-menu-pinch/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Retain C17 open More pinch research
         if: always()
         uses: actions/upload-artifact@v4
