@@ -530,12 +530,38 @@ async function focusFollowingZoomNavInput(page,label,css){
         scroll.style.setProperty('overflow-y','auto','important');
         scroll.style.setProperty('min-height','120px','important');
         scroll.style.setProperty('flex-shrink','0','important');
-        // C5 diagnostic: reserve more scroll runway for the focused row without
-        // changing focus order or running a focusin handler. This is a
-        // disposable Chromium candidate, not a shipped accessibility fix.
-        scroll.style.setProperty('padding-bottom','96px','important');
-        scroll.style.setProperty('scroll-padding-bottom','64px','important');
-        return {original,scrollRunway:true};
+        // C6 diagnostic: a bounded, viewport-anchored menu region rather
+        // than the C3-C5 padding/scroll rescue. Measure the REAL demo exit,
+        // warning and footer; never place the menu over safety controls.
+        // This is test-only CSS, NOT a product overlay or Safari proof.
+        const exit=[...document.querySelectorAll('button,[role="button"]')].find(node=>
+          (node.getAttribute('aria-label')||node.textContent||'').includes('Ieși din demo'));
+        const warning=[...document.querySelectorAll('*')].find(node=>
+          node.children.length===0&&node.textContent?.trim()==='DEMO · DATE FICTIVE');
+        const nav=document.querySelector('[role="tab"]')?.parentElement;
+        if(!exit||!warning||!nav)throw Error('C6 requires visible DEMO controls and footer');
+        const exitRect=exit.getBoundingClientRect();
+        const warningRect=warning.getBoundingClientRect();
+        const navRect=nav.getBoundingClientRect();
+        const top=Math.max(exitRect.bottom,warningRect.bottom)+8;
+        const bottom=navRect.top-8;
+        const scale=parseFloat(getComputedStyle(document.documentElement).zoom)||1;
+        const region={top,bottom,available:bottom-top,scale,
+          exit:{top:exitRect.top,bottom:exitRect.bottom},
+          warning:{top:warningRect.top,bottom:warningRect.bottom},
+          footer:{top:navRect.top,bottom:navRect.bottom}};
+        if(region.available>=100){
+          scroll.style.setProperty('position','fixed','important');
+          scroll.style.setProperty('top',(top/scale)+'px','important');
+          scroll.style.setProperty('bottom',((innerHeight-bottom)/scale)+'px','important');
+          scroll.style.setProperty('left','0','important');
+          scroll.style.setProperty('right','0','important');
+          scroll.style.setProperty('max-height',(region.available/scale)+'px','important');
+          scroll.style.setProperty('min-height','0','important');
+          scroll.style.setProperty('z-index','20','important');
+          scroll.style.setProperty('overscroll-behavior','contain','important');
+        }
+        return {original,boundedRegion:region,applied:region.available>=100};
       });
       for(let step=0;step<18;step++){
         await page.keyboard.press('Tab');
@@ -557,7 +583,8 @@ async function focusFollowingZoomNavInput(page,label,css){
           keyboardFlow.tabReached=true;
           keyboardFlow.focusVisible=state.focusVisible;
           keyboardFlow.centerExposed=state.centerExposed;
-          keyboardFlow.scrollRunwayApplied=keyboardPatch.scrollRunway;
+          keyboardFlow.boundedRegion=keyboardPatch.boundedRegion;
+          keyboardFlow.boundedApplied=keyboardPatch.applied;
           keyboardFlow.scrollTop=await keyboardRow.evaluate(el=>{
             const scroll=document.querySelector('[data-web85-keyboard-flow]');
             return scroll?.scrollTop??null;
@@ -581,7 +608,7 @@ async function focusFollowingZoomNavInput(page,label,css){
         },keyboardPatch.original);
       }
     }
-    console.log('MORE MENU C5 SCROLL-RUNWAY KEYBOARD #85 '+label+' '+JSON.stringify(keyboardFlow));
+    console.log('MORE MENU C6 BOUNDED KEYBOARD #85 '+label+' '+JSON.stringify(keyboardFlow));
     if(!keyboardFlow.passed){
       // Harness-only restoration is not keyboard acceptance evidence.
       const recoveryRow=page.getByText('Bugete',{exact:true}).last();
