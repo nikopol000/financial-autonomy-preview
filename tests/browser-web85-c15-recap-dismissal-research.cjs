@@ -175,6 +175,7 @@ function probeOcclusion(){
      await page.getByText('Bugete',{exact:true}).last().waitFor({state:'visible',timeout:10000});
      // C15: manipulate the ORIGINAL React-rendered nodes; do not clone, remove,
      // replace, or synthesize click handlers. This layout is not shipped.
+     const beforeCandidateProbe=await page.evaluate(probeOcclusion);
      // C15 tests the UNMODIFIED actual WEB layout, not C13 injected CSS.
      const candidate={applied:false,reason:'C15 original WEB baseline after real recap dismissal'};
      const afterCandidateProbe=await page.evaluate(probeOcclusion);
