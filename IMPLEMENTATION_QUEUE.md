@@ -1,3 +1,8 @@
+## 2026-11-02 — P1 origin handoff contract merged, PR #447; WEB 18.72 unchanged
+
+- **MERGED DOCS-ONLY:** [PR #447](https://github.com/nikopol000/financial-autonomy-preview/pull/447), squash `348abdce23023baaf4a2457c3caa4c235e42c04f`. Exact PR head `ae206d88ced2801997ea4abba0f4b05492edd68f`; [Release CI #41375819305](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41375819305) SUCCESS, 64/64 job steps completed. [Decision gate](docs/WEB_VAULT_ORIGIN_HANDOFF_CONTRACT_20261102.md) documents four migration alternatives, blocked/read-only states, 16 acceptance cases and explicit user decisions; #4 updated (comment 6567351556).
+- **FIRST UNFINISHED:** verify merged-main Release/Pages CI, then consider disposable-origin *test-only* preflight (old-origin path vs genuinely separate HTTPS origin, destination unknown/KEY-only rejection). Do not deploy a new origin or import without approved consent/conflict/provenance contract. Five KNOWN UNSAFE legacy writers and #29/#35 KEY-only/partial reset remain OPEN; #85 320px focus/Safari pending; #14/#25/#2 financial DISCOVERY approval-gated. No product JS/HTML, version, formulas, backup, real data, iOS or backend changes.
+
 ## 2026-11-02 — P1 #4/#29/#35 independent-origin handoff contract drafted (WEB 18.72 unchanged)
 
 - **REAL START HEAD:** `767a8a33781b5c89218ba915478b9c1469a15974`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, canonical `docs/WEB_VISUAL_REVIEW.md` (root path absent), 10 open issues incl. #4/#29/#35/#85/#14/#17, current `index.html`, existing P1 gate and C3–C5 research. Previous main Vercel combined status is `failure` due to build-rate-limit, not proof of product regression.
