@@ -10,7 +10,7 @@
 | --- | --- |
 | H14 same HTTPS host, different URL path | BLOCKED_ORIGIN; zero destination reads |
 | H14 loopback HTTP, despite Chromium `isSecureContext=true` | BLOCKED_ORIGIN; HTTPS is a separate requirement |
-| H15 redirect to old host, unapproved host alias, unexpected port | BLOCKED_ORIGIN; zero destination reads |
+| H15 simulated post-redirect landing on old host, unapproved host alias, unexpected port | BLOCKED_ORIGIN; zero destination reads |
 | H07 exact new HTTPS origin, no known storage/IDB | REVIEW_ONLY; **not** import permission |
 | H07 destination has both v1 KEY/PAYLOAD | BLOCKED_EXISTING, even if contents might be valid |
 | H08 KEY-only, PAYLOAD-only | BLOCKED_PARTIAL; no automatic deletion/rekey |
@@ -20,7 +20,7 @@
 
 ## Boundaries and decision
 
-This is a **preflight characterization**, not an implemented import workflow. The oracle deliberately treats unrelated storage as unknown; a production classifier would need an approved schema and error-handling contract. It does not authenticate a backup, prove newest history, prevent later old-tab writes, solve KEY-only provenance, or guarantee storage durability. Playwright's synthetic HTTPS response does **not** validate real TLS, Vercel aliases, Safari, VoiceOver, offline behavior, or actual production origin configuration. A green test is not evidence that a migration is safe.
+This is a **preflight characterization**, not an implemented import workflow. The oracle deliberately treats unrelated storage as unknown; a production classifier would need an approved schema and error-handling contract. It does not authenticate a backup, prove newest history, prevent later old-tab writes, solve KEY-only provenance, or guarantee storage durability. The post-redirect case begins at the final old-origin landing URL; it does **not** exercise HTTP 302 transport. The initial Chromium run [#41381348824](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41381348824) failed on DNS resolution of a synthetic cross-host 302 before this correction; that is a harness limitation, not a product defect. Playwright's synthetic HTTPS response does **not** validate real TLS, Vercel aliases, Safari, VoiceOver, offline behavior, or actual production origin configuration. A green test is not evidence that a migration is safe.
 
 The first unfinished step is to inspect PR-head **Release and Chromium** CI, including named H07–H15 PASS lines; fix any failing test without weakening rejection/no-write assertions, merge only if green, then verify merged-main CI. Keep #4/#29/#35 OPEN, five cached legacy writer KNOWN UNSAFE cases, and #14 financial semantics approval-gated. No release version bump for test/documentation-only work.
 
