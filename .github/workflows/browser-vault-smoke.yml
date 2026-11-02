@@ -15,6 +15,7 @@ on:
       - 'tests/browser-consent-blocked-browser-sigkill-research.cjs'
       - 'tests/browser-archived-v1-compatibility-research.cjs'
       - 'tests/browser-distinct-origin-legacy-isolation-research.cjs'
+      - 'tests/browser-origin-handoff-preflight-research.cjs'
       - 'tests/browser-archived-v2-interleavings-research.cjs'
       - 'tests/browser-v2-sealed-authority-research.cjs'
       - 'tests/browser-v2-idb-witness-research.cjs'
@@ -42,6 +43,7 @@ on:
       - 'tests/browser-consent-blocked-browser-sigkill-research.cjs'
       - 'tests/browser-archived-v1-compatibility-research.cjs'
       - 'tests/browser-distinct-origin-legacy-isolation-research.cjs'
+      - 'tests/browser-origin-handoff-preflight-research.cjs'
       - 'tests/browser-archived-v2-interleavings-research.cjs'
       - 'tests/browser-v2-sealed-authority-research.cjs'
       - 'tests/browser-v2-idb-witness-research.cjs'
@@ -88,6 +90,8 @@ jobs:
         run: node tests/browser-archived-v1-compatibility-research.cjs
       - name: Research independent-origin isolation from cached v1 AES-GCM writes (NOT PRODUCTION)
         run: node tests/browser-distinct-origin-legacy-isolation-research.cjs
+      - name: Research HTTPS origin handoff and read-only destination preflight (NOT PRODUCTION)
+        run: node tests/browser-origin-handoff-preflight-research.cjs
       - name: Characterize actual cached v1 writers against isolated v2 authority (synthetic only)
         run: node tests/browser-archived-v2-interleavings-research.cjs
       - name: Characterize sealed v2 authority, reset replay and legacy drift in two Chromium tabs (NOT PRODUCTION)
