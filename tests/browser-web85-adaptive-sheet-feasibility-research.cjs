@@ -6,7 +6,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {chromium}=require('playwright');
 const OUT=path.join(__dirname,'..','artifacts','web85-c11-adaptive-sheet');
-const html=String.raw\`<!doctype html><html lang="ro"><head><meta charset="utf-8">
+const html=String.raw`<!doctype html><html lang="ro"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 *{box-sizing:border-box}
@@ -66,7 +66,7 @@ sheet.addEventListener('keydown',event=>{
  else if(!event.shiftKey&&i===controls.length-1){event.preventDefault();controls[0].focus();}
 });
 window.c11=()=>({lastAction,open:!sheet.hidden});
-</script></body></html>\`;
+</script></body></html>`;
 function geometry(){
  const get=id=>{
   const el=document.querySelector(id),r=el.getBoundingClientRect();
