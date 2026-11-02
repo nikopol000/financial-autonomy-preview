@@ -125,7 +125,10 @@ function geometry(){
      const focusRestored=await page.locator('#trigger').evaluate(el=>document.activeElement===el);
      assert.equal(focusRestored,true,'Escape must restore focus to More trigger');
      assert.equal(await page.getByRole('dialog').count(),0,'Escape must close dialog');
-     assert.equal(await page.evaluate(()=>localStorage.length),0,'Prototype must not write storage');
+     const storage=await page.evaluate(()=>{try{return {available:true,count:localStorage.length};}
+      catch(e){return {available:false,error:e.name};}});
+     assert.ok(!storage.available||storage.count===0,
+      'Prototype must not write storage (opaque about:blank origins may deny reads)');
      const result={label,width,height,theme,textScale:scale,accepted,safe,listUsable,
       pointer,focusRestored,geometry:measured,error,
       scope:'isolated HTML prototype; not actual WEB, Safari, VoiceOver, or WCAG certification'};
