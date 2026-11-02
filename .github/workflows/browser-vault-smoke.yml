@@ -30,6 +30,7 @@ on:
       - 'tests/browser-populated-budget-audit.cjs'
       - 'tests/browser-web85-adaptive-sheet-feasibility-research.cjs'
       - 'tests/browser-web85-real-dom-topology-research.cjs'
+      - 'tests/browser-web85-c13-real-bounded-layout-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
     branches: [main]
@@ -62,6 +63,7 @@ on:
       - 'tests/browser-populated-budget-audit.cjs'
       - 'tests/browser-web85-adaptive-sheet-feasibility-research.cjs'
       - 'tests/browser-web85-real-dom-topology-research.cjs'
+      - 'tests/browser-web85-c13-real-bounded-layout-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
   contents: read
@@ -130,12 +132,22 @@ jobs:
         run: node tests/browser-web85-adaptive-sheet-feasibility-research.cjs
       - name: Map C12 real WEB More DOM at short height and enlarged root text (NOT PRODUCT)
         run: node tests/browser-web85-real-dom-topology-research.cjs
+      - name: Research C13 original-DOM bounded More layout and actual pointer failures (NOT PRODUCT)
+        run: node tests/browser-web85-c13-real-bounded-layout-research.cjs
       - name: Retain synthetic-only read-only conflict screen screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: browser-v2-conflict-readonly-ui-research
           path: artifacts/browser-v2-conflict-readonly/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Retain C13 reversible original-DOM layout geometry and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web85-c13-real-bounded-research
+          path: artifacts/web85-c13-real-dom/
           if-no-files-found: ignore
           retention-days: 7
       - name: Retain C12 actual WEB More DOM topology and screenshots
