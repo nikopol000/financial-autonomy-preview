@@ -530,7 +530,12 @@ async function focusFollowingZoomNavInput(page,label,css){
         scroll.style.setProperty('overflow-y','auto','important');
         scroll.style.setProperty('min-height','120px','important');
         scroll.style.setProperty('flex-shrink','0','important');
-        return {original};
+        // C5 diagnostic: reserve more scroll runway for the focused row without
+        // changing focus order or running a focusin handler. This is a
+        // disposable Chromium candidate, not a shipped accessibility fix.
+        scroll.style.setProperty('padding-bottom','96px','important');
+        scroll.style.setProperty('scroll-padding-bottom','64px','important');
+        return {original,scrollRunway:true};
       });
       for(let step=0;step<18;step++){
         await page.keyboard.press('Tab');
@@ -552,6 +557,11 @@ async function focusFollowingZoomNavInput(page,label,css){
           keyboardFlow.tabReached=true;
           keyboardFlow.focusVisible=state.focusVisible;
           keyboardFlow.centerExposed=state.centerExposed;
+          keyboardFlow.scrollRunwayApplied=keyboardPatch.scrollRunway;
+          keyboardFlow.scrollTop=await keyboardRow.evaluate(el=>{
+            const scroll=document.querySelector('[data-web85-keyboard-flow]');
+            return scroll?.scrollTop??null;
+          });
           await page.keyboard.press('Enter');
           await page.getByText(/Lunar · principală/).last().waitFor({state:'visible',timeout:3500});
           keyboardFlow.passed=true;
@@ -571,7 +581,7 @@ async function focusFollowingZoomNavInput(page,label,css){
         },keyboardPatch.original);
       }
     }
-    console.log('MORE MENU FLOW NATURAL KEYBOARD #85 '+label+' '+JSON.stringify(keyboardFlow));
+    console.log('MORE MENU C5 SCROLL-RUNWAY KEYBOARD #85 '+label+' '+JSON.stringify(keyboardFlow));
     if(!keyboardFlow.passed){
       // Harness-only restoration is not keyboard acceptance evidence.
       const recoveryRow=page.getByText('Bugete',{exact:true}).last();
