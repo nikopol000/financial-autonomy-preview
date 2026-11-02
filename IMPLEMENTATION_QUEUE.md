@@ -1,3 +1,9 @@
+## 2026-11-02 — P1 H05/H06 selected-file authentication MERGED; merged-main CI next
+
+- **DONE / RESEARCH TEST ONLY:** [PR #452](https://github.com/nikopol000/financial-autonomy-preview/pull/452), squash `bcea73192e23af728188b4b6ff361006ec1bf5f1`; PR-head [Release #41391633466](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41391633466) SUCCESS and [Chromium #41391633359](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41391633359) SUCCESS, seven named H05/H06 PASS with zero destination writes. Real bundled crypto/schema and selected File API, synthetic only; [limitations](docs/WEB_ORIGIN_HANDOFF_H05_H06_FILE_AUTH_20261102.md). Vercel build-rate-limit on PR head; no exact production deploy or Safari proof.
+- **NONURGENT DISCOVERY #17:** WEB 18.72 active JS static strings now Romanian; issue updated, visual/mobile acceptance still open.
+- **NEXT EXACT:** verify merged-main CI, checkpoint issue #4 with results; then expand IDB transaction/no-write guard or H05/H06 UI characterization, no importer without approved cutover contract. Five cached old writers KNOWN UNSAFE, #29/#35 unresolved, #85 320px focus/Safari, #14/#25/#2 financial contract approval-gated. No iOS, formulas, real data, backup or product WEB 18.72 changes.
+
 ## 2026-11-02 — P1 H05/H06 selected-file authentication test pending CI
 
 - **IN PROGRESS / TEST-ONLY:** start `6b8e81379f80cda86c74ac53fac597c261bb0016`, branch `research/web-h05-h06-selected-file-auth-20261102-0659`. Added disposable Chromium File API read of actual encrypted WEB backup, authenticated-but-older H05 and H06 password/tamper/format/schema failures, no-write and full destination-footprint assertions. [Evidence boundary](docs/WEB_ORIGIN_HANDOFF_H05_H06_FILE_AUTH_20261102.md). No verified CI yet.
