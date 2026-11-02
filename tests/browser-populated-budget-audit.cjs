@@ -250,7 +250,7 @@ async function naturalZoomNavInput(page,label,css){
 async function structuralMoreFlowC7(page,label,variant='C7'){
   const result={candidate:variant+' document-flow More screen',label,applied:false,
     forwardReached:false,reverseReturned:false,focusVisible:false,
-    centerExposed:false,pointerTrial:false,enteredBudget:false,
+    centerExposed:false,pointerTrial:false,pointerActivated:false,enteredBudget:false,
     safetyBefore:null,safetyAfter:null,error:null,
     caveat:'Chromium CSS root zoom only, reversible synthetic DEMO; NOT Safari/VoiceOver/WCAG'};
   const row=page.getByText('Bugete',{exact:true}).last();
@@ -294,7 +294,7 @@ async function structuralMoreFlowC7(page,label,variant='C7'){
       // header above the scrollable document. No clones, no hidden controls.
       // This is a disposable geometry candidate, not product CSS.
       let sticky=null;
-      if(variant==='C8'){
+      if(variant==='C8'||variant==='C9'){
         const warning=[...document.querySelectorAll('*')].find(node=>
           node.children.length===0&&node.textContent?.trim()==='DEMO · DATE FICTIVE');
         const exit=[...document.querySelectorAll('button,[role="button"]')].find(node=>
@@ -366,9 +366,18 @@ async function structuralMoreFlowC7(page,label,variant='C7'){
     catch(error){result.pointerError=String(error.message).split('\\n')[0].slice(0,180);}
     await page.screenshot({path:path.join(OUT,'more-'+variant.toLowerCase()+'-flow-'+label+'.png'),fullPage:true});
     if(result.forwardReached){
-      await page.keyboard.press('Enter');
-      await page.getByText(/Lunar · principală/).last()
-        .waitFor({state:'visible',timeout:3500});
+      if(variant==='C9'){
+        // C9 must activate the real destination with a genuine Playwright
+        // pointer click. A trial click alone is not interaction evidence.
+        await row.click({timeout:3500});
+        await page.getByText(/Lunar · principală/).last()
+          .waitFor({state:'visible',timeout:3500});
+        result.pointerActivated=true;
+      }else{
+        await page.keyboard.press('Enter');
+        await page.getByText(/Lunar · principală/).last()
+          .waitFor({state:'visible',timeout:3500});
+      }
       result.enteredBudget=true;
     }
   }catch(error){
@@ -395,7 +404,8 @@ async function structuralMoreFlowC7(page,label,variant='C7'){
   }
   result.accepted=!!(result.forwardReached&&result.reverseReturned&&
     result.focusVisible&&result.centerExposed&&result.pointerTrial&&
-    result.enteredBudget&&result.safetyAfter?.warning?.hit&&
+    (variant!=='C9'||result.pointerActivated)&&result.enteredBudget&&
+    result.safetyAfter?.warning?.hit&&
     result.safetyAfter?.exit?.hit&&result.safetyAfter?.tabs===5);
   console.log('MORE MENU '+variant+' STRUCTURAL FLOW #85 '+label+' '+JSON.stringify(result));
   return result;
@@ -794,6 +804,28 @@ async function focusFollowingZoomNavInput(page,label,css){
     assert.ok(structuralC8.safetyBefore?.warning?.present&&
       structuralC8.safetyBefore?.exit?.present,
       'C8 must retain real DEMO warning and exit in the DOM');
+    // C9 exercises an ACTUAL pointer activation, not a Playwright trial.
+    // Compare at 200% CSS root zoom and at normal 100%, preserving all
+    // original DEMO controls. Both are test-only, never production CSS.
+    await page.getByRole('tab',{name:'Mai mult',exact:true}).click();
+    const pointerC9Zoom=await structuralMoreFlowC7(page,label+'-zoom200-pointer','C9');
+    assert.equal(pointerC9Zoom.accepted,true,
+      'C9 zoom200 must keep the real warning/exit and activate Bugete by pointer');
+    await page.getByRole('tab',{name:'Mai mult',exact:true}).click();
+    await page.evaluate(()=>{document.documentElement.style.zoom='100%';});
+    let pointerC9Normal;
+    try{
+      pointerC9Normal=await structuralMoreFlowC7(page,label+'-zoom100-pointer','C9');
+      assert.equal(pointerC9Normal.accepted,true,
+        'C9 zoom100 must keep the real warning/exit and activate Bugete by pointer');
+    }finally{
+      await page.evaluate(()=>{document.documentElement.style.zoom='200%';});
+    }
+    console.log('MORE MENU C9 POINTER ACCEPTANCE #85 '+label+' '+
+      JSON.stringify({zoom200:pointerC9Zoom.accepted,zoom100:pointerC9Normal?.accepted,
+        actualPointer200:pointerC9Zoom.pointerActivated,
+        actualPointer100:pointerC9Normal?.pointerActivated,
+        caveat:'Disposable Chromium CSS zoom only; no iPhone Safari/VoiceOver claim'}));
     assert.deepEqual(await page.evaluate(keys=>keys.map(k=>localStorage.getItem(k)),VAULT_KEYS),
       [null,null,null],'Keyboard research must never create real vault keys');
     const demo=await page.evaluate(()=>({
