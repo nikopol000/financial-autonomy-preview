@@ -530,26 +530,12 @@ async function focusFollowingZoomNavInput(page,label,css){
         scroll.style.setProperty('overflow-y','auto','important');
         scroll.style.setProperty('min-height','120px','important');
         scroll.style.setProperty('flex-shrink','0','important');
-        // C3 diagnostic: natural focus can land under the fixed footer.
-        // Follow focus within the scrollable More menu; reversible test only.
-        const onFocus=event=>{
-          const target=event.target;
-          if(!scroll.contains(target))return;
-          const nav=document.querySelector('[role="tab"]')?.parentElement;
-          const rect=target.getBoundingClientRect();
-          const menu=scroll.getBoundingClientRect();
-          const scale=Number(getComputedStyle(document.documentElement).zoom)||1;
-          const navTop=nav?.getBoundingClientRect().top??innerHeight;
-          const bottomLimit=Math.min(menu.bottom-8,navTop-12);
-          if(rect.bottom>bottomLimit)
-            scroll.scrollTop+=(rect.bottom-bottomLimit+12)/scale;
-          const moved=target.getBoundingClientRect();
-          if(moved.top<menu.top+8)
-            scroll.scrollTop-=(menu.top+8-moved.top)/scale;
-        };
-        scroll.addEventListener('focusin',onFocus);
-        scroll.__web85KeyboardFollow=onFocus;
-        return {original,focusFollowing:true};
+        // C4 diagnostic: reserve scroll runway for the focused row without
+        // changing focus order or running a focusin handler. This is a
+        // disposable Chromium candidate, not a shipped accessibility fix.
+        scroll.style.setProperty('padding-bottom','64px','important');
+        scroll.style.setProperty('scroll-padding-bottom','48px','important');
+        return {original,scrollRunway:true};
       });
       for(let step=0;step<18;step++){
         await page.keyboard.press('Tab');
@@ -571,7 +557,7 @@ async function focusFollowingZoomNavInput(page,label,css){
           keyboardFlow.tabReached=true;
           keyboardFlow.focusVisible=state.focusVisible;
           keyboardFlow.centerExposed=state.centerExposed;
-          keyboardFlow.focusFollowingApplied=keyboardPatch.focusFollowing;
+          keyboardFlow.scrollRunwayApplied=keyboardPatch.scrollRunway;
           keyboardFlow.scrollTop=await keyboardRow.evaluate(el=>{
             const scroll=document.querySelector('[data-web85-keyboard-flow]');
             return scroll?.scrollTop??null;
@@ -589,17 +575,13 @@ async function focusFollowingZoomNavInput(page,label,css){
         await page.evaluate(original=>{
           const scroll=document.querySelector('[data-web85-keyboard-flow]');
           if(!scroll)return;
-          if(scroll.__web85KeyboardFollow){
-            scroll.removeEventListener('focusin',scroll.__web85KeyboardFollow);
-            delete scroll.__web85KeyboardFollow;
-          }
           if(original===null)scroll.removeAttribute('style');
           else scroll.setAttribute('style',original);
           scroll.removeAttribute('data-web85-keyboard-flow');
         },keyboardPatch.original);
       }
     }
-    console.log('MORE MENU C3 FOCUS-FOLLOW KEYBOARD #85 '+label+' '+JSON.stringify(keyboardFlow));
+    console.log('MORE MENU C4 SCROLL-RUNWAY KEYBOARD #85 '+label+' '+JSON.stringify(keyboardFlow));
     if(!keyboardFlow.passed){
       // Harness-only restoration is not keyboard acceptance evidence.
       const recoveryRow=page.getByText('Bugete',{exact:true}).last();
