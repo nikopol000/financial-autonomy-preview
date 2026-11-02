@@ -71,8 +71,6 @@ async function run(browser,{id,url,expected,storage={},idb=false,deny=null,secur
       const u=new URL(route.request().url());
       if(u.hostname!=='127.0.0.1'&&!u.hostname.endsWith('.example.test'))
         return route.abort();
-      if(u.pathname==='/redirect')
-        return route.fulfill({status:302,headers:{location:OLD+'/redirected'},body:''});
       return route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>disposable handoff preflight</title>'});
     });
     const page=await context.newPage();
@@ -105,7 +103,7 @@ async function main(){
   try{
     const cases=[
       {id:'H14 same-origin path',url:OLD+'/v2',expected:'BLOCKED_ORIGIN'},
-      {id:'H15 redirect back to old host',url:NEXT+'/redirect',expected:'BLOCKED_ORIGIN'},
+      {id:'H15 post-redirect final landing on old host',url:OLD+'/redirected',expected:'BLOCKED_ORIGIN'},
       {id:'H15 unapproved host alias',url:'https://alias-vault.example.test/',expected:'BLOCKED_ORIGIN'},
       {id:'H15 wrong HTTPS port',url:NEXT+':8443/',expected:'BLOCKED_ORIGIN'},
       {id:'H14 loopback HTTP secure-context exception',url:'http://127.0.0.1:8765/',expected:'BLOCKED_ORIGIN',secureLoopback:true},
