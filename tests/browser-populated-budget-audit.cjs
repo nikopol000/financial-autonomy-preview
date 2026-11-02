@@ -269,12 +269,14 @@ async function structuralMoreFlowC7(page,label,variant='C7'){
       if(!el)return {present:false,visible:false,hit:false};
       const r=el.getBoundingClientRect(),x=(r.left+r.right)/2,y=(r.top+r.bottom)/2;
       const visible=x>=0&&x<innerWidth&&y>=0&&y<innerHeight;
+      const fullyVisible=r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=innerWidth;
       const hit=visible?document.elementFromPoint(x,y):null;
-      return {present:true,visible,hit:!!hit&&(hit===el||el.contains(hit)),
+      return {present:true,visible,fullyVisible,hit:!!hit&&(hit===el||el.contains(hit)),
         top:r.top,bottom:r.bottom,height:r.height};
     };
     const tabs=[...document.querySelectorAll('[role="tab"]')];
     return {warning:point(warning),exit:point(exit),target:point(target),
+      viewport:{width:innerWidth,height:innerHeight},
       tabs:tabs.length,scrollTop:document.scrollingElement?.scrollTop||0,
       scrollHeight:document.scrollingElement?.scrollHeight||0,
       clientHeight:document.scrollingElement?.clientHeight||0};
@@ -294,7 +296,7 @@ async function structuralMoreFlowC7(page,label,variant='C7'){
       // header above the scrollable document. No clones, no hidden controls.
       // This is a disposable geometry candidate, not product CSS.
       let sticky=null;
-      if(variant==='C8'||variant==='C9'){
+      if(['C8','C9','C10'].includes(variant)){
         const warning=[...document.querySelectorAll('*')].find(node=>
           node.children.length===0&&node.textContent?.trim()==='DEMO · DATE FICTIVE');
         const exit=[...document.querySelectorAll('button,[role="button"]')].find(node=>
@@ -366,8 +368,8 @@ async function structuralMoreFlowC7(page,label,variant='C7'){
     catch(error){result.pointerError=String(error.message).split('\\n')[0].slice(0,180);}
     await page.screenshot({path:path.join(OUT,'more-'+variant.toLowerCase()+'-flow-'+label+'.png'),fullPage:true});
     if(result.forwardReached){
-      if(variant==='C9'){
-        // C9 must activate the real destination with a genuine Playwright
+      if(variant==='C9'||variant==='C10'){
+        // C9/C10 must activate the real destination with a genuine Playwright
         // pointer click. A trial click alone is not interaction evidence.
         await row.click({timeout:3500});
         await page.getByText(/Lunar · principală/).last()
@@ -404,9 +406,11 @@ async function structuralMoreFlowC7(page,label,variant='C7'){
   }
   result.accepted=!!(result.forwardReached&&result.reverseReturned&&
     result.focusVisible&&result.centerExposed&&result.pointerTrial&&
-    (variant!=='C9'||result.pointerActivated)&&result.enteredBudget&&
+    (!['C9','C10'].includes(variant)||result.pointerActivated)&&result.enteredBudget&&
     result.safetyAfter?.warning?.hit&&
-    result.safetyAfter?.exit?.hit&&result.safetyAfter?.tabs===5);
+    result.safetyAfter?.exit?.hit&&result.safetyAfter?.tabs===5&&
+    (variant!=='C10'||(result.safetyAfter.warning.fullyVisible&&
+      result.safetyAfter.exit.fullyVisible&&result.safetyAfter.target.hit)));
   console.log('MORE MENU '+variant+' STRUCTURAL FLOW #85 '+label+' '+JSON.stringify(result));
   return result;
 }
@@ -821,6 +825,37 @@ async function focusFollowingZoomNavInput(page,label,css){
     }finally{
       await page.evaluate(()=>{document.documentElement.style.zoom='200%';});
     }
+    // C10: reduced-height 422px stress at 100% and 200% CSS root zoom.
+    // A negative strict result is a RESEARCH finding, never a passing UI claim.
+    // Do not alter the real product, the viewport of later audits, or vault data.
+    const c10ShortHeight=[];
+    const c10OriginalViewport=page.viewportSize();
+    try{
+      await page.setViewportSize({width:c10OriginalViewport.width,height:422});
+      for(const zoom of ['200%','100%']){
+        await page.evaluate(value=>{document.documentElement.style.zoom=value;},zoom);
+        await page.getByRole('tab',{name:'Mai mult',exact:true}).click();
+        const probe=await structuralMoreFlowC7(page,
+          label+'-422px-zoom'+zoom.replace('%',''),'C10');
+        assert.equal(probe.safetyBefore?.tabs,5,
+          'C10 must retain all five original tabs even when geometry fails');
+        assert.ok(probe.safetyBefore?.warning?.present&&probe.safetyBefore?.exit?.present,
+          'C10 must retain the real DEMO warning and exit');
+        c10ShortHeight.push({zoom,accepted:probe.accepted,
+          pointerActivated:probe.pointerActivated,forwardReached:probe.forwardReached,
+          centerExposed:probe.centerExposed,warning:probe.safetyAfter?.warning,
+          exit:probe.safetyAfter?.exit,target:probe.safetyAfter?.target,
+          viewport:probe.safetyAfter?.viewport,error:probe.error});
+      }
+    }finally{
+      await page.evaluate(()=>{document.documentElement.style.zoom='200%';});
+      await page.setViewportSize(c10OriginalViewport);
+    }
+    console.log('MORE MENU C10 SHORT HEIGHT RESEARCH #85 '+label+' '+
+      JSON.stringify({height:422,cases:c10ShortHeight,
+        caveat:'Negative findings are expected; CSS zoom is not Safari/VoiceOver'}));
+    assert.deepEqual(await page.evaluate(keys=>keys.map(k=>localStorage.getItem(k)),VAULT_KEYS),
+      [null,null,null],'C10 research must not create real encrypted vault keys');
     console.log('MORE MENU C9 POINTER ACCEPTANCE #85 '+label+' '+
       JSON.stringify({zoom200:pointerC9Zoom.accepted,zoom100:pointerC9Normal?.accepted,
         actualPointer200:pointerC9Zoom.pointerActivated,
