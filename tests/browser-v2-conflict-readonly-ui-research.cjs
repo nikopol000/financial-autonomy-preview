@@ -57,6 +57,23 @@ async function install(page){
         tx.onabort=()=>reject(tx.error);
       });}finally{db.close();}
     };
+    // Handoff research: this is a synthetic, read-only UI state machine.
+    // A matching snapshot is NOT an atomic fence or an import permission.
+    const snapshot=async()=>({
+      local:pair(),idb:await raw(),dbs:(await indexedDB.databases()).map(x=>x.name)
+    });
+    async function inspectHandoff({authenticated,baseline}){
+      if(!authenticated)return {code:'HANDOFF_FILE_UNVERIFIED',blocked:true};
+      if(!baseline)return {code:'HANDOFF_DESTINATION_UNINSPECTED',blocked:true};
+      try{
+        const current=await Promise.race([
+          snapshot(),
+          new Promise((_,reject)=>setTimeout(()=>reject(Error('HANDOFF_READ_TIMEOUT')),800))
+        ]);
+        return {code:JSON.stringify(current)===JSON.stringify(baseline)?
+          'HANDOFF_UNAPPROVED':'HANDOFF_DESTINATION_CHANGED',blocked:true};
+      }catch(_){return {code:'HANDOFF_DESTINATION_UNREADABLE',blocked:true};}
+    }
     async function inspect(){
       try{
         const observed=pair();
@@ -100,7 +117,17 @@ async function install(page){
       STORAGE_UNREADABLE:['Stocarea locală nu poate fi verificată',
         'Nu am modificat informațiile existente.'],
       UNAPPROVED_AUTHORITY:['Verificarea este doar experimentală',
-        'Nu există o migrare sau restaurare aprobată.']
+        'Nu există o migrare sau restaurare aprobată.'],
+      HANDOFF_FILE_UNVERIFIED:['Fișierul nu a fost verificat',
+        'Nu putem continua fără autentificarea fișierului selectat. Datele locale nu au fost modificate.'],
+      HANDOFF_DESTINATION_UNINSPECTED:['Datele existente nu au fost verificate',
+        'Nu presupunem că destinația este goală. Nu am importat sau înlocuit nimic.'],
+      HANDOFF_DESTINATION_UNREADABLE:['Datele existente nu pot fi verificate',
+        'Verificarea stocării nu s-a încheiat în siguranță. Nu am importat sau înlocuit nimic.'],
+      HANDOFF_DESTINATION_CHANGED:['Datele locale s-au modificat',
+        'Stocarea s-a schimbat după verificarea fișierului. Nu am importat sau înlocuit nimic. Verifică separat istoricele.'],
+      HANDOFF_UNAPPROVED:['Importul nu este disponibil',
+        'Fișierul a fost autentificat, dar nu putem confirma că este cea mai recentă copie sau bloca alte file. Nu am importat nimic.']
     };
     const style=document.createElement('style');
     style.textContent='*{box-sizing:border-box}html,body{margin:0;max-width:100%;'+
@@ -121,9 +148,10 @@ async function install(page){
     // A delayed older inspection must never replace a newer blocked state.
     // This is only a synthetic research UI, not a production recovery gate.
     let renderEpoch=0;
-    async function render(){
+    async function render(options={}){
       const epoch=++renderEpoch;
-      const result=await inspect();
+      const result=options.handoff?
+        await inspectHandoff(options.handoff):await inspect();
       if(epoch!==renderEpoch)return result;
       const [title,explanation]=messages[result.code];
       const root=document.getElementById('root');
@@ -140,7 +168,7 @@ async function install(page){
       const actions=document.createElement('div');actions.className='actions';
       const recheck=document.createElement('button');
       recheck.type='button';recheck.textContent='Verifică din nou';
-      recheck.addEventListener('click',()=>{render();});
+      recheck.addEventListener('click',()=>{render(options);});
       const detail=document.createElement('button');
       detail.type='button';detail.textContent='Detalii tehnice';
       const code=document.createElement('small');
@@ -190,11 +218,7 @@ async function install(page){
       if(scenario==='key-only')localStorage.removeItem(PAYLOAD);
       if(scenario==='payload-only')localStorage.removeItem(KEY);
     }
-    window.__readonlyResearch={seed,inspect,render,raw,
-      snapshot:async()=>({
-        local:[localStorage.getItem(KEY),localStorage.getItem(PAYLOAD)],
-        idb:await raw(),dbs:(await indexedDB.databases()).map(x=>x.name)
-      })};
+    window.__readonlyResearch={seed,inspect,inspectHandoff,render,raw,snapshot};
   });
 }
 async function main(){
@@ -398,6 +422,102 @@ async function main(){
       console.log('PASS isolated read-only quarantine: archived late writer after pending reset remains blocked, zero reinspection writes, reload unchanged');
     }finally{await lateContext.close();}
 
+
+
+    // Handoff UI only: authentication is a synthetic flag here. Real selected
+    // File API / AES-GCM authentication is tested separately by H05/H06.
+    // The destination is deliberately changed by a second browser tab AFTER
+    // the snapshot. This screen must stay blocked, without import controls,
+    // and must not mistake unchanged IDB names/versions for unchanged records.
+    const handoffContext=await browser.newContext({viewport:{width:320,height:640}});
+    try{
+      const blocked=await handoffContext.newPage();await blocked.goto(url);await install(blocked);
+      await blocked.evaluate(()=>window.__readonlyResearch.seed({scenario:'valid'}));
+      const baseline=await blocked.evaluate(()=>window.__readonlyResearch.snapshot());
+      const handoff={authenticated:true,baseline};
+      assert.deepEqual(await blocked.evaluate(h=>
+        window.__readonlyResearch.render({handoff:h}),handoff),
+        {code:'HANDOFF_UNAPPROVED',blocked:true});
+      assert.match(await blocked.locator('article').innerText(),/nu putem confirma/i);
+      assert.deepEqual(await blocked.evaluate(b=>
+        window.__readonlyResearch.render({handoff:{authenticated:false,baseline:b}}),baseline),
+        {code:'HANDOFF_FILE_UNVERIFIED',blocked:true});
+      assert.deepEqual(await blocked.evaluate(()=>
+        window.__readonlyResearch.render({handoff:{authenticated:true,baseline:null}})),
+        {code:'HANDOFF_DESTINATION_UNINSPECTED',blocked:true});
+      assert.deepEqual(await blocked.evaluate(h=>
+        window.__readonlyResearch.render({handoff:h}),handoff),
+        {code:'HANDOFF_UNAPPROVED',blocked:true});
+
+      const writer=await handoffContext.newPage();await writer.goto(url);
+      await writer.evaluate(async()=>{
+        const db=await new Promise((resolve,reject)=>{
+          const request=indexedDB.open('research.atomic.primary');
+          request.onupgradeneeded=()=>request.transaction.abort();
+          request.onsuccess=()=>resolve(request.result);
+          request.onerror=()=>reject(request.error);
+        });
+        try{await new Promise((resolve,reject)=>{
+          const tx=db.transaction('vault','readwrite');
+          const store=tx.objectStore('vault');
+          const get=store.get('current');
+          get.onsuccess=()=>store.put({...get.result,revision:2},'current');
+          tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+          tx.onabort=()=>reject(tx.error);
+        });}finally{db.close();}
+      });
+      const afterWriter=await blocked.evaluate(()=>window.__readonlyResearch.snapshot());
+      assert.deepEqual(afterWriter.local,baseline.local,
+        'Second tab changed only synthetic IndexedDB, not localStorage');
+      assert.deepEqual(afterWriter.dbs,baseline.dbs,
+        'IDB names must remain unchanged after second-tab record write');
+      assert.equal(afterWriter.idb.revision,2);
+      assert.equal(baseline.idb.revision,1);
+      await blocked.evaluate(()=>{
+        const audit={set:0,remove:0,idbReadwrite:0};
+        const set=Storage.prototype.setItem,remove=Storage.prototype.removeItem;
+        const transaction=IDBDatabase.prototype.transaction;
+        Storage.prototype.setItem=function(...args){audit.set++;return set.apply(this,args);};
+        Storage.prototype.removeItem=function(...args){audit.remove++;return remove.apply(this,args);};
+        IDBDatabase.prototype.transaction=function(...args){
+          if(args[1]==='readwrite')audit.idbReadwrite++;
+          return transaction.apply(this,args);
+        };
+        window.__handoffReadOnlyAudit=audit;
+      });
+      assert.deepEqual(await blocked.evaluate(h=>
+        window.__readonlyResearch.render({handoff:h}),handoff),
+        {code:'HANDOFF_DESTINATION_CHANGED',blocked:true});
+      assert.match(await blocked.locator('h1').innerText(),/Datele locale s-au modificat/);
+      assert.equal(await blocked.locator('input').count(),0);
+      assert.equal(await blocked.locator('button').count(),3);
+      assert.equal(await blocked.locator('h1').evaluate(el=>el===document.activeElement),true);
+      await blocked.getByRole('button',{name:'Verifică din nou'}).click();
+      await blocked.waitForFunction(()=>document.querySelector('h1')?.textContent===
+        'Datele locale s-au modificat');
+      assert.deepEqual(await blocked.evaluate(()=>window.__handoffReadOnlyAudit),
+        {set:0,remove:0,idbReadwrite:0});
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.snapshot()),afterWriter);
+      await blocked.evaluate(()=>{
+        window.__handoffOriginalDatabases=indexedDB.databases;
+        indexedDB.databases=()=>Promise.reject(Error('SYNTHETIC_DENIED'));
+      });
+      assert.deepEqual(await blocked.evaluate(h=>
+        window.__readonlyResearch.render({handoff:h}),handoff),
+        {code:'HANDOFF_DESTINATION_UNREADABLE',blocked:true});
+      await blocked.evaluate(()=>{
+        indexedDB.databases=window.__handoffOriginalDatabases;
+      });
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.snapshot()),afterWriter);
+      await blocked.reload();await install(blocked);
+      assert.deepEqual(await blocked.evaluate(h=>
+        window.__readonlyResearch.render({handoff:h}),handoff),
+        {code:'HANDOFF_DESTINATION_CHANGED',blocked:true});
+      assert.deepEqual(await blocked.evaluate(()=>window.__readonlyResearch.snapshot()),afterWriter);
+      console.log('PASS HANDOFF UI: authenticated-flag unchanged destination still blocked; unverified/unknown/denied blocked');
+      console.log('PASS HANDOFF UI: other-tab IDB record drift with same DB names/versions shows conflict, recheck/reload zero writes');
+      console.log('LIMIT HANDOFF UI: no actual file picker/auth in this screen, no import, no atomic cross-tab fence or newest-history proof');
+    }finally{await handoffContext.close();}
 
     // Race: an older read starts before a non-cooperating legacy write, then
     // resolves after a newer read. The older result must NOT overwrite the
