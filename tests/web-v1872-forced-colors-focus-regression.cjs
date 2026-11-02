@@ -27,3 +27,6 @@ assert.match(html,/#root \[role="button"\]:focus-visible\s*\{\s*box-shadow:\s*in
 assert.match(html,/@media \(forced-colors: active\)\s*\{[\s\S]*?#root \[role="button"\]:focus-visible\s*\{\s*outline-width:\s*3px !important;\s*outline-style:\s*solid !important;\s*outline-color:\s*Highlight !important;/,
   'Forced-colors role-button focus must use an actual 3px system-color outline');
 console.log('PASS WEB 18.72: forced-colors outline, immutable diagnostic-only JS, synchronized release');
+
+// Keep the immutable next-release gate in the existing CI validation chain.
+require('./web-v1873-reset-error-visibility-regression.cjs');
