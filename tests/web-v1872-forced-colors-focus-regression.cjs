@@ -18,10 +18,15 @@ for(const [from,to] of [
 }
 assert.equal(current,expected,'WEB 18.72 JS must change ONLY diagnostic version and filename');
 const html=read('index.html');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\.72"/);
-assert.match(html,/index-v01872-forced-colors-focus-20261101\.js\?build=18\.72\.1/);
+const activeVersion=html.match(/<meta name="financial-autonomy-version" content="(\d+\.\d+)"/)?.[1];
+assert.ok(activeVersion&&Number(activeVersion)>=18.72,'Current release must not regress below 18.72');
+assert.ok(fs.existsSync(path.join(root,'_expo/static/js/web/index-v01872-forced-colors-focus-20261101.js')),
+  'Immutable 18.72 bundle must remain available after later releases');
 assert.match(html,/#root \[role="button"\]:focus-visible\s*\{\s*box-shadow:\s*inset 0 0 0 3px #159cb4 !important;/,
   'Ordinary keyboard focus shadow must remain');
 assert.match(html,/@media \(forced-colors: active\)\s*\{[\s\S]*?#root \[role="button"\]:focus-visible\s*\{\s*outline-width:\s*3px !important;\s*outline-style:\s*solid !important;\s*outline-color:\s*Highlight !important;/,
   'Forced-colors role-button focus must use an actual 3px system-color outline');
 console.log('PASS WEB 18.72: forced-colors outline, immutable diagnostic-only JS, synchronized release');
+
+// Keep the immutable next-release gate in the existing CI validation chain.
+require('./web-v1873-reset-error-visibility-regression.cjs');

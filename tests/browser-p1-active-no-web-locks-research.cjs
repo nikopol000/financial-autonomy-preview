@@ -1,5 +1,5 @@
 'use strict';
-// P1 #4/#29/#35: ACTUAL WEB 18.72 module 309, disposable Chromium real-mode origin.
+// P1 #4/#29/#35: ACTUAL WEB 18.73 module 309, disposable Chromium real-mode origin.
 // Verify missing Web Locks fails closed for first save, later save and reset.
 // NOT a proof of safety against archived noncooperating tabs or an approved cutover.
 const assert=require('node:assert/strict');
@@ -173,13 +173,13 @@ async function main(){
     const deniedEmptyReset=await denyLocks(page,'reset',null);
     expectDenied(deniedEmptyReset,'empty reset without Web Locks');
     assert.deepEqual(await snapshot(page),before,'empty reset denial must preserve vault');
-    console.log('PASS P1 real WEB 18.72: missing Web Locks rejects first save and reset, zero protected writes');
+    console.log('PASS P1 real WEB 18.73: missing Web Locks rejects first save and reset, zero protected writes');
     for(const action of ['save','reset']){
       const denied=await rejectLockRequest(page,action,action==='save'?fixture():null,'throw');
       expectRejectedLock(denied,'fresh '+action+' synchronous LockManager SecurityError');
       assert.deepEqual(await snapshot(page),before,'lock-request throw must preserve empty vault');
     }
-    console.log('PASS P1 real WEB 18.72: present LockManager synchronous denial rejects first save/reset with zero writes; UI predicate overstates availability');
+    console.log('PASS P1 real WEB 18.73: present LockManager synchronous denial rejects first save/reset with zero writes; UI predicate overstates availability');
 
     await page.evaluate(state=>window.__r(309).save(state),fixture());
     const committed=await snapshot(page);
@@ -197,7 +197,7 @@ async function main(){
     assert.deepEqual(reloaded.transactions.map(t=>t.id),['p1-lock-expense'],
       'reload must authenticate the original synthetic transaction only');
     assert.deepEqual(await snapshot(page),committed);
-    console.log('PASS P1 real WEB 18.72: missing Web Locks rejects update and destructive reset; reload retains authenticated ledger');
+    console.log('PASS P1 real WEB 18.73: missing Web Locks rejects update and destructive reset; reload retains authenticated ledger');
     for(const action of ['save','reset']){
       const denied=await rejectLockRequest(page,action,action==='save'?changed:null,'reject');
       expectRejectedLock(denied,'existing '+action+' async LockManager SecurityError');
@@ -206,14 +206,14 @@ async function main(){
     await ready(page,url);
     assert.deepEqual((await page.evaluate(()=>window.__r(309).load())).transactions.map(t=>t.id),
       ['p1-lock-expense'],'lock request denials must not alter reloaded ledger');
-    console.log('PASS P1 real WEB 18.72: present LockManager async rejection blocks update/reset; authenticated ledger unchanged');
+    console.log('PASS P1 real WEB 18.73: present LockManager async rejection blocks update/reset; authenticated ledger unchanged');
     // Characterize the ACTUAL reset-confirmation UI after a LockManager denial.
     // The UI may keep the confirmation modal open while placing its error alert
     // behind that modal. This is research, NOT a destructive reset workaround.
     await ready(page,url);
     await page.getByRole('button',{name:'Setări de aspect'}).waitFor({state:'visible',timeout:15000});
     for(let step=0;step<6;step++){
-      const recap=await page.getByText(/RECAPITULARE\\s*·/).count();
+      const recap=await page.getByText(/RECAPITULARE\s*·/).count();
       if(!recap)break;
       const next=page.getByRole('button',{name:/Am văzut|Continuă|Gata|Închide/i}).first();
       if(!(await next.count()))break;
@@ -252,6 +252,15 @@ async function main(){
       await page.waitForFunction(()=>[...document.querySelectorAll('[role="alert"]')]
         .some(el=>el.textContent.includes('Synthetic Web Lock permission denied')),
         null,{timeout:8000});
+      await page.getByRole('button',{name:'Da, șterge toate datele'}).waitFor({state:'hidden',timeout:8000});
+      const alert=page.locator('#fa-app-error-alert');
+      await alert.waitFor({state:'visible',timeout:8000});
+      assert.match(await alert.innerText(),/Ștergerea nu a fost confirmată/);
+      assert.match(await alert.innerText(),/Starea datelor poate fi incertă/);
+      assert.match(await alert.innerText(),/Nu șterge datele site-ului/);
+      assert.equal(await alert.getAttribute('role'),'alert');
+      assert.equal(await alert.getAttribute('aria-live'),'assertive');
+      await page.waitForFunction(()=>document.activeElement?.id==='fa-app-error-alert',null,{timeout:8000});
       deniedUi=await page.evaluate(()=>{
         const alerts=[...document.querySelectorAll('[role="alert"]')];
         const error=alerts.find(el=>el.textContent.includes('Synthetic Web Lock permission denied'));
@@ -264,13 +273,63 @@ async function main(){
           errorText:error?.textContent.slice(0,180)||''};
       });
     }finally{await page.evaluate(()=>window.__p1DeniedUi?.restore());}
+    assert.equal(deniedUi.confirmationStillVisible,false,'failed reset confirmation must close');
+    assert.equal(deniedUi.errorVisibleByCss,true,'error must be visible after modal dismissal');
     assert.equal(deniedUi.requests,1,'UI reset must request one lock');
     assert.equal(deniedUi.writes,0,'UI denial must not touch protected storage');
     assert.deepEqual(await snapshot(page),beforeUiDenied,'UI denial preserves ciphertext');
     await ready(page,url);
     assert.deepEqual((await page.evaluate(()=>window.__r(309).load())).transactions.map(t=>t.id),
       ['p1-lock-expense'],'UI denial reload must authenticate original transaction');
-    console.log('PASS P1 WEB 18.72 UI reset LockManager denial: '+JSON.stringify(deniedUi));
+    console.log('PASS P1 WEB 18.73 UI reset LockManager denial: accessible alert, modal dismissed, focus restored, '+JSON.stringify(deniedUi));
+    // Success path: real exclusive lock still resets only a disposable synthetic vault.
+    await page.getByRole('button',{name:'Setări de aspect'}).click({timeout:5000});
+    await page.getByRole('button',{name:'Șterge toate datele',exact:true}).click({timeout:5000});
+    await page.getByRole('button',{name:'Da, șterge toate datele'}).click({timeout:5000});
+    await page.getByText(/Datele au fost șterse/).waitFor({state:'visible',timeout:8000});
+    const successful=await snapshot(page);
+    assert.deepEqual(successful.present.slice(0,2),[false,false],
+      'successful reset must remove both synthetic vault entries');
+    console.log('PASS P1 WEB 18.73 UI successful reset: modal dismissed, success feedback, vault entries cleared');
+
+    // Fault injection: payload removal succeeds, key removal fails. The error
+    // must not claim the vault is intact or attempt any automatic repair.
+    const partialContext=await browser.newContext({serviceWorkers:'block'});
+    const partialPage=await partialContext.newPage();
+    await ready(partialPage,url);
+    await partialPage.evaluate(state=>window.__r(309).save(state),fixture());
+    await ready(partialPage,url);
+    await partialPage.getByRole('button',{name:'Setări de aspect'}).waitFor({state:'visible'});
+    for(let step=0;step<6;step++){
+      if(!(await partialPage.getByText(/RECAPITULARE\s*·/).count()))break;
+      const next=partialPage.getByRole('button',{name:/Am văzut|Continuă|Gata|Închide/i}).first();
+      if(!(await next.count()))break;
+      await next.click({timeout:3000});
+    }
+    await partialPage.getByRole('button',{name:'Setări de aspect'}).click({timeout:5000});
+    await partialPage.getByRole('button',{name:'Șterge toate datele',exact:true}).click({timeout:5000});
+    await partialPage.evaluate(()=>{
+      const original=Storage.prototype.removeItem;
+      window.__partialRestore=()=>{Storage.prototype.removeItem=original;};
+      Storage.prototype.removeItem=function(name){
+        if(this===localStorage&&name==='financial-autonomy.preview.key.v1')
+          throw new DOMException('Synthetic partial reset key removal denied','SecurityError');
+        return original.call(this,name);
+      };
+    });
+    try{
+      await partialPage.getByRole('button',{name:'Da, șterge toate datele'}).click({timeout:5000});
+      await partialPage.getByRole('button',{name:'Da, șterge toate datele'}).waitFor({state:'hidden',timeout:8000});
+      const warning=partialPage.locator('#fa-app-error-alert');
+      await warning.waitFor({state:'visible',timeout:8000});
+      const copy=await warning.innerText();
+      assert.match(copy,/Starea datelor poate fi incertă/);
+      assert.match(copy,/Nu șterge datele site-ului/);
+      assert.doesNotMatch(copy,/datele (au rămas|sunt) intacte/i);
+      assert.deepEqual((await snapshot(partialPage)).present.slice(0,2),[true,false],
+        'injected second removal failure must be acknowledged as a partial reset');
+      console.log('PASS P1 WEB 18.73 partial-delete UI: uncertainty warning, no false intact claim, modal dismissed');
+    }finally{await partialPage.evaluate(()=>window.__partialRestore?.());await partialContext.close();}
     console.log('UI RESEARCH LIMIT: DOM alert and modal visibility do not prove screen-reader announcement or Safari behavior');
     console.log('LIMIT: cooperative current bundle only; archived v1 cached writers remain KNOWN UNSAFE; no Safari, crash, cutover or recovery proof');
     await context.close();

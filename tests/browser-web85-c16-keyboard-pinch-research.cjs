@@ -29,7 +29,7 @@ function release(){
  const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
  const version=html.match(/<meta name="financial-autonomy-version" content="(\d+\.\d+)"/)?.[1];
  const src=html.match(/<script src="([^"]+)" defer><\/script>/)?.[1];
- assert.equal(version,'18.72','C16 targets exact immutable WEB 18.72; review before later version');
+ assert.ok(['18.72','18.73'].includes(version),'#85 research targets only reviewed 18.72/18.73 More DOM; re-review future versions');
  assert.ok(src&&src.startsWith(PREFIX));
  assert.ok(fs.existsSync(path.join(ROOT,new URL(src,'http://localhost').pathname.slice(PREFIX.length))));
  return {version,src};
