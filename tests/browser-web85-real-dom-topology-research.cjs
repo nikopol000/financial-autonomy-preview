@@ -93,7 +93,16 @@ function inspect(){
      await page.goto(url,{waitUntil:'domcontentloaded',timeout:30000});
      await page.getByText('DEMO · DATE FICTIVE',{exact:true}).waitFor({state:'visible',timeout:30000});
      await page.evaluate(s=>{document.documentElement.style.fontSize=(100*s)+'%';},scale);
-     await page.getByRole('tab',{name:'Mai mult',exact:true}).click();
+     // A blocked real pointer is a NEGATIVE accessibility finding, not a
+     // reason to skip DOM topology. Bypass only to inspect the underlying screen.
+     const more=page.getByRole('tab',{name:'Mai mult',exact:true});
+     let realMorePointer=true,morePointerError=null;
+     try{await more.click({timeout:1500});}
+     catch(error){
+      realMorePointer=false;
+      morePointerError=String(error.message).split('\n')[0].slice(0,180);
+      await more.evaluate(el=>el.click()); // TEST HARNESS BYPASS, never acceptance
+     }
      await page.getByText('Bugete',{exact:true}).last().waitFor({state:'visible',timeout:10000});
      const initial=await page.evaluate(inspect);
      assert.equal(initial.nav.length,5,'Original app must retain five tabs');
@@ -106,12 +115,12 @@ function inspect(){
      await page.screenshot({path:path.join(OUT,label+'.png')});
      const storage=await page.evaluate(keys=>keys.map(k=>localStorage.getItem(k)),KEYS);
      assert.deepEqual(storage,[null,null,null],'C12 must never create a real encrypted vault');
-     const result={label,version:id.version,initial,focused,
+     const result={label,version:id.version,realMorePointer,morePointerError,initial,focused,
       warningSafe:focused.warning.fullyVisible&&focused.warning.centerHit,
       exitSafe:focused.exit.fullyVisible&&focused.exit.centerHit,
       scope:'actual WEB DOM, unmodified product; root font-size stress proxy, not Safari/VoiceOver/WCAG'};
      results.push(result);
-     console.log('C12 REAL WEB DOM #85 '+JSON.stringify({label,warning:focused.warning,
+     console.log('C12 REAL WEB DOM #85 '+JSON.stringify({label,realMorePointer,morePointerError,warning:focused.warning,
       exit:focused.exit,budget:focused.budget,nav:focused.nav.length,
       warningTree:initial.warningTree.slice(0,6),exitTree:initial.exitTree.slice(0,6),
       budgetTree:initial.budgetTree.slice(0,7)}));
@@ -120,6 +129,7 @@ function inspect(){
   assert.equal(results.length,16);
   fs.writeFileSync(path.join(OUT,'topology.json'),JSON.stringify({release:id,results},null,2));
   console.log('C12 COMPLETE #85 '+JSON.stringify({cases:results.length,
+   realMorePointer:results.filter(x=>x.realMorePointer).length,
    warningSafe:results.filter(x=>x.warningSafe).length,
    exitSafe:results.filter(x=>x.exitSafe).length,
    note:'DOM topology research ONLY. No C11 sheet integrated, no accessibility fix shipped.'}));
