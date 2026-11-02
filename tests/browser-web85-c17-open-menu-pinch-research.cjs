@@ -8,7 +8,7 @@ const http=require('node:http');
 const {chromium}=require('playwright');
 const ROOT=path.resolve(__dirname,'..');
 const PREFIX='/financial-autonomy-preview/';
-const OUT=path.join(ROOT,'artifacts','web85-c17-keyboard-pinch');
+const OUT=path.join(ROOT,'artifacts','web85-c17-open-menu-pinch');
 const KEYS=['financial-autonomy.preview.key.v1','financial-autonomy.preview.payload.v1','financial-autonomy.preview.reset.v1'];
 const MIME={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2'};
 function serve(req,res){
