@@ -116,10 +116,14 @@ function geometry(){
      const safe=measured.warning.fullyVisible&&measured.warning.hit&&
       measured.exit.fullyVisible&&measured.exit.hit&&measured.close.hit;
      const listUsable=measured.list.height>=44&&measured.listClientHeight>0;
+     let exitActivated=false;
+     try{await page.locator('#exit').click({timeout:1200});
+      exitActivated=(await page.evaluate(()=>window.c11().lastAction))==='exit';}
+     catch(e){/* Negative research case: geometry remains the source of truth. */}
      let pointer=false,error=null;
      try{await budget.click({timeout:1200});pointer=(await page.evaluate(()=>window.c11().lastAction))==='Bugete';}
      catch(e){error=String(e.message).split('\n')[0].slice(0,160);}
-     const accepted=safe&&listUsable&&pointer;
+     const accepted=safe&&listUsable&&exitActivated&&pointer;
      await page.screenshot({path:path.join(OUT,label+'.png')});
      await page.keyboard.press('Escape');
      const focusRestored=await page.locator('#trigger').evaluate(el=>document.activeElement===el);
@@ -130,7 +134,7 @@ function geometry(){
      assert.ok(!storage.available||storage.count===0,
       'Prototype must not write storage (opaque about:blank origins may deny reads)');
      const result={label,width,height,theme,textScale:scale,accepted,safe,listUsable,
-      pointer,focusRestored,geometry:measured,error,
+      exitActivated,pointer,focusRestored,geometry:measured,error,
       scope:'isolated HTML prototype; not actual WEB, Safari, VoiceOver, or WCAG certification'};
      results.push(result);
      console.log('C11 ADAPTIVE SHEET #85 '+JSON.stringify(result));
