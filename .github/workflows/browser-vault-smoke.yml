@@ -33,6 +33,7 @@ on:
       - 'tests/browser-web85-c13-real-bounded-layout-research.cjs'
       - 'tests/browser-web85-c14-occluder-ancestry-research.cjs'
       - 'tests/browser-web85-c15-recap-dismissal-research.cjs'
+      - 'tests/browser-web85-c16-keyboard-pinch-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
     branches: [main]
@@ -68,6 +69,7 @@ on:
       - 'tests/browser-web85-c13-real-bounded-layout-research.cjs'
       - 'tests/browser-web85-c14-occluder-ancestry-research.cjs'
       - 'tests/browser-web85-c15-recap-dismissal-research.cjs'
+      - 'tests/browser-web85-c16-keyboard-pinch-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
   contents: read
@@ -142,6 +144,16 @@ jobs:
         run: node tests/browser-web85-c14-occluder-ancestry-research.cjs
       - name: C15 dismiss foreground recap with real pointer before More/DEMO/Bugete tests (NOT PRODUCT)
         run: node tests/browser-web85-c15-recap-dismissal-research.cjs
+      - name: C16 characterize original WEB keyboard navigation, pinch and actual DEMO exit (NOT PRODUCT)
+        run: node tests/browser-web85-c16-keyboard-pinch-research.cjs
+      - name: Retain C16 keyboard and pinch research
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web85-c16-keyboard-pinch
+          path: artifacts/web85-c16-keyboard-pinch/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Retain synthetic-only read-only conflict screen screenshots
         if: always()
         uses: actions/upload-artifact@v4
