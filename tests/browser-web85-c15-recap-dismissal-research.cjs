@@ -144,7 +144,7 @@ function probeOcclusion(){
      const recapSteps=[];
      for(let i=0;i<8;i++){
       const recap=await page.evaluate(()=>{
-       const leaves=[...document.querySelectorAll('*')].filter(el=>el.children.length===0&&/RECAPITULARE\\s*·/.test(el.textContent||''));
+       const leaves=[...document.querySelectorAll('*')].filter(el=>el.children.length===0&&/RECAPITULARE\s*·/.test(el.textContent||''));
        const visible=leaves.find(el=>{const r=el.getBoundingClientRect(),c=getComputedStyle(el);return c.display!=='none'&&c.visibility!=='hidden'&&r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight;});
        return {visible:!!visible,title:visible?.textContent?.trim().slice(0,150)||null};
       });
@@ -162,7 +162,7 @@ function probeOcclusion(){
        break;
       }
      }
-     const recapRemaining=await page.evaluate(()=>[...document.querySelectorAll('*')].some(el=>el.children.length===0&&/RECAPITULARE\\s*·/.test(el.textContent||'')&&el.getBoundingClientRect().height>0&&getComputedStyle(el).visibility!=='hidden'));
+     const recapRemaining=await page.evaluate(()=>[...document.querySelectorAll('*')].some(el=>el.children.length===0&&/RECAPITULARE\s*·/.test(el.textContent||'')&&el.getBoundingClientRect().height>0&&getComputedStyle(el).visibility!=='hidden'));
      const beforeMoreProbe=await page.evaluate(probeOcclusion);
      const more=page.getByRole('tab',{name:'Mai mult',exact:true});
      let realMorePointer=true,morePointerError=null;
