@@ -28,6 +28,7 @@ on:
       - 'tests/browser-v2-restore-operation-witness-research.cjs'
       - 'tests/browser-v2-conflict-readonly-ui-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
+      - 'tests/browser-web85-adaptive-sheet-feasibility-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
     branches: [main]
@@ -58,6 +59,7 @@ on:
       - 'tests/browser-v2-restore-operation-witness-research.cjs'
       - 'tests/browser-v2-conflict-readonly-ui-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
+      - 'tests/browser-web85-adaptive-sheet-feasibility-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
   contents: read
@@ -122,12 +124,22 @@ jobs:
         run: node tests/browser-vault-ui-audit.cjs
       - name: Audit populated demo budgets at 320/390px light/dark and CSS zoom stress
         run: node tests/browser-populated-budget-audit.cjs
+      - name: Research C11 isolated adaptive More sheet safety and focus (NOT PRODUCT)
+        run: node tests/browser-web85-adaptive-sheet-feasibility-research.cjs
       - name: Retain synthetic-only read-only conflict screen screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: browser-v2-conflict-readonly-ui-research
           path: artifacts/browser-v2-conflict-readonly/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Retain C11 isolated prototype geometry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web85-c11-adaptive-sheet-research
+          path: artifacts/web85-c11-adaptive-sheet/
           if-no-files-found: ignore
           retention-days: 7
       - name: Retain synthetic-only populated budget screenshots and geometry
