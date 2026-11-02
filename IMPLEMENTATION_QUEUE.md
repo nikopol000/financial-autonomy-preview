@@ -1,3 +1,8 @@
+## 2026-11-02 — P1 H05/H06 existing IndexedDB connection no-write gate IN PROGRESS
+
+- **TEST-ONLY:** base `8d13a8a2bc02817a738276000d93810eb4312633`, branch `research/web-h05-h06-idb-open-connection-guard-20261102-0759`. Added an already-open synthetic IndexedDB connection, blocked write-transaction positive control, object-store/cursor/schema write guards, and unchanged sentinel-record assertion to the seven H05/H06 selected-file scenarios. [Design/limits](docs/WEB_ORIGIN_HANDOFF_H05_H06_EXISTING_IDB_GUARD_20261102.md). **PR/CI pending; not a product fix.**
+- **NEXT EXACT:** PR → exact-head Release/Chromium evidence → merge only if green → merged-main Release/Chromium/Pages → issue #4/checkpoint with SHA. Cross-tab atomicity and cached writers remain unsafe; #29/#35 partial reset and #85 mobile accessibility open; #14/#25/#2 approval-gated financial semantics. No WEB product bundle/version, iOS, real data, backup or formula changes.
+
 ## 2026-11-02 — P1 H05/H06 selected-file authentication MERGED; merged-main CI next
 
 - **DONE / RESEARCH TEST ONLY:** [PR #452](https://github.com/nikopol000/financial-autonomy-preview/pull/452), squash `bcea73192e23af728188b4b6ff361006ec1bf5f1`; PR-head [Release #41391633466](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41391633466) SUCCESS and [Chromium #41391633359](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41391633359) SUCCESS, seven named H05/H06 PASS with zero destination writes. Real bundled crypto/schema and selected File API, synthetic only; [limitations](docs/WEB_ORIGIN_HANDOFF_H05_H06_FILE_AUTH_20261102.md). Vercel build-rate-limit on PR head; no exact production deploy or Safari proof.
