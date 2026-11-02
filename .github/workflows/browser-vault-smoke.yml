@@ -37,6 +37,7 @@ on:
       - 'tests/browser-web85-c16-keyboard-pinch-research.cjs'
       - 'tests/browser-web85-c17-open-menu-pinch-research.cjs'
       - 'tests/browser-web85-c18-touch-only-scroll-research.cjs'
+      - 'tests/browser-web85-c19-independent-touch-pan-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
     branches: [main]
@@ -76,6 +77,7 @@ on:
       - 'tests/browser-web85-c16-keyboard-pinch-research.cjs'
       - 'tests/browser-web85-c17-open-menu-pinch-research.cjs'
       - 'tests/browser-web85-c18-touch-only-scroll-research.cjs'
+      - 'tests/browser-web85-c19-independent-touch-pan-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
   contents: read
@@ -158,6 +160,16 @@ jobs:
         run: node tests/browser-web85-c17-open-menu-pinch-research.cjs
       - name: C18 characterize original More touch-only scroll and DEMO exit (NOT PRODUCT)
         run: node tests/browser-web85-c18-touch-only-scroll-research.cjs
+      - name: C19 characterize independent DEMO exit touch panning (NOT PRODUCT)
+        run: node tests/browser-web85-c19-independent-touch-pan-research.cjs
+      - name: Retain C19 independent touch-pan research
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web85-c19-independent-pan
+          path: artifacts/web85-c19-independent-pan/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Retain C18 touch-only reduced-height research
         if: always()
         uses: actions/upload-artifact@v4
