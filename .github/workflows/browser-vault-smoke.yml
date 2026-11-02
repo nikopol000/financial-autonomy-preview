@@ -29,6 +29,7 @@ on:
       - 'tests/browser-v2-conflict-readonly-ui-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
       - 'tests/browser-web85-adaptive-sheet-feasibility-research.cjs'
+      - 'tests/browser-web85-real-dom-topology-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
   push:
     branches: [main]
@@ -60,6 +61,7 @@ on:
       - 'tests/browser-v2-conflict-readonly-ui-research.cjs'
       - 'tests/browser-populated-budget-audit.cjs'
       - 'tests/browser-web85-adaptive-sheet-feasibility-research.cjs'
+      - 'tests/browser-web85-real-dom-topology-research.cjs'
       - '.github/workflows/browser-vault-smoke.yml'
 permissions:
   contents: read
@@ -126,12 +128,22 @@ jobs:
         run: node tests/browser-populated-budget-audit.cjs
       - name: Research C11 isolated adaptive More sheet safety and focus (NOT PRODUCT)
         run: node tests/browser-web85-adaptive-sheet-feasibility-research.cjs
+      - name: Map C12 real WEB More DOM at short height and enlarged root text (NOT PRODUCT)
+        run: node tests/browser-web85-real-dom-topology-research.cjs
       - name: Retain synthetic-only read-only conflict screen screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: browser-v2-conflict-readonly-ui-research
           path: artifacts/browser-v2-conflict-readonly/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Retain C12 actual WEB More DOM topology and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web85-c12-real-dom-research
+          path: artifacts/web85-c12-real-dom/
           if-no-files-found: ignore
           retention-days: 7
       - name: Retain C11 isolated prototype geometry
