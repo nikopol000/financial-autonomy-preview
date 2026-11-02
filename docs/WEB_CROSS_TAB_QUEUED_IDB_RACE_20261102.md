@@ -1,6 +1,6 @@
 # P1 #4/#29/#35 — queued other-tab IndexedDB writer after read-only preflight (2026-11-02)
 
-**Status: TEST-ONLY RESEARCH / CI PENDING.** Start main `943bf08ca8e61fd8c7e05bcd95cbec9e518f111e`; WEB 18.72 product unchanged. No import, cutover, financial data, real vault or backup was accessed.
+**Status: TEST-ONLY RESEARCH / PR-head and merged-main CI VERIFIED.** Start main `943bf08ca8e61fd8c7e05bcd95cbec9e518f111e`; WEB 18.72 product unchanged. No import, cutover, financial data, real vault or backup was accessed.
 
 ## Question and synthetic method
 
@@ -18,4 +18,4 @@ The previous H05/H06 Chromium file-authentication test [guards an already-open I
 
 ## Evidence and next step
 
-On PR, require exact-head Chromium **three named PASS lines** and Release CI, then merged-main Chromium/Release/Pages. If timing is flaky, make synchronization deterministic; never weaken assertions to make an unsafe result look safe. Keep #4/#29/#35 open. Follow with #85 structural mobile navigation research and nonurgent financial DISCOVERY only; #14 formulas/modes remain approval-gated. Do not publish a new product version for test/documentation changes.
+[PR #456](https://github.com/nikopol000/financial-autonomy-preview/pull/456) merged as `dc28ddb0001f3b955b50b40d36b89b8b3630b599` (PR head `2fc37c392feb2dffdd83439efd718083f224bda4`). PR-head [Chromium #41403721728](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41403721728) SUCCESS, with **three named PASS lines** and an explicit LIMIT; [Release #41403721714](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41403721714) SUCCESS. Exact merged-main [Chromium #41404048740](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41404048740), [Release #41404048628](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41404048628), [Pages #41404048596](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41404048596), [Pages build #41404047983](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41404047983) all SUCCESS. Compare from `943bf08c` changes only research test, workflow and this document. Vercel production READY deployment `dpl_Ca1Q5skLgq3ccUhnvP7c4tLYAZoT` is tied to exact merged commit, but independent public browser/Safari behavior is **not** verified. If timing is flaky, make synchronization deterministic; never weaken assertions to make an unsafe result look safe. Keep #4/#29/#35 open. Follow with #85 structural mobile navigation research and nonurgent financial DISCOVERY only; #14 formulas/modes remain approval-gated. Do not publish a new product version for test/documentation changes.
