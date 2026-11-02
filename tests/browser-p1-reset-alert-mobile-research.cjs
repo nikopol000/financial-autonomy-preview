@@ -72,10 +72,9 @@ async function probe(browser,url,width,height,theme){
       await more.click({timeout:10000});
       await page.getByText('Setări',{exact:true}).last().click({timeout:10000});
     }
-    await page.getByRole('button',{name:'Setări de aspect'}).waitFor({state:'visible',timeout:15000});
+    await page.getByRole('button',{name:'Șterge toate datele',exact:true}).waitFor({state:'visible',timeout:15000});
     const before=await digest(page);
     assert.deepEqual(before.present.slice(0,2),[true,true],label+' must start with encrypted fixture');
-    await page.getByRole('button',{name:'Setări de aspect'}).click({timeout:10000});
     await page.getByRole('button',{name:'Șterge toate datele',exact:true}).click({timeout:10000});
     const confirm=page.getByRole('button',{name:'Da, șterge toate datele'});
     await confirm.waitFor({state:'visible',timeout:8000});
