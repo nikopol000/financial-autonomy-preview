@@ -1,3 +1,8 @@
+## 2026-11-02 — P1 H05/H06 selected-file authentication test pending CI
+
+- **IN PROGRESS / TEST-ONLY:** start `6b8e81379f80cda86c74ac53fac597c261bb0016`, branch `research/web-h05-h06-selected-file-auth-20261102-0659`. Added disposable Chromium File API read of actual encrypted WEB backup, authenticated-but-older H05 and H06 password/tamper/format/schema failures, no-write and full destination-footprint assertions. [Evidence boundary](docs/WEB_ORIGIN_HANDOFF_H05_H06_FILE_AUTH_20261102.md). No verified CI yet.
+- **NEXT EXACT:** create PR, inspect Chromium named H05/H06 PASS and Release checks, correct failures safely, merge after green, verify merged-main and checkpoint issue #4. #4/#29/#35 remain P1; five legacy-writer KNOWN UNSAFE cases unresolved; #85 focus/Safari and #17 UX DISCOVERY pending; #14/#25/#2 financial-contract changes approval gated. WEB 18.72 unchanged; no new origin/import, iOS, formulas, real data or backup edits.
+
 ## 2026-11-02 — H09 two-tab preflight race MERGED; next H05/H06 browser file gate
 
 - **DONE RESEARCH TEST:** [PR #450](https://github.com/nikopol000/financial-autonomy-preview/pull/450) squash `3dba9804b632e5b090e1cc368c3585ed3eff1fbd`, [Release #41386515763](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41386515763) SUCCESS and [Chromium #41386515730](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41386515730) SUCCESS, three H09 named two-tab PASS lines. The second read blocks a synthetic intervening unknown key, orphan KEY or IDB; inspector performs zero writes. [Limits](docs/WEB_ORIGIN_HANDOFF_H09_RACE_20261102.md): **not atomic with commit**, not an approved migration. Main CI after squash not independently verified.
