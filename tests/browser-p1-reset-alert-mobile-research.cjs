@@ -72,6 +72,8 @@ async function probe(browser,url,width,height,theme){
       await more.click({timeout:10000});
       await page.getByText('Setări',{exact:true}).last().click({timeout:10000});
     }
+    const navState=await page.evaluate(()=>({tabs:[...document.querySelectorAll('[role="tab"]')].map(e=>({text:e.textContent?.slice(0,40),selected:e.getAttribute('aria-selected')})),buttons:[...document.querySelectorAll('button,[role="button"]')].map(e=>e.getAttribute('aria-label')||e.textContent?.slice(0,60)).slice(0,35),body:document.body.innerText.slice(0,550)}));
+    console.log('P1 MOBILE NAV '+label+' '+JSON.stringify(navState));
     await page.getByRole('button',{name:'Șterge toate datele',exact:true}).waitFor({state:'visible',timeout:15000});
     const before=await digest(page);
     assert.deepEqual(before.present.slice(0,2),[true,true],label+' must start with encrypted fixture');
