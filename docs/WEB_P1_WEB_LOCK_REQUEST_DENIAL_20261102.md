@@ -1,6 +1,6 @@
 # P1 #4/#29/#35 — present-but-denied Web Locks request (2026-11-02)
 
-**TEST-ONLY / CI PENDING.** Base main `29536090dff6167a5399c836cd7268d5f79bad26`, WEB **18.72**. No application bundle, index, financial formulas, storage format, backup, real ledger, iOS, backend or telemetry change. This test uses a disposable loopback Chromium origin and synthetic state.
+**TEST-ONLY / PR-HEAD CI VERIFIED AND MERGED.** Base main `29536090dff6167a5399c836cd7268d5f79bad26`, WEB **18.72**. No application bundle, index, financial formulas, storage format, backup, real ledger, iOS, backend or telemetry change. This test uses a disposable loopback Chromium origin and synthetic state.
 
 ## New boundary compared with the verified missing-Web-Locks gate
 
@@ -20,6 +20,6 @@ The test also records that `canWriteReal()` remains **true** while the fake requ
 
 ## Interpretation and next step
 
-If CI passes, this confirms **fail-closed data writes** for the two tested request-denial forms; it does **not** establish that all browsers use those errors, that the current UI explains the denial well, or that Safari behaves the same. If CI fails, investigate without weakening the no-write assertions. Then review accessible UI error copy and whether an explicit async capability check is warranted; any product fix requires an immutable release and exact deployment/browser verification.
+The verified PR-head CI confirms **fail-closed data writes** for the two tested request-denial forms; it does **not** establish that all browsers use those errors, that the current UI explains the denial well, or that Safari behaves the same. Review accessible UI error copy and whether an explicit async capability check is warranted; any product fix requires an immutable release and exact deployment/browser verification.
 
-The **five archived cached WEB 18.27/18.33/18.34 writer scenarios remain KNOWN UNSAFE**. A modern lock rejection cannot fence an old noncooperating tab. The distinct-origin/manual encrypted-file handoff remains approval-gated per `docs/WEB_VAULT_ORIGIN_HANDOFF_CONTRACT_20261102.md`; no cutover, reset, automatic restore, replay, rekey or merge. #14 budget perspectives remain DISCOVERY only.
+**Verified evidence:** [PR #485](https://github.com/nikopol000/financial-autonomy-preview/pull/485) squash-merged as `dd46901f195c8243c53ee5f3a27edc23267d7d13`, exact test head `48d117805e29aede85632ad76600744e0a1868af`. [Chromium #41529575207](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41529575207) SUCCESS and [Release #41529575243](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41529575243) SUCCESS. Chromium job `125565992223` has two named new PASS lines. Merged-main CI remains a separate gate. [MDN LockManager.request() exceptions](https://developer.mozilla.org/en-US/docs/Web/API/LockManager/request) documents SecurityError and other rejection modes.\n\nThe **five archived cached WEB 18.27/18.33/18.34 writer scenarios remain KNOWN UNSAFE**. A modern lock rejection cannot fence an old noncooperating tab. The distinct-origin/manual encrypted-file handoff remains approval-gated per `docs/WEB_VAULT_ORIGIN_HANDOFF_CONTRACT_20261102.md`; no cutover, reset, automatic restore, replay, rekey or merge. #14 budget perspectives remain DISCOVERY only.
