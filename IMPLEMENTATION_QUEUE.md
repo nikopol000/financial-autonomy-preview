@@ -1,3 +1,9 @@
+## 2026-11-02 — #85 C11 adaptive sheet feasibility IN PROGRESS (research only)
+
+- **BASE HEAD:** `6539ae145e7b2bc65bb370e651afe90720b3fad9`. [PR #467](https://github.com/nikopol000/financial-autonomy-preview/pull/467) adds 16-case isolated Chromium semantic More-sheet prototype and CI artifact. No actual product component, immutable JS, version, formulas, data, vault, backup or iOS changes. [Memo](docs/WEB_ZOOM_MORE_MENU_C11_ADAPTIVE_SHEET_FEASIBILITY_20261102.md).
+- **FIRST UNFINISHED STEP:** wait for exact PR-head Chromium/Release, inspect all 16 case outcomes and negative geometry, fix harness-only failures if needed, then merge research and verify merged-main CI. Post exact evidence to #85 and update this checkpoint. Next implementation gate: prototype real app DOM, actual DEMO exit, focus return and mobile Safari/VoiceOver; no product release without strict evidence.
+- **P1 PRIORITY:** #4/#29/#35 remain open, five cached legacy writers KNOWN UNSAFE. #14/#25/#2 DISCOVERY require explicit financial contract and expected numeric outputs; no formulas/modes changed. WEB 18.72 unchanged.
+
 ## 2026-11-02 — #85 C10 reduced-height 422px strict safety 4/8; C8/C9 not production-safe at short height
 
 - **START HEAD:** `8b30820a8135a49c31376b825db3ce301b09e9d7`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, canonical `docs/WEB_VISUAL_REVIEW.md` (root file absent) and ten open issues including P1 #4/#29/#35, DISCOVERY #14/#25/#2. [PR #465](https://github.com/nikopol000/financial-autonomy-preview/pull/465) test/research-only squash merged `ce9547d4501124f2e29c2b4315ba4e827d4f7c8b`; no product JS/HTML, version, formulas, vault, backup, iOS or real data changed.
