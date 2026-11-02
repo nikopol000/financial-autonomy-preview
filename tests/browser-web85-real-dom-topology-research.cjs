@@ -98,7 +98,10 @@ function inspect(){
      const initial=await page.evaluate(inspect);
      assert.equal(initial.nav.length,5,'Original app must retain five tabs');
      assert.ok(initial.warning&&initial.exit&&initial.budget,'Actual DEMO safety and Bugete controls required');
-     await page.getByText('Bugete',{exact:true}).last().focus();
+     await page.getByText('Bugete',{exact:true}).last().evaluate(el=>{
+      const control=el.closest('button,[role="button"],[role="menuitem"],a,[tabindex]');
+      if(control)control.focus();
+     });
      const focused=await page.evaluate(inspect);
      await page.screenshot({path:path.join(OUT,label+'.png')});
      const storage=await page.evaluate(keys=>keys.map(k=>localStorage.getItem(k)),KEYS);
