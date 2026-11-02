@@ -1,6 +1,6 @@
 # P1 #4/#29/#35 — actual WEB 18.72 no-Web-Locks browser gate (2026-11-02)
 
-**RESEARCH / TEST ONLY; not a product fix, migration, or approval to change storage.** Base main `c10f2158a1e3e7d8f41514e2704e9a39e5fefcda`, active immutable WEB 18.72. PR [#482](https://github.com/nikopol000/financial-autonomy-preview/pull/482). No product bundle, index, backup, financial formula, real ledger, backend, telemetry, or iOS modification.
+**RESEARCH / TEST ONLY; PR-head CI VERIFIED and MERGED, not a product fix, migration, or approval to change storage.** Base main `c10f2158a1e3e7d8f41514e2704e9a39e5fefcda`, active immutable WEB 18.72. PR [#482](https://github.com/nikopol000/financial-autonomy-preview/pull/482). No product bundle, index, backup, financial formula, real ledger, backend, telemetry, or iOS modification.
 
 ## Specific gap
 
@@ -16,7 +16,7 @@ Existing synthetic VM tests assert that modern real-mode writes fail closed when
 4. Destructive reset of that existing vault without Web Locks: actionable rejection, zero protected writes, unchanged ciphertext.
 5. After restoring native Web Locks and reloading the page, the original synthetic transaction remains authenticated and the rejected update is absent.
 
-The test logs only presence and SHA-256 fingerprints of protected bytes, never raw keys, ciphertext or financial data. It uses no real user storage. **PR-head CI is pending until verified in Actions**; passing Release or a browser job without named assertions must not be reported as proof.
+The test logs only presence and SHA-256 fingerprints of protected bytes, never raw keys, ciphertext or financial data. It uses no real user storage. **Exact PR-head CI VERIFIED:** [Chromium #41515425795](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41515425795) SUCCESS, [Release #41515425831](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41515425831) SUCCESS on head `a98b785c6d896432fa4bc73f026d612eb9bea2b6`. Chromium job `125517645062` contains two named `PASS P1 real WEB 18.72` lines: first save + empty reset blocked with zero protected writes, existing-vault update + destructive reset blocked and authenticated ledger preserved after reload. [PR #482](https://github.com/nikopol000/financial-autonomy-preview/pull/482) squash-merged as `de342918f594d88694925ce7c52f85076f81a5dc`. **Merged-main CI must be verified separately.**
 
 ## Interpretation and limits
 
@@ -24,4 +24,4 @@ This is a *modern cooperating-client* no-lock guard, not cross-version atomicity
 
 The preferred independent-HTTPS-origin, user-selected encrypted-file handoff in [the decision contract](WEB_VAULT_ORIGIN_HANDOFF_CONTRACT_20261102.md) is still **approval-gated**. Do not ship an origin migration, automatic reset, repair, rekey, restore, replay, or merge based on this gate. No Safari/VoiceOver, actual cross-origin import, crash/eviction, or newest-backup guarantee is tested.
 
-**First next:** inspect exact PR-head Chromium and Release jobs, including the named PASS lines; fix a failing assertion rather than weakening it. Merge only if green, then verify merged-main CI and update #4/#29/#35 and both continuity files. Keep WEB 18.72 unchanged and return to the cross-version authority decision rather than declaring the P1 issue resolved.
+**First next:** verify exact merged-main Chromium, Release and Pages CI, then update #4/#29/#35. Do not interpret a green characterization as a legacy-writer repair. Continue version-skew authority/consent contract research, not an unapproved cutover. Keep WEB 18.72 unchanged and return to the cross-version authority decision rather than declaring the P1 issue resolved.
