@@ -98,6 +98,45 @@ async function run(browser,{id,url,expected,storage={},idb=false,deny=null,secur
     console.log('PASS RESEARCH '+id+': '+expected+'; zero writes');
   }finally{await context.close()}
 }
+// H09 TOCTOU characterization: another tab writes AFTER an empty preflight.
+// This is a negative design test, not an import implementation or an atomic
+// commit guarantee. The test-owned writer is the only source of mutations.
+async function raceAfterPreflight(browser,{id,kind,expected}){
+  const context=await browser.newContext({serviceWorkers:'block'});
+  try{
+    await context.route('**/*',route=>route.fulfill({
+      status:200,contentType:'text/html',
+      body:'<!doctype html><title>disposable H09 race research</title>'
+    }));
+    const inspector=await context.newPage(),writer=await context.newPage();
+    await Promise.all([inspector.goto(NEXT+'/'),writer.goto(NEXT+'/')]);
+    const first=await inspect(inspector);
+    assert.equal(first.status,'REVIEW_ONLY',id+' initial empty observation');
+    assert.equal(first.writes,0,id+' first inspection is read-only');
+    // Deliberately change the SAME destination origin from a second tab.
+    await writer.evaluate(async kind=>{
+      if(kind==='unknown')localStorage.setItem('synthetic-other-owner','changed-after-preflight');
+      else if(kind==='key')localStorage.setItem('financial-autonomy.preview.key.v1','synthetic-new-key');
+      else if(kind==='idb'){
+        const db=await new Promise((resolve,reject)=>{
+          const request=indexedDB.open('synthetic-race-created-db',1);
+          request.onupgradeneeded=()=>request.result.createObjectStore('synthetic');
+          request.onsuccess=()=>resolve(request.result);
+          request.onerror=()=>reject(request.error);
+        });
+        db.close();
+      }else throw Error('UNKNOWN_TEST_MUTATION');
+    },kind);
+    const external=await footprint(inspector);
+    const second=await inspect(inspector);
+    assert.equal(second.status,expected,id+' must reject stale empty observation');
+    assert.equal(second.writes,0,id+' inspector must not write');
+    assert.deepEqual(await footprint(inspector),external,
+      id+' second inspection must preserve the external writer footprint');
+    console.log('PASS RESEARCH '+id+': REVIEW_ONLY -> '+expected+
+      '; inspector zero writes (external synthetic writer changed destination)');
+  }finally{await context.close()}
+}
 async function main(){
   const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
   try{
@@ -119,7 +158,10 @@ async function main(){
       {id:'H09 denied IDB enumeration blocks',url:NEXT+'/',expected:'BLOCKED_UNREADABLE',deny:'idb'}
     ];
     for(const scenario of cases)await run(browser,scenario);
-    console.log('LIMIT: test-only preflight; no real backup authentication, migration, deployment, Safari or crash guarantee');
+    await raceAfterPreflight(browser,{id:'H09 changed destination unknown key',kind:'unknown',expected:'BLOCKED_UNKNOWN'});
+    await raceAfterPreflight(browser,{id:'H09 changed destination KEY-only',kind:'key',expected:'BLOCKED_PARTIAL'});
+    await raceAfterPreflight(browser,{id:'H09 changed destination IndexedDB',kind:'idb',expected:'BLOCKED_UNKNOWN'});
+    console.log('LIMIT: read-only H09 recheck is NOT atomic with any later commit; no real backup authentication, import, deployment, Safari or crash guarantee');
   }finally{await browser.close()}
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
