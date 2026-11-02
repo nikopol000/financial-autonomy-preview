@@ -145,8 +145,8 @@ function probeOcclusion(){
      for(let i=0;i<8;i++){
       const recap=await page.evaluate(()=>{
        const leaves=[...document.querySelectorAll('*')].filter(el=>el.children.length===0&&/RECAPITULARE\s*·/.test(el.textContent||''));
-       const visible=leaves.find(el=>{const r=el.getBoundingClientRect(),c=getComputedStyle(el);return c.display!=='none'&&c.visibility!=='hidden'&&r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight;});
-       return {visible:!!visible,title:visible?.textContent?.trim().slice(0,150)||null};
+       const visible=leaves.find(el=>{const r=el.getBoundingClientRect(),c=getComputedStyle(el);return c.display!=='none'&&c.visibility!=='hidden'&&r.width>0&&r.height>0;});
+       return {visible:!!visible,title:visible?.textContent?.trim().slice(0,150)||null,headingInViewport:!!visible&&visible.getBoundingClientRect().bottom>0&&visible.getBoundingClientRect().top<innerHeight};
       });
       if(!recap.visible){recapSteps.push({step:i,cleared:true});break;}
       const choices=page.getByRole('button',{name:/Am văzut|continuă|Continuă|Gata|Închide/i});
