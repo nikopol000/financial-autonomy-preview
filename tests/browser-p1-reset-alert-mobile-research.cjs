@@ -37,6 +37,8 @@ async function ready(page,url){
   await page.waitForFunction(()=>typeof window.__r==='function'&&
     typeof window.__r(309).save==='function'&&typeof window.__r(309).resetData==='function',
     null,{timeout:30000});
+  // __r is available before React mounts; wait for actual mobile UI.
+  await page.getByRole('tab',{name:'Mai mult',exact:true}).waitFor({state:'visible',timeout:20000});
 }
 async function dismissRecap(page){
   for(let i=0;i<6;i++){
