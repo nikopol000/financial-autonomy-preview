@@ -240,6 +240,167 @@ async function naturalZoomNavInput(page,label,css){
  * itself, never rescued by a Playwright scrollIntoViewIfNeeded call.
  * Diagnostic results are NOT Safari / VoiceOver / WCAG acceptance.
  */
+/**
+ * #85 C7: disposable structural document-flow alternative for the REAL More
+ * screen. The original DEMO warning/exit and React menu controls stay in DOM;
+ * no synthetic replacement controls, no product bundle or storage changes.
+ * Acceptance is deliberately separate from test execution: a negative result
+ * is recorded and NEVER converted into a claim of an accessible shipped UI.
+ */
+async function structuralMoreFlowC7(page,label,variant='C7'){
+  const result={candidate:variant+' document-flow More screen',label,applied:false,
+    forwardReached:false,reverseReturned:false,focusVisible:false,
+    centerExposed:false,pointerTrial:false,enteredBudget:false,
+    safetyBefore:null,safetyAfter:null,error:null,
+    caveat:'Chromium CSS root zoom only, reversible synthetic DEMO; NOT Safari/VoiceOver/WCAG'};
+  const row=page.getByText('Bugete',{exact:true}).last();
+  const style=await page.addStyleTag({content:
+    'html,body{height:auto!important;min-height:100vh!important;overflow-y:auto!important}'+
+    '#root{height:auto!important;min-height:100vh!important;overflow:visible!important}'+
+    '#root>div{height:auto!important;min-height:100vh!important;overflow:visible!important}'});
+  const inspect=()=>page.evaluate(()=>{
+    const warning=[...document.querySelectorAll('*')].find(el=>
+      el.children.length===0&&el.textContent?.trim()==='DEMO · DATE FICTIVE');
+    const exit=[...document.querySelectorAll('button,[role="button"]')].find(el=>
+      (el.getAttribute('aria-label')||el.textContent||'').includes('Ieși din demo'));
+    const target=[...document.querySelectorAll('*')].find(el=>
+      el.children.length===0&&el.textContent?.trim()==='Bugete');
+    const point=el=>{
+      if(!el)return {present:false,visible:false,hit:false};
+      const r=el.getBoundingClientRect(),x=(r.left+r.right)/2,y=(r.top+r.bottom)/2;
+      const visible=x>=0&&x<innerWidth&&y>=0&&y<innerHeight;
+      const hit=visible?document.elementFromPoint(x,y):null;
+      return {present:true,visible,hit:!!hit&&(hit===el||el.contains(hit)),
+        top:r.top,bottom:r.bottom,height:r.height};
+    };
+    const tabs=[...document.querySelectorAll('[role="tab"]')];
+    return {warning:point(warning),exit:point(exit),target:point(target),
+      tabs:tabs.length,scrollTop:document.scrollingElement?.scrollTop||0,
+      scrollHeight:document.scrollingElement?.scrollHeight||0,
+      clientHeight:document.scrollingElement?.clientHeight||0};
+  });
+  try{
+    const patch=await row.evaluate((el,variant)=>{
+      const original=[];
+      for(let node=el.parentElement;node&&node!==document.body;node=node.parentElement){
+        original.push([node,node.getAttribute('style')]);
+        node.style.setProperty('height','auto','important');
+        node.style.setProperty('max-height','none','important');
+        node.style.setProperty('min-height','0','important');
+        node.style.setProperty('overflow-y','visible','important');
+        if(node.id==='root')break;
+      }
+      // C8: keep the ACTUAL DEMO warning and exit in a persistent safety
+      // header above the scrollable document. No clones, no hidden controls.
+      // This is a disposable geometry candidate, not product CSS.
+      let sticky=null;
+      if(variant==='C8'){
+        const warning=[...document.querySelectorAll('*')].find(node=>
+          node.children.length===0&&node.textContent?.trim()==='DEMO · DATE FICTIVE');
+        const exit=[...document.querySelectorAll('button,[role="button"]')].find(node=>
+          (node.getAttribute('aria-label')||node.textContent||'').includes('Ieși din demo'));
+        if(!warning||!exit)throw Error('C8 requires real DEMO safety controls');
+        const scale=Number(getComputedStyle(document.documentElement).zoom)||1;
+        const position=(node,top)=>{
+          const rect=node.getBoundingClientRect();
+          original.push([node,node.getAttribute('style')]);
+          node.style.setProperty('position','fixed','important');
+          node.style.setProperty('top',(top/scale)+'px','important');
+          node.style.setProperty('left',(Math.max(8,rect.left)/scale)+'px','important');
+          node.style.setProperty('width',(Math.min(rect.width,innerWidth-16)/scale)+'px','important');
+          node.style.setProperty('z-index','10000','important');
+          node.style.setProperty('pointer-events','auto','important');
+          node.style.setProperty('background','Canvas','important');
+          node.style.setProperty('color','CanvasText','important');
+          return node.getBoundingClientRect();
+        };
+        const warningRect=position(warning,8);
+        const exitRect=position(exit,warningRect.bottom+8);
+        sticky={warningTop:warningRect.top,warningBottom:warningRect.bottom,
+          exitTop:exitRect.top,exitBottom:exitRect.bottom};
+      }
+      window.__web85C7Restore=original;
+      return {ancestors:original.length,sticky};
+    },variant);
+    result.applied=true;
+    result.patch=patch;
+    result.safetyBefore=await inspect();
+    const more=page.getByRole('tab',{name:'Mai mult',exact:true});
+    await more.focus();
+    for(let i=0;i<22;i++){
+      await page.keyboard.press('Tab');
+      const state=await row.evaluate(el=>{
+        const active=document.activeElement;
+        const target=el.closest('button,[role="button"],[role="menuitem"],a,[tabindex]')||el.parentElement;
+        const r=active?.getBoundingClientRect();
+        const x=r?(r.left+r.right)/2:-1,y=r?(r.top+r.bottom)/2:-1;
+        const hit=x>=0&&x<innerWidth&&y>=0&&y<innerHeight?
+          document.elementFromPoint(x,y):null;
+        return {reached:!!active&&active!==document.body&&
+            (active===target||target.contains(active)),
+          focusVisible:!!active&&active.matches(':focus-visible'),
+          centerExposed:!!hit&&(hit===active||active?.contains(hit)),
+          activeName:(active?.getAttribute('aria-label')||active?.textContent||'').trim().slice(0,70)};
+      });
+      if(state.reached){
+        result.forwardReached=true;
+        result.focusVisible=state.focusVisible;
+        result.centerExposed=state.centerExposed;
+        result.forwardStep=i+1;
+        await page.keyboard.press('Shift+Tab');
+        const backward=await row.evaluate(el=>{
+          const active=document.activeElement;
+          const target=el.closest('button,[role="button"],[role="menuitem"],a,[tabindex]')||el.parentElement;
+          return {outsideTarget:active!==target&&!target.contains(active),
+            focusVisible:!!active&&active.matches(':focus-visible'),
+            label:(active?.getAttribute('aria-label')||active?.textContent||'').trim().slice(0,70)};
+        });
+        result.reverseReturned=backward.outsideTarget;
+        result.reverse=backward;
+        await page.keyboard.press('Tab');
+        break;
+      }
+    }
+    result.safetyAfter=await inspect();
+    try{await row.click({trial:true,timeout:1500});result.pointerTrial=true;}
+    catch(error){result.pointerError=String(error.message).split('\\n')[0].slice(0,180);}
+    await page.screenshot({path:path.join(OUT,'more-'+variant.toLowerCase()+'-flow-'+label+'.png'),fullPage:true});
+    if(result.forwardReached){
+      await page.keyboard.press('Enter');
+      await page.getByText(/Lunar · principală/).last()
+        .waitFor({state:'visible',timeout:3500});
+      result.enteredBudget=true;
+    }
+  }catch(error){
+    result.error=String(error.message).split('\\n')[0].slice(0,250);
+  }finally{
+    await page.evaluate(()=>{
+      for(const [node,original] of (window.__web85C7Restore||[]).reverse()){
+        if(!node.isConnected)continue;
+        if(original===null)node.removeAttribute('style');
+        else node.setAttribute('style',original);
+      }
+      delete window.__web85C7Restore;
+    });
+    await style.evaluate(el=>el.remove());
+    // Harness-only restoration if the C7 candidate could not activate.
+    // This is NOT counted as an accessibility or pointer pass.
+    if(!result.enteredBudget){
+      const recovery=page.getByText('Bugete',{exact:true}).last();
+      if(await recovery.count()&&await recovery.isVisible())
+        await recovery.evaluate(el=>el.click());
+      await page.getByText(/Lunar · principală/).last()
+        .waitFor({state:'visible',timeout:10000});
+    }
+  }
+  result.accepted=!!(result.forwardReached&&result.reverseReturned&&
+    result.focusVisible&&result.centerExposed&&result.pointerTrial&&
+    result.enteredBudget&&result.safetyAfter?.warning?.hit&&
+    result.safetyAfter?.exit?.hit&&result.safetyAfter?.tabs===5);
+  console.log('MORE MENU '+variant+' STRUCTURAL FLOW #85 '+label+' '+JSON.stringify(result));
+  return result;
+}
+
 async function focusFollowingZoomNavInput(page,label,css){
   const style=await page.addStyleTag({content:css+
     '#root :has(> [role="tab"]){scroll-snap-type:none!important;'+
@@ -615,6 +776,24 @@ async function focusFollowingZoomNavInput(page,label,css){
       if(await recoveryRow.isVisible())await recoveryRow.evaluate(el=>el.click());
       await page.getByText(/Lunar · principală/).last().waitFor({state:'visible',timeout:10000});
     }
+    // C7 structural alternative is tested after C6, on the real More page.
+    // Its result is a research diagnostic, not a shipped fix.
+    await page.getByRole('tab',{name:'Mai mult',exact:true}).click();
+    const structuralC7=await structuralMoreFlowC7(page,label,'C7');
+    assert.equal(structuralC7.safetyBefore?.tabs,5,
+      'C7 must preserve all five actual navigation destinations');
+    assert.ok(structuralC7.safetyBefore?.warning?.present&&
+      structuralC7.safetyBefore?.exit?.present,
+      'C7 must retain real DEMO warning and exit in the DOM');
+    // C8 keeps the original warning and exit fixed above the real More list.
+    // Compare strict safety exposure, never infer Safari/WCAG from CSS zoom.
+    await page.getByRole('tab',{name:'Mai mult',exact:true}).click();
+    const structuralC8=await structuralMoreFlowC7(page,label,'C8');
+    assert.equal(structuralC8.safetyBefore?.tabs,5,
+      'C8 must preserve all five actual navigation destinations');
+    assert.ok(structuralC8.safetyBefore?.warning?.present&&
+      structuralC8.safetyBefore?.exit?.present,
+      'C8 must retain real DEMO warning and exit in the DOM');
     assert.deepEqual(await page.evaluate(keys=>keys.map(k=>localStorage.getItem(k)),VAULT_KEYS),
       [null,null,null],'Keyboard research must never create real vault keys');
     const demo=await page.evaluate(()=>({
