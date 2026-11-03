@@ -3337,3 +3337,10 @@ Status: FIRST SCAFFOLD COMMITTED; NOT RUNNABLE/TESTED AS AN XCODE PROJECT.
 ## WEB write diagnostic — 2026-10-22
 
 GitHub contents API small-file write probe: if this paragraph is present on main, update_file with current blob SHA works. This does not validate a large 18.22 bundle upload or application release. Next: verify CI reconciliation and publish a versioned bundle only after full checks.
+
+
+## WEB P1 checkpoint — 2026-11-03 archived v18.20 browser provenance hardening
+- Startup HEAD `a045e6a6b4df89523065c650a4a7ac01a7c18e74`; inspected mandatory continuity documents, `docs/WEB_VISUAL_REVIEW.md`, open GitHub issues including #14, and the archived Chromium fixture. `PROJECT_STATE.md` fetch returns empty content; do not overwrite without independent recovery.
+- Test-only commit `d97dd003298bb6e19cdbfbf952f02e2ef870e284` strengthens `tests/research-v1820-chromium-boot.cjs`: require a successful HTTP 200 response for the exact archived 18.20 JS and reject any alternate WEB application bundle. Prevents a false PASS from mounting an unexpected bundle. No production bundle, iOS, financial formulas, local vault or backup changes.
+- Exact-commit CI result **NOT VERIFIED**. Public Actions fetch unavailable in this execution; do not claim PASS or archived-client reset safety. Product remains WEB 18.74.
+- NEXT: inspect GitHub Actions logs for the new commit and fix any test failure; then implement synthetic-only stale-write and partial-reset Chromium scenarios using the authentic archived client. #4/#29/#35 remain open; #14 remains discovery-only pending explicit financial contract approval.
