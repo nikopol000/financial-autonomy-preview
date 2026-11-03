@@ -90,5 +90,48 @@ const server = http.createServer((req, res) => {
     await page.evaluate(key => localStorage.removeItem(key), sentinelKey);
     console.log(JSON.stringify({status:'PASS',scope:'archived-v18.20-browser-boot-and-synthetic-reload-only',result,reload,loadedScripts,errors,failedAssets,externalRequests,staleWriterTested:false,resetTested:false,realData:false}));
     await context.close();
+    // RESEARCH CHARACTERIZATION ONLY: malformed synthetic legacy footprints, in fresh browser contexts.
+    // Capture exact before/after bytes; do not assert a recovery policy or write to production storage.
+    const footprintObservations = [];
+    const footprints = [
+      {name:'synthetic-key-only', values:{'financial-autonomy.preview.key.v1':'RESEARCH_INVALID_KEY_ONLY'}},
+      {name:'synthetic-payload-only', values:{'financial-autonomy.preview.payload.v1':'RESEARCH_INVALID_PAYLOAD_ONLY'}}
+    ];
+    for (const fixture of footprints) {
+      const isolated = await browser.newContext();
+      const probe = await isolated.newPage();
+      const origin = 'http://127.0.0.1:'+server.address().port+'/financial-autonomy-preview/';
+      const blockedExternal = [];
+      await probe.route('**/*', route => {
+        if (new URL(route.request().url()).hostname !== '127.0.0.1') {
+          blockedExternal.push(route.request().url());
+          return route.abort('blockedbyclient');
+        }
+        return route.continue();
+      });
+      const probeErrors = [];
+      probe.on('pageerror', error => probeErrors.push(error.message));
+      await probe.goto(origin,{waitUntil:'networkidle',timeout:30000});
+      await probe.evaluate(values => {
+        for (const [key,value] of Object.entries(values)) localStorage.setItem(key,value);
+      }, fixture.values);
+      const before = await probe.evaluate(() => ({
+        key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+        payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
+      }));
+      await probe.reload({waitUntil:'networkidle',timeout:30000});
+      await probe.waitForTimeout(300);
+      const after = await probe.evaluate(() => ({
+        key:localStorage.getItem('financial-autonomy.preview.key.v1'),
+        payload:localStorage.getItem('financial-autonomy.preview.payload.v1'),
+        mounted:(document.getElementById('root')?.children.length || 0)>0
+      }));
+      footprintObservations.push({name:fixture.name,before,after,
+        exactBytesPreserved:before.key===after.key && before.payload===after.payload,
+        probeErrors,blockedExternal});
+      await isolated.close();
+    }
+    console.log(JSON.stringify({scope:'archived-v18.20-synthetic-malformed-footprints-characterization',
+      observations:footprintObservations,realData:false,recoveryApproved:false}));
   } finally { await browser.close(); }
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>server.close());
