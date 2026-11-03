@@ -1,3 +1,11 @@
+## 2026-11-03 18:00 Europe/Bucharest — archived Chromium fixture isolation tightened (RESEARCH; CI UNVERIFIED)
+
+- Read current repository files AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (GitHub fetch returned empty content with nonempty blob SHA; not overwritten), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open GitHub issues including #4/#14/#29/#35. Inspected existing Chromium boot test and path-scoped workflow. GitHub commit search did not provide a reliable current branch HEAD; current file blob SHAs were re-fetched immediately before writing.
+- Updated ONLY research harness `tests/research-v1820-chromium-boot.cjs` in commit `80b5e9dd6e3428f777095065febda41052e0d2be`: block and record non-loopback network requests; assert zero failed HTTP assets and zero external requests, in addition to existing authentic archived script HTTP 200, mount and JS-error checks. This tightens test isolation and catches hidden missing assets; it does not exercise ledger writes or reset.
+- **NOT VERIFIED:** no browser run or CI logs observed for this commit. The workflow is path-triggered and should attempt a run, but success must not be inferred. If it fails because archived code legitimately requests external resources, assess those requests without relaxing isolation or contacting live services.
+- No production bundle, release metadata, financial formula, vault, iOS, real ledger or backup changed; WEB 18.74 remains the last documented product version. #14 is DISCOVERY only; no semantic approval.
+- **FIRST NEXT:** inspect the exact GitHub Actions run and decoded Chromium job log for `80b5e9d`; correct any harness-only issue. Then extend synthetic-only browser test to actual v18.20 stale-writer and reset interleavings, recording encrypted bytes before/after and explicit safety assertions. Continue P1 #4/#29/#35; periodically advance a lower-priority discovery issue.
+
 ## 2026-11-03 16:07 Europe/Bucharest — authentic archived 18.20 Chromium boot fixture (RESEARCH; CI NOT VERIFIED)
 
 - Verified initial main HEAD `b64f2b33653a299ccb63318805a272ce8b79f789`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty content despite nonempty SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues including #4/#14, and archived-browser plan.
