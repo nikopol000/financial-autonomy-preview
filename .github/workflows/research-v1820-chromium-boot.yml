@@ -1,0 +1,26 @@
+name: Research archived WEB 18.20 Chromium boot
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'tests/research-v1820-chromium-boot.cjs'
+      - '.github/workflows/research-v1820-chromium-boot.yml'
+permissions:
+  contents: read
+jobs:
+  archived-browser-boot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test dependency
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Syntax and real archived browser boot
+        run: |
+          node --check tests/research-v1820-chromium-boot.cjs
+          node tests/research-v1820-chromium-boot.cjs
