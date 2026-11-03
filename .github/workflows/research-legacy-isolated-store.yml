@@ -1,0 +1,26 @@
+name: Research isolated-store model (non-production)
+on:
+  push:
+    paths:
+      - 'tests/research-legacy-isolated-store.cjs'
+      - '.github/workflows/research-legacy-isolated-store.yml'
+  pull_request:
+    paths:
+      - 'tests/research-legacy-isolated-store.cjs'
+      - '.github/workflows/research-legacy-isolated-store.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check (research only)
+        run: node --check tests/research-legacy-isolated-store.cjs
+      - name: Five synthetic isolated-store assertions (research only)
+        run: node tests/research-legacy-isolated-store.cjs
