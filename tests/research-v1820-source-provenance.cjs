@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Research-only provenance gate for the *actual archived* WEB 18.20 bundle.
 // Does not execute the browser, decrypt a vault, or prove concurrency safety.
+// Archived production JS is minified: imported functions are invoked as (0,t.fn)(...).
 const fs = require('node:fs');
 const crypto = require('node:crypto');
 const assert = require('node:assert/strict');
@@ -14,9 +15,9 @@ for (const name of names) {
   assert.equal(count, 1, 'Unexpected archived storage contract for ' + name);
 }
 for (const expression of [
-  'loadWebVault(globalThis.localStorage)',
-  'saveWebVault(globalThis.localStorage',
-  'clearWebVault(globalThis.localStorage)'
+  '(0,t.loadWebVault)(globalThis.localStorage)',
+  '(0,t.saveWebVault)(globalThis.localStorage',
+  '(0,t.clearWebVault)(globalThis.localStorage)'
 ]) {
   assert.ok(text.includes(expression), 'Missing archived adapter call: ' + expression);
 }
