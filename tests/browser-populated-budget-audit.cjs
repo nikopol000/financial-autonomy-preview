@@ -1246,7 +1246,7 @@ async function audit(browser,url,width,scheme){
     await page.getByRole('tab',{name:'Acasă'}).click();
     // WEB 18.68: real disposable-demo Dashboard reset control, light/dark at 320/390.
     // This action belongs to the explicit card-arrangement mode.
-    await page.getByRole('button',{name:'Aranjează',exact:true}).click();
+    await page.getByRole('button',{name:'Aranjează cardurile de pe Acasă',exact:true}).click();
     const layoutReset=page.getByRole('button',{name:'Restabilește ordinea cardurilor de pe Acasă',exact:true});
     assert.equal(await layoutReset.count(),1,'Dashboard layout reset needs one accessible button');
     assert.equal(await layoutReset.innerText(),'Restabilește ordinea','Reset action must use visible Romanian copy');
@@ -1280,10 +1280,10 @@ async function audit(browser,url,width,scheme){
     // #400: the selected order must survive leaving arrangement mode and
     // switching sections, not merely a transient drag/reorder render.
     // This remains disposable DEMO memory; never touch the encrypted vault.
-    await page.getByRole('button',{name:'Gata',exact:true}).click();
+    await page.getByRole('button',{name:'Încheie aranjarea cardurilor',exact:true}).click();
     await page.getByRole('tab',{name:'Finanțe',exact:true}).click();
     await page.getByRole('tab',{name:'Acasă',exact:true}).click();
-    await page.getByRole('button',{name:'Aranjează',exact:true}).click();
+    await page.getByRole('button',{name:'Aranjează cardurile de pe Acasă',exact:true}).click();
     assert.ok(await actionsY()<await budgetY(),
       'Custom Dashboard order must survive leaving arrangement mode and navigating away/back');
     await layoutReset.click();
@@ -1346,7 +1346,7 @@ async function audit(browser,url,width,scheme){
     assert.ok(await budgetY()<await actionsY(),
       'Enter on focused reset control must restore default card order');
     console.log('PASS #400: keyboard Enter reorders and resets Dashboard with visible focus ('+label+')');
-    await page.getByRole('button',{name:'Gata',exact:true}).click();
+    await page.getByRole('button',{name:'Încheie aranjarea cardurilor',exact:true}).click();
     const disclosureButtons=page.getByRole('button',{name:'Vezi calculul',exact:true});
     assert.ok(await disclosureButtons.count()>=2,'Home must expose labeled calculation disclosures');
     const firstDisclosure=disclosureButtons.first();
