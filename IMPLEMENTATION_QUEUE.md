@@ -1,3 +1,11 @@
+## 2026-11-03 13:00 Europe/Bucharest — archived 18.20 source provenance CI gate (RESEARCH ONLY)
+
+- Verified initial main HEAD `6b0463e165fc616763814468e3ce65db45848792`; read AGENTS, RELEASE_PROCESS, PROJECT_STATE (GitHub fetch still returns empty despite nonempty SHA; did not overwrite), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, `docs/WEB_VISUAL_REVIEW.md`, source-provenance memo, open issues including #4 and #14. Confirmed archived JS exists on main at blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+- Added `tests/research-v1820-source-provenance.cjs` (commit `510fdf62c57f5d6ebfbda462f532c823a53be0c8`) and path-scoped GitHub Actions `.github/workflows/research-v1820-provenance.yml` (commit `f27e4b0ad2131dce0f80960dbb728a9e46ed5599`). Node 22 gate checks actual archived source v1 key/payload names, vault adapter call sites, absence of IndexedDB string, and prints byte count plus SHA-256 of repository bytes. This is a source provenance check, **NOT a Chromium test or concurrency safety result**.
+- **UNVERIFIED:** GitHub Actions execution and SHA-256 output have not yet been inspected; do not claim PASS. Earlier nine archived 18.27/18.33/18.34 Chromium cases documented in #4 already characterize some legacy risk; do not duplicate them without new coverage. Target distinct v18.20 cached writer + reset/crash behavior.
+- WEB 18.74 unchanged. #4/#29/#35 OPEN; #14 DISCOVERY only. No iOS, formula, production vault, real data, backup, migration or product release change.
+- **FIRST NEXT:** inspect the new workflow run and its SHA-256 output; then build/run isolated Chromium fixture with actual archived 18.20 UI and synthetic data, record stale-write and reset byte snapshots. If no browser execution, report NOT RUN. Keep selection/reset semantics approval-gated.
+
 ## 2026-11-03 12:02 Europe/Bucharest — archived legacy writer source identified (RESEARCH ONLY)
 
 - Read main HEAD `5237728ba00fd515aae86468f520ee4111a6f676`, AGENTS, RELEASE_PROCESS, PROJECT_STATE (connector returned empty content despite valid SHA; untouched), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, `docs/WEB_VISUAL_REVIEW.md`, open issues including #14, and archived fixture plan.
