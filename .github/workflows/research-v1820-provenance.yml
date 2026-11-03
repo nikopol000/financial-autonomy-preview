@@ -1,0 +1,22 @@
+name: Research archived WEB 18.20 provenance
+on:
+  push:
+    paths:
+      - 'tests/research-v1820-source-provenance.cjs'
+      - '.github/workflows/research-v1820-provenance.yml'
+      - '_expo/static/js/web/index-v01820-history-back-navigation-20261014.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-provenance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: node --check tests/research-v1820-source-provenance.cjs
+      - name: Verify archived source and print SHA-256
+        run: node tests/research-v1820-source-provenance.cjs
