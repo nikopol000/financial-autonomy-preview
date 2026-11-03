@@ -1,3 +1,10 @@
+## 2026-11-03 09:04 Europe/Bucharest — research workflow verification attempt (NO RELEASE)
+
+- Verified real main HEAD `5017e53566406baf6c23e43ff06f1645a5cf5655`; read AGENTS, RELEASE_PROCESS, PROJECT_STATE (connector returns empty UTF-8 with nonempty blob SHA; **do not overwrite**), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, actual visual review at `docs/WEB_VISUAL_REVIEW.md` (root path 404), open issues including #14, and exact research workflow/test source.
+- Workflow `.github/workflows/research-legacy-isolated-store.yml` contains push path filters, Node 22 syntax check and five synthetic assertions; commit `7d18314c`. GitHub commit combined status reports **Vercel success only**, not GitHub Actions research CI. Available commit-workflow-runs connector returns **empty** (it only enumerates PR-triggered runs); this cannot prove a push workflow ran, passed or failed. **CI remains UNVERIFIED; no 5/5 GitHub PASS claim.**
+- Confirmed issue #14 remains DISCOVERY/ANALIZĂ with approval-gated financial contract. No product, iOS, formula, backup or real-data edits. WEB 18.74 unchanged. P1 #4/#29/#35 OPEN.
+- **FIRST NEXT:** obtain GitHub Actions push-workflow run ID from Actions UI/API, inspect job steps/logs and five named PASS lines; if absent, diagnose workflow registration/trigger before any CI success claim. Then run archived-bundle Chromium fixtures and draft reset/source-selection contract. Independently verify served WEB 18.74 and iPhone Safari/VoiceOver when accessible.
+
 ## 2026-11-03 08:00 Europe/Bucharest — P1 research-only CI wiring (NOT RELEASE)
 
 - Verified initial main HEAD `e10c9a3cc0d4d52b5479ece3df13b4651fe8b981`; read required AGENTS, RELEASE_PROCESS, PROJECT_STATE (connector still returns empty content), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, root WEB_VISUAL_REVIEW (404; issue #17 points to docs/WEB_VISUAL_REVIEW.md), open issues including #14/#25/#35 and research test. Active WEB 18.74 remains unchanged.
