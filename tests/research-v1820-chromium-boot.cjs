@@ -36,7 +36,21 @@ const server = http.createServer((req, res) => {
     const page = await context.newPage();
     const errors = [];
     const loadedScripts = [];
+    const failedAssets = [];
+    const externalRequests = [];
+    // Research origin is intentionally synthetic. Never allow archived code to contact external services.
+    await page.route('**/*', async route => {
+      const requestUrl = new URL(route.request().url());
+      if (requestUrl.hostname !== '127.0.0.1') {
+        externalRequests.push(requestUrl.origin);
+        return route.abort('blockedbyclient');
+      }
+      return route.continue();
+    });
     page.on('pageerror', e => errors.push(e.message));
+    page.on('response', response => {
+      if (response.status() >= 400) failedAssets.push({url:response.url(),status:response.status()});
+    });
     page.on('response', response => {
       if (response.url().includes('/_expo/static/js/web/')) loadedScripts.push({url:response.url(),status:response.status()});
     });
@@ -55,7 +69,9 @@ const server = http.createServer((req, res) => {
       'Unexpected alternate WEB application bundle loaded');
     assert.ok(result.rootChildren>0, 'Archived client did not mount');
     assert.equal(errors.length,0,'Browser errors: '+errors.join('; '));
-    console.log(JSON.stringify({status:'PASS',scope:'archived-v18.20-browser-boot-only',result,loadedScripts,errors,staleWriterTested:false,resetTested:false,realData:false}));
+    assert.deepEqual(failedAssets,[], 'Missing/failed assets: '+JSON.stringify(failedAssets));
+    assert.deepEqual(externalRequests,[], 'Archived bundle attempted external requests: '+JSON.stringify(externalRequests));
+    console.log(JSON.stringify({status:'PASS',scope:'archived-v18.20-browser-boot-only',result,loadedScripts,errors,failedAssets,externalRequests,staleWriterTested:false,resetTested:false,realData:false}));
     await context.close();
   } finally { await browser.close(); }
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>server.close());
