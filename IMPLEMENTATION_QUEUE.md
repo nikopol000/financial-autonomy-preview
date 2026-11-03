@@ -1,3 +1,10 @@
+## 2026-11-03 12:02 Europe/Bucharest — archived legacy writer source identified (RESEARCH ONLY)
+
+- Read main HEAD `5237728ba00fd515aae86468f520ee4111a6f676`, AGENTS, RELEASE_PROCESS, PROJECT_STATE (connector returned empty content despite valid SHA; untouched), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, `docs/WEB_VISUAL_REVIEW.md`, open issues including #14, and archived fixture plan.
+- Verified historical v18.20 HTML at commit `9c58a593399f71747fce1cd3c505efa06695ff35` and authentic bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js` (blob SHA `be453db2699273a194543de4532db6ea4b2e1cf2`, 783793 UTF-8 characters). Inspected real bundle: v1 key/payload names, localStorage vault load/save/reset adapter. Details in `docs/WEB_P1_ARCHIVED_V1820_SOURCE_PROVENANCE_20261103.md` (commit `f216066371137bf79319606da195cd537ba1e758`). **No Chromium execution; no SHA-256 byte hash yet.**
+- WEB 18.74 unchanged. P1 #4/#29/#35 OPEN; #14 DISCOVERY only. No iOS, formula, real data, vault or backup modifications.
+- **FIRST NEXT:** obtain exact historical HTML/JS bytes and SHA-256, launch isolated Chromium harness and execute archived v18.20 stale-write and legacy-reset interleavings with synthetic storage snapshots. Do not mistake source identification for a browser PASS. Independently verify live preview/Safari when possible.
+
 ## 2026-11-03 11:01 Europe/Bucharest — P1 archived-browser fixture contract (RESEARCH ONLY)
 
 - Read real initial main HEAD `7ab756be15ca7e66f7d3355543dc214fc814fe66`, AGENTS, RELEASE_PROCESS, PROJECT_STATE (GitHub connector still returns empty content despite nonempty SHA; left untouched), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, actual visual review at `docs/WEB_VISUAL_REVIEW.md`, open issues including #14, and research test/workflow.
