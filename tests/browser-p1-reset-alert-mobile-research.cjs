@@ -65,7 +65,6 @@ async function probe(browser,url,width,height,theme){
   const label=width+'x'+height+'-'+theme;
   try{
     await ready(page,url);
-    await page.evaluate(state=>window.__r(309).save(state),fixture());
     // Keep the already-mounted real-mode shell; the reset UI test does not
     // require a second mount before exercising the denied-lock handler.
     await dismissRecap(page);
@@ -83,6 +82,10 @@ async function probe(browser,url,width,height,theme){
       theme,{timeout:10000});
     assert.equal(await page.evaluate(()=>document.documentElement.style.colorScheme),theme,
       label+' must render the requested actual app palette');
+    // Theme selection can persist the mounted empty shell state. Seed the
+    // synthetic encrypted ledger AFTER the appearance change, so this UI
+    // preference write cannot replace the disposable test fixture.
+    await page.evaluate(state=>window.__r(309).save(state),fixture());
     const navState=await page.evaluate(()=>({tabs:[...document.querySelectorAll('[role="tab"]')].map(e=>({text:e.textContent?.slice(0,40),selected:e.getAttribute('aria-selected')})),buttons:[...document.querySelectorAll('button,[role="button"]')].map(e=>e.getAttribute('aria-label')||e.textContent?.slice(0,60)).slice(0,35),body:document.body.innerText.slice(0,550)}));
     console.log('P1 MOBILE NAV '+label+' '+JSON.stringify(navState));
     await page.getByRole('button',{name:'Șterge toate datele',exact:true}).waitFor({state:'visible',timeout:15000});
