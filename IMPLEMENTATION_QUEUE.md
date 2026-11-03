@@ -1,3 +1,11 @@
+## 2026-11-03 20:02 Europe/Bucharest — archived 18.20 Chromium reload sentinel (RESEARCH; NOT VERIFIED)
+
+- Startup main HEAD from commit search: `f9d6f0db176bf0a310325d664d059902f0c07e2f`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returns empty content despite nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open GitHub issues (including P1 #4/#29/#35 and DISCOVERY #14/#85), and the archived Chromium fixture/workflow.
+- Research-only commit `f95ddb6df96b0ffcfd9bc69caca9f6ec38b01623` extends the authentic archived WEB 18.20 Chromium test with a second page load: write a clearly synthetic unrelated localStorage sentinel, reload the same isolated origin, assert the sentinel survives, the archived UI mounts, no JS errors, no missing HTTP assets, and no external network attempts; remove sentinel afterward. The test already checks that the exact archived JS was served HTTP 200. No product bundle or release change.
+- **NOT RUN / CI NOT VERIFIED:** connector workflow-run lookup filters to PR runs and cannot establish the push-triggered workflow result. No Chromium PASS claim. Reload sentinel does not exercise vault ciphertext, stale writer, reset, crash or Safari; do not infer P1 safety.
+- WEB 18.74 remains last documented product version. No iOS, financial formulas, real data, encrypted vault or backups changed. #14 remains analysis-only, awaiting explicit financial contract approval.
+- **FIRST NEXT:** retrieve exact push-triggered Actions run and decoded job logs for `f95ddb6`; if green, extend fixture with authentic archived-client synthetic vault bytes before/after stale-write and partial reset, preserving isolation. Keep P1 issues open and continue lower-priority discovery periodically.
+
 ## 2026-11-03 19:01 Europe/Bucharest — #14 repeated multi-account checks analyzed; Chromium CI still unverified (DISCOVERY ONLY)
 
 - Read current AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returns empty despite nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, Chromium test/workflow, recent main commits and open issues (#4/#14/#29/#35 and P2 #85/#400).
