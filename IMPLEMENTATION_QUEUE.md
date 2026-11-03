@@ -1,3 +1,10 @@
+## 2026-11-03 23:00 Europe/Bucharest — archived Chromium fixture resilient to WEB version bump (RESEARCH; CI UNVERIFIED)
+
+- Initial main HEAD from repository commit search: `d77277b03868302dcf4d36c03e8bfc008ecc3ba1`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returned empty despite nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, archived Chromium fixture/workflow and open issues including P1 #4/#29/#35 and discovery #14/#85.
+- Research-only test commit `827a4cdb1862290806514cceb63cc9927775ba7d`: removed hard-coded active WEB 18.74 metadata replacement from archived 18.20 Chromium fixture. It now requires exactly one active script tag and exactly one version meta tag before replacing them with archived 18.20 references. This avoids false failure on the next immutable product version and fails closed if HTML shape changes. Does not alter production HTML, bundle, vault, iOS, formulas or backups.
+- Commit status for previous `334a9eb` shows Vercel success only, **not Chromium CI**. Current research test is **NOT EXECUTED / CI UNVERIFIED**. No valid AES-GCM stale-writer/reset browser interleaving has been executed; P1 issues remain OPEN. #14 remains DISCOVERY only.
+- **FIRST NEXT:** obtain push-triggered Actions job logs for `827a4cd` and verify actual archived Chromium PASS; then add synthetic valid-vault browser interleavings, comparing ciphertext/key bytes and crash/reload behavior. Independently progress #85 enlarged-text navigation research. No claim of product release (last documented WEB 18.74).
+
 ## 2026-11-03 22:00 Europe/Bucharest — isolated malformed-vault Chromium probes hardened (RESEARCH; CI UNVERIFIED)
 
 - Initial main HEAD `85383b59aaf832a464193fe1bfce156ecc19b7fe`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty connector response despite nonempty SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issue titles and #85 detail; inspected archived Chromium fixture. Current commit status for prior `9313084` reports Vercel success only, **not** Chromium Actions PASS.
