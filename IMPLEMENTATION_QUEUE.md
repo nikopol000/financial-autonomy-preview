@@ -1,3 +1,10 @@
+## 2026-11-03 06:58 Europe/Bucharest — P1 isolated-store mock executed (RESEARCH, NOT RELEASE)
+
+- Initial real main HEAD: `fccf065ea5bbcaa40109d08dd4763474c53107ca`; WEB **18.74** unchanged. Reviewed AGENTS, RELEASE_PROCESS, PROJECT_STATE (GitHub connector returned empty content, cannot attest its checkpoint), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, missing root WEB_VISUAL_REVIEW, research memo, synthetic test, open issues and #4/#14/#29/#35.
+- Executed a locally transcribed copy of `tests/research-legacy-isolated-store.cjs` with `node --check` and `node`: five named assertions **PASS** (stale overwrite isolation, legacy reset leaves isolated record, missing selected payload blocks, ciphertext tampering blocks, missing selection marker blocks). This verifies the reproduced mock logic only; no claim of exact GitHub-byte execution, CI, archived browser bundle, storage transaction, migration or production safety. In particular the legacy-reset case **still authenticates isolated v2 data**, so real product must NOT silently treat it as active after intentional deletion.
+- P1 #4/#29/#35 remain OPEN; no product, vault, formulas, iOS, backup or real data changes. #14 DISCOVERY only. No new version or release necessary.
+- **FIRST NEXT:** run repository-native test in GitHub CI and inspect named PASS lines, then execute archived v1/v2 browser fault fixtures (legacy reset, selected-store loss, offline reload, ambiguous KEY-only) and write approval-gated reset/source-selection contract. Do not implement migration or automatic resurrection.
+
 ## 2026-11-03 05:58 Europe/Bucharest — P1 synthetic isolated-store characterization (RESEARCH)
 
 - Read HEAD `99ebaee90039d983b23b6fa2989d61f16a4b4481`, required startup docs, open issues, and #4/#14. Active WEB **18.74** unchanged; `WEB_VISUAL_REVIEW.md` absent at root.
