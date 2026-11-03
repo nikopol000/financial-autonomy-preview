@@ -100,6 +100,16 @@ jobs:
         run: node tests/browser-first-save-ui-retry.cjs
       - name: Verify actual WEB 18.72 fail-closed real-vault writes without Web Locks (synthetic only)
         run: node tests/browser-p1-active-no-web-locks-research.cjs
+      - name: Characterize WEB 18.73 reset-denial alert at eight mobile sizes/themes (synthetic)
+        run: node tests/browser-p1-reset-alert-mobile-research.cjs
+      - name: Retain WEB 18.73 mobile reset alert synthetic screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p1-web1873-reset-alert-mobile
+          path: artifacts/p1-reset-alert-mobile/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Research real Chromium Web Locks and cached-reset hazards (synthetic only)
         run: node tests/browser-v2-locks-research.cjs
       - name: Research authenticated WEB backup and cached v1 writer after locked reinspection (KNOWN UNSAFE)
