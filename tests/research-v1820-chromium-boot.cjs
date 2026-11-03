@@ -10,9 +10,14 @@ const archived = '_expo/static/js/web/index-v01820-history-back-navigation-20261
 const root = process.cwd();
 assert.ok(fs.existsSync(path.join(root, archived)), 'Archived bundle missing');
 const original = fs.readFileSync('index.html', 'utf8');
-const html = original.replace(/<script src="\/financial-autonomy-preview\/_expo\/static\/js\/web\/[^"]+" defer><\/script>/,
-  '<script src="/financial-autonomy-preview/' + archived + '" defer></script>')
-  .replace(/content="18\.74"/, 'content="18.20"');
+// Fail fast if the active release changes its HTML shape; never accidentally test the live bundle.
+const scriptPattern = /<script src="\/financial-autonomy-preview\/_expo\/static\/js\/web\/[^"]+" defer><\/script>/g;
+const versionPattern = /<meta name="financial-autonomy-version" content="[^"]+"\s*\/>/g;
+assert.equal([...original.matchAll(scriptPattern)].length, 1, 'Expected exactly one active WEB bundle script');
+assert.equal([...original.matchAll(versionPattern)].length, 1, 'Expected exactly one WEB version meta tag');
+const html = original
+  .replace(scriptPattern, '<script src="/financial-autonomy-preview/' + archived + '" defer></script>')
+  .replace(versionPattern, '<meta name="financial-autonomy-version" content="18.20" />');
 assert.ok(html.includes(archived), 'Archived HTML rewrite did not take effect');
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://127.0.0.1');
