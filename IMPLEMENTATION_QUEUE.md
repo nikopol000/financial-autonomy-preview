@@ -1,3 +1,10 @@
+## 2026-11-03 16:07 Europe/Bucharest — authentic archived 18.20 Chromium boot fixture (RESEARCH; CI NOT VERIFIED)
+
+- Verified initial main HEAD `b64f2b33653a299ccb63318805a272ce8b79f789`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty content despite nonempty SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues including #4/#14, and archived-browser plan.
+- Added `tests/research-v1820-chromium-boot.cjs` (commit `04174e0`) and path-scoped workflow `.github/workflows/research-v1820-chromium-boot.yml` (commit `f025c20`). Test serves actual archived JS via local isolated origin, boots Chromium, asserts app mount and no page errors, and reports localStorage key names only. It does **not** seed or mutate a financial ledger, exercise stale writes/reset, or access the production origin.
+- **UNVERIFIED:** workflow has not yet been observed running or passing. Browser boot alone would not establish safety. No production code, version, formulas, iOS, real data or backup changed; WEB 18.74 remains current.
+- **FIRST NEXT:** inspect Actions run for `f025c20`, diagnose any browser/asset errors, and verify named PASS. Then extend harness to seed synthetic v1 data using actual UI/crypto, execute stale-writer and reset interleavings with raw-byte snapshots. #14 remains analysis only; no new financial semantics approved.
+
 ## 2026-11-03 15:07 Europe/Bucharest — archived v18.20 provenance CI verified (RESEARCH ONLY)
 
 - Real main HEAD at start: `a2216f9e11622707a5b6623fc51bc787f282854e` (GitHub git/ref/heads/main). Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector content empty with nonempty blob SHA; left untouched), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issue backlog including #4/#14/#29/#35, and research provenance test.
