@@ -1,3 +1,9 @@
+## 2026-11-03 05:58 Europe/Bucharest — P1 synthetic isolated-store characterization (RESEARCH)
+
+- Read HEAD `99ebaee90039d983b23b6fa2989d61f16a4b4481`, required startup docs, open issues, and #4/#14. Active WEB **18.74** unchanged; `WEB_VISUAL_REVIEW.md` absent at root.
+- Added standalone synthetic AES-GCM mock `tests/research-legacy-isolated-store.cjs` (`0ff398d`), plus P1 memo and issue #4 checkpoint (`f2b66da`). **Not executed/CI verified**, no real vault or browser coverage claimed. Research demonstrates intended isolation model, NOT product safety; legacy reset creates unresolved resurrection/selection ambiguity.
+- **FIRST NEXT:** execute `node tests/research-legacy-isolated-store.cjs`, capture all five PASS lines and CI; expand archived v1/v2 real browser fixtures and draft approval-gated migration/reset selection contract. Keep #4/#29/#35 P1 OPEN. #14/#25/#2 DISCOVERY only. No formula, iOS, real data, backup or production bundle changes.
+
 ## 2026-11-03 04:05 Europe/Bucharest — WEB 18.74 production/CI gate follow-up (documentation only)
 
 - **REAL main HEAD at read:** `499b3dd51b388b55feb16922f567504a50fa2d14`; active product remains **WEB 18.74** (PR #494 merged as `4c196b36343cfa1585f6737a64e64060d09d80f5`). No product change in this checkpoint.
