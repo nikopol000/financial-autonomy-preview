@@ -35,7 +35,11 @@ const server = http.createServer((req, res) => {
     const context = await browser.newContext();
     const page = await context.newPage();
     const errors = [];
+    const loadedScripts = [];
     page.on('pageerror', e => errors.push(e.message));
+    page.on('response', response => {
+      if (response.url().includes('/_expo/static/js/web/')) loadedScripts.push({url:response.url(),status:response.status()});
+    });
     const response = await page.goto('http://127.0.0.1:'+server.address().port+'/financial-autonomy-preview/', {waitUntil:'networkidle',timeout:30000});
     assert.equal(response.status(),200);
     await page.waitForTimeout(1200);
@@ -45,9 +49,13 @@ const server = http.createServer((req, res) => {
       keys:Object.keys(localStorage).filter(k=>k.startsWith('financial-autonomy.preview.'))
     }));
     assert.equal(result.version,'18.20');
+    assert.ok(loadedScripts.some(s => s.url.endsWith(archived) && s.status === 200),
+      'Authentic archived bundle was not observed loading with HTTP 200');
+    assert.ok(!loadedScripts.some(s => !s.url.endsWith(archived)),
+      'Unexpected alternate WEB application bundle loaded');
     assert.ok(result.rootChildren>0, 'Archived client did not mount');
     assert.equal(errors.length,0,'Browser errors: '+errors.join('; '));
-    console.log(JSON.stringify({status:'PASS',scope:'archived-v18.20-browser-boot-only',result,errors,staleWriterTested:false,resetTested:false,realData:false}));
+    console.log(JSON.stringify({status:'PASS',scope:'archived-v18.20-browser-boot-only',result,loadedScripts,errors,staleWriterTested:false,resetTested:false,realData:false}));
     await context.close();
   } finally { await browser.close(); }
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>server.close());
