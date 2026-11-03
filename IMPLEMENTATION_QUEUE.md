@@ -1,3 +1,8 @@
+## 2026-11-03 — WEB 18.74 PR #494 merged; exact-head CI verified, production acceptance pending
+
+- [PR #494](https://github.com/nikopol000/financial-autonomy-preview/pull/494) merged as `4c196b36343cfa1585f6737a64e64060d09d80f5`; exact PR head `c54caa300c488b772ce33799f99d3c7709df5050`. [Release #41558791267](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41558791267) and [Chromium #41558791385](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41558791385) SUCCESS; relevant immutable-diff and Chromium arrangement steps SUCCESS. Active repository `index.html` declares WEB **18.74**. Product scope: 44px Dashboard Aranjează/Gata touch target and explicit accessible labels; no financial formulas, vault, backup or iOS edits.
+- **FIRST NEXT:** verify merged-main Release/Chromium/Pages terminal, Vercel exact commit READY and independently served HTML/bundle/header and Safari/VoiceOver touch acceptance. GitHub workflow PR-head success does not certify production. Keep P1 #4/#29/#35 OPEN: cached legacy writers, split reset and KEY-only provenance. #14/#25/#2 DISCOVERY only, no formula or recovery semantics without explicit approval. Nonurgent #400 still needs actual Safari acceptance.
+
 ## 2026-11-03 — P2 Dashboard arrangement entry WEB 18.74 candidate (#494); verify CI before merge
 
 - [PR #494](https://github.com/nikopol000/financial-autonomy-preview/pull/494) **IN PROGRESS**, base `b6aef1e`. New immutable WEB 18.74 only expands Dashboard **Aranjează/Gata** touch target to >=44px and names both states for accessibility; no budget, ledger, vault, storage, backup or iOS changes. Exact-diff regression and eight Chromium mobile viewport cases added; **not yet verified**.
