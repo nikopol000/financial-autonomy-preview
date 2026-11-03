@@ -71,7 +71,24 @@ const server = http.createServer((req, res) => {
     assert.equal(errors.length,0,'Browser errors: '+errors.join('; '));
     assert.deepEqual(failedAssets,[], 'Missing/failed assets: '+JSON.stringify(failedAssets));
     assert.deepEqual(externalRequests,[], 'Archived bundle attempted external requests: '+JSON.stringify(externalRequests));
-    console.log(JSON.stringify({status:'PASS',scope:'archived-v18.20-browser-boot-only',result,loadedScripts,errors,failedAssets,externalRequests,staleWriterTested:false,resetTested:false,realData:false}));
+    // Synthetic reload boundary: ensure the archived app boots again without erasing unrelated origin storage.
+    // This is NOT a vault overwrite/reset test and does not assert any financial state.
+    const sentinelKey = 'research.synthetic.unrelated-storage.v1';
+    const sentinelValue = 'synthetic-only-do-not-use-real-financial-data';
+    await page.evaluate(([key, value]) => localStorage.setItem(key, value), [sentinelKey, sentinelValue]);
+    await page.reload({waitUntil:'networkidle', timeout:30000});
+    await page.waitForTimeout(300);
+    const reload = await page.evaluate(key => ({
+      sentinel:localStorage.getItem(key),
+      rootChildren:document.getElementById('root')?.children.length || 0
+    }), sentinelKey);
+    assert.equal(reload.sentinel, sentinelValue, 'Archived reload erased unrelated synthetic storage');
+    assert.ok(reload.rootChildren > 0, 'Archived client did not mount after reload');
+    assert.equal(errors.length, 0, 'Browser errors after reload: '+errors.join('; '));
+    assert.deepEqual(failedAssets, [], 'Missing assets after reload: '+JSON.stringify(failedAssets));
+    assert.deepEqual(externalRequests, [], 'External requests after reload: '+JSON.stringify(externalRequests));
+    await page.evaluate(key => localStorage.removeItem(key), sentinelKey);
+    console.log(JSON.stringify({status:'PASS',scope:'archived-v18.20-browser-boot-and-synthetic-reload-only',result,reload,loadedScripts,errors,failedAssets,externalRequests,staleWriterTested:false,resetTested:false,realData:false}));
     await context.close();
   } finally { await browser.close(); }
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>server.close());
