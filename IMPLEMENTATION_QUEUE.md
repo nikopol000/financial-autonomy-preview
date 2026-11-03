@@ -1,3 +1,11 @@
+## 2026-11-03 14:00 Europe/Bucharest — archived 18.20 provenance gate CI failure diagnosed and repaired (RESEARCH ONLY)
+
+- Initial main HEAD `7a978388c49a3f254b50becb53cd55a5b2d42775`. Read AGENTS, RELEASE_PROCESS, PROJECT_STATE (empty connector content despite nonempty blob SHA; untouched), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, docs/WEB_VISUAL_REVIEW.md, open issues (#4/#29/#35/#14), research test and workflow.
+- Identified exact research workflow run [41623710675](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41623710675), commit `f27e4b0`: **FAILURE**, job `125875635616`. Syntax PASS; provenance assertion FAIL because test expected unminified `loadWebVault(globalThis.localStorage)` while actual archived bundle calls `(0,t.loadWebVault)(globalThis.localStorage)` (same for save/clear). Inspected original archived blob `be453db2699273a194543de4532db6ea4b2e1cf2` and confirmed all three actual call sites; this is a **test fixture mismatch**, not evidence of a product defect.
+- Repaired only research test assertions to match actual minified calls, commit `d8b595fe5df823e6c85da4ccf835ab01011d5e92`. No product version bump; WEB 18.74 unchanged. **CI rerun and SHA-256 output NOT YET VERIFIED**. Existing workflow path filter should trigger on test change.
+- #4/#29/#35 remain OPEN; #14 DISCOVERY only. No iOS, financial formula, production vault, real user data, backup or migration changes.
+- **FIRST NEXT:** inspect fresh research workflow run on `d8b595f`, record SHA-256 and job log. Then implement/run isolated Chromium archived 18.20 stale-write and reset fixtures; document bytes/authentication and fail-closed source selection, without automatic resurrection.
+
 ## 2026-11-03 13:00 Europe/Bucharest — archived 18.20 source provenance CI gate (RESEARCH ONLY)
 
 - Verified initial main HEAD `6b0463e165fc616763814468e3ce65db45848792`; read AGENTS, RELEASE_PROCESS, PROJECT_STATE (GitHub fetch still returns empty despite nonempty SHA; did not overwrite), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, `docs/WEB_VISUAL_REVIEW.md`, source-provenance memo, open issues including #4 and #14. Confirmed archived JS exists on main at blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
