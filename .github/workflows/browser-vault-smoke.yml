@@ -9,6 +9,7 @@ on:
       - 'tests/browser-first-save-ui-retry.cjs'
       - 'tests/browser-p1-active-no-web-locks-research.cjs'
       - 'tests/browser-p1-reset-alert-mobile-research.cjs'
+      - 'tests/browser-web1874-dashboard-arrange-target.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
       - 'tests/browser-v2-locks-research.cjs'
       - 'tests/browser-v2-restore-research.cjs'
@@ -49,6 +50,7 @@ on:
       - 'tests/browser-first-save-ui-retry.cjs'
       - 'tests/browser-p1-active-no-web-locks-research.cjs'
       - 'tests/browser-p1-reset-alert-mobile-research.cjs'
+      - 'tests/browser-web1874-dashboard-arrange-target.cjs'
       - 'tests/browser-vault-ui-audit.cjs'
       - 'tests/browser-v2-locks-research.cjs'
       - 'tests/browser-v2-restore-research.cjs'
@@ -104,6 +106,8 @@ jobs:
         run: node tests/browser-p1-active-no-web-locks-research.cjs
       - name: Characterize WEB 18.73 reset-denial alert at eight mobile sizes/themes (synthetic)
         run: node tests/browser-p1-reset-alert-mobile-research.cjs
+      - name: Verify WEB 18.74 Dashboard arrangement touch target in Chromium (synthetic)
+        run: node tests/browser-web1874-dashboard-arrange-target.cjs
       - name: Retain WEB 18.73 mobile reset alert synthetic screenshots
         if: always()
         uses: actions/upload-artifact@v4
