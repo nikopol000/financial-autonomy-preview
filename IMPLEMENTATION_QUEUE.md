@@ -1,3 +1,8 @@
+## 2026-11-03 — P2 Dashboard arrangement entry WEB 18.74 candidate (#494); verify CI before merge
+
+- [PR #494](https://github.com/nikopol000/financial-autonomy-preview/pull/494) **IN PROGRESS**, base `b6aef1e`. New immutable WEB 18.74 only expands Dashboard **Aranjează/Gata** touch target to >=44px and names both states for accessibility; no budget, ledger, vault, storage, backup or iOS changes. Exact-diff regression and eight Chromium mobile viewport cases added; **not yet verified**.
+- **FIRST NEXT:** inspect PR-head Release/Chromium PASS and eight named scenarios; if green merge, verify merged-main CI/Pages/Vercel exact SHA, served HTML/header and mobile touch; checkpoint actual evidence. P1 #4/#29/#35 remain open, cached legacy writer/partial reset/KEY-only ambiguity not solved. #14/#25/#2 financial DISCOVERY only, no formula changes. #400 remains pending real iPhone/Safari touch acceptance.
+
 ## 2026-11-03 — P1 WEB 18.73 mobile reset-alert test MERGED (#491/#492); legacy integrity P1 NEXT
 
 - [PR #491](https://github.com/nikopol000/financial-autonomy-preview/pull/491) merged `e27ba48`: eight synthetic Chromium reset-denial cases; exact PR-head Release #41548665456 and Chromium #41548665214 SUCCESS. [PR #492](https://github.com/nikopol000/financial-autonomy-preview/pull/492) merged `461c292`: explicitly select actual Luminoasă/Întunecată, pre-authenticate synthetic fixture, strict 8/8 pass at 320/390 × 422/844; exact head Release #41550666500 and Chromium #41550666498 SUCCESS. No protected writes, unchanged ciphertext, original AES-GCM ledger authenticates after reload; alert visible/focused/assertive and confirmation dismissed. Early #492 harness failure was corrected and retained in evidence. **No product change**, WEB 18.73.
