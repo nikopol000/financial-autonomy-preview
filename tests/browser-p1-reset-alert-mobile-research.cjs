@@ -75,6 +75,14 @@ async function probe(browser,url,width,height,theme){
       await more.click({timeout:10000});
       await page.getByText('Setări',{exact:true}).last().click({timeout:10000});
     }
+    // The app's AUTO theme follows local solar time, not prefers-color-scheme.
+    // Explicitly choose the actual app palette in this disposable context.
+    await page.getByRole('button',{name:theme==='dark'?'Întunecată':'Luminoasă',exact:true})
+      .click({timeout:10000});
+    await page.waitForFunction(expected=>document.documentElement.style.colorScheme===expected,
+      theme,{timeout:10000});
+    assert.equal(await page.evaluate(()=>document.documentElement.style.colorScheme),theme,
+      label+' must render the requested actual app palette');
     const navState=await page.evaluate(()=>({tabs:[...document.querySelectorAll('[role="tab"]')].map(e=>({text:e.textContent?.slice(0,40),selected:e.getAttribute('aria-selected')})),buttons:[...document.querySelectorAll('button,[role="button"]')].map(e=>e.getAttribute('aria-label')||e.textContent?.slice(0,60)).slice(0,35),body:document.body.innerText.slice(0,550)}));
     console.log('P1 MOBILE NAV '+label+' '+JSON.stringify(navState));
     await page.getByRole('button',{name:'Șterge toate datele',exact:true}).waitFor({state:'visible',timeout:15000});
@@ -130,11 +138,13 @@ async function probe(browser,url,width,height,theme){
           fullyInViewport:r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=innerWidth,
           centerHit:!!hit&&(hit===el||el.contains(hit)),focused:document.activeElement===el,
           requests:window.__mobileP1.requests,writes:window.__mobileP1.writes,
-          prefersDark:matchMedia('(prefers-color-scheme: dark)').matches};
+          prefersDark:matchMedia('(prefers-color-scheme: dark)').matches,
+          appColorScheme:document.documentElement.style.colorScheme};
       });
       assert.equal(geometry.requests,1,label+' must request one lock');
       assert.equal(geometry.writes,0,label+' must not write protected bytes');
       assert.equal(geometry.focused,true,label+' focus must land on warning');
+      assert.equal(geometry.appColorScheme,theme,label+' actual app palette after reset');
       assert.equal(geometry.visible,true,label+' warning must be rendered');
       assert.deepEqual(await digest(page),before,label+' ciphertext unchanged on denied lock');
       const folder=path.join(ROOT,'artifacts','p1-reset-alert-mobile');
