@@ -1,3 +1,8 @@
+## 2026-11-03 — P1 WEB 18.73 mobile reset-alert test MERGED (#491/#492); legacy integrity P1 NEXT
+
+- [PR #491](https://github.com/nikopol000/financial-autonomy-preview/pull/491) merged `e27ba48`: eight synthetic Chromium reset-denial cases; exact PR-head Release #41548665456 and Chromium #41548665214 SUCCESS. [PR #492](https://github.com/nikopol000/financial-autonomy-preview/pull/492) merged `461c292`: explicitly select actual Luminoasă/Întunecată, pre-authenticate synthetic fixture, strict 8/8 pass at 320/390 × 422/844; exact head Release #41550666500 and Chromium #41550666498 SUCCESS. No protected writes, unchanged ciphertext, original AES-GCM ledger authenticates after reload; alert visible/focused/assertive and confirmation dismissed. Early #492 harness failure was corrected and retained in evidence. **No product change**, WEB 18.73.
+- **FIRST NEXT:** merged-main #492 CI and Vercel exact SHA, public served header/bundle and real iPhone Safari/VoiceOver when possible. P1 #4/#29/#35 **OPEN**: cached legacy writers (5 KNOWN UNSAFE), split-store reset, KEY-only provenance; design approval-gated safe handoff/recovery, never silently migrate/reset. #14/#25/#2 financial semantics DISCOVERY ONLY. Nonurgent #17/#400 still require interactive iPhone acceptance. [Evidence](docs/WEB_P1_V1873_MOBILE_RESET_ALERT_GATE_20261103.md).
+
 ## 2026-11-03 — WEB 18.73 P1 mobile reset warning gate IN PROGRESS (#491)
 
 - **VERIFIED prior product main:** Release #41545480722, Chromium #41545482112, Pages #41545480752, Pages Build #41545479971 all SUCCESS. Vercel production `dpl_5y86V2Lgf1LHcE5FLDFhrfvNF8As` READY on product `db6bace92` with primary alias. Public served header and Safari/VoiceOver NOT independently verified.
