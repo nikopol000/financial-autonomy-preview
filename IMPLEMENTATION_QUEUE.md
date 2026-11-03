@@ -1,3 +1,10 @@
+## 2026-11-03 08:00 Europe/Bucharest — P1 research-only CI wiring (NOT RELEASE)
+
+- Verified initial main HEAD `e10c9a3cc0d4d52b5479ece3df13b4651fe8b981`; read required AGENTS, RELEASE_PROCESS, PROJECT_STATE (connector still returns empty content), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, root WEB_VISUAL_REVIEW (404; issue #17 points to docs/WEB_VISUAL_REVIEW.md), open issues including #14/#25/#35 and research test. Active WEB 18.74 remains unchanged.
+- Added read-only GitHub Actions workflow `.github/workflows/research-legacy-isolated-store.yml` at commit `7d18314c45ec1a8e290cca9393752e53fe660736`: Node 22 syntax check and exact repository test execution; push/PR path filters and manual dispatch; contents:read. **No CI result inspected yet**, no PASS claim from GitHub; prior 5/5 PASS was locally transcribed mock only.
+- Research-only model cannot validate real browser persistence, archived legacy bundles, crash/reload, split reset, or KEY-only provenance. The reset scenario still leaves v2 ciphertext readable and must not trigger automatic resurrection. #4/#29/#35 OPEN. #14 financial perspective DISCOVERY only, no formula changes.
+- **FIRST NEXT:** inspect the new workflow run, job steps and five named PASS lines; if blocked diagnose workflow registration and do not claim CI. Then add archived real v1/v2 Chromium fixtures and approval-gated reset/source-selection contract. Independently verify served WEB 18.74 and Safari when available. No iOS/product bundle/vault/backup/real-data changes.
+
 ## 2026-11-03 06:58 Europe/Bucharest — P1 isolated-store mock executed (RESEARCH, NOT RELEASE)
 
 - Initial real main HEAD: `fccf065ea5bbcaa40109d08dd4763474c53107ca`; WEB **18.74** unchanged. Reviewed AGENTS, RELEASE_PROCESS, PROJECT_STATE (GitHub connector returned empty content, cannot attest its checkpoint), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, missing root WEB_VISUAL_REVIEW, research memo, synthetic test, open issues and #4/#14/#29/#35.
