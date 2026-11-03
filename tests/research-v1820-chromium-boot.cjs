@@ -110,7 +110,13 @@ const server = http.createServer((req, res) => {
         return route.continue();
       });
       const probeErrors = [];
+      const probeFailedAssets = [];
+      const probeArchivedScripts = [];
       probe.on('pageerror', error => probeErrors.push(error.message));
+      probe.on('response', response => {
+        if (response.status() >= 400) probeFailedAssets.push({url:response.url(),status:response.status()});
+        if (response.url().includes('/_expo/static/js/web/')) probeArchivedScripts.push({url:response.url(),status:response.status()});
+      });
       await probe.goto(origin,{waitUntil:'networkidle',timeout:30000});
       await probe.evaluate(values => {
         for (const [key,value] of Object.entries(values)) localStorage.setItem(key,value);
@@ -126,9 +132,15 @@ const server = http.createServer((req, res) => {
         payload:localStorage.getItem('financial-autonomy.preview.payload.v1'),
         mounted:(document.getElementById('root')?.children.length || 0)>0
       }));
+      assert.ok(probeArchivedScripts.some(s => s.url.endsWith(archived) && s.status === 200),
+        'Malformed-footprint probe did not load authentic archived bundle: '+fixture.name);
+      assert.ok(!probeArchivedScripts.some(s => !s.url.endsWith(archived)),
+        'Malformed-footprint probe loaded alternate application bundle: '+fixture.name);
+      assert.deepEqual(probeFailedAssets,[], 'Malformed-footprint probe missing assets: '+fixture.name);
+      assert.deepEqual(blockedExternal,[], 'Malformed-footprint probe attempted external network: '+fixture.name);
       footprintObservations.push({name:fixture.name,before,after,
         exactBytesPreserved:before.key===after.key && before.payload===after.payload,
-        probeErrors,blockedExternal});
+        probeErrors,blockedExternal,probeFailedAssets,probeArchivedScripts});
       await isolated.close();
     }
     console.log(JSON.stringify({scope:'archived-v18.20-synthetic-malformed-footprints-characterization',
