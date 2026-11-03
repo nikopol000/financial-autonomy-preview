@@ -1,3 +1,10 @@
+## 2026-11-03 11:01 Europe/Bucharest — P1 archived-browser fixture contract (RESEARCH ONLY)
+
+- Read real initial main HEAD `7ab756be15ca7e66f7d3355543dc214fc814fe66`, AGENTS, RELEASE_PROCESS, PROJECT_STATE (GitHub connector still returns empty content despite nonempty SHA; left untouched), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, actual visual review at `docs/WEB_VISUAL_REVIEW.md`, open issues including #14, and research test/workflow.
+- Created `docs/WEB_P1_ARCHIVED_CLIENT_BROWSER_FIXTURE_PLAN_20261103.md` at commit `1d8191a8558af2b6756bf39d2c04dd2e30d26ec3`: deterministic **real archived-client** Chromium test design, synthetic-only origin, bytes/authentication/source-selection evidence matrix, reset ambiguity and approval gates. **This is a specification, NOT an executed browser test or P1 fix.** Previous five CI PASS assertions remain synthetic-model-only.
+- Product WEB 18.74 unchanged. #4/#29/#35 remain P1 OPEN; #14 remains DISCOVERY ONLY, no formula/mode changes. No iOS, real data, backup or vault edits.
+- **FIRST NEXT:** identify archived legacy HTML/bundle and SHA, build isolated browser fixture, execute stale-write then legacy-reset interleavings; preserve byte-level evidence. Do not auto-resurrect isolated data or implement source migration without an agreed contract. Verify live preview/Safari separately when available.
+
 ## 2026-11-03 10:06 Europe/Bucharest — research CI run independently VERIFIED (NO RELEASE)
 
 - Real main HEAD at startup: `5f9698258ef0ee431b99f90be85fb2770620262d`. Read mandatory AGENTS, RELEASE_PROCESS, PROJECT_STATE (connector returns empty despite nonempty blob SHA; left untouched), IMPLEMENTATION_QUEUE, DEVELOPMENT_WORKFLOW, `docs/WEB_VISUAL_REVIEW.md`, research workflow/test, and open issues including #14.
