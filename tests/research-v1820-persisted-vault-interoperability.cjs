@@ -8,7 +8,7 @@ const vm=require('node:vm');
 const crypto=require('node:crypto');
 const archived='_expo/static/js/web/index-v01820-history-back-navigation-20261014.js';
 const html=fs.readFileSync('index.html','utf8');
-const active=html.match(/<script src="\\/financial-autonomy-preview\\/([^"?]+\\.js)\\?build=/)?.[1];
+const active=html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=/)?.[1];
 assert.ok(active,'active bundle missing');
 const KEY='financial-autonomy.preview.key.v1';
 const PAYLOAD='financial-autonomy.preview.payload.v1';
@@ -25,7 +25,7 @@ function modules(file){
   function load(id){
     if(id===205)return state; // Strict test-only state adapter; not production schema migration.
     if(cache.has(id))return cache.get(id);
-    const matches=[...source.matchAll(new RegExp('\\\\},'+id+',\\\\[([^\\\\]]*)\\\\]\\\\);','g'))];
+    const matches=[...source.matchAll(new RegExp('\\},'+id+',\\[([^\\]]*)\\]\\);','g'))];
     assert.equal(matches.length,1,file+' module '+id+' ambiguous');
     const match=matches[0],start=source.lastIndexOf('__d(function(',match.index);
     assert.ok(start>=0,'factory not found '+id);
