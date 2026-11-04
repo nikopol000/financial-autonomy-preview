@@ -91,5 +91,17 @@ const missingBefore=missingKey.snapshot();
 assert.throws(()=>now.saveWebVault(missingKey,updated,random),'payload-only save must fail closed');
 assert.deepEqual([...missingKey.snapshot()],[...missingBefore],'payload-only save must not mutate storage');
 
+// Inject a first-save payload-write denial: localStorage is not transactional.
+// Characterization only: KEY-only is an ambiguous blocked state, not recoverable data.
+const denied=storage();
+const deniedSet=denied.setItem.bind(denied);
+denied.setItem=(k,v)=>{if(k===PAYLOAD)throw new Error('synthetic payload write denied');return deniedSet(k,v);};
+assert.throws(()=>old.saveWebVault(denied,initial,random),/synthetic payload write denied/);
+assert.match(denied.getItem(KEY),/^[0-9a-f]{64}$/i,'first-save denial leaves an orphan key');
+assert.equal(denied.getItem(PAYLOAD),null,'denied payload must not be committed');
+const deniedSnapshot=denied.snapshot();
+assert.throws(()=>now.loadWebVault(denied),'orphan key must block reload');
+assert.deepEqual([...denied.snapshot()],[...deniedSnapshot],'blocked reload must not mutate storage');
+
 console.log('PASS synthetic archived persisted vault -> active read -> active write -> archived read; KEY-only fail closed');
 console.log(JSON.stringify({status:'PASS',archived,active,synthetic:true,realSchemaMigrationTested:false,browserTested:false,twoTabsTested:false,resetTested:false}));
