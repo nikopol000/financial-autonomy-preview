@@ -112,6 +112,10 @@ jobs:
         run: |
           node --check tests/research-v1820-module-preflight.cjs
           node tests/research-v1820-module-preflight.cjs
+      - name: Archived/current AES-GCM module interoperability (synthetic research only)
+        run: |
+          node --check tests/research-v1820-crypto-interoperability.cjs
+          node tests/research-v1820-crypto-interoperability.cjs
       - name: Research-only v2 staged authority and crash fault matrix (NOT PRODUCTION)
         run: node --test tests/vault-v2-authority-crash-matrix-prototype.cjs
       - name: Research-only sealed AES-GCM authority and rollback boundary (NOT PRODUCTION)
