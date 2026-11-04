@@ -116,6 +116,10 @@ jobs:
         run: |
           node --check tests/research-v1820-crypto-interoperability.cjs
           node tests/research-v1820-crypto-interoperability.cjs
+      - name: Archived/current persisted vault interoperability (synthetic research only)
+        run: |
+          node --check tests/research-v1820-persisted-vault-interoperability.cjs
+          node tests/research-v1820-persisted-vault-interoperability.cjs
       - name: Research-only v2 staged authority and crash fault matrix (NOT PRODUCTION)
         run: node --test tests/vault-v2-authority-crash-matrix-prototype.cjs
       - name: Research-only sealed AES-GCM authority and rollback boundary (NOT PRODUCTION)
