@@ -83,6 +83,8 @@ tamperedCiphertext.setItem(PAYLOAD,originalCiphertext.slice(0,-1)+(originalCiphe
 const tamperedBefore=tamperedCiphertext.snapshot();
 assert.throws(()=>now.loadWebVault(tamperedCiphertext),'tampered ciphertext must not load');
 assert.deepEqual([...tamperedCiphertext.snapshot()],[...tamperedBefore],'failed load must not mutate ciphertext');
+assert.throws(()=>now.saveWebVault(tamperedCiphertext,updated,random),'tampered ciphertext must reject overwrite');
+assert.deepEqual([...tamperedCiphertext.snapshot()],[...tamperedBefore],'rejected tampered save must preserve exact storage bytes');
 const missingKey=storage();
 missingKey.setItem(PAYLOAD,persisted.get(PAYLOAD));
 const missingBefore=missingKey.snapshot();
