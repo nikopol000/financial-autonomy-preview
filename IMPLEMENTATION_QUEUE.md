@@ -1,3 +1,10 @@
+## 2026-11-05 01:06 Europe/Bucharest — tampered persisted-vault overwrite regression added (RESEARCH; CI UNVERIFIED)
+
+- Confirmed main HEAD before change `f1b315851b0f6de9c2fc68a1f0d0530e33577799`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty connector content despite nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #4/#14/#29/#35/#85. Product WEB remains 18.74.
+- Research-only test commit `3ea38040ba1155a24f7fadb340fc8dd8ce93d758` adds assertion that active module 310 refuses to overwrite a tampered authenticated synthetic persisted vault, and KEY/PAYLOAD bytes remain identical after rejection. Issue #4 comment 6644496144 records scope.
+- NOT EXECUTED in Node or CI during this run; no PASS claimed. Local git checkout still fails github.com DNS; push-run GitHub connector filters to PR events. This does not prove real schema migration, browser two-tab atomicity or interrupted-reset safety. No production bundle/index/version, iOS, financial formulas, real data or backups changed. #14 remains DISCOVERY only pending explicit contract approval.
+- FIRST NEXT: obtain named CI step outcome for the persisted-vault test, correct any failure; then run disposable Chromium same-origin two-tab and interrupted-reset tests. Keep #4/#29/#35 open.
+
 
 ## 2026-11-05 00:04 Europe/Bucharest — persisted-vault fresh-instance reload guard (RESEARCH; CI PENDING)
 
