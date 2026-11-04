@@ -1,3 +1,10 @@
+## 2026-11-04 23:00 Europe/Bucharest — persisted-vault negative-path fixture extended; CI pending
+
+- Confirmed main HEAD before edit `8f90cd2ba85dd1fe047ac9540a8b8208e6635bf5`, read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty connector content despite SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #4/#14/#29/#35/#85.
+- Inspected real archived/current Metro module 310 and dependency mapping. Research-only test update `361a53d4e0273c4a93d8e71877c124ab5ee2125f` adds ciphertext-tampering load refusal and PAYLOAD-only save refusal, asserting byte-for-byte unchanged synthetic storage after failure. Issue #4 comment 6641964972 documents evidence and scope.
+- **UNVERIFIED:** Node/GitHub Actions execution of the persisted fixture and these added assertions. Local GitHub checkout failed DNS. Do not report PASS, real schema migration, Chromium two-tab/reset or Safari coverage. No production bundle/index/version, iOS, formulas, real data or backup changes. Product WEB 18.74.
+- **FIRST NEXT:** inspect push Actions run for `361a53d4` and named persisted-vault step; fix test if red. Then extend to actual financial state schema and disposable browser interleavings. #4/#29/#35 open, #14 analysis only pending explicit financial contract approval.
+
 ## 2026-11-04 22:00 Europe/Bucharest — synthetic persisted archived vault research test committed; CI result PENDING
 
 - Verified main HEAD at start `92edc7c88643b8c9d7d6bc96bdecd31d0c4e7786`, mandatory AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returned empty text with nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, active WEB 18.74 and open issues including #4/#14/#29/#35/#85.
