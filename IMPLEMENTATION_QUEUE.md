@@ -1,3 +1,11 @@
+## 2026-11-04 05:05 Europe/Bucharest — malformed-footprint browser error guard (RESEARCH; CI UNVERIFIED)
+
+- Read actual main HEAD `53b058a4b22acf85483d36533bd18fecb8486e49`, AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returns empty content despite nonempty SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, and open GitHub issues including P1 #4/#29/#35 and discovery #14/#85. Confirmed last archived test checkpoint is not a proven encrypted-vault safety fix.
+- Research-only commit `a7b5473bcac7db361d6557cb31474a5b375b9b0f`: malformed KEY-only/PAYLOAD-only archived Chromium probes now fail on uncaught page errors, instead of merely recording `probeErrors` in JSON. Existing exact-byte, archived-bundle HTTP 200, mount, missing-asset and external-network assertions retained. No live product JS/HTML, version, financial formulas, vault records, backup, real data or iOS changed.
+- **CI UNVERIFIED** for new test; push-triggered workflow discovery through `fetch_commit_workflow_runs` returns no runs (connector filters PR runs). Do not infer PASS from Vercel or prior archived Chromium run. The malformed footprints remain invalid synthetic strings; no valid AES-GCM stale-writer/reset scenario executed.
+- #14 remains DISCOVERY ONLY, with no approved budget contract; #85 remains nonurgent mobile-zoom research, not Safari proof.
+- **FIRST NEXT:** inspect push-triggered Chromium job logs for `a7b5473`; if PASS, implement authenticated synthetic AES-GCM fixture via archived real client and characterize two-tab stale saves/interrupted resets, without publishing new financial semantics. Keep P1 #4/#29/#35 open.
+
 ## 2026-11-04 04:02 Europe/Bucharest — archived reload bundle assertion (RESEARCH; CI PENDING)
 
 - Re-read main HEAD `932281f04564b2e345da169f40f525a6731e0b98`, AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (GitHub connector still returns empty content for nonempty SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, and open issues including P1 #4/#29/#35 and DISCOVERY #14/#85.
