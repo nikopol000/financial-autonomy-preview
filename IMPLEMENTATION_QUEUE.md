@@ -1,3 +1,11 @@
+## 2026-11-04 22:00 Europe/Bucharest — synthetic persisted archived vault research test committed; CI result PENDING
+
+- Verified main HEAD at start `92edc7c88643b8c9d7d6bc96bdecd31d0c4e7786`, mandatory AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returned empty text with nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, active WEB 18.74 and open issues including #4/#14/#29/#35/#85.
+- New `tests/research-v1820-persisted-vault-interoperability.cjs` (commits `4c024d56`, regex correction `895e3587`) extracts actual archived/current Metro module 310 plus bundled module 311 AES-GCM. Disposable Map-backed localStorage, random key, synthetic Unicode entries. It attempts archived save -> current load -> current save -> archived load, and checks current KEY-only fail-closed with no mutation. The state module 205 is intentionally replaced with a strict synthetic adapter; **real financial schema migration is NOT tested**.
+- CI wiring `4bce46675cdbf27249891b4f23b24d12119eab01` adds Node syntax check and execution to release validation. JavaScript parseability was checked in the connector V8 environment after stripping shebang, but **Node execution / Actions result remains UNVERIFIED**. Local git access fails DNS; do not report PASS or production vault safety.
+- No production bundle/index/version, financial formulas, iOS, real data or encrypted backup changed. #14 remains DISCOVERY ONLY, pending explicit approval. P1 #4/#29/#35 remain OPEN.
+- **FIRST NEXT:** inspect push-triggered GitHub Actions for `4bce4667` or the following docs commit; if red, inspect named test logs and correct fixture/Metro assumptions; if green, advance to actual state-schema migration and disposable Chromium two-tab/reset fault matrix. Keep product WEB 18.74.
+
 ## 2026-11-04 21:04 Europe/Bucharest — push CI authenticated AES-GCM interoperability CONFIRMED (research only)
 
 - Confirmed real main HEAD `2b3f2ed996ec85333c87554f72f665d1bb1b16a0`; reviewed mandatory AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector empty with nonempty blob SHA, preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues including #4/#14/#29/#35/#85. Product remains WEB 18.74.
