@@ -1,3 +1,11 @@
+## 2026-11-04 04:02 Europe/Bucharest — archived reload bundle assertion (RESEARCH; CI PENDING)
+
+- Re-read main HEAD `932281f04564b2e345da169f40f525a6731e0b98`, AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (GitHub connector still returns empty content for nonempty SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, and open issues including P1 #4/#29/#35 and DISCOVERY #14/#85.
+- Research-only test commit `c78036a95b4745f179b6d8f22f03f6ff2a7c3973`: assert archived 18.20 JS is actually refetched with HTTP 200 on each reload (main synthetic sentinel and both malformed-footprint probes). Prior assertions only established at least one successful load per browser context, so a reload could theoretically be evaluated without proving a second authentic script response. No product bundle, release metadata, formulas, vault, real data, backup or iOS changes.
+- **CI PENDING / NOT CLAIMED PASS**: initial commit status showed Vercel pending; GitHub Actions push-run status not independently verified. Prior archived run 41726567368 PASS does not validate this new change. No valid synthetic AES-GCM fixture, stale-writer or interrupted-reset test yet; P1 remains OPEN.
+- Nonurgent discovery #85 reviewed: Chromium 200% CSS zoom proxy documented overlapping bottom labels at 320/390px; this is not Safari Dynamic Type evidence and does not justify claiming an accessibility fix. #14 stays DISCOVERY only pending approved financial contract.
+- **FIRST NEXT:** inspect actual push-triggered Actions logs for `c78036a`, repair any failure; then build valid synthetic AES-GCM fixture via archived crypto path and test exact KEY/PAYLOAD across stale-tab/reset interleavings. For #85 seek actual enlarged-text browser evidence before changing layout.
+
 ## 2026-11-04 03:05 Europe/Bucharest — archived malformed-footprint regression guard (RESEARCH; CI PENDING)
 
 - Read real main ref HEAD `35d4712196503489d4a0817fb2b5ecd012090571`, AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returned empty despite nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues including P1 #4/#29/#35 and discovery #14/#85. Inspected current Chromium fixture.
