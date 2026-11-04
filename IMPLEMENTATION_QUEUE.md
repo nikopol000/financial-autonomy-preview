@@ -1,3 +1,10 @@
+## 2026-11-04 12:05 Europe/Bucharest — archived preflight wired into release CI (EXECUTION PENDING)
+
+- Rechecked real main HEAD `8e0e4cc269415a64551a9096dc2d6497e5b8f687`, mandatory continuity/release/workflow/visual documents, active WEB 18.74, open issues, and the actual preflight script. `PROJECT_STATE.md` again yielded empty UTF-8 text with nonempty SHA; preserved without overwrite. Local git checkout remains unavailable due DNS failure resolving github.com.
+- **Implemented CI execution**, not just another plan: commit `f4918573c257f53a89fdcc8d6d26651b94dca9b0` adds `node --check tests/research-v1820-module-preflight.cjs` and `node tests/research-v1820-module-preflight.cjs` to existing push-triggered `.github/workflows/validate-release.yml`. This tests module ID/key presence on real checkout and will fail closed on mismatch; research only, no product bundle/metadata/iOS/financial changes.
+- **NOT VERIFIED YET:** no decoded named CI step result or preflight stdout available at this checkpoint. A CI failure must be investigated, not described as vault corruption; static module presence does not prove authenticated AES-GCM fixture or concurrency/reset safety. #4/#29/#35 remain OPEN; #14 remains DISCOVERY ONLY.
+- **FIRST NEXT:** inspect Actions run for commit `f4918573` and named preflight step logs; if failing, repair module mapping with evidence. Then implement an authenticated synthetic fixture and Chromium two-tab/reset fault tests. Keep production vault and financial formulas untouched without proven contract.
+
 ## 2026-11-04 10:06 Europe/Bucharest — archived vault module compatibility preflight (TEST ADDED; NOT YET EXECUTED)
 
 - Verified active index metadata WEB 18.74, mandatory AGENTS/release/workflow/visual documents and open GitHub backlog; PROJECT_STATE.md fetch still returns empty content despite nonempty SHA, so it was not overwritten. Last checkpoint was authenticated AES-GCM fixture compatibility audit.
