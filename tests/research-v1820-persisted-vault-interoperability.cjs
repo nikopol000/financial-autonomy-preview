@@ -65,5 +65,20 @@ assert.throws(()=>now.saveWebVault(orphan,updated,random),/cheia|Cheia/i,'KEY-on
 assert.equal(orphan.getItem(PAYLOAD),null,'orphan must remain untouched');
 assert.equal(orphan.getItem(KEY),persisted.get(KEY),'orphan key must be preserved');
 assert.equal(store.getItem(RESET),null,'fixture did not initiate reset');
+
+const tamperedCiphertext=storage();
+tamperedCiphertext.setItem(KEY,persisted.get(KEY));
+const originalCiphertext=persisted.get(PAYLOAD);
+assert.ok(originalCiphertext.length>8,'ciphertext fixture unexpectedly short');
+tamperedCiphertext.setItem(PAYLOAD,originalCiphertext.slice(0,-1)+(originalCiphertext.at(-1)==='0'?'1':'0'));
+const tamperedBefore=tamperedCiphertext.snapshot();
+assert.throws(()=>now.loadWebVault(tamperedCiphertext),'tampered ciphertext must not load');
+assert.deepEqual([...tamperedCiphertext.snapshot()],[...tamperedBefore],'failed load must not mutate ciphertext');
+const missingKey=storage();
+missingKey.setItem(PAYLOAD,persisted.get(PAYLOAD));
+const missingBefore=missingKey.snapshot();
+assert.throws(()=>now.saveWebVault(missingKey,updated,random),'payload-only save must fail closed');
+assert.deepEqual([...missingKey.snapshot()],[...missingBefore],'payload-only save must not mutate storage');
+
 console.log('PASS synthetic archived persisted vault -> active read -> active write -> archived read; KEY-only fail closed');
 console.log(JSON.stringify({status:'PASS',archived,active,synthetic:true,realSchemaMigrationTested:false,browserTested:false,twoTabsTested:false,resetTested:false}));
