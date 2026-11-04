@@ -1,3 +1,10 @@
+## 2026-11-05 02:00 Europe/Bucharest — archived first-save denial characterization added (RESEARCH; CI UNVERIFIED)
+
+- Real main HEAD at start cd2f4d5a2617baaf2b3805044d0c3dc6ab451221; reviewed AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returned empty text with nonempty SHA; left untouched), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, release workflow, and open issues including #4/#14/#29/#35. Active product remains WEB 18.74.
+- Test-only commit adb6600164e3e0097a36610e3aa148c071aaafb9 adds deterministic first-save PAYLOAD setItem denial using actual archived WEB 18.20 module 310, then checks orphan KEY, missing PAYLOAD, blocked current-module reload and zero writes on blocked reload. This is a known-unsafe first-write characterization, NOT a fix or authorization to delete the key. Existing validate-release workflow invokes this test.
+- Node/CI result for this new case UNVERIFIED. GitHub combined status only showed Vercel success for prior HEAD; Vercel is not Actions validation. The available commit workflow-run connector is PR-only. No production JS/index/version, formulas, iOS, real user data or backups changed. No real financial-schema migration, browser two-tab or interrupted reset demonstrated by this test.
+- FIRST NEXT: obtain named GitHub Actions persisted-vault step result for adb66001 and fix if red; then exercise disposable Chromium fault matrix with real financial schema and stale two-tab/reset interleavings. Keep P1 #4/#29/#35 open. Issue #14 remains DISCOVERY pending explicit contract approval.
+
 ## 2026-11-05 01:06 Europe/Bucharest — tampered persisted-vault overwrite regression added (RESEARCH; CI UNVERIFIED)
 
 - Confirmed main HEAD before change `f1b315851b0f6de9c2fc68a1f0d0530e33577799`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty connector content despite nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #4/#14/#29/#35/#85. Product WEB remains 18.74.
