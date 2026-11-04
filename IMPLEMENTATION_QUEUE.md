@@ -1,3 +1,10 @@
+## 2026-11-04 10:06 Europe/Bucharest — archived vault module compatibility preflight (TEST ADDED; NOT YET EXECUTED)
+
+- Verified active index metadata WEB 18.74, mandatory AGENTS/release/workflow/visual documents and open GitHub backlog; PROJECT_STATE.md fetch still returns empty content despite nonempty SHA, so it was not overwritten. Last checkpoint was authenticated AES-GCM fixture compatibility audit.
+- Added research-only `tests/research-v1820-module-preflight.cjs` at commit `f2956699cc206468ff75289896682b6a3e4ebc09`. It reads the archived v18.20 and currently referenced bundle, locates Metro factories 309/310/311, captures their dependency lists and factory lengths, and checks both legacy storage key literals. It never reads/writes actual browser storage or financial data. This is a **structural preflight**, NOT proof of equivalent module semantics, successful decryption, or safety.
+- **UNVERIFIED:** new script has not yet been executed locally or in CI; no PASS, Vercel, browser, or product-release claim. If module IDs differ, this intentionally fails and mapping must be investigated rather than assumed. No product bundle/index/version/financial formula/iOS/backup changed.
+- **FIRST NEXT:** run `node --check tests/research-v1820-module-preflight.cjs && node tests/research-v1820-module-preflight.cjs` on the real checkout; inspect actual module dependency/crypto evidence, correct any mapping mismatch, then build an authenticated synthetic v18.20 fixture and execute Chromium two-tab/reset characterization. #4/#29/#35 stay open; #14 remains DISCOVERY pending explicit approval.
+
 ## 2026-11-04 09:03 Europe/Bucharest — P1 authenticated fixture implementation audit (RESEARCH ONLY)
 
 - Read current main continuity/release/workflow/visual documents and open issue backlog. `PROJECT_STATE.md` still returns empty UTF-8 content with nonempty SHA: **preserved**, not overwritten. Current `index.html` reports WEB 18.74. Reviewed #4, #14, #29 and #35; no closure justified.
