@@ -1,3 +1,10 @@
+## 2026-11-04 19:02 Europe/Bucharest — archived/current authenticated crypto interoperability test added (NOT EXECUTED)
+
+- Verified actual main HEAD before change `f685e1e464db0fae087443cdd21ee35f4fb28296`, required continuity/release/visual/workflow files, active WEB 18.74, open GitHub issues and P1 #4/#29/#35 plus DISCOVERY #14/#85. PROJECT_STATE.md connector still returns empty content with nonempty SHA; preserved.
+- Added research-only `tests/research-v1820-crypto-interoperability.cjs` in commit `22870e01caaa062a2f2aaaee17f8fed3a9467f66`. It loads Metro module 311 from both immutable bundles in isolated Node VM contexts, uses actual bundled AES-GCM with synthetic Unicode plaintext and random key, verifies archived→active and active→archived round trips, and checks ciphertext tampering and wrong-key rejection. No real localStorage, vault or user data.
+- **UNVERIFIED:** script has not run in Node/CI, so no crypto PASS is claimed. No CI wiring yet; first run the exact script and resolve any Metro dependency/VM incompatibility. Existing structural preflight PASS is separate. This does not cover platform module 309, vault 310, concurrency, interrupted reset or browser safety.
+- **FIRST NEXT:** execute `node --check tests/research-v1820-crypto-interoperability.cjs && node tests/research-v1820-crypto-interoperability.cjs` in a checkout; only if green add to CI, then build authenticated synthetic archived vault fixture and disposable Chromium fault tests. #14 stays DISCOVERY without formula changes. WEB 18.74 unchanged; no iOS edits.
+
 ## 2026-11-04 18:07 Europe/Bucharest — archived Metro preflight executed against actual GitHub bundle contents (RESEARCH; NO PRODUCT CHANGE)
 
 - Re-read real main commits (HEAD `4966bb143bb93dc41a22f6cdd6ff31d0cbd836e0`), AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty connector text with nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, index.html (WEB 18.74), open issues and #4/#14/#29/#35/#85.
