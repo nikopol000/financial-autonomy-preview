@@ -1,3 +1,11 @@
+
+## 2026-11-05 00:04 Europe/Bucharest — persisted-vault fresh-instance reload guard (RESEARCH; CI PENDING)
+
+- Read actual main HEAD f63ba3aa6cff49f94d1cc19e0328450325eac4b6 and mandatory AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returns empty content despite nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues including P1 #4/#29/#35 and DISCOVERY #14/#85. Active product remains WEB 18.74.
+- Research-only commit f82a6f9302cde62ab581793c1232a4de4224bc5f extends tests/research-v1820-persisted-vault-interoperability.cjs with fresh archived/current Metro module instances to emulate reload and assert both decrypt the same authentic synthetic archived persisted vault without changing exact localStorage KEY/PAYLOAD bytes. JavaScript parsing checked in V8 after stripping Node shebang; this is NOT a Node execution or test PASS. Existing CI workflow already invokes this test; exact-commit Actions conclusion pending.
+- Local git access still blocked by github.com DNS; no real schema migration, two-tab race, interrupted-reset or browser safety proof. No production JS/HTML, iOS, formulas, real data, or backups touched. #14 remains DISCOVERY only, no implementation without explicit approved contract.
+- FIRST NEXT: obtain named CI step logs for f82a6f9 or execute the exact script in Node; if green, extend authenticated synthetic fixture to disposable Chromium same-origin two-tab stale-write and interrupted-reset cases, checking exact storage bytes and decrypted ledger. Keep #4/#29/#35 open.
+
 ## 2026-11-04 23:00 Europe/Bucharest — persisted-vault negative-path fixture extended; CI pending
 
 - Confirmed main HEAD before edit `8f90cd2ba85dd1fe047ac9540a8b8208e6635bf5`, read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty connector content despite SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #4/#14/#29/#35/#85.
