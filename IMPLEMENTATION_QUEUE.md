@@ -1,3 +1,11 @@
+## 2026-11-04 03:05 Europe/Bucharest — archived malformed-footprint regression guard (RESEARCH; CI PENDING)
+
+- Read real main ref HEAD `35d4712196503489d4a0817fb2b5ecd012090571`, AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returned empty despite nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues including P1 #4/#29/#35 and discovery #14/#85. Inspected current Chromium fixture.
+- Research-only test commit `3a845c14db89472a68f37cc8d4b2e4d0a25a03fc`: the authentic archived WEB 18.20 Chromium malformed KEY-only and PAYLOAD-only scenarios now **assert** byte-for-byte preservation of both storage entries and a mounted UI after reload, instead of merely reporting observational `exactBytesPreserved`. If a future archived fixture unexpectedly deletes/mutates those synthetic entries, the test fails closed. No financial model or production changes.
+- **CI NOT YET VERIFIED for this commit**; the earlier Chromium run 41726567368 passed for the previous fixture, not this change. These deliberately malformed values are NOT valid AES-GCM records and cannot establish decryptability, safe stale writes, interrupted reset, Safari behavior or recovery. P1 issues remain OPEN.
+- Last documented WEB product version 18.74; no iOS, live product bundle, financial formulas, real data, encrypted backups or release metadata changed. #14 remains DISCOVERY ONLY pending explicit approval. #85 remains a candidate for next nonurgent discovery pass.
+- **FIRST NEXT:** verify the new push-triggered Chromium run and decoded named PASS; then create a valid AES-GCM synthetic fixture via authentic archived modules and compare exact KEY/PAYLOAD before/after stale-tab/reset interleavings. Do not equate malformed-footprint preservation with vault safety.
+
 ## 2026-11-04 01:58 Europe/Bucharest — archived Chromium stdout independently inspected (RESEARCH; P1 still OPEN)
 
 - Current main HEAD verified via commit search: `3a5e5ff6b478e0ef974b95631e6aba9ae4ff972c`. Re-read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty connector text with nonempty SHA; do not overwrite), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, current archived Chromium fixture, and open issues including #4/#14/#29/#35/#85/#400.
