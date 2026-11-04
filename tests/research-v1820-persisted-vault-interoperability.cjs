@@ -53,6 +53,15 @@ const store=storage(),random=n=>new Uint8Array(crypto.randomBytes(n));
 const initial={syntheticFixture:true,entries:[{id:'synthetic-1',amountMinor:12345,note:'șțîăâ €'}]};
 old.saveWebVault(store,initial,random);
 const persisted=store.snapshot();
+// Fresh Metro module instances model reloads without changing persistent bytes.
+const freshArchived=modules(archived),freshActive=modules(active);
+const beforeReload=store.snapshot();
+assert.deepEqual(JSON.parse(JSON.stringify(freshArchived.loadWebVault(store))),initial,
+  'fresh archived module must decrypt persisted synthetic vault');
+assert.deepEqual(JSON.parse(JSON.stringify(freshActive.loadWebVault(store))),initial,
+  'fresh active module must decrypt archived persisted synthetic vault');
+assert.deepEqual([...store.snapshot()],[...beforeReload],
+  'read-only reloads must preserve exact encrypted storage bytes');
 assert.match(persisted.get(KEY),/^[0-9a-f]{64}$/i);
 assert.ok(persisted.get(PAYLOAD),'archived ciphertext missing');
 assert.deepEqual(JSON.parse(JSON.stringify(now.loadWebVault(store))),initial);
