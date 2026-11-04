@@ -143,6 +143,11 @@ const server = http.createServer((req, res) => {
         'Malformed-footprint probe loaded alternate application bundle: '+fixture.name);
       assert.deepEqual(probeFailedAssets,[], 'Malformed-footprint probe missing assets: '+fixture.name);
       assert.deepEqual(blockedExternal,[], 'Malformed-footprint probe attempted external network: '+fixture.name);
+      // Safety regression guard: archived reload must never silently discard either raw footprint.
+      // These are malformed synthetic strings, NOT authenticated ciphertext or recovery tests.
+      assert.equal(after.key, before.key, 'Archived reload changed synthetic KEY bytes: '+fixture.name);
+      assert.equal(after.payload, before.payload, 'Archived reload changed synthetic PAYLOAD bytes: '+fixture.name);
+      assert.ok(after.mounted, 'Archived client did not mount for malformed footprint: '+fixture.name);
       footprintObservations.push({name:fixture.name,before,after,
         exactBytesPreserved:before.key===after.key && before.payload===after.payload,
         probeErrors,blockedExternal,probeFailedAssets,probeArchivedScripts});
