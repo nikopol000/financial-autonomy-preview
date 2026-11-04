@@ -147,6 +147,7 @@ const server = http.createServer((req, res) => {
         'Malformed-footprint probe did not load authentic archived bundle: '+fixture.name);
       assert.ok(!probeArchivedScripts.some(s => !s.url.endsWith(archived)),
         'Malformed-footprint probe loaded alternate application bundle: '+fixture.name);
+      assert.deepEqual(probeErrors,[], 'Malformed-footprint probe raised uncaught browser errors: '+fixture.name);
       assert.deepEqual(probeFailedAssets,[], 'Malformed-footprint probe missing assets: '+fixture.name);
       assert.deepEqual(blockedExternal,[], 'Malformed-footprint probe attempted external network: '+fixture.name);
       // Safety regression guard: archived reload must never silently discard either raw footprint.
