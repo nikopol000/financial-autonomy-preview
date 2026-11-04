@@ -1,3 +1,10 @@
+## 2026-11-04 20:04 Europe/Bucharest — authenticated archived/current research test wired to CI (EXECUTION UNVERIFIED)
+
+- Verified actual main HEAD `e9e5b8cad80f9ca0ae18b2e145b5a666a7928087` before change; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returns empty content with nonempty blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, active index.html, open issues including #4/#14/#29/#35 and DISCOVERY items. WEB remains 18.74.
+- New commit `474399c5ff06e7b133d9a1ecb931023985e5f205` adds `node --check` and execution of `tests/research-v1820-crypto-interoperability.cjs` to `.github/workflows/validate-release.yml`. The exact archived/current bundle test is now eligible to run in push CI. No product code, bundle, version, financial formulas, iOS, or user data touched.
+- Attempted local `git ls-remote` but github.com DNS resolution failed. V8 connector-side direct module evaluation lacked TextEncoder and is **not** a Node execution or AES-GCM PASS; it did confirm the factory extraction reached dependency initialization before failing. GitHub push Actions conclusion and test stdout remain **UNVERIFIED**. Do not claim cryptographic interoperability yet.
+- **FIRST NEXT:** obtain named GitHub Actions step result or execute the exact Node script in a real checkout. If red, fix VM/global/module dependency assumptions in the research test, rerun; if green, construct authenticated synthetic archived vault with module 310 and disposable Chromium two-tab/reset fault tests. P1 #4/#29/#35 remain open. #14 remains DISCOVERY pending explicit approval.
+
 ## 2026-11-04 19:02 Europe/Bucharest — archived/current authenticated crypto interoperability test added (NOT EXECUTED)
 
 - Verified actual main HEAD before change `f685e1e464db0fae087443cdd21ee35f4fb28296`, required continuity/release/visual/workflow files, active WEB 18.74, open GitHub issues and P1 #4/#29/#35 plus DISCOVERY #14/#85. PROJECT_STATE.md connector still returns empty content with nonempty SHA; preserved.
