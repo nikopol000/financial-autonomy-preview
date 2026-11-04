@@ -81,8 +81,11 @@ const server = http.createServer((req, res) => {
     const sentinelKey = 'research.synthetic.unrelated-storage.v1';
     const sentinelValue = 'synthetic-only-do-not-use-real-financial-data';
     await page.evaluate(([key, value]) => localStorage.setItem(key, value), [sentinelKey, sentinelValue]);
+    const scriptLoadsBeforeReload = loadedScripts.filter(s => s.url.endsWith(archived) && s.status === 200).length;
     await page.reload({waitUntil:'networkidle', timeout:30000});
     await page.waitForTimeout(300);
+    assert.equal(loadedScripts.filter(s => s.url.endsWith(archived) && s.status === 200).length, scriptLoadsBeforeReload + 1,
+      'Archived bundle was not fetched successfully on synthetic reload');
     const reload = await page.evaluate(key => ({
       sentinel:localStorage.getItem(key),
       rootChildren:document.getElementById('root')?.children.length || 0
@@ -130,8 +133,11 @@ const server = http.createServer((req, res) => {
         key:localStorage.getItem('financial-autonomy.preview.key.v1'),
         payload:localStorage.getItem('financial-autonomy.preview.payload.v1')
       }));
+      const probeLoadsBeforeReload = probeArchivedScripts.filter(s => s.url.endsWith(archived) && s.status === 200).length;
       await probe.reload({waitUntil:'networkidle',timeout:30000});
       await probe.waitForTimeout(300);
+      assert.equal(probeArchivedScripts.filter(s => s.url.endsWith(archived) && s.status === 200).length, probeLoadsBeforeReload + 1,
+        'Malformed-footprint probe did not refetch authentic bundle on reload: '+fixture.name);
       const after = await probe.evaluate(() => ({
         key:localStorage.getItem('financial-autonomy.preview.key.v1'),
         payload:localStorage.getItem('financial-autonomy.preview.payload.v1'),
