@@ -1,3 +1,10 @@
+## 2026-11-05 21:01 Europe/Bucharest — payload-only reload fail-closed regression (TEST ONLY; CI UNVERIFIED)
+
+- Main HEAD before change: `ed7a01481116535dfae660d9ccaed81ace8852cc`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returned empty text with valid SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues and #14/#35. Active product remains WEB 18.74.
+- Test-only commit `f8dab455cbf92126e95c7e4219ec052c2e97deca` extends `tests/research-v1820-persisted-vault-interoperability.cjs`: a PAYLOAD-only vault (missing KEY) must reject both current and fresh-instance loads without changing ciphertext; save still rejects. Existing read-denial and write-denial assertions remain. This is a synthetic Map-backed test using real crypto modules and a synthetic financial state adapter, not a browser or real-schema proof.
+- No product bundle, formulas, vault protocol, backup, real user data, iOS or version changed. **CI/Node execution for this new commit NOT VERIFIED**; GitHub connector write succeeded, not a PASS. #14 stays DISCOVERY; no financial perspective implementation.
+- FIRST NEXT: verify exact push CI for `f8dab455`, inspect failure logs if red; then build disposable Chromium two-tab stale-write and interrupted reset scenarios with actual synthetic financial schema for P1 #4/#29/#35. Keep ambiguous KEY-only and PAYLOAD-only recovery non-destructive.
+
 ## 2026-11-05 17:05 Europe/Bucharest — corrected persisted-vault test CI GREEN (TEST ONLY; browser P1 remains)
 
 - Verified main HEAD before checkpoint: `669253f48d95647731ded4194716204615f0efa4`; mandatory documents, open issue backlog and #14/#35 inspected. `PROJECT_STATE.md` still returns empty text despite a valid blob SHA; not overwritten.
