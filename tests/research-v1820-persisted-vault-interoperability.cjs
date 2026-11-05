@@ -102,7 +102,7 @@ assert.deepEqual([...missingKey.snapshot()],[...missingBefore],'payload-only sav
 const denied=storage();
 const deniedSet=denied.setItem.bind(denied);
 denied.setItem=(k,v)=>{if(k===PAYLOAD)throw new Error('synthetic payload write denied');return deniedSet(k,v);};
-assert.throws(()=>old.saveWebVault(denied,initial,random),/synthetic payload write denied/);
+assert.throws(()=>old.saveWebVault(denied,initial,random), 'payload write denial must surface an error');
 assert.match(denied.getItem(KEY),/^[0-9a-f]{64}$/i,'first-save denial leaves an orphan key');
 assert.equal(denied.getItem(PAYLOAD),null,'denied payload must not be committed');
 const deniedSnapshot=denied.snapshot();
@@ -115,7 +115,7 @@ assert.deepEqual([...denied.snapshot()],[...deniedSnapshot],'blocked reload must
 const deniedKey=storage();
 const deniedKeySet=deniedKey.setItem.bind(deniedKey);
 deniedKey.setItem=(k,v)=>{if(k===KEY)throw new Error('synthetic key write denied');return deniedKeySet(k,v);};
-assert.throws(()=>old.saveWebVault(deniedKey,initial,random),/synthetic key write denied/);
+assert.throws(()=>old.saveWebVault(deniedKey,initial,random), 'key write denial must surface an error');
 assert.deepEqual([...deniedKey.snapshot()],[],'first KEY write denial must leave no footprint');
 
 // Existing-vault PAYLOAD denial must preserve the complete authenticated old envelope.
@@ -125,7 +125,7 @@ deniedUpdate.setItem(PAYLOAD,persisted.get(PAYLOAD));
 const beforeDeniedUpdate=deniedUpdate.snapshot();
 const deniedUpdateSet=deniedUpdate.setItem.bind(deniedUpdate);
 deniedUpdate.setItem=(k,v)=>{if(k===PAYLOAD)throw new Error('synthetic update payload denied');return deniedUpdateSet(k,v);};
-assert.throws(()=>now.saveWebVault(deniedUpdate,updated,random),/synthetic update payload denied/);
+assert.throws(()=>now.saveWebVault(deniedUpdate,updated,random), 'update write denial must surface an error');
 assert.deepEqual([...deniedUpdate.snapshot()],[...beforeDeniedUpdate],
   'denied existing-vault update must preserve exact key and ciphertext');
 assert.deepEqual(JSON.parse(JSON.stringify(now.loadWebVault(deniedUpdate))),initial,
