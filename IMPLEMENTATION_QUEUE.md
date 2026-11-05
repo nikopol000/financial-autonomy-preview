@@ -1,3 +1,10 @@
+## 2026-11-05 08:06 Europe/Bucharest — authenticated ciphertext mutation fixture hardened (TEST ONLY; CI UNVERIFIED)
+
+- Initial real main HEAD `23869da635a122410e2ded4f95d576e56fee6248`; read mandatory continuity/release/visual documents and open GitHub issues. Active product WEB 18.74; PROJECT_STATE.md connector returned empty content with nonempty SHA, left untouched.
+- Inspected actual `tests/research-v1820-persisted-vault-interoperability.cjs`. Found that mutation of the **last** base64 character can change only unused padding bits and need not change decoded AES-GCM ciphertext. Test-only commit `dec63cd1b2f9fdeab867cb83097fb868d0e732c2` now mutates an interior base64 data character and checks that it is from the base64 alphabet; avoids this specific false-negative test weakness.
+- **NOT VERIFIED:** Node execution, CI push workflow result, actual browser or real financial schema. No product bundle/index/version, iOS, financial formulas, real data or backup changed. #14 remains discovery only.
+- **FIRST NEXT:** run named persistent-vault test on exact commit and obtain Actions job conclusion; if failing, diagnose fixture. Then real-schema disposable Chromium two-tab, storage-fault and interrupted-reset matrix. Keep P1 #4/#29/#35 open.
+
 ## 2026-11-05 07:00 Europe/Bucharest — P1 CI verification boundary rechecked (NO PASS; research only)
 
 - Main HEAD `5e0908fd912cfa0e6549ff9cd834a76eda0a0e31`; active WEB 18.74. Read required continuity/release/visual files and open issues; `PROJECT_STATE.md` still returns empty connector content despite valid blob SHA, preserved unchanged.
