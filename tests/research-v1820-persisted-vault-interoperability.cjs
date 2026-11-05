@@ -94,7 +94,15 @@ assert.deepEqual([...tamperedCiphertext.snapshot()],[...tamperedBefore],'rejecte
 const missingKey=storage();
 missingKey.setItem(PAYLOAD,persisted.get(PAYLOAD));
 const missingBefore=missingKey.snapshot();
+assert.throws(()=>now.loadWebVault(missingKey),'payload-only load must fail closed');
+assert.deepEqual([...missingKey.snapshot()],[...missingBefore],
+  'payload-only rejected load must preserve exact ciphertext');
 assert.throws(()=>now.saveWebVault(missingKey,updated,random),'payload-only save must fail closed');
+const reloadedMissingKey=modules(active);
+assert.throws(()=>reloadedMissingKey.loadWebVault(missingKey),
+  'fresh active module must also reject payload-only state');
+assert.deepEqual([...missingKey.snapshot()],[...missingBefore],
+  'fresh blocked payload-only reload must not mutate ciphertext');
 assert.deepEqual([...missingKey.snapshot()],[...missingBefore],'payload-only save must not mutate storage');
 
 // Inject a first-save payload-write denial: localStorage is not transactional.
