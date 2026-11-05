@@ -1,3 +1,11 @@
+## 2026-11-05 03:02 Europe/Bucharest — first-write vs update-write denial matrix expanded (RESEARCH; CI UNVERIFIED)
+
+- Confirmed initial main HEAD `4986a6a07960efe532ec5580f8260d22f2366fbc`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (GitHub connector returned empty content despite SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues (#4/#14/#29/#35/#85) and release workflow. Active WEB remains 18.74.
+- Research-only test commit `fcc47c9883707afe74cd203ca0386f0d08d25f5f` adds two failure boundaries to the actual archived/current Metro module 310 synthetic fixture: first KEY-write denial must leave no footprint; existing-vault PAYLOAD-update denial must preserve exact KEY/PAYLOAD and old authenticated readable ledger. Earlier first-save PAYLOAD denial remains a known-unsafe KEY-only characterization. No browser storage, real financial data or backups used.
+- **NOT VERIFIED:** Node syntax/execution and named push GitHub Actions step for this new commit. Local git cannot resolve github.com; available workflow-run connector filters to PR events; public Actions fetch unavailable. Do not infer CI from Vercel. Existing CI workflow includes the script, but execution outcome is unknown.
+- No product bundle/index/version, financial formula, iOS or user data changes. Issue #14 remains DISCOVERY pending explicit financial contract approval; P1 #4/#29/#35 remain OPEN.
+- **FIRST NEXT:** obtain named persisted-vault CI step result for `fcc47c98`, fix any failing assertions; then use disposable Chromium origin with real state schema to exercise stale two-tab saves, quota/permission denial and reset completion boundaries. Avoid claiming production safety from synthetic VM assertions.
+
 ## 2026-11-05 02:00 Europe/Bucharest — archived first-save denial characterization added (RESEARCH; CI UNVERIFIED)
 
 - Real main HEAD at start cd2f4d5a2617baaf2b3805044d0c3dc6ab451221; reviewed AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returned empty text with nonempty SHA; left untouched), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, release workflow, and open issues including #4/#14/#29/#35. Active product remains WEB 18.74.
