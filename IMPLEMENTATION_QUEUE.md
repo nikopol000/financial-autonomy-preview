@@ -1,3 +1,11 @@
+## 2026-11-05 07:00 Europe/Bucharest — P1 CI verification boundary rechecked (NO PASS; research only)
+
+- Main HEAD `5e0908fd912cfa0e6549ff9cd834a76eda0a0e31`; active WEB 18.74. Read required continuity/release/visual files and open issues; `PROJECT_STATE.md` still returns empty connector content despite valid blob SHA, preserved unchanged.
+- Workflow YAML explicitly calls archived/current persisted-vault synthetic test on main push. Source inspected: module 205 is substituted, storage is an in-memory Map, and selected write failures are simulated. This is **not** real-schema migration, browser localStorage, two-tab or reset crash coverage.
+- Named GitHub Actions execution still **UNVERIFIED**: commit-run connector filters PR-triggered jobs, whereas workflow is push-triggered; local git DNS cannot resolve github.com. Vercel status does not establish test PASS.
+- Documented evidence, limitations and next gate in issue #35 comment 6650136866. No code, product release, financial formulas, iOS or user data changed. #14 remains DISCOVERY pending explicit approval.
+- **FIRST NEXT:** obtain actual push-run job step/log for `fcc47c98` / `5e0908fd`, fix any failing test; then real-schema disposable Chromium fault matrix including storage reads, reset boundary and two tabs. Do not infer PASS from YAML or stdout text in unexecuted source.
+
 ## 2026-11-05 03:02 Europe/Bucharest — first-write vs update-write denial matrix expanded (RESEARCH; CI UNVERIFIED)
 
 - Confirmed initial main HEAD `4986a6a07960efe532ec5580f8260d22f2366fbc`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (GitHub connector returned empty content despite SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues (#4/#14/#29/#35/#85) and release workflow. Active WEB remains 18.74.
