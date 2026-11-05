@@ -1,3 +1,11 @@
+## 2026-11-05 09:00 Europe/Bucharest — named push CI failure diagnosed and test fixture corrected (CI PENDING)
+
+- Initial main HEAD `9138b03148eb9119cffed814ed581b6d7e39b323`; mandatory files and open issues read. PROJECT_STATE.md connector still returned empty content despite nonempty SHA; preserved untouched. Active WEB 18.74.
+- **NEW VERIFIED EVIDENCE:** GitHub Actions push run [41978284694](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/41978284694) concluded **FAILURE**. Job 127082188006 failed at step 50, `Archived/current persisted vault interoperability`, before later research/production tests (skipped). Actual job log shows `loadWebVault` throws "Datele locale ... deteriorate" at fixture line 59 (first fresh archived read). Previous push run 41978268472 also failed. Pages SUCCESS does NOT mean validation success.
+- **ROOT CAUSE IN SYNTHETIC ADAPTER:** `migrate(x){this.validateState(x);return x;}` was called by bundled Metro vault as `(0,t.migrate)(...)` (unbound), so `this` is undefined; its TypeError was wrapped as vault corruption. This is a **test-harness bug**, not evidence of corrupted user data. Commit `fb17d309b487c17b21e884d9c873ae68878f5ea9` makes synthetic migration validation independent of `this`. No production JS/index/version or formulas touched.
+- **UNVERIFIED:** new commit Node/Actions conclusion; no local git checkout due DNS. Must inspect exact push-run job and remaining assertions. No real schema, two-tab Chromium, reset crash or browser safety proved.
+- **FIRST NEXT:** obtain push CI result for `fb17d309`, inspect full job logs, fix any further fixture errors; then isolated real-schema Chromium matrix for P1 #4/#29/#35. #14 stays DISCOVERY pending explicit financial contract approval. No iOS changes.
+
 ## 2026-11-05 08:06 Europe/Bucharest — authenticated ciphertext mutation fixture hardened (TEST ONLY; CI UNVERIFIED)
 
 - Initial real main HEAD `23869da635a122410e2ded4f95d576e56fee6248`; read mandatory continuity/release/visual documents and open GitHub issues. Active product WEB 18.74; PROJECT_STATE.md connector returned empty content with nonempty SHA, left untouched.
