@@ -17,7 +17,7 @@ function modules(file){
   const source=fs.readFileSync(file,'utf8'),cache=new Map();
   const state={
     validateState(x){assert.equal(x?.syntheticFixture,true,'synthetic state only');},
-    migrate(x){this.validateState(x);return x;},
+    migrate(x){assert.equal(x?.syntheticFixture,true,'synthetic state only');return x;},
     emptyState(){return {syntheticFixture:true,entries:[]};}
   };
   const globals={Uint8Array,Uint16Array,Uint32Array,Int32Array,ArrayBuffer,DataView,
