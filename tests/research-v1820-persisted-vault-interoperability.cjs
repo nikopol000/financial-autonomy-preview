@@ -82,7 +82,10 @@ assert.ok(originalCiphertext.length>8,'ciphertext fixture unexpectedly short');
 // Mutate a non-terminal base64 character: changing the final character may alter only unused padding bits.
 const mutationIndex=Math.floor(originalCiphertext.length/2);
 assert.match(originalCiphertext[mutationIndex],/[A-Za-z0-9+/]/,'expected interior base64 data character');
-tamperedCiphertext.setItem(PAYLOAD,originalCiphertext.slice(0,mutationIndex)+(originalCiphertext[mutationIndex]==='A'?'B':'A')+originalCiphertext.slice(mutationIndex+1));
+const mutatedCiphertext=originalCiphertext.slice(0,mutationIndex)+(originalCiphertext[mutationIndex]==='A'?'B':'A')+originalCiphertext.slice(mutationIndex+1);
+assert.notDeepEqual(Buffer.from(mutatedCiphertext,'base64'),Buffer.from(originalCiphertext,'base64'),
+  'tamper fixture must change decoded authenticated bytes, not only base64 spelling');
+tamperedCiphertext.setItem(PAYLOAD,mutatedCiphertext);
 const tamperedBefore=tamperedCiphertext.snapshot();
 assert.throws(()=>now.loadWebVault(tamperedCiphertext),'tampered ciphertext must not load');
 assert.deepEqual([...tamperedCiphertext.snapshot()],[...tamperedBefore],'failed load must not mutate ciphertext');
