@@ -166,6 +166,13 @@ for (const deniedReadKey of [KEY, PAYLOAD]) {
     'fresh module must not overwrite after denied '+deniedReadKey+' read');
   assert.deepEqual([...readDenied.snapshot()],[...before],
     'fresh module denial must preserve exact persisted encrypted bytes');
+  // Permission recovery: the same authenticated ledger must be readable after access returns.
+  readDenied.getItem=originalGet;
+  const recovered=modules(active);
+  assert.deepEqual(JSON.parse(JSON.stringify(recovered.loadWebVault(readDenied))),initial,
+    'restored storage access must recover the exact prior authenticated ledger');
+  assert.deepEqual([...readDenied.snapshot()],[...before],
+    'permission recovery must not rewrite or discard encrypted bytes');
 }
 
 console.log('PASS synthetic archived persisted vault -> active read -> active write -> archived read; KEY-only fail closed');
