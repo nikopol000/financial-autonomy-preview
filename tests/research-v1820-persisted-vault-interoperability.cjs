@@ -158,6 +158,14 @@ for (const deniedReadKey of [KEY, PAYLOAD]) {
     'denied '+deniedReadKey+' read must not allow save');
   assert.deepEqual([...readDenied.snapshot()],[...before],
     'denied read must not mutate key or ciphertext');
+  // A reload cannot turn a permission/read failure into an empty new vault.
+  const freshOnDeniedRead=modules(active);
+  assert.throws(()=>freshOnDeniedRead.loadWebVault(readDenied),
+    'fresh module must reject denied '+deniedReadKey+' read');
+  assert.throws(()=>freshOnDeniedRead.saveWebVault(readDenied,updated,random),
+    'fresh module must not overwrite after denied '+deniedReadKey+' read');
+  assert.deepEqual([...readDenied.snapshot()],[...before],
+    'fresh module denial must preserve exact persisted encrypted bytes');
 }
 
 console.log('PASS synthetic archived persisted vault -> active read -> active write -> archived read; KEY-only fail closed');
