@@ -1,3 +1,10 @@
+## 2026-11-05 17:05 Europe/Bucharest — corrected persisted-vault test CI GREEN (TEST ONLY; browser P1 remains)
+
+- Verified main HEAD before checkpoint: `669253f48d95647731ded4194716204615f0efa4`; mandatory documents, open issue backlog and #14/#35 inspected. `PROJECT_STATE.md` still returns empty text despite a valid blob SHA; not overwritten.
+- **NEW VERIFIED RESULT:** [GitHub Actions push run #42041872207](https://github.com/nikopol000/financial-autonomy-preview/actions/runs/42041872207), job `127294470236` (`validate`) completed **SUCCESS**. The actual job step `Archived/current persisted vault interoperability (synthetic research only)` (#50) completed **SUCCESS**; steps #49 and #51–#62 also show SUCCESS. This verifies the corrected test fixture at commit `fb33da07` in this workflow, not real-user vault safety or a Chromium two-tab test.
+- No product bundle, formulas, backup format, real financial data, iOS or release version changed; active WEB remains 18.74. #14 stays DISCOVERY / no financial semantic implementation.
+- **FIRST NEXT:** expand actual financial-schema synthetic tests and disposable Chromium storage-denial / two-tab stale-write / interrupted reset scenarios for P1 #4/#29/#35. Do not close issues based only on the green synthetic workflow; separately verify browser and production deployment before declaring product acceptance.
+
 ## 2026-11-05 16:05 Europe/Bucharest — push CI failure located; storage-denial fixture corrected (TEST ONLY; CI PENDING)
 
 - HEAD before edit `5ae5a5e7700887a2e3ddc31630cabd0fcdae60ff`; mandatory docs and open issues inspected. `PROJECT_STATE.md` connector returned empty content with nonempty SHA; preserved. Product WEB 18.74 unchanged.
