@@ -131,5 +131,26 @@ assert.deepEqual([...deniedUpdate.snapshot()],[...beforeDeniedUpdate],
 assert.deepEqual(JSON.parse(JSON.stringify(now.loadWebVault(deniedUpdate))),initial,
   'old authenticated ledger must remain readable after denied update');
 
+// Read-denial fault matrix: fail closed without changing any persisted encrypted bytes.
+for (const deniedReadKey of [KEY, PAYLOAD]) {
+  const readDenied=storage();
+  readDenied.setItem(KEY,persisted.get(KEY));
+  readDenied.setItem(PAYLOAD,persisted.get(PAYLOAD));
+  const originalGet=readDenied.getItem.bind(readDenied);
+  const before=readDenied.snapshot();
+  readDenied.getItem=k=>{
+    if(k===deniedReadKey)throw new Error('synthetic read denied');
+    return originalGet(k);
+  };
+  assert.throws(()=>now.loadWebVault(readDenied),
+    'denied '+deniedReadKey+' read must not load');
+  assert.deepEqual([...readDenied.snapshot()],[...before],
+    'denied read must preserve exact persisted encrypted bytes');
+  assert.throws(()=>now.saveWebVault(readDenied,updated,random),
+    'denied '+deniedReadKey+' read must not allow save');
+  assert.deepEqual([...readDenied.snapshot()],[...before],
+    'denied read must not mutate key or ciphertext');
+}
+
 console.log('PASS synthetic archived persisted vault -> active read -> active write -> archived read; KEY-only fail closed');
 console.log(JSON.stringify({status:'PASS',archived,active,synthetic:true,realSchemaMigrationTested:false,browserTested:false,twoTabsTested:false,resetTested:false}));
