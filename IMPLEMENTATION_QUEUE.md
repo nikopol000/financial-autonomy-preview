@@ -1,3 +1,10 @@
+## 2026-11-05 23:04 Europe/Bucharest — fresh-module read-denial regression (TEST ONLY; CI UNVERIFIED)
+
+- Verified main HEAD before change `06f1c3334eb7f4230ea6b75b81e7876a7254ec1b`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returns empty with valid blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #14/#35.
+- Test commit `96b8e8b48cfaed4f55512f6d2aa3f7b0cdfee13e` extends synthetic Map-backed archived/current AES-GCM persisted-vault test: when KEY or PAYLOAD reads throw, a fresh active Metro module must reject both load and save and preserve the exact existing encrypted bytes. No product changes; no financial formula, iOS, real data, backups or release version changes (WEB 18.74).
+- CI for `f8dab455` and new commit is **NOT VERIFIED**: commit workflow-run connector filters PR-triggered runs and returned none. Node/browser tests were not executed here. Do not claim PASS. No actual financial-schema, two-tab, reset-interruption or Safari coverage from this test.
+- Issue #14 remains DISCOVERY ONLY, without approved financial contract. FIRST NEXT: obtain exact push Actions job result via supported run/log access, then prioritize actual-schema synthetic Chromium concurrency and reset fault tests for #4/#29/#35. Preserve ambiguous KEY-only/PAYLOAD-only bytes; no automatic destructive recovery.
+
 ## 2026-11-05 21:01 Europe/Bucharest — payload-only reload fail-closed regression (TEST ONLY; CI UNVERIFIED)
 
 - Main HEAD before change: `ed7a01481116535dfae660d9ccaed81ace8852cc`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returned empty text with valid SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues and #14/#35. Active product remains WEB 18.74.
