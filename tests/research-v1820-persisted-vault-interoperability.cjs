@@ -103,5 +103,27 @@ const deniedSnapshot=denied.snapshot();
 assert.throws(()=>now.loadWebVault(denied),'orphan key must block reload');
 assert.deepEqual([...denied.snapshot()],[...deniedSnapshot],'blocked reload must not mutate storage');
 
+
+ 
+// Fault matrix: denial at the first KEY write must leave no partial vault.
+const deniedKey=storage();
+const deniedKeySet=deniedKey.setItem.bind(deniedKey);
+deniedKey.setItem=(k,v)=>{if(k===KEY)throw new Error('synthetic key write denied');return deniedKeySet(k,v);};
+assert.throws(()=>old.saveWebVault(deniedKey,initial,random),/synthetic key write denied/);
+assert.deepEqual([...deniedKey.snapshot()],[],'first KEY write denial must leave no footprint');
+
+// Existing-vault PAYLOAD denial must preserve the complete authenticated old envelope.
+const deniedUpdate=storage();
+deniedUpdate.setItem(KEY,persisted.get(KEY));
+deniedUpdate.setItem(PAYLOAD,persisted.get(PAYLOAD));
+const beforeDeniedUpdate=deniedUpdate.snapshot();
+const deniedUpdateSet=deniedUpdate.setItem.bind(deniedUpdate);
+deniedUpdate.setItem=(k,v)=>{if(k===PAYLOAD)throw new Error('synthetic update payload denied');return deniedUpdateSet(k,v);};
+assert.throws(()=>now.saveWebVault(deniedUpdate,updated,random),/synthetic update payload denied/);
+assert.deepEqual([...deniedUpdate.snapshot()],[...beforeDeniedUpdate],
+  'denied existing-vault update must preserve exact key and ciphertext');
+assert.deepEqual(JSON.parse(JSON.stringify(now.loadWebVault(deniedUpdate))),initial,
+  'old authenticated ledger must remain readable after denied update');
+
 console.log('PASS synthetic archived persisted vault -> active read -> active write -> archived read; KEY-only fail closed');
 console.log(JSON.stringify({status:'PASS',archived,active,synthetic:true,realSchemaMigrationTested:false,browserTested:false,twoTabsTested:false,resetTested:false}));
