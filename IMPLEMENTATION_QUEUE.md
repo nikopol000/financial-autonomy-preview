@@ -1,3 +1,10 @@
+## 2026-11-06 00:00 Europe/Bucharest — transient storage read-denial recovery regression (TEST ONLY; CI UNVERIFIED)
+
+- Confirmed pre-change main HEAD `e00bdbb4f96022212eafa6af7925d21b624d6eda`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returns empty despite valid blob SHA; left untouched), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #14/#35. Active WEB remains 18.74.
+- Test-only commit `8bebd0ac3d196eedeeb041d70b2c2a77893abf77` extends archived/current AES-GCM synthetic Map-backed vault fixture: after denied KEY/PAYLOAD reads and failed closed load/save across fresh modules, restore `getItem`, then assert a new module decrypts the original authenticated ledger and preserves exact encrypted bytes. This distinguishes transient permission failure from permanent data loss; no product behavior change.
+- **UNVERIFIED:** Node execution and exact push GitHub Actions CI. Vercel combined status on previous HEAD was success only, not Actions evidence. Local git checkout blocked by DNS. Test still uses synthetic financial adapter and Map, not real-schema/browser/two-tab/reset coverage.
+- FIRST NEXT: obtain exact Actions job result for test commit; if green, implement disposable Chromium tests using real synthetic financial schema for #4/#29/#35. Issue #14 remains DISCOVERY ONLY pending approved financial contract. No iOS, financial formula, real data or backup changes.
+
 ## 2026-11-05 23:04 Europe/Bucharest — fresh-module read-denial regression (TEST ONLY; CI UNVERIFIED)
 
 - Verified main HEAD before change `06f1c3334eb7f4230ea6b75b81e7876a7254ec1b`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returns empty with valid blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #14/#35.
