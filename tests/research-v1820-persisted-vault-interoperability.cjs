@@ -79,7 +79,10 @@ const tamperedCiphertext=storage();
 tamperedCiphertext.setItem(KEY,persisted.get(KEY));
 const originalCiphertext=persisted.get(PAYLOAD);
 assert.ok(originalCiphertext.length>8,'ciphertext fixture unexpectedly short');
-tamperedCiphertext.setItem(PAYLOAD,originalCiphertext.slice(0,-1)+(originalCiphertext.at(-1)==='0'?'1':'0'));
+// Mutate a non-terminal base64 character: changing the final character may alter only unused padding bits.
+const mutationIndex=Math.floor(originalCiphertext.length/2);
+assert.match(originalCiphertext[mutationIndex],/[A-Za-z0-9+/]/,'expected interior base64 data character');
+tamperedCiphertext.setItem(PAYLOAD,originalCiphertext.slice(0,mutationIndex)+(originalCiphertext[mutationIndex]==='A'?'B':'A')+originalCiphertext.slice(mutationIndex+1));
 const tamperedBefore=tamperedCiphertext.snapshot();
 assert.throws(()=>now.loadWebVault(tamperedCiphertext),'tampered ciphertext must not load');
 assert.deepEqual([...tamperedCiphertext.snapshot()],[...tamperedBefore],'failed load must not mutate ciphertext');
