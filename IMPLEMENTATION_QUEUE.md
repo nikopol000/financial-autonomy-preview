@@ -1,3 +1,10 @@
+## 2026-11-06 05:04 Europe/Bucharest — repeated legacy reset after partial deletion (TEST ONLY; NOT VERIFIED)
+
+- Initial main HEAD `6425ded1108cf82e9150097b0b11fd4628ecbddb`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty response with valid SHA, preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issue backlog including #4/#14/#29/#35/#85. Active product WEB 18.74.
+- Test-only commit `81cf5a639cf4a41a15c45be0ebcb7b648754847a` extends `tests/research-v1820-persisted-vault-interoperability.cjs`: after second-delete failure leaves KEY-only, restore remove access, retry legacy clear and assert both records absent. Explicitly documents KNOWN UNSAFE loss of interruption evidence; does not endorse this behavior or fix protocol. Uses real archived/current crypto modules with synthetic financial adapter and Map storage.
+- **NOT VERIFIED:** Node execution, push Actions CI, Chromium, real financial schema, actual storage failure and two-tab scenarios. Local container DNS cannot resolve github.com; GitHub connector write succeeded, not a test PASS. No product release, financial formula, iOS, real data or backup changes.
+- Issue #14 stays DISCOVERY ONLY pending explicit approved financial contract. FIRST NEXT: obtain named push CI job for `81cf5a63`, run Node regression; investigate non-destructive reset recovery contract and real-schema synthetic Chromium fault matrix before any production change. Preserve ambiguous encrypted evidence rather than automatically retrying deletion.
+
 ## 2026-11-06 03:00 Europe/Bucharest — partial reset fresh-reload guard (TEST ONLY; CI UNVERIFIED)
 
 - Confirmed initial main HEAD `f79b7304c0a341c796e70d2401bd4e6db62c6098`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty response with valid SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #4/#14/#29/#35/#85. Active product remains WEB 18.74.
