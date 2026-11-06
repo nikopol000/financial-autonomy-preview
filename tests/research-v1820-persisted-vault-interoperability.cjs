@@ -203,6 +203,14 @@ for (const vaultModule of [old, now]) {
         'KNOWN UNSAFE: second deletion denial strands original key');
       assert.throws(()=>vaultModule.loadWebVault(resetFault),
         'stranded key must not silently initialize a new ledger');
+      const freshAfterInterruptedReset=modules(active);
+      const strandedBeforeReload=resetFault.snapshot();
+      assert.throws(()=>freshAfterInterruptedReset.loadWebVault(resetFault),
+        'fresh module must reject partial-reset KEY-only vault');
+      assert.throws(()=>freshAfterInterruptedReset.saveWebVault(resetFault,updated,random),
+        'fresh module must not overwrite partial-reset KEY-only vault');
+      assert.deepEqual([...resetFault.snapshot()],[...strandedBeforeReload],
+        'reload and rejected save must preserve partial-reset evidence');
     }
   }
 }
