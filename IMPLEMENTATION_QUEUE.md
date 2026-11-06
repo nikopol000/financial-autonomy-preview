@@ -1,3 +1,11 @@
+## 2026-11-06 23:02 Europe/Bucharest — #29 three-fault active reset source-excerpt matrix (EXECUTED; NO SAFETY PASS)
+
+- Exact startup HEAD via GitHub recent commits: `3d3dcc5fa6dda6d25157a992e4bdf99f67ecf221`; active WEB 18.74 bundle blob `60c8e9ba93127514299be6be14b1edd932150b54`. Read mandatory docs including `docs/WEB_VISUAL_REVIEW.md` (root path does not exist), open issues, and existing characterization test. `PROJECT_STATE.md` returned empty content with valid blob SHA; preserved.
+- **EXECUTED in isolated JavaScript V8 tool runtime**, using exact `faIdleReset`–`faBeginCommittedReset` function excerpt extracted directly from active bundle, synthetic Map storage, deterministic mock epoch, and three injected faults. No user/browser storage accessed.
+- Fault at RESET marker write: both KEY and PAYLOAD remain, no reset marker; manual `faFinishCommittedReset` after fault clearance rejects missing marker. Fault at PAYLOAD remove: pending marker remains with both records; subsequent finish deletes both and marks idle. Fault at KEY remove: pending marker remains with PAYLOAD absent and KEY present; subsequent finish deletes KEY and marks idle. This confirms conditional destructive continuation in active function text, not full `load()` browser behavior. No cryptographic/schema/browser proof.
+- **NOT VERIFIED:** repository Node test at exact checkout (local github.com DNS failure), Chromium reload, two-tab, Safari, GitHub Actions, end-to-end safety. **SAFETY ACCEPTANCE: NO**. No product release, version bump, iOS, financial formula, real data or backup change. #14 remains discovery only.
+- FIRST NEXT: build and execute disposable-origin browser harness that triggers KEY remove failure, reloads after clearing failure and checks actual `load()` behavior; then specify fail-closed non-destructive recovery contract and tests before changing production protocol. Include old-tab writes and confirmed-intent semantics.
+
 ## 2026-11-06 22:00 Europe/Bucharest — #29 source-excerpt VM execution (PARTIAL EVIDENCE, NOT ACCEPTANCE)
 
 - HEAD at startup: `1b8ee882b83ec6a77ed2d30832644635fd3fce89`; mandatory docs, open issues and WEB 18.74 reset source inspected. `PROJECT_STATE.md` remains empty with valid SHA; not overwritten.
