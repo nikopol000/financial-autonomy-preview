@@ -1,3 +1,10 @@
+## 2026-11-07 00:01 Europe/Bucharest — #29 committed three-fault repository test (NOT EXECUTED AGAINST BUNDLE)
+
+- Startup main HEAD `c031559d976a6b78530207f2c0f98e444b43034c`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty, valid blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md (root path 404), open GitHub issues including DISCOVERY, and existing #29 test.
+- New repository test `tests/research-v1874-reset-three-faults.cjs` committed as `28fdb2479cc070ccbbb912ab843a9e52bbf21726`. Extracts active HTML-referenced bundle reset functions and checks marker-write, payload-remove and key-remove injected failures, including subsequent finish behavior. Synthetic Map only; explicitly prints characterization rather than safety acceptance.
+- Local `node --check` passed for the matching authored script; **the repository test itself was NOT run** against the actual immutable bundle, and browser reload, two-tab, Safari, CI and Vercel were not verified. No product changes, no version bump, no iOS, no formulas, no real ledger or backup writes.
+- FIRST NEXT: run `node tests/research-v1874-reset-three-faults.cjs` at exact main checkout; correct any mismatched expectations based on actual result. Then test reload and stale-tab behavior on a disposable browser origin before designing a fail-closed recovery protocol. #14 budget perspectives remain DISCOVERY, no implementation authorization.
+
 ## 2026-11-06 23:02 Europe/Bucharest — #29 three-fault active reset source-excerpt matrix (EXECUTED; NO SAFETY PASS)
 
 - Exact startup HEAD via GitHub recent commits: `3d3dcc5fa6dda6d25157a992e4bdf99f67ecf221`; active WEB 18.74 bundle blob `60c8e9ba93127514299be6be14b1edd932150b54`. Read mandatory docs including `docs/WEB_VISUAL_REVIEW.md` (root path does not exist), open issues, and existing characterization test. `PROJECT_STATE.md` returned empty content with valid blob SHA; preserved.
