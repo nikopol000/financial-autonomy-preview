@@ -1,3 +1,10 @@
+## 2026-11-06 06:06 Europe/Bucharest — silent reinitialization after repeated partial reset (TEST ONLY; UNVERIFIED)
+
+- Verified initial main HEAD `f8c45d4425e54fcd5c314267e82bcb3e2fd28967` from GitHub commit search; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty content despite SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues including #4/#14/#29/#35/#85 and reset-boundary research document. Active index.html version WEB 18.74.
+- Test-only commit `32305433189a77ffa767f4ebe341423174c3632c`: extends archived/current crypto synthetic Map-backed regression for #29. After partial reset and a second legacy reset erase the remaining KEY, fresh active module sees an empty vault and accepts creation of a new synthetic ledger; verifies newly generated KEY differs from original. This characterizes **KNOWN UNSAFE provenance loss**, not a recovery or production fix. Corrected machine-readable summary from `resetTested:false` to `syntheticLegacyResetFaultsCharacterized:true`; browser and real-schema coverage remain false.
+- **UNVERIFIED:** Node execution, exact push Actions CI, Chromium/Safari, real financial schema, two-tab crash recovery. Local container git DNS cannot resolve github.com; connector GitHub write succeeded. Vercel status on previous HEAD was success only, not CI. No release, iOS, formula, real data or backup changes.
+- #14 stays DISCOVERY ONLY. FIRST NEXT: run exact test in push CI or accessible Node checkout; test disposable Chromium reload/old-tab race and non-destructive quarantine before designing production reset contract. Never auto-create a vault when prior reset provenance is ambiguous.
+
 ## 2026-11-06 05:04 Europe/Bucharest — repeated legacy reset after partial deletion (TEST ONLY; NOT VERIFIED)
 
 - Initial main HEAD `6425ded1108cf82e9150097b0b11fd4628ecbddb`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty response with valid SHA, preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issue backlog including #4/#14/#29/#35/#85. Active product WEB 18.74.
