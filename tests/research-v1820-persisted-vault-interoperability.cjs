@@ -211,6 +211,19 @@ for (const vaultModule of [old, now]) {
         'fresh module must not overwrite partial-reset KEY-only vault');
       assert.deepEqual([...resetFault.snapshot()],[...strandedBeforeReload],
         'reload and rejected save must preserve partial-reset evidence');
+      // Characterization: retrying a legacy reset after the transient denial clears
+      // the remaining KEY and erases evidence of an interrupted first attempt.
+      // This is KNOWN UNSAFE, not an accepted recovery or a reset protocol fix.
+      resetFault.removeItem=remove;
+      assert.equal(resetFault.getItem(KEY),before.get(KEY),
+        'pre-retry orphan key must still identify interrupted reset');
+      vaultModule.clearWebVault(resetFault);
+      assert.equal(resetFault.getItem(KEY),null,
+        'KNOWN UNSAFE: second legacy reset deletes stranded key');
+      assert.equal(resetFault.getItem(PAYLOAD),null,
+        'KNOWN UNSAFE: repeated reset cannot restore deleted ciphertext');
+      assert.deepEqual([...resetFault.snapshot()],[],
+        'KNOWN UNSAFE: repeated reset makes interrupted state indistinguishable from empty storage');
     }
   }
 }
