@@ -1,3 +1,10 @@
+## 2026-11-06 13:01 Europe/Bucharest — active IndexedDB reset crash matrix (RESEARCH ONLY)
+
+- Confirmed initial main HEAD `6e34e88648ccb8fdccbc8eb2fd7f5561d7c66604`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty response with valid SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issue backlog including #14/#29/#85 and existing archived crypto regression. Active product WEB 18.74.
+- Documentation-only commit `f4de5a8f5dcf75f1376ef2b3fbcafa6b67bca70e` adds `docs/WEB_ACTIVE_RESET_RECOVERY_TEST_PLAN_20261106.md`: nine executable fault/reload/two-tab acceptance scenarios, evidence matrix, privacy boundaries and alternatives (authenticated reset journal vs single-record envelope vs insufficient catch-only restoration). This addresses missing active IndexedDB coverage, not a fix.
+- **NOT VERIFIED:** Node/Chromium/CI execution; no claim of passing tests, browser verification or recovery correctness. No product bundle, version, iOS, financial formula, real data or encrypted backup changes. #14 remains DISCOVERY ONLY; #85 remains accessibility discovery.
+- FIRST NEXT: run exact existing Node regression in a runner; implement active WEB 18.74 real-schema synthetic disposable-origin IDB fault harness for cases 1–6, verify CI and report run IDs on #29. Preserve ambiguous reset evidence, never auto-initialize a new vault after an incomplete reset.
+
 ## 2026-11-06 06:06 Europe/Bucharest — silent reinitialization after repeated partial reset (TEST ONLY; UNVERIFIED)
 
 - Verified initial main HEAD `f8c45d4425e54fcd5c314267e82bcb3e2fd28967` from GitHub commit search; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty content despite SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues including #4/#14/#29/#35/#85 and reset-boundary research document. Active index.html version WEB 18.74.
