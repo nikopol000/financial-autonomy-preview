@@ -1,3 +1,10 @@
+## 2026-11-06 03:00 Europe/Bucharest — partial reset fresh-reload guard (TEST ONLY; CI UNVERIFIED)
+
+- Confirmed initial main HEAD `f79b7304c0a341c796e70d2401bd4e6db62c6098`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty response with valid SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #4/#14/#29/#35/#85. Active product remains WEB 18.74.
+- Test-only commit `9772eddb26791dd8fc3cd44abec55992bcd1b77d`: after simulated failure of second reset deletion leaves KEY-only, assert fresh current module rejects load AND save, and exact partial-reset bytes remain unchanged. This characterizes a KNOWN UNSAFE state; it does not restore lost ciphertext or fix reset. Archived/current real crypto modules, synthetic financial adapter and Map storage only.
+- **NOT VERIFIED:** Node test execution, exact GitHub Actions push CI, browser/Safari, real financial schema, two-tab concurrency. GitHub combined status for prior HEAD only Vercel success; PR-filtered workflow lookup returned no push runs. Container cannot resolve github.com; no product release, iOS, formula, real ledger or backup changes.
+- Issue #14 remains DISCOVERY ONLY pending explicit approved contract. FIRST NEXT: run this exact test and check push CI by run/job ID; then disposable real-schema synthetic Chromium reset/reload/two-tab gate. Never treat an orphan key as an empty new vault or silently delete ambiguous encrypted evidence.
+
 ## 2026-11-06 00:00 Europe/Bucharest — transient storage read-denial recovery regression (TEST ONLY; CI UNVERIFIED)
 
 - Confirmed pre-change main HEAD `e00bdbb4f96022212eafa6af7925d21b624d6eda`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (connector returns empty despite valid blob SHA; left untouched), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #14/#35. Active WEB remains 18.74.
