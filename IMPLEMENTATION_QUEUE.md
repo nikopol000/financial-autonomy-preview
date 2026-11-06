@@ -1,3 +1,10 @@
+## 2026-11-06 22:00 Europe/Bucharest — #29 source-excerpt VM execution (PARTIAL EVIDENCE, NOT ACCEPTANCE)
+
+- HEAD at startup: `1b8ee882b83ec6a77ed2d30832644635fd3fce89`; mandatory docs, open issues and WEB 18.74 reset source inspected. `PROJECT_STATE.md` remains empty with valid SHA; not overwritten.
+- **Executed** an isolated Node VM reproduction using the exact `faIdleReset`–`faBeginCommittedReset` function text copied from active WEB 18.74 bundle (the source-excerpt test was run in a disposable container, not the repository test file). Node printed `PASS source-excerpt VM reset fault characterization; safety acceptance: NO`. Injected KEY remove failure after PAYLOAD removal leaves pending marker and orphan key; subsequent `faFinishCommittedReset` after clearing fault deletes key and changes marker to idle. This is an unsafe-path **characterization**, not a safety fix or real browser proof.
+- **NOT RUN:** repository `tests/research-v1874-reset-auto-finalization.cjs` at exact checkout (GitHub DNS unavailable), GitHub Actions, Chromium reload, Safari, multi-tab. No release, product changes, iOS, formula, ledger or backup mutations. #14 remains DISCOVERY ONLY.
+- FIRST NEXT: run the repository test at exact HEAD and add disposable-browser reload fault injection with no real data; define safe non-destructive recovery semantics before changing production reset behavior.
+
 ## 2026-11-06 21:06 Europe/Bucharest — #29 active source-extracted reset fault characterization (TEST ADDED, NOT EXECUTED)
 
 - Initial main HEAD c76c84c1bd88201edbe0d120bb8df65bc169df8a; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty with valid blob SHA, preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, corrected active reset test plan and open GitHub issues. Active WEB 18.74 unchanged.
