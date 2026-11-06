@@ -175,5 +175,37 @@ for (const deniedReadKey of [KEY, PAYLOAD]) {
     'permission recovery must not rewrite or discard encrypted bytes');
 }
 
+
+// Reset fault characterization on authentic archived/current AES-GCM vault modules.
+// This deliberately documents an UNSAFE legacy partial-delete state; it is not a fix.
+for (const vaultModule of [old, now]) {
+  for (const deniedRemoveKey of [PAYLOAD, KEY]) {
+    const resetFault=storage();
+    resetFault.setItem(KEY,persisted.get(KEY));
+    resetFault.setItem(PAYLOAD,persisted.get(PAYLOAD));
+    const before=resetFault.snapshot();
+    const remove=resetFault.removeItem.bind(resetFault);
+    resetFault.removeItem=k=>{
+      if(k===deniedRemoveKey)throw new Error('synthetic reset remove denied');
+      return remove(k);
+    };
+    assert.throws(()=>vaultModule.clearWebVault(resetFault),
+      'legacy reset must surface '+deniedRemoveKey+' deletion failure');
+    if(deniedRemoveKey===PAYLOAD) {
+      assert.deepEqual([...resetFault.snapshot()],[...before],
+        'first deletion denial must retain both encrypted records');
+      assert.deepEqual(JSON.parse(JSON.stringify(vaultModule.loadWebVault(resetFault))),initial,
+        'first deletion denial must retain readable original ledger');
+    } else {
+      assert.equal(resetFault.getItem(PAYLOAD),null,
+        'KNOWN UNSAFE: second deletion denial leaves missing ciphertext');
+      assert.equal(resetFault.getItem(KEY),before.get(KEY),
+        'KNOWN UNSAFE: second deletion denial strands original key');
+      assert.throws(()=>vaultModule.loadWebVault(resetFault),
+        'stranded key must not silently initialize a new ledger');
+    }
+  }
+}
+
 console.log('PASS synthetic archived persisted vault -> active read -> active write -> archived read; KEY-only fail closed');
 console.log(JSON.stringify({status:'PASS',archived,active,synthetic:true,realSchemaMigrationTested:false,browserTested:false,twoTabsTested:false,resetTested:false}));
