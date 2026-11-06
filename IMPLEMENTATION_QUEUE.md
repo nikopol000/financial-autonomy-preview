@@ -1,3 +1,10 @@
+## 2026-11-07 01:04 Europe/Bucharest — #29 idle-marker persistence fault characterization (TEST ADDED; NOT EXECUTED)
+
+- Initial main HEAD `07e1765aa4018a3068eddea591f1e306d78c77cd`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty blob; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues, and the three-fault test. Active WEB 18.74; no product/iOS/formula changes.
+- Inspected actual WEB 18.74 reset functions. Additional uncovered fault boundary: after successful deletion of payload and key, writing `idle-v2` may fail, leaving `pending-v2` with both records absent. The existing three-fault test does not cover this transition.
+- New test `tests/research-v1874-reset-idle-marker-fault.cjs` committed `9347ae4925c1ae8f0728c3f77e8c73f130cb0a72`. Uses actual active bundle source extraction, synthetic Map, injected idle-marker write failure, and retry characterization. The GitHub file was fetched back and its pattern checked; **the repository test was not executed** because local GitHub DNS resolution still fails. No browser/CI safety acceptance.
+- FIRST NEXT: execute both `node tests/research-v1874-reset-three-faults.cjs` and `node tests/research-v1874-reset-idle-marker-fault.cjs` against exact checkout; then disposable-origin browser reload and stale-tab tests. Do not treat a characterization PASS as safe recovery. #14 remains DISCOVERY pending explicit financial contract approval.
+
 ## 2026-11-07 00:01 Europe/Bucharest — #29 committed three-fault repository test (NOT EXECUTED AGAINST BUNDLE)
 
 - Startup main HEAD `c031559d976a6b78530207f2c0f98e444b43034c`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty, valid blob SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md (root path 404), open GitHub issues including DISCOVERY, and existing #29 test.
