@@ -224,9 +224,21 @@ for (const vaultModule of [old, now]) {
         'KNOWN UNSAFE: repeated reset cannot restore deleted ciphertext');
       assert.deepEqual([...resetFault.snapshot()],[],
         'KNOWN UNSAFE: repeated reset makes interrupted state indistinguishable from empty storage');
+      // After a repeated reset, the legacy module now accepts a brand-new ledger.
+      // This is a characterization of lost provenance, NOT approval to reinitialize.
+      const newLedger={syntheticFixture:true,entries:[{id:'post-reset-new',amountMinor:999}]};
+      const freshAfterRetry=modules(active);
+      assert.deepEqual(JSON.parse(JSON.stringify(freshAfterRetry.loadWebVault(resetFault))),
+        {syntheticFixture:true,entries:[]},
+        'KNOWN UNSAFE: interrupted reset followed by retry appears as an empty vault');
+      freshAfterRetry.saveWebVault(resetFault,newLedger,random);
+      assert.deepEqual(JSON.parse(JSON.stringify(modules(active).loadWebVault(resetFault))),newLedger,
+        'KNOWN UNSAFE: new ledger can be created without evidence of interrupted reset');
+      assert.notEqual(resetFault.getItem(KEY),before.get(KEY),
+        'post-reset new ledger must not reuse the stranded original key');
     }
   }
 }
 
 console.log('PASS synthetic archived persisted vault -> active read -> active write -> archived read; KEY-only fail closed');
-console.log(JSON.stringify({status:'PASS',archived,active,synthetic:true,realSchemaMigrationTested:false,browserTested:false,twoTabsTested:false,resetTested:false}));
+console.log(JSON.stringify({status:'PASS',archived,active,synthetic:true,realSchemaMigrationTested:false,browserTested:false,twoTabsTested:false,syntheticLegacyResetFaultsCharacterized:true}));
