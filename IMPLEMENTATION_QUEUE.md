@@ -1,3 +1,10 @@
+## 2026-11-06 21:06 Europe/Bucharest — #29 active source-extracted reset fault characterization (TEST ADDED, NOT EXECUTED)
+
+- Initial main HEAD c76c84c1bd88201edbe0d120bb8df65bc169df8a; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty with valid blob SHA, preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, corrected active reset test plan and open GitHub issues. Active WEB 18.74 unchanged.
+- Test-only commit 2a838e27f907df228e9d372d424cf879845690d6 adds `tests/research-v1874-reset-auto-finalization.cjs`. It extracts actual `faIdleReset` through `faBeginCommittedReset` functions from active HTML-referenced immutable bundle, injects a synthetic KEY-removal error after PAYLOAD removal, then models the existing `load()` auto-finalization call after the fault clears. It asserts pending marker and remaining KEY, then the final deletion and idle marker. Explicit output labels the outcome KNOWN_UNSAFE and safetyPass:false; a passing run is NOT acceptance of safety.
+- Test deliberately uses synthetic non-secret placeholder bytes and an in-memory localStorage adapter; it does NOT exercise a browser reload, UI, two-tab concurrency, real financial schema, or encrypted data. No formulas, product bundle, release version, iOS, real data or backups changed. #14 remains DISCOVERY ONLY.
+- **NOT VERIFIED:** test has not been executed in Node, nor in Chromium/Safari/CI. FIRST NEXT: run `node tests/research-v1874-reset-auto-finalization.cjs` at exact commit and attach output; then implement disposable-origin real-browser fault/reload test and evaluate a non-destructive recovery contract before any production reset change.
+
 ## 2026-11-06 20:00 Europe/Bucharest — #29 reset-error guidance contradicts conservative recovery (STATIC SOURCE AUDIT; NO RELEASE)
 
 - Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty content, valid SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, current WEB 18.74 index/bundle, open GitHub issues and corrected reset test plan. Source bundle blob: 60c8e9ba93127514299be6be14b1edd932150b54.
