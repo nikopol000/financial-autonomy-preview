@@ -498,7 +498,22 @@ async function run() {
     assert.match(interruptedBytes.key,/^[0-9a-f]{64}$/);
     await tabA.evaluate(()=>window.__faRestoreRemove());
     await openReal(tabA,url);
-    await tabA.evaluate(async()=>window.__r(309).load());
+    const pendingReload=await tabA.evaluate(async()=>{
+      try {await window.__r(309).load();return 'UNEXPECTED_LOAD'}
+      catch(error){return String(error.message)}
+    });
+    assert.match(pendingReload,/Resetare locală întreruptă/,
+      'Ambiguous reset must fail closed on reload, not silently delete the surviving key');
+    assert.deepEqual(await vaultBytes(tabA),interruptedBytes,
+      'Reload must not remove any additional encrypted bytes');
+    // The next legacy stale-tab assertion needs a completed reset epoch.
+    // Complete it ONLY in this disposable synthetic browser profile, never
+    // by calling app recovery or by deleting a real user's data.
+    await tabA.evaluate(([key,payload,reset,marker])=>{
+      localStorage.removeItem(key);
+      localStorage.removeItem(payload);
+      localStorage.setItem(reset,'idle-v2:'+marker.slice('pending-v2:'.length));
+    },[KEY,PAYLOAD,RESET,interruptedBytes.reset]);
     const erased=await vaultBytes(tabA);
     assert.equal(erased.key,null);assert.equal(erased.payload,null);
     assert.match(erased.reset,/^idle-v2:[0-9a-f]{32}$/);
@@ -510,7 +525,7 @@ async function run() {
     assert.deepEqual(await vaultBytes(tabA),erased,'Stale tab must not resurrect data after reset');
     assert.deepEqual(await vaultBytes(orphan),beforeOrphan,'Independent orphan profile must remain untouched');
     assert.deepEqual(await vaultBytes(populated),seed,'Independent populated source profile must remain untouched');
-    console.log('PASS Chromium interrupted committed reset: reload completes deletion, stale tab cannot resurrect ledger, other profiles unchanged');
+    console.log('PASS Chromium interrupted reset: reload fails closed without deletion; isolated synthetic completion keeps stale tab fenced');
 
     // Fault matrix uses only fresh, disposable Chromium contexts and the
     // actual bundled vault/platform modules. No browser user profile is reused.
