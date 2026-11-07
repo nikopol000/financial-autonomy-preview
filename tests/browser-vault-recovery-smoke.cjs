@@ -600,6 +600,10 @@ async function run() {
     const cleared=await vaultBytes(faultPage);
     assert.equal(cleared.key,null);assert.equal(cleared.payload,null);
     assert.match(cleared.reset,/^idle-v2:[0-9a-f]{32}$/);
+    // The synthetic manual completion changed the revision behind this tab;
+    // reload to establish a current revision before testing a second reset.
+    await openReal(faultPage,url);
+    await faultPage.evaluate(async()=>window.__r(309).load());
     await faultPage.evaluate(async()=>window.__r(309).resetData());
     const secondReset=await vaultBytes(faultPage);
     assert.equal(secondReset.key,null);assert.equal(secondReset.payload,null);
