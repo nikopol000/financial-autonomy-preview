@@ -29,3 +29,11 @@ Follow RELEASE_PROCESS.md for every product change: immutable versioned bundle, 
 - Critical unresolved: deleting one of two records before failure can still lose the vault's decryptability; need atomic/staged recovery design, stale-tab/privacy acceptance, and disposable browser tests before release.
 - Local checkout failed due to unavailable DNS for github.com. At initial check PR Chromium workflow was queued; no test success claimed. Vercel status on branch does not establish production deployment.
 - **FIRST NEXT:** inspect PR #495 CI, run/inspect reset acceptance on exact candidate and browser synthetic scenarios; do not merge until all four #29 safety gates and release checks are satisfied. Then continue #35/#4 and other open bugs. Keep #14 financial semantics gated on explicit approval.
+
+## 2026-11-07 — PR #495 CI results (BLOCKED; no release)
+
+- Retrieved actual GitHub Actions for candidate head `85bf1df`: release validation run `42366268072` **FAILURE**; Chromium WEB vault run `42366268004` **FAILURE**. Logs inspected, not inferred.
+- Release failure: historical `tests/web-v1874-dashboard-arrange-target-regression.cjs` asserts active HTML remains exactly 18.74; candidate activates 18.75. This test needs separation between archived immutable 18.74 behavior and current active version; do not delete its historical bundle assertions.
+- Chromium failure: browser test reaches `e.load` after a pending reset and now receives the candidate's deliberate fail-closed error. Existing smoke expects old automatic completion; acceptance needs an explicit safe interrupted-reset recovery contract and revised scenario, not a blind catch or silent deletion.
+- PR remains **DRAFT**, unmerged, production remains WEB 18.74; candidate is **NOT ACCEPTED**. No full #29 recovery or regression pass claimed.
+- **FIRST NEXT:** design/test explicit recovery handling for pending marker and partial KEY/PAYLOAD (with user-visible choices and no silent deletion), update version-independent historical test assertions, add scenario-specific acceptance tests, then rerun both workflows before any promotion.
