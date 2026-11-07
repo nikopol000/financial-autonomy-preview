@@ -1,3 +1,11 @@
+## 2026-11-07 12:04 Europe/Bucharest — #29 distinct safety gates reviewed (RESEARCH ONLY; NO PRODUCT CHANGE)
+
+- GitHub main HEAD before work `b2337caa871684b63c026e46d625d076273499b4`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, index.html WEB 18.74, the #29 recovery design and exact committed acceptance/characterization tests; reviewed open GitHub issues, including DISCOVERY #14/#35/#85.
+- Explicitly separated four acceptance contracts: (1) no `idle-v2` with remaining KEY/PAYLOAD, (2) no automatic destructive I/O on ambiguous reload, (3) no stale-tab resurrection after reset, and (4) encrypted recovery-copy retention/privacy. Existing RED test covers only (1), not all four. A read-back guard alone cannot restore ciphertext already deleted and is not full #29 closure.
+- Recommended separate fail-closed UX and versioned single-envelope migration prototypes with synthetic faults, without deploying either. Existing WEB 18.74 and all financial semantics unchanged; #14 remains analysis-only.
+- Node exact-checkout, Chromium/Safari, CI and Vercel release validation **NOT EXECUTED this run**. No product JS/HTML, version, iOS, real data, or backup changed.
+- **FIRST NEXT:** obtain executable exact checkout/authorized runner, record exit codes for RED acceptance + characterization; implement and test the four independent gates on disposable data before immutable product release. Continue nonurgent #85 browser zoom audit when browser available.
+
 ## 2026-11-07 11:06 Europe/Bucharest — #29 reset integrity gate: exact HEAD rechecked; executable checkout blocked (NO PRODUCT CHANGE)
 
 - Read live main latest commit `ba0adf1f87ff583b32567c4895da820494d51eb4`, AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, current index.html (WEB 18.74), reset recovery contract, safety acceptance test, and open GitHub issues including #14/#29/#35/#85. Reconciled the documented checkpoint with the latest commit.
