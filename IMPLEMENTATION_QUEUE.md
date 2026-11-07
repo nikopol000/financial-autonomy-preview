@@ -1,3 +1,11 @@
+## 2026-11-07 06:02 Europe/Bucharest — #29 silent remove assertions strengthened (TEST ONLY; NOT EXECUTED)
+
+- Resumed last checkpoint after reviewing AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty connector content, preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, reset contract candidate, current index.html and open issues including #14/#29/#35/#85. Active immutable WEB 18.74 bundle blob `60c8e9ba93127514299be6be14b1edd932150b54` unchanged.
+- Inspected actual `faFinishCommittedReset`: it calls `removeItem(PAYLOAD)`, `removeItem(KEY)`, then commits `idle-v2` without reading back either removal. This means a **nonthrowing ignored removal** can produce an apparently successful reset while retaining KEY or PAYLOAD. Static source evidence only, not a real browser incident.
+- Updated existing `tests/research-v1874-reset-silent-remove-faults.cjs` in commit `928f30b06f9dd6de212f662c7197d3287dffbb7a`: assert no exception, final `idle-v2` despite retained synthetic bytes, both remove attempts and exact retained value for each ignored deletion. This is a **KNOWN UNSAFE characterization**, not a safety test or fix; it intentionally fails if current behavior changes, requiring reassessment.
+- **Execution/CI/browser unverified:** container Git cannot resolve github.com; Node tests cannot run on exact repository checkout here. Do not claim PASS. No product version, iOS, formulas, real data or encrypted backup changed. #14 remains discovery only.
+- FIRST NEXT: run four reset scripts on exact checkout, inspect actual output and exact CI; add a failing safety-acceptance test that rejects `idle-v2` with residual encrypted records before proposing a reviewed reset lifecycle fix. Then disposable Chromium reload/two-tab testing. Keep #29 open.
+
 ## 2026-11-07 04:04 Europe/Bucharest — #29 silent marker persistence fault test (COMMITTED, EXECUTION UNVERIFIED)
 
 - Starting main HEAD `b51fc595e600c8dfd547342315c12809cf3b0ce8`; inspected AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty content, preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, reset contract candidate and open issues including #14/#29/#35/#85. Active immutable WEB 18.74 source blob `60c8e9ba93127514299be6be14b1edd932150b54` unchanged.
