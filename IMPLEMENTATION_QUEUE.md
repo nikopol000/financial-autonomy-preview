@@ -1,3 +1,11 @@
+## 2026-11-07 02:04 Europe/Bucharest — #29 actual V8 fault execution (CHARACTERIZATION PASS; SAFETY NOT VERIFIED)
+
+- Starting HEAD `c8a03a3fd83b46f098d67dd41adb49d0d4853657`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (still empty, not overwritten), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open GitHub issues including #14. Active HTML references immutable WEB 18.74; no product release.
+- Fetched exact active bundle `_expo/static/js/web/index-v01874-dashboard-arrange-target-20261103.js` (blob `60c8e9ba93127514299be6be14b1edd932150b54`). Executed real extracted reset functions in isolated V8 with Map-backed synthetic localStorage and deterministic crypto; injected failures at pending marker write, PAYLOAD removal, KEY removal, idle marker write. Four observed fault/retry transitions matched code. Detailed matrix: [issue #29 comment](https://github.com/nikopol000/financial-autonomy-preview/issues/29#issuecomment-6699234938).
+- **Safety NOT PASSED:** after KEY removal fault PAYLOAD is already gone, and retry deletes KEY; no evidence of safe recovery. No real browser reload, two-tab, Safari, repository Node/CI, or Vercel verification in this run. Local git remains DNS-blocked. Do not equate source-excerpt characterization with full acceptance.
+- #14 remains DISCOVERY ONLY; no formula, mode, ledger, encrypted backup, iOS or product changes. No release bump.
+- **FIRST NEXT:** run committed `tests/research-v1874-reset-three-faults.cjs` and `tests/research-v1874-reset-idle-marker-fault.cjs` against exact checkout when available; then browser synthetic reload/two-tab matrix; design a non-destructive reset recovery protocol with clear deletion intent and migration guarantees before implementation.
+
 ## 2026-11-07 01:04 Europe/Bucharest — #29 idle-marker persistence fault characterization (TEST ADDED; NOT EXECUTED)
 
 - Initial main HEAD `07e1765aa4018a3068eddea591f1e306d78c77cd`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty blob; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, open issues, and the three-fault test. Active WEB 18.74; no product/iOS/formula changes.
