@@ -1,3 +1,10 @@
+## 2026-11-07 03:04 Europe/Bucharest — #29 explicit reset recovery matrix (DESIGN ONLY; NOT SAFETY PASS)
+
+- Starting HEAD `44808199b1ed96643ee83b1acfa3aa5316366c54`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty, valid SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #14. Confirmed active WEB 18.74 and exact reset functions in immutable bundle blob `60c8e9ba93127514299be6be14b1edd932150b54`.
+- Added `docs/WEB_RESET_RECOVERY_CONTRACT_CANDIDATE_20261107.md` in commit `9da5be580b079e7b33dd7330a51e28b24d4f6b42`: 10-state marker/key/payload matrix, fail-closed alternative, single-record envelope vs encrypted journal tradeoffs, synthetic fault/reload/two-tab acceptance and outstanding deletion-intent decisions. Source inspection only, not an implementation or a safety proof.
+- No new Node repository test execution, real browser reload, two-tab verification, CI or Vercel validation. Characterization from prior run does NOT prove safety. No product/version/iOS/formula/real-data/backup changes. #14 remains DISCOVERY ONLY.
+- **FIRST NEXT:** execute both committed Node characterization scripts on the exact checked-out active bundle; perform disposable-origin reload/two-tab matrix; obtain explicit deletion semantics before implementing a reset protocol. Do not auto-finalize pending state as an assumed safe recovery.
+
 ## 2026-11-07 02:04 Europe/Bucharest — #29 actual V8 fault execution (CHARACTERIZATION PASS; SAFETY NOT VERIFIED)
 
 - Starting HEAD `c8a03a3fd83b46f098d67dd41adb49d0d4853657`. Read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (still empty, not overwritten), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open GitHub issues including #14. Active HTML references immutable WEB 18.74; no product release.
