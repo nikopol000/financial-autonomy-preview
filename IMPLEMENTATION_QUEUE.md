@@ -1,3 +1,10 @@
+## 2026-11-07 04:04 Europe/Bucharest — #29 silent marker persistence fault test (COMMITTED, EXECUTION UNVERIFIED)
+
+- Starting main HEAD `b51fc595e600c8dfd547342315c12809cf3b0ce8`; inspected AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty content, preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, reset contract candidate and open issues including #14/#29/#35/#85. Active immutable WEB 18.74 source blob `60c8e9ba93127514299be6be14b1edd932150b54` unchanged.
+- Committed `tests/research-v1874-reset-silent-write-faults.cjs` as `123397c162fe595bc2ffb623ac7f1c10e047ce2c`. Synthetic actual-bundle function extraction characterizes **nonthrowing lost writes** at initial pending marker, legacy committed-v1 upgrade and final idle marker. Expected: first two abort without deleting KEY/PAYLOAD; last detects failure only after both deletions. This is a proposed executable characterization, **not executed or safety PASS**.
+- Local `git ls-remote` still fails DNS resolution for github.com; no exact-checkout Node, Chromium, Safari, CI or Vercel verification this run. No product/version/iOS/formula/real-data/backup changes. #14 remains research-only without financial semantics approval.
+- **FIRST NEXT:** execute three committed scripts on the exact checked-out WEB 18.74 bundle, inspect exact-commit CI, then disposable-origin Chromium reload/two-tab scenarios and decide fail-closed reset lifecycle contract before shipping a fix. Keep #29 open.
+
 ## 2026-11-07 03:04 Europe/Bucharest — #29 explicit reset recovery matrix (DESIGN ONLY; NOT SAFETY PASS)
 
 - Starting HEAD `44808199b1ed96643ee83b1acfa3aa5316366c54`; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty, valid SHA; preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md and open issues including #14. Confirmed active WEB 18.74 and exact reset functions in immutable bundle blob `60c8e9ba93127514299be6be14b1edd932150b54`.
