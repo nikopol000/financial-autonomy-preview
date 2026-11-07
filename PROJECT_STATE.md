@@ -20,3 +20,12 @@ The operating-mode handoff is complete after the documentation updates are commi
 ## Release and approval invariants
 
 Follow RELEASE_PROCESS.md for every product change: immutable versioned bundle, synchronized metadata/diagnostics, checks, GitHub CI, deployed artifact verification and browser validation when possible. Never claim full verification without evidence. Preview `main` is not the stable source `financial-autonomy-app/main`; promoting to the latter requires explicit user approval of the exact build.
+
+## 2026-11-07 — user-directed bugfix resumed, #29 candidate (NOT RELEASED)
+
+- User explicitly requested to continue from the former WEB task and fix existing bugs, prioritizing data integrity. WEB automation remains paused.
+- Inspected active WEB 18.74 reset implementation and `tests/acceptance-reset-no-false-idle.cjs`. Identified unverified `removeItem` calls followed by `idle-v2` and automatic destructive reset continuation on reload.
+- Created isolated branch `fix/reset-fail-closed-1875-candidate` and **draft PR #495**: https://github.com/nikopol000/financial-autonomy-preview/pull/495 . Candidate WEB 18.75 adds read-back guards after KEY/PAYLOAD removal and stops automatic deletion on ambiguous reload. Candidate commits: `81f3e9a` bundle, `85bf1df` branch HTML activation. **Not merged to main, not promoted to production, not a complete #29 fix.**
+- Critical unresolved: deleting one of two records before failure can still lose the vault's decryptability; need atomic/staged recovery design, stale-tab/privacy acceptance, and disposable browser tests before release.
+- Local checkout failed due to unavailable DNS for github.com. At initial check PR Chromium workflow was queued; no test success claimed. Vercel status on branch does not establish production deployment.
+- **FIRST NEXT:** inspect PR #495 CI, run/inspect reset acceptance on exact candidate and browser synthetic scenarios; do not merge until all four #29 safety gates and release checks are satisfied. Then continue #35/#4 and other open bugs. Keep #14 financial semantics gated on explicit approval.
