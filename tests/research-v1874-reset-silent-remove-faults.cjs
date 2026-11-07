@@ -25,7 +25,14 @@ for(const ignored of [PAYLOAD,KEY]){
  // Whether implementation throws or silently finalizes is evidence to characterize,
  // not a reason to accept the state as safe.
  const marker=storage.getItem(RESET_MARKER);
- assert.ok(marker,'reset intent should have been persisted');
+ // KNOWN UNSAFE CURRENT BEHAVIOR: removeItem may return without deleting.
+ // The implementation does not read back either deletion; it can publish
+ // idle-v2 even while an encrypted vault record remains on disk.
+ assert.equal(thrown,null,'current implementation silently accepts lost deletion');
+ assert.match(marker,/^idle-v2:[0-9a-f]{32}$/,'current implementation incorrectly commits idle');
+ assert.deepEqual(operations.filter(x=>x[0]==='remove').map(x=>x[1]),[PAYLOAD,KEY]);
+ assert.ok(storage.getItem(ignored)!==null,'ignored deletion must leave original bytes');
+ assert.equal(storage.getItem(ignored),'SYNTHETIC_'+(ignored===KEY?'KEY':'PAYLOAD'));
  if(ignored===PAYLOAD)assert.equal(storage.getItem(PAYLOAD),'SYNTHETIC_PAYLOAD');
  if(ignored===KEY)assert.equal(storage.getItem(KEY),'SYNTHETIC_KEY');
  console.log(JSON.stringify({scenario:'silent-remove-'+(ignored===KEY?'key':'payload'),bundle,
