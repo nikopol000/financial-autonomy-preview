@@ -564,7 +564,7 @@ async function run() {
     console.log('PASS Chromium reset marker write denied: fail closed, zero deletion, reload retains authenticated ledger');
 
     // Denied FIRST deletion after a committed journal must preserve ciphertext
-    // until a later reload completes the intentional reset.
+    // and reload must never resume deletion without an explicit recovery contract.
     await faultPage.evaluate(payload=>{
       const original=Storage.prototype.removeItem;
       Storage.prototype.removeItem=function(name){
@@ -584,7 +584,19 @@ async function run() {
     assert.equal(pendingReset.payload,faultSeed.payload);
     await faultPage.evaluate(()=>window.__restoreFaultRemove());
     await openReal(faultPage,url);
-    await faultPage.evaluate(async()=>window.__r(309).load());
+    const payloadPendingLoad=await faultPage.evaluate(async()=>{
+      try {await window.__r(309).load();return 'UNEXPECTED_LOAD'}
+      catch(error){return String(error.message)}
+    });
+    assert.match(payloadPendingLoad,/Resetare locală întreruptă/);
+    assert.deepEqual(await vaultBytes(faultPage),pendingReset,
+      'Pending reset reload must preserve both encrypted records byte-for-byte');
+    // Test-only manual completion in this disposable synthetic origin.
+    await faultPage.evaluate(([key,payload,reset,marker])=>{
+      localStorage.removeItem(key);
+      localStorage.removeItem(payload);
+      localStorage.setItem(reset,'idle-v2:'+marker.slice('pending-v2:'.length));
+    },[KEY,PAYLOAD,RESET,pendingReset.reset]);
     const cleared=await vaultBytes(faultPage);
     assert.equal(cleared.key,null);assert.equal(cleared.payload,null);
     assert.match(cleared.reset,/^idle-v2:[0-9a-f]{32}$/);
@@ -596,7 +608,7 @@ async function run() {
     await openReal(faultPage,url);
     await faultPage.evaluate(async()=>window.__r(309).load());
     assert.deepEqual(await vaultBytes(faultPage),secondReset);
-    console.log('PASS Chromium payload removal denied: committed journal survives, reload completes reset, repeated reset idempotent');
+    console.log('PASS Chromium payload removal denied: reload preserves both encrypted records; synthetic manual completion permits repeated reset');
 
     // Read permission faults must block both loading and saving; no attempt to
     // guess whether ciphertext was removed or to rewrite it is permitted.
