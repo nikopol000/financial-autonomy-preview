@@ -1,3 +1,10 @@
+## 2026-11-07 07:06 Europe/Bucharest — #29 red safety acceptance committed (NOT EXECUTED)
+
+- Verified main latest commit before work `41cf9ccbb0b596f56893c4d531a8d184535efe87`, active HTML WEB 18.74; read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty, preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, and open issues including DISCOVERY #14/#35/#85, critical #4/#29. No iOS access or changes.
+- Added `tests/acceptance-reset-no-false-idle.cjs` in commit `ef4ea759e9b699edb4171efcb91baa9b52266ff6`. It extracts the active reset functions, simulates nonthrowing ignored removal of PAYLOAD or KEY with synthetic localStorage, and **requires** no `idle-v2` marker while any encrypted record remains. Unlike earlier characterization tests, this is a safety acceptance gate **expected RED** against current WEB 18.74. It is not wired into release CI yet; do not wire a known-red test into required checks without fixing the product and verifying it.
+- No repository checkout Node execution, real Chromium reload/two-tab, Safari, CI or Vercel validation. Do not claim test PASS or safe reset. No bundle, financial formulas, vault contents, backup or product version changed. #14 remains research only.
+- FIRST NEXT: run `node tests/acceptance-reset-no-false-idle.cjs` plus four existing characterization scripts on exact checkout; capture expected RED with assertion. Then propose minimal fail-closed correction and prove GREEN with synthetic fault/reload/two-tab and release checks before immutable versioned activation. Also periodically investigate #85 mobile zoom without changing financial semantics.
+
 ## 2026-11-07 06:02 Europe/Bucharest — #29 silent remove assertions strengthened (TEST ONLY; NOT EXECUTED)
 
 - Resumed last checkpoint after reviewing AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md (empty connector content, preserved), IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, docs/WEB_VISUAL_REVIEW.md, reset contract candidate, current index.html and open issues including #14/#29/#35/#85. Active immutable WEB 18.74 bundle blob `60c8e9ba93127514299be6be14b1edd932150b54` unchanged.
