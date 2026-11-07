@@ -37,3 +37,11 @@ Follow RELEASE_PROCESS.md for every product change: immutable versioned bundle, 
 - Chromium failure: browser test reaches `e.load` after a pending reset and now receives the candidate's deliberate fail-closed error. Existing smoke expects old automatic completion; acceptance needs an explicit safe interrupted-reset recovery contract and revised scenario, not a blind catch or silent deletion.
 - PR remains **DRAFT**, unmerged, production remains WEB 18.74; candidate is **NOT ACCEPTED**. No full #29 recovery or regression pass claimed.
 - **FIRST NEXT:** design/test explicit recovery handling for pending marker and partial KEY/PAYLOAD (with user-visible choices and no silent deletion), update version-independent historical test assertions, add scenario-specific acceptance tests, then rerun both workflows before any promotion.
+
+## 2026-11-07 — PR #495 browser and immutable regression corrections (candidate still NOT RELEASED)
+
+- On `fix/reset-fail-closed-1875-candidate`, corrected `tests/web-v1874-dashboard-arrange-target-regression.cjs` to verify archived 18.74 immutable behavior while accepting a matching future active HTML/bundle version. Commit `0d558a55`.
+- Updated `tests/browser-vault-recovery-smoke.cjs` to assert no further deletion on interrupted KEY or PAYLOAD removal and reload. Test-only manual completion is confined to disposable synthetic Chromium profiles for existing stale-tab/idempotence coverage. Commits `5deca988`, `fb49dc47`.
+- Verified candidate JS bundle and both edited test scripts parse successfully with V8 syntax compilation via GitHub-fetched exact content; this is **not** a substitute for Node/Chromium CI.
+- Original CI runs `42366268072` and `42366268004` failed on old version-pinned assertion and old auto-delete expectations. No completed workflow result was yet available for the latest branch commit `fb49dc47`; do not claim tests green.
+- **FIRST NEXT:** inspect GitHub Actions on `fb49dc47` for additional failures; ensure acceptance and browser fault matrix pass; design durable safe recovery for partial deletion (atomic/envelope strategy), stale-tab fence and privacy/retention, then release only when all safety gates pass. PR #495 remains DRAFT, production WEB 18.74.
