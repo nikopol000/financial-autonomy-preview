@@ -1,5 +1,12 @@
 # Financial Autonomy — development and immediate-preview workflow
 
+
+## Operating mode: user-directed WEB development (2026-11-07)
+
+The hourly WEB automation is paused. The user selects the next task in conversation; the assistant proposes solutions and implements only the agreed scope. All existing verification and release requirements below remain mandatory. Historical sections describing the source/candidate pipeline are retained for reference; where the active WEB preview uses immutable bundles directly in the preview repository, follow RELEASE_PROCESS.md and verify the exact active artifact rather than assuming a source build was performed.
+
+Session checklist: (1) read AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md and relevant GitHub issues/commits; (2) reconcile current HEAD and deployed preview; (3) agree on the change and financial semantics where relevant; (4) implement and test; (5) commit/push, verify CI and deployment/browser where possible; (6) checkpoint completed and blocked steps in both continuity files. For documentation-only handoffs, do not bump the product version. Never silently promote the WEB preview to stable source main or touch the iOS repository.
+
 ## Goal
 Keep the product-development loop short and observable from chat:
 
