@@ -63,3 +63,12 @@ At the beginning of **every** Financial Autonomy development session, read `AGEN
 - The Web Premium automation owns web implementation, tests, release versioning, commits and deployment. It reads Work's review as evidence, not as an automatically executed command.
 - The iOS automation is independent and remains pinned to archived web v18.20; never modify the native repository from a web-only task.
 - Never claim a Work review or browser interaction occurred without a real report. Do not confuse Vercel READY with end-to-end UI verification.
+
+## User-directed WEB development mode (decision 2026-11-07; supersedes Web Premium automation ownership)
+
+- The Web Premium hourly automation is paused. Do not assume it is executing or will resume. Only the user decides which WEB change or backlog item to tackle next; the assistant may recommend options, but must not start unrelated product work.
+- A user request such as "continue" means resume the first unfinished, explicitly selected work item from PROJECT_STATE.md, or first repair the continuity handoff if that is the selected work. Do not silently treat the former automation's queue as permission to implement every item.
+- Preserve the existing continuity files, GitHub issues and release gates. At session start inspect actual HEAD, live version, AGENTS.md, RELEASE_PROCESS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, and relevant issues/commits. The repository is authoritative; never rely solely on chat memory.
+- For each requested change: record the decision/constraints, analyze impact and risks, implement a small coherent increment, run relevant checks, publish an immutable versioned preview bundle only for product changes, verify GitHub CI and the live Vercel artifact, then update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with verified facts and exact next action. Never report unverified tests or visual review as passed.
+- If the change affects financial formulas or the meaning of financial values, present a testable proposal and obtain explicit approval before implementation. Bug fixes protecting financial data may be prioritized, but never use destructive speculative recovery.
+- ChatGPT Work may still be used for interactive browser review, with its actual results recorded; its previous review-only role does not prevent the user from directing implementation through chat using authorized repository tools. Do not modify the iOS repository or stable source main without the required explicit approval.
