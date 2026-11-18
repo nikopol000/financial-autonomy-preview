@@ -3859,3 +3859,11 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Added `LedgerOperation = FinancialAutonomy.Operation` and used it in the test helper in app commit [`0b738aa`](https://github.com/nikopol000/financial-autonomy-app/commit/0b738aaa8691f2dd9086a132f708fa8e0fc09154). Test-only fix; no product or accounting change.
 - Exact CI [44388288740](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44388288740) targets `0b738aaa8691f2dd9086a132f708fa8e0fc09154`; setup/checkout/Xcode selection passed, XcodeGen install was in progress at checkpoint time. Native test pass is not yet established.
 - **NEXT:** inspect exact run 44388288740; if green, validate all 297 unit + 4 UI methods and artifacts. Otherwise address the next actual compiler/test failure.
+
+
+## 2026-11-18 — Native iOS build57 remaining test Operation ambiguities
+
+- Exact CI [44388288740](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44388288740) passed simulator app build; test compilation found two further Foundation/app `Operation` ambiguities in `WebBudgetWindowEngineTests.swift:398` and `WebDashboardSpaceEngineTests.swift:143`.
+- Added module-qualified `LedgerOperation` aliases in app commits [`56f9878`](https://github.com/nikopol000/financial-autonomy-app/commit/56f987825d3104103aba4f7ae9b13fca432ef53c) and [`97d3bd3`](https://github.com/nikopol000/financial-autonomy-app/commit/97d3bd3c76e0b0d083697dfb48bdbb0f9988f029). Test-only changes; production semantics unchanged.
+- Exact CI [44388498348](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44388498348) targets `97d3bd3c76e0b0d083697dfb48bdbb0f9988f029`; it was queued at checkpoint time.
+- **NEXT:** inspect exact CI 44388498348 for test compilation/runtime results; if green, confirm 297 unit + 4 UI methods and inspect artifacts. If not, repair only the reported diagnostics.
