@@ -3835,3 +3835,11 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Fixed both annotations in app commit [`998efec`](https://github.com/nikopol000/financial-autonomy-app/commit/998efec09554daddc7fbae93a120ecd0592f6c46). No financial calculations, Models.swift, LedgerStore.swift or app/main changed.
 - Exact run [44387599203](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387599203) targets `998efec09554daddc7fbae93a120ecd0592f6c46`; runner setup/checkout/Xcode selection passed and XcodeGen install was in progress at checkpoint time. Build and 297 unit + 4 UI methods remain unverified.
 - **NEXT:** inspect exact run 44387599203; proceed to test result/artifact inspection if build passes, otherwise fix the next actual compiler diagnostic. Preserve the feature-only branch boundary and the local-only/no-credit-as-owned-money invariants.
+
+
+## 2026-11-18 — Native iOS build57 audit-row compiler recovery
+
+- Exact CI [44387599203](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387599203) failed at `LoanPrincipalReconciliationView.swift:186:9` because one audit-row Text concatenation still exceeded Swift's type-check budget. XcodeGen/project generation passed; tests were skipped.
+- Fixed by splitting audit description into typed local strings and interpolation in app commit [`f64bb77`](https://github.com/nikopol000/financial-autonomy-app/commit/f64bb778566556fadbd6846b6a69275a932cbb3c). Only `LoanPrincipalReconciliationView.swift` changed; financial semantics and ledger models unchanged.
+- Exact CI [44387786362](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387786362) targets `f64bb778566556fadbd6846b6a69275a932cbb3c`; runner setup/checkout/Xcode selection passed, XcodeGen install was in progress at checkpoint time. Build and tests remain pending.
+- **NEXT:** inspect run 44387786362. If build passes, verify all 297 unit and 4 UI methods plus artifacts. Otherwise fix the next exact compiler diagnostic. Keep app/main unchanged and preserve local-only accounting invariants.
