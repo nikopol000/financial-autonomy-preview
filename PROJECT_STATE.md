@@ -97,3 +97,12 @@ The independent native candidate remains on `nikopol000/financial-autonomy-app:f
 - Current app feature HEAD: `998efec09554daddc7fbae93a120ecd0592f6c46`; app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
 - Exact CI run [44387599203](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387599203) targets this HEAD and was in progress at checkpoint time. Runner setup, checkout and Xcode selection passed; XcodeGen installation was running; build and test steps were pending. No build/test pass is claimed.
 - **FIRST NEXT:** inspect run 44387599203; if the build succeeds, confirm all 297 unit and 4 UI methods and artifacts; otherwise repair the exact next diagnostic. Runtime backup/restore, Dashboard, diagnostic, Light/Dark, VoiceOver and visual parity remain open.
+
+
+## Native iOS parity — 2026-11-18, build57 audit row type-check split
+
+- Exact CI [44387599203](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387599203) for `998efec` passed runner setup, Xcode selection, XcodeGen and project generation but failed simulator compilation at `LoanPrincipalReconciliationView.swift:186:9`: the observation audit row's chained Text/string concatenation still exceeded the Swift type-check budget. Unit tests were skipped.
+- Refactored both audit row builders to compute action/day/kind/amount/after strings as separate local values and pass one interpolated description to Text. App commit [`f64bb77`](https://github.com/nikopol000/financial-autonomy-app/commit/f64bb778566556fadbd6846b6a69275a932cbb3c); only `NativeiOS/LoanPrincipalReconciliationView.swift` changed. This preserves labels and values; no model, ledger, backup or financial logic changed.
+- Current app feature HEAD: `f64bb778566556fadbd6846b6a69275a932cbb3c`; app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Exact CI [44387786362](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387786362) targets `f64bb778566556fadbd6846b6a69275a932cbb3c`. At checkpoint time runner setup, checkout and Xcode selection passed; XcodeGen installation was in progress; project generation, simulator build and tests were pending. No compile or test pass is claimed.
+- **FIRST NEXT:** inspect exact run 44387786362. If compilation succeeds, verify 297 unit + 4 UI methods and artifacts; if it fails, fix the exact next diagnostic. Then complete populated encrypted backup/restore, Dashboard order, diagnostic export, Light/Dark, VoiceOver and archived v18.20 screen-by-screen comparison.
