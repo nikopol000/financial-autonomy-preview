@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-18T20:11:30Z
-Lease expires UTC: 2026-11-18T20:11:30Z
+Status: IN_PROGRESS
+Owner: ChatGPT automation — native test compiler recovery
+Updated UTC: 2026-11-18T20:12:30Z
+Lease expires UTC: 2026-11-18T21:12:30Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 0b738aaa8691f2dd9086a132f708fa8e0fc09154
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -14,4 +14,4 @@ Expected native unit inventory: 297 methods, pending exact CI
 Expected native UI inventory: 4 methods, pending exact CI
 Completed this run: fixed the ambiguous Foundation/app Operation test helper using a module-qualified alias. Prior exact CI confirms the simulator app build succeeds on de71e74; test target still under recovery. No Models/LedgerStore, financial formulas or app/main changes.
 Open validation gaps: exact CI run 44388288740; 297 unit + 4 UI methods; populated encrypted runtime backup/restore; Dashboard order; diagnostic confirmation/cancel; Light/Dark screenshots; VoiceOver; full screen-by-screen archived v18.20 comparison.
-Next exact action: inspect exact Native iOS CI run 44388288740 for app HEAD 0b738aaa8691f2dd9086a132f708fa8e0fc09154. If green, verify all 297 unit + 4 UI methods and artifacts; if failed, inspect logs and fix only evidence-backed issues on feat/sync-preview-v18-20-ios. Keep app/main untouched.
+Next exact action: inspect exact CI 44388498348 for the two test files now using the LedgerOperation alias; fix only further actual diagnostics.
