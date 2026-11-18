@@ -115,3 +115,12 @@ The independent native candidate remains on `nikopol000/financial-autonomy-app:f
 - Current app feature HEAD: `de71e742c84d406493adb863d618014e9df69764`; app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
 - Exact CI [44387975912](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387975912) targets this HEAD and was QUEUED when checkpointed. No tests are claimed executed successfully yet.
 - **FIRST NEXT:** inspect exact run 44387975912. Confirm simulator build and the full unit/UI test steps; if another test compilation/runtime failure appears, fix it without weakening assertions. Inspect xcresult/screenshot artifacts when present, then continue populated-data and visual/accessibility parity checks.
+
+
+## Native iOS parity — 2026-11-18, build57 test target ambiguity fix
+
+- Exact CI [44387975912](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387975912) passed XcodeGen, project generation and the **iOS Simulator app build**. Test-target compilation then failed at `Tests/LoanReconciliationCheckLinkTests.swift:37:59`: `Operation` was ambiguous between the app's ledger model and Foundation's `Operation`.
+- Fixed the test-only ambiguity in app commit [`0b738aa`](https://github.com/nikopol000/financial-autonomy-app/commit/0b738aaa8691f2dd9086a132f708fa8e0fc09154) by defining `LedgerOperation = FinancialAutonomy.Operation` and using that alias for the helper return type and initializer. Production code and financial behavior are unchanged.
+- Current app feature HEAD: `0b738aaa8691f2dd9086a132f708fa8e0fc09154`; app stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Exact CI [44388288740](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44388288740) targets this HEAD. At checkpoint time runner setup, checkout and Xcode selection passed; XcodeGen installation was running; project generation, simulator build and test steps were pending. No test success is claimed.
+- **FIRST NEXT:** inspect exact run 44388288740. If tests pass, verify all 297 unit and 4 UI methods and inspect xcresult/screenshots; if they fail, fix only the next compiler/test diagnostic. Continue populated encrypted round-trip and visual/accessibility parity after CI.
