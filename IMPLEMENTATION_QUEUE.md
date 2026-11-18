@@ -3851,3 +3851,11 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Corrected only `NativeGoalPlanningTests.swift` in app commit [`de71e74`](https://github.com/nikopol000/financial-autonomy-app/commit/de71e742c84d406493adb863d618014e9df69764), unwrapping with `XCTUnwrap`. This keeps the production nil contract intact; no financial calculation changed.
 - Exact Native iOS CI [44387975912](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387975912) targets `de71e742c84d406493adb863d618014e9df69764` and was queued at checkpoint time. No unit or UI test success claimed.
 - **NEXT:** inspect run 44387975912; validate all 297 unit + 4 UI methods and inspect artifacts if test steps pass. Otherwise fix the next exact diagnostic without weakening expected behavior.
+
+
+## 2026-11-18 — Native iOS build57 test-target Operation ambiguity
+
+- Exact CI [44387975912](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387975912) passed simulator app build; test target failed to compile because `Operation` in `LoanReconciliationCheckLinkTests.swift:37:59` was ambiguous with Foundation.
+- Added `LedgerOperation = FinancialAutonomy.Operation` and used it in the test helper in app commit [`0b738aa`](https://github.com/nikopol000/financial-autonomy-app/commit/0b738aaa8691f2dd9086a132f708fa8e0fc09154). Test-only fix; no product or accounting change.
+- Exact CI [44388288740](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44388288740) targets `0b738aaa8691f2dd9086a132f708fa8e0fc09154`; setup/checkout/Xcode selection passed, XcodeGen install was in progress at checkpoint time. Native test pass is not yet established.
+- **NEXT:** inspect exact run 44388288740; if green, validate all 297 unit + 4 UI methods and artifacts. Otherwise address the next actual compiler/test failure.
