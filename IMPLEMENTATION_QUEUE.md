@@ -3843,3 +3843,11 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Fixed by splitting audit description into typed local strings and interpolation in app commit [`f64bb77`](https://github.com/nikopol000/financial-autonomy-app/commit/f64bb778566556fadbd6846b6a69275a932cbb3c). Only `LoanPrincipalReconciliationView.swift` changed; financial semantics and ledger models unchanged.
 - Exact CI [44387786362](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387786362) targets `f64bb778566556fadbd6846b6a69275a932cbb3c`; runner setup/checkout/Xcode selection passed, XcodeGen install was in progress at checkpoint time. Build and tests remain pending.
 - **NEXT:** inspect run 44387786362. If build passes, verify all 297 unit and 4 UI methods plus artifacts. Otherwise fix the next exact compiler diagnostic. Keep app/main unchanged and preserve local-only accounting invariants.
+
+
+## 2026-11-18 — Native iOS build57 unit-test compiler correction
+
+- Exact run [44387786362](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387786362) passed the simulator application build. Test compilation failed because `NativeGoalPlanning.value` is `Double?` and the `XCTAssertEqual(_:_:accuracy:)` overload requires `Double`.
+- Corrected only `NativeGoalPlanningTests.swift` in app commit [`de71e74`](https://github.com/nikopol000/financial-autonomy-app/commit/de71e742c84d406493adb863d618014e9df69764), unwrapping with `XCTUnwrap`. This keeps the production nil contract intact; no financial calculation changed.
+- Exact Native iOS CI [44387975912](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387975912) targets `de71e742c84d406493adb863d618014e9df69764` and was queued at checkpoint time. No unit or UI test success claimed.
+- **NEXT:** inspect run 44387975912; validate all 297 unit + 4 UI methods and inspect artifacts if test steps pass. Otherwise fix the next exact diagnostic without weakening expected behavior.
