@@ -106,3 +106,12 @@ The independent native candidate remains on `nikopol000/financial-autonomy-app:f
 - Current app feature HEAD: `f64bb778566556fadbd6846b6a69275a932cbb3c`; app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
 - Exact CI [44387786362](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387786362) targets `f64bb778566556fadbd6846b6a69275a932cbb3c`. At checkpoint time runner setup, checkout and Xcode selection passed; XcodeGen installation was in progress; project generation, simulator build and tests were pending. No compile or test pass is claimed.
 - **FIRST NEXT:** inspect exact run 44387786362. If compilation succeeds, verify 297 unit + 4 UI methods and artifacts; if it fails, fix the exact next diagnostic. Then complete populated encrypted backup/restore, Dashboard order, diagnostic export, Light/Dark, VoiceOver and archived v18.20 screen-by-screen comparison.
+
+
+## Native iOS parity — 2026-11-18, build57 unit-test compile correction
+
+- Exact CI [44387786362](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387786362) confirmed the simulator application build **SUCCEEDED** for app commit `f64bb778566556fadbd6846b6a69275a932cbb3c`. The Swift unit-test target then failed to compile at `Tests/NativeGoalPlanningTests.swift:55:43`: `NativeGoalPlanning.value` returns `Double?`, while the accuracy overload of `XCTAssertEqual` requires a nonoptional `Double`.
+- Preserved production semantics (nil remains meaningful for manual goals or unavailable ratios). Corrected the test to unwrap the expected value with `XCTUnwrap` before the accuracy assertion in app commit [`de71e74`](https://github.com/nikopol000/financial-autonomy-app/commit/de71e742c84d406493adb863d618014e9df69764). Only `NativeiOS/Tests/NativeGoalPlanningTests.swift` changed; no product code, models, formulas or app/main changes.
+- Current app feature HEAD: `de71e742c84d406493adb863d618014e9df69764`; app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Exact CI [44387975912](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387975912) targets this HEAD and was QUEUED when checkpointed. No tests are claimed executed successfully yet.
+- **FIRST NEXT:** inspect exact run 44387975912. Confirm simulator build and the full unit/UI test steps; if another test compilation/runtime failure appears, fix it without weakening assertions. Inspect xcresult/screenshot artifacts when present, then continue populated-data and visual/accessibility parity checks.
