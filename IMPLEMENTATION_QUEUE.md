@@ -3867,3 +3867,12 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Added module-qualified `LedgerOperation` aliases in app commits [`56f9878`](https://github.com/nikopol000/financial-autonomy-app/commit/56f987825d3104103aba4f7ae9b13fca432ef53c) and [`97d3bd3`](https://github.com/nikopol000/financial-autonomy-app/commit/97d3bd3c76e0b0d083697dfb48bdbb0f9988f029). Test-only changes; production semantics unchanged.
 - Exact CI [44388498348](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44388498348) targets `97d3bd3c76e0b0d083697dfb48bdbb0f9988f029`; it was queued at checkpoint time.
 - **NEXT:** inspect exact CI 44388498348 for test compilation/runtime results; if green, confirm 297 unit + 4 UI methods and inspect artifacts. If not, repair only the reported diagnostics.
+
+
+## Native iOS build57 — exact CI 444005 failure triage and test-only correction (2026-11-18)
+
+- **Verified start:** preview main `08d81f64a590c70921330e3c58f577e4dd52ebcb`; app feature `247c15fefb028ff6d0ca8bf40c2e7a85274d4e38`; app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`. Read all five continuity documents and honored the expired prior lease.
+- **Exact run 44400512567:** simulator app build PASS; 297 unit tests ran with one incorrect assertion (fixed-expense catalog was expected empty despite an October month-plan fixed expense); 4 UI tests ran with one brittle XCUI query for a SwiftUI container not exposed as `otherElements`. Remaining 296 unit and 3 UI tests passed.
+- **Fix commit 2e9c74e1178329b7312eabeb577fe75cb4b5b6a2:** unit test now asserts the fixed expense catalog and October month plan that the v18.20 importer actually creates; UI test waits for the visible payoff label rather than querying a non-accessibility container. Test-only; no production code, Models/LedgerStore or financial formula change.
+- Exact new CI **44409733603** targets this commit. XcodeGen/project generation and simulator build PASS; unit tests were still running at checkpoint time. No full test PASS claim.
+- **FIRST NEXT:** inspect run 44409733603. Require all 297 unit and 4 UI tests to pass. Then inspect its retained .xcresult/screenshots, compare populated and empty Light/Dark screens with the archived WEB 18.20 bundle (not current WEB 18.74), and continue encrypted backup/restore and VoiceOver. If failures remain, fix only the exact reported behavior/test mismatch. Keep source app/main unchanged.
