@@ -3817,3 +3817,13 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Local Linux Swift 6.2.1 regression snippet compiled and ran for the Foundation format signature, optional binding and helper/local-name pattern. This is not a native app build or XCTest.
 - Exact Native iOS CI run `44377435836` targets the current HEAD and was QUEUED at checkpoint time. No native build/tests have passed yet.
 - **FIRST NEXT:** inspect exact run `44377435836`; if build passes, verify all 297 unit and 4 UI methods and inspect artifacts. If it fails, use exact logs and fix only real compiler/test failures. Then complete populated backup/restore, diagnostic exporter, Dashboard order, Light/Dark, VoiceOver and screen-by-screen archived v18.20 comparison. No 1:1 claim; no merge to app/main.
+
+
+## 2026-11-18 — Native iOS build57 compiler type-check recovery (EXACT CI RUN IN PROGRESS)
+
+- Startup verified preview main `ca5164e8538523af202b801bf94a42eb0d8051c8`, app feature `b9de235a5918cd45f4a151815908175d81922515`, and app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`. Handoff READY/expired; lease claimed in preview commit `c419387091b56e2153fbc40cb690de07edc630b4`.
+- Exact run [44377435836](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44377435836) on macOS failed during simulator compilation at `LoanPrincipalReconciliationView.swift:21:25` (Swift expression type-check timeout). Project generation passed; unit tests were skipped; no result artifact was generated.
+- App fix commit [`e2a7004`](https://github.com/nikopol000/financial-autonomy-app/commit/e2a70046061be8e5553b015d8e7b7e838a3e5e59) decomposes that Form into typed section/row helpers without changing ledger models or financial logic. Only `NativeiOS/LoanPrincipalReconciliationView.swift` changed.
+- Exact new CI [44387432189](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387432189) targets `e2a70046061be8e5553b015d8e7b7e838a3e5e59`; job was in progress when checkpointed. XcodeGen install had started; build and tests were still pending. No native PASS claimed.
+- App feature HEAD is `e2a70046061be8e5553b015d8e7b7e838a3e5e59`; app main remains `a9b30be147abecea45a63bf7dd8d8a3eb3370366`.
+- **NEXT exact action:** inspect exact CI run 44387432189. If compilation succeeds, verify 297 unit + 4 UI methods and retained artifacts; otherwise repair the next real diagnostic. Then proceed to populated encrypted round-trip, Dashboard ordering, diagnostic consent, Light/Dark, VoiceOver and screen-by-screen v18.20 comparison. Keep app/main untouched.
