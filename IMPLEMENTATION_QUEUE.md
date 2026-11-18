@@ -3827,3 +3827,11 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Exact new CI [44387432189](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387432189) targets `e2a70046061be8e5553b015d8e7b7e838a3e5e59`; job was in progress when checkpointed. XcodeGen install had started; build and tests were still pending. No native PASS claimed.
 - App feature HEAD is `e2a70046061be8e5553b015d8e7b7e838a3e5e59`; app main remains `a9b30be147abecea45a63bf7dd8d8a3eb3370366`.
 - **NEXT exact action:** inspect exact CI run 44387432189. If compilation succeeds, verify 297 unit + 4 UI methods and retained artifacts; otherwise repair the next real diagnostic. Then proceed to populated encrypted round-trip, Dashboard ordering, diagnostic consent, Light/Dark, VoiceOver and screen-by-screen v18.20 comparison. Keep app/main untouched.
+
+
+## 2026-11-18 — Native iOS build57 follow-up compiler diagnostic
+
+- Exact run [44387432189](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387432189) for `e2a7004` failed on two unresolved type names in `LoanPrincipalReconciliationView.swift:185,193`. Actual model declarations are `LoanPrincipalObservationAuditEntry` and `LoanPrincipalExplanationAuditEntry` in `LoanPrincipalReconciliation.swift`.
+- Fixed both annotations in app commit [`998efec`](https://github.com/nikopol000/financial-autonomy-app/commit/998efec09554daddc7fbae93a120ecd0592f6c46). No financial calculations, Models.swift, LedgerStore.swift or app/main changed.
+- Exact run [44387599203](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44387599203) targets `998efec09554daddc7fbae93a120ecd0592f6c46`; runner setup/checkout/Xcode selection passed and XcodeGen install was in progress at checkpoint time. Build and 297 unit + 4 UI methods remain unverified.
+- **NEXT:** inspect exact run 44387599203; proceed to test result/artifact inspection if build passes, otherwise fix the next actual compiler diagnostic. Preserve the feature-only branch boundary and the local-only/no-credit-as-owned-money invariants.
