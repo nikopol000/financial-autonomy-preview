@@ -52,3 +52,14 @@ Follow RELEASE_PROCESS.md for every product change: immutable versioned bundle, 
 - Release failures are primarily in `tests/vault-real-crypto-regression.cjs`, which asserts legacy automatic recovery for multiple pending/invalid reset cases. This is a substantive safety contract conflict, **not** a harmless version-pinned test. Do not blanket-update expected messages or suppress assertions. Explicit recovery must be designed and proven before promotion.
 - Chromium failure was at `tests/browser-vault-recovery-smoke.cjs:603`: test manually changed synthetic storage to idle but called reset from a tab holding a stale revision, correctly triggering a cross-tab conflict. Updated test to reload/reload vault after test-only synthetic completion, commit `d2ec4cd`; await fresh CI result.
 - PR #495 remains draft/unmerged. Production WEB 18.74 unchanged. **NEXT:** inspect CI at `d2ec4cd`, implement a recoverable interrupted-reset state machine with non-destructive access when KEY+PAYLOAD intact, explicit user authorization for irreversible deletion, safe handling when only one record survives, stale-tab fences, and privacy retention semantics. Extend Node/Chromium acceptance before merge. Do not modify real user storage.
+
+
+## Native iOS parity checkpoint — 2026-11-18, v18.20 build57
+
+The independent native candidate remains on `nikopol000/financial-autonomy-app:feat/sync-preview-v18-20-ios`; source `main` is still the stable approved baseline and was not changed.
+
+- Exact native candidate: [build57 commit `b1e8a47`](https://github.com/nikopol000/financial-autonomy-app/commit/b1e8a47b1820da97a70589c350314c71f49cf03f).
+- Diagnostic privacy gate: full plaintext diagnostic export now has a separate destructive confirmation with an explicit unencrypted-data warning; redacted summary remains one-tap. Accessibility identifiers/hints and a focused UI consent test were added.
+- Static verification: Swift parser passed for the two changed Swift files; seven static privacy/consent assertions and the XcodeGen YAML parse passed. **Xcode build, 297 unit tests and 4 UI tests remain NOT RUN**; this environment has Swift on Linux but no Xcode.
+- Exact-commit CI has no reported combined statuses. The previously observed run failed before runner allocation, with zero steps; no repeated retry was made.
+- **Next action:** Apple validation on exact build57, then correct any real build/test/runtime differences and finish populated-data, light/dark, accessibility and screen-by-screen parity checks. No 1:1 completion claim is made.
