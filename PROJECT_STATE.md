@@ -124,3 +124,12 @@ The independent native candidate remains on `nikopol000/financial-autonomy-app:f
 - Current app feature HEAD: `0b738aaa8691f2dd9086a132f708fa8e0fc09154`; app stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
 - Exact CI [44388288740](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44388288740) targets this HEAD. At checkpoint time runner setup, checkout and Xcode selection passed; XcodeGen installation was running; project generation, simulator build and test steps were pending. No test success is claimed.
 - **FIRST NEXT:** inspect exact run 44388288740. If tests pass, verify all 297 unit and 4 UI methods and inspect xcresult/screenshots; if they fail, fix only the next compiler/test diagnostic. Continue populated encrypted round-trip and visual/accessibility parity after CI.
+
+
+## Native iOS parity — 2026-11-18, build57 test-only Operation qualification
+
+- Exact CI [44388288740](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44388288740) passed the simulator app build but failed while compiling tests: unqualified `Operation` was ambiguous with Foundation in `Tests/WebBudgetWindowEngineTests.swift:398:75` and `Tests/WebDashboardSpaceEngineTests.swift:143:77`.
+- Applied the same explicit test-only alias `LedgerOperation = FinancialAutonomy.Operation` to both files in app commits [`56f9878`](https://github.com/nikopol000/financial-autonomy-app/commit/56f987825d3104103aba4f7ae9b13fca432ef53c) and [`97d3bd3`](https://github.com/nikopol000/financial-autonomy-app/commit/97d3bd3c76e0b0d083697dfb48bdbb0f9988f029). Only those two test files changed; no production source, financial calculations, Models/LedgerStore or app/main changes.
+- Current app feature HEAD: `97d3bd3c76e0b0d083697dfb48bdbb0f9988f029`; app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Exact CI [44388498348](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44388498348) targets this HEAD and was QUEUED at checkpoint time. No unit/UI tests are claimed to have run successfully.
+- **FIRST NEXT:** inspect run 44388498348. If test compilation proceeds, inspect actual test results and UI test execution; otherwise fix only the next compiler diagnostic. After tests pass, inspect artifacts and resume populated backup/restore, Dashboard order, diagnostic export, Light/Dark, VoiceOver and v18.20 screen-by-screen parity.
