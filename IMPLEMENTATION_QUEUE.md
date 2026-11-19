@@ -4157,3 +4157,25 @@ CI evidence:
 **FIRST NEXT:** check runner availability and exact CI state for current feature HEAD `63e98f706a70a39003c15daeb30c55385b43264c`; do not rerun the old pre-runner failures. If runner allocation remains unavailable, continue the independent audit of imported reminder scheduling, timezone/relaunch behavior and remaining encrypted-backup field preservation. Once a runner starts, run one fresh CI on the then-current feature HEAD, verify the simulator build plus 345 unit/10 UI tests, and inspect the artifact. Then exercise the real CSV document picker and perform subscription/CSV Light-Dark screen comparisons against archived WEB v18.20. No app/main promotion and no 100% parity claim.
 
 Privacy invariants: local-only data; no backend, mandatory account, bank synchronization or telemetry. Available credit is not owned money.
+
+ 
+## 2026-11-19 — Native reminders and backup restore synchronization
+
+**Completed on app feature feat/sync-preview-v18-20-ios (current HEAD 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1):**
+- 67a1e12: stop clearing delivered subscription notifications during routine launch reconciliation; use UTC Gregorian DateComponents so distinct ISO-8601 instants during Bucharest DST fall-back remain distinct.
+- 6159537: add repeated-hour DST regression test.
+- ce613d9: after successful validated backup restore, rebuild local reminder requests immediately rather than waiting for next app launch.
+- 75e6f3c: add restore regression proving recurring reminder metadata and its ScheduleBook projection remain present after restore/reload.
+- Existing WEB v18.20 imported recurring reminder remains preserved through encrypted portable backup round-trip in the existing source test. No backup schema or financial formula change.
+
+**Executed checks:** Swift 6.2.1 Foundation harness for the exact UTC trigger-components helper passed on two distinct instants that both display as Bucharest 03:30. No Xcode build or XCTest was executed locally; Linux environment has no xcodebuild.
+
+**Exact CI evidence:**
+- Startup HEAD 63e98f7: run [44606101933](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44606101933), pre-runner failure.
+- Reminder test HEAD 6159537: run [44615474760](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44615474760), pre-runner failure.
+- Current HEAD 75e6f3c: run [44615721018](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44615721018), pre-runner failure (runner_id=0, no steps, no logs, no artifacts; log endpoint 404 BlobNotFound; combined status empty). Do not retry these runs while this condition persists.
+- Expected source inventory after two new test methods: 347 unit / 10 UI, estimated only; not executed.
+
+**Next exact action:** check runner recovery without retrying the old failed runs; if still blocked, audit the remaining encrypted-backup optional fields and imported template/month-plan/goal/projection round trips. When runner allocation is available, run one fresh CI on the then-current HEAD and inspect build, tests and artifacts. Then real Simulator document-picker and Light/Dark screen review.
+
+Privacy and release gates unchanged: local-only, no backend/account/bank sync/telemetry; available credit is not owned money; app/main must remain unchanged; no 100% parity claim before all evidence gates pass.
