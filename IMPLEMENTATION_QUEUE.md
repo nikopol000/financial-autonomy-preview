@@ -4206,3 +4206,21 @@ Privacy and release gates unchanged: local-only, no backend/account/bank sync/te
 4. Then test CSV using the real iOS document picker and compare Subscriptions/CSV Light and Dark screens against archived WEB v18.20.
 
 Privacy/release gates unchanged: local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money; app/main must remain untouched; no 100% parity claim before all evidence gates pass.
+
+
+## 2026-11-19 — Legacy Codable and CSV Unicode whitespace parity
+
+**Completed on app feature only**
+- Current app feature HEAD at checkpoint: \`aad3fceceb184911c55d26ffb16dfd5369f43b88\` (389 ahead / 0 behind app/main); app/main remains \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\`.
+- Legacy decoding coverage: \`756cd3d\`, fixture correction \`5e39bd4\`. Tests cover pre-build28 month-plan optional fields, pre-build49 appearance, pre-build53 reviews, old BudgetSettings defaults, missing Operation.voided and nil-vs-empty values.
+- WEB v18.20 archived bundle module 204/329 uses ECMAScript whitespace. Swift whitespace sets were not equivalent (U+FEFF vs U+0085/U+200B). Fixed with \`WebWhitespace\`: \`261b83d\`, \`bd664ba\`; regression tests \`1605720\`, \`aad3fce\`.
+- Swift 6.2.1 focused parser/amount/normalization harness PASS; Node WEB reference harness PASS. These are not XCTest or full app build.
+- Current exact CI status for \`aad3fce\`: combined statuses empty; available workflow-run lookup returns no PR runs. No push-run/runner result exposed. Do not infer success/failure or retry previous zero-runner attempts.
+- No Xcode build, XCTest, Simulator, document picker, screenshot or visual comparison executed. Inventory estimate 350 unit / 10 UI is source-derived, not executed.
+
+**First next action**
+1. Check exact push-run listing/runner visibility for \`aad3fceceb184911c55d26ffb16dfd5369f43b88\`; no repeated dispatch of old failed runs.
+2. If unavailable, audit CSV fileImporter security-scoped access, file-size checks and UTF-8 decoding against WEB v18.20. Add only demonstrated fixes/tests.
+3. On a usable macOS runner, run XcodeGen + Simulator build + full unit/UI tests and inspect .xcresult; then test real document picker and compare CSV/Subscriptions Light/Dark screens.
+
+Keep local-only architecture, no backend/mandatory account/bank sync/telemetry. Available credit is not owned money. Never modify app/main or claim 100% parity before every evidence gate passes.
