@@ -2,15 +2,18 @@
 
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T00:32:00Z
-Lease expires UTC: 2026-11-19T00:40:00Z
+Updated UTC: 2026-11-19T00:41:00Z
+Lease expires UTC: 2026-11-19T00:49:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: ed848636d606fff35b941ae5758019bfb711fb33
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD: f93478bf0649f349ad90a7a7910845e4aabd4a4e
+Verified preview main HEAD: c81f043fac4967da88d960729140c0886cc5e4e0
 Checkpoint build: 18.20 build58
-CI history: 44428442384 for 4d30572 failed on a visibleOrder argument-label mismatch; corrected in d44fed5 and b98184a. 44428600963 for b98184a failed because the DashboardView prefix rewrite omitted DashboardBudgetDetailEngine; restored in 2023e53. 44428742297 for 2023e53 failed because PreviewBudgetCardPalette was omitted; restored in 7772b1a. 44428983518 for 7772b1 failed because PreviewBudgetAppearance was omitted; restored in 8e78a0a, then moved to shared DashboardLayout.swift in 5e4c563 after the exact compiler diagnostic still could not resolve it in the same source file. 44429428242 for 5e4c563 then exposed the omitted PreviewBudgetCardTokens; restored in 68a697d. Run 44429607764 for 68a697d passed app build but test target compilation failed on one missing imported: label in DashboardOrderTests; corrected in ed848636d606fff35b941ae5758019bfb711fb33.
-Exact current CI: 44429745130 targets ed848636d606fff35b941ae5758019bfb711fb33, IN_PROGRESS at last check, simulator build underway. Expected suite inventory 302 unit + 4 UI. No current build/test pass claim.
-Implementation: v18.20 header, date, arrange/Gata; full visible module order with drag/drop and accessible move up/down; reset; hidden web-only module ID slot preservation; separate spending/next-income modules with two-column default row; optional encrypted snapshot dashboardLayout field; imported metadata mirror; layout validation; current-month pinned-window reset without amount changes; stable owned/credit value accessibility IDs. Build58.
-No financial formulas changed. Credit remains separate from owned money. No backend/bank sync/telemetry. No wholesale Models/LedgerStore rewrite. app/main untouched. Full visual screenshots/VoiceOver remain pending.
-Next exact action: inspect 44429745130. If it passes simulator build and all 302 unit + 4 UI tests, inspect the artifact and populated Light/Dark Dashboard screenshots. If it fails, fix only the actual diagnostic. Then continue VoiceOver and archived v18.20 screen-by-screen comparison. Do not claim 1:1.
+
+Exact CI: [44429745130](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130) for exact app HEAD ed848636d606fff35b941ae5758019bfb711fb33 completed SUCCESS on macOS 15 / iPhone 16 Pro Simulator. XcodeGen, project generation, iOS Simulator build, 302 unit tests (0 failures), 4 UI tests (0 failures), screenshot export and artifact upload all passed. Artifact [14486146237](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130/artifacts/14486146237) downloaded and inspected; it contains .xcresult and 26 screenshots with populated and empty screens in Light/Dark, including Dashboard and owned-vs-credit captures. The populated screenshots show 20,000 RON owned and 2,000 RON available credit as separate values.
+
+Implemented in build58: v18.20 HomeHeader/date/Aranjează-Gata; full visible module order; drag/drop and accessible move up/down; reset-to-default; hidden web-only ID preservation; separate spending/next-income modules with two-column default row; local encrypted snapshot dashboardLayout with backward-compatible optional field; mirrored imported metadata; validation; current-month pinned-window reset without amount changes; stable accessibility IDs for owned and available-credit values. No financial formulas changed. Credit remains separate from owned money. No backend/bank sync/telemetry. No wholesale Models/LedgerStore rewrite. app/main untouched.
+
+Visual review of the current iOS screenshots confirms the header and populated Light/Dark Dashboard render, but full side-by-side screen-by-screen comparison against the archived WEB v18.20 bundle and VoiceOver interaction audit remain outstanding. Color-token sampling alone is not full visual parity.
+
+Next exact action: inspect the archived WEB v18.20 bundle source for HomeHeader/ReorderableStack and compare its order, spacing, typography, card geometry, accessibility labels/actions, and screen content with the downloaded iPhone 16 Pro captures. Add only evidence-backed gaps on the feature branch, with focused UI/accessibility tests. Then continue the remaining screens and financial/data round-trip parity. Do not claim 1:1 or merge app/main.
