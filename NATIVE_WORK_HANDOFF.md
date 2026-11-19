@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T03:12:00Z
-Lease expires UTC: 2026-11-19T05:30:00Z
+Updated UTC: 2026-11-19T03:25:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 30732ea28e0827e47ddbfefc47765039265ea32c
+Verified app feature HEAD: a009c167cdd5d5213adfb9c03211a27fc14b726f
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD: e4274510eeac0efab04ae30139487dd86d97f957
-Checkpoint build: 18.20 build61
+Verified preview main HEAD: 86e096095f1c32e0d7cee6432ec6d9b2de7f55f6
+Checkpoint build: 18.20 build62
 
 Build58 exact CI [44429745130](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130) completed SUCCESS on macOS 15 / iPhone 16 Pro Simulator: XcodeGen, project generation, simulator build, 302 unit tests (0 failures), 4 UI tests (0 failures), screenshot export and artifact upload. Artifact [14486146237](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130/artifacts/14486146237) was downloaded and inspected; it contains .xcresult and 26 screenshots, including populated/empty Dashboard captures in Light/Dark. Populated captures show 20,000 RON owned and 2,000 RON available credit separately.
 
@@ -37,3 +37,13 @@ Historical build59 issue resolved in build60; see the appended build60/build61 c
 - App build 18.20 build61. Exact run 44443914037: simulator build PASS; unit tests still IN_PROGRESS at handoff; UI tests/artifact pending. Expected 305 unit + 4 UI.
 - FIRST NEXT: inspect run 44443914037 to terminal state. On SUCCESS, inspect .xcresult and the accessibility handle label/value captures; on failure, fix only the exact diagnostic. Then implement the archived v18.20 bottom navigation and More hub; port missing Reports, Subscriptions and CSV Tools; continue populated screen-by-screen visual comparison and device VoiceOver validation.
 - No lease active. Do not modify app/main, financial formulas, or Models/LedgerStore wholesale.
+
+
+## Native iOS build62 — next-run handoff (2026-11-19)
+
+- Exact app feature HEAD: \`a009c167cdd5d5213adfb9c03211a27fc14b726f\`; app main: \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\` (untouched); preview main: \`86e096095f1c32e0d7cee6432ec6d9b2de7f55f6\`.
+- Build61 validation is complete: exact CI [44443914037](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44443914037) SUCCESS with 305 unit + 4 UI tests, zero failures. Artifact [14492268412](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44443914037/artifacts/14492268412) was downloaded; 32 iPhone 16 Pro screenshots were inspected.
+- Build62 commit \`a009c167cdd5d5213adfb9c03211a27fc14b726f\` changes navigation and More hub, adds Record-tab form reset behavior and stable labels for icon-only add actions, and increments build to 62.
+- Exact build62 CI [44450532570](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44450532570) currently reports \`in_progress\` / \`no conclusion yet\`. XcodeGen, project generation and iOS Simulator build passed; the test step was IN_PROGRESS at the last poll. No build62 unit/UI result or artifact review is claimed.
+- More hub routes existing Budget/Goals/Plans/Simulations/Settings screens. Reports, Subscriptions and Tools are intentionally marked as pending screens and remain the largest functional gaps.
+- **FIRST NEXT:** inspect exact CI run 44450532570. If SUCCESS, confirm 305 unit + 4 UI tests and inspect its screenshot artifact for Record tab and More hub in Light/Dark. If failure, fix only actual diagnostics. Then port Reports, Subscriptions (local recurring lifecycle/history/reminders) and Tools (local CSV detector with no ledger mutations), each with tests. Continue archived WEB v18.20 screen-by-screen comparison and physical-device VoiceOver checks. No 1:1 claim and no app/main merge.
