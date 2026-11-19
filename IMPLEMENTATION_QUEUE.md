@@ -3987,3 +3987,14 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Exact push CI [44504455375](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44504455375) for this commit: XcodeGen, project generation and simulator app build PASS; combined test step IN_PROGRESS. No passing test/artifact claim yet.
 
 **FIRST NEXT:** inspect run 44504455375. Require 315 unit + 6 UI PASS, inspect the exact populated Reports Light/Dark captures and .xcresult, then continue Reports visual parity. Do not retry the previous failed SHA or alter the current-month default to satisfy a fixture. Keep app/main untouched.
+
+
+## Native iOS build68 — populated Reports UI test placement correction (2026-11-19)
+
+**Status: IN PROGRESS — exact CI for the corrected test is queued.**
+
+- Run [44504455375](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44504455375) for `398876d735a913a84a586d6ec31c662c7f10aeac`: app simulator build PASS, 315 unit tests PASS, 5/6 UI tests PASS. The remaining test still showed November because the month-navigation helper was placed in the History smoke test by an ambiguous first-occurrence text replacement.
+- App commit [`37730ec643a55c2dd7ed23915a2391afbc03c3ec`](https://github.com/nikopol000/financial-autonomy-app/commit/37730ec643a55c2dd7ed23915a2391afbc03c3ec) moves the helper into the populated Reports test and explicitly checks the October 2026 label. Test-only; no production code change.
+- Exact push run [44505878835](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44505878835) for `37730ec` was QUEUED at checkpoint time. No result is claimed.
+
+**FIRST NEXT:** inspect run 44505878835 to terminal state; require 315 unit + 6 UI PASS, inspect .xcresult and populated Reports Light/Dark screenshots. Then align Reports section order/copy with archived WEB v18.20 and track the missing monthly review flow. Keep app/main untouched.
