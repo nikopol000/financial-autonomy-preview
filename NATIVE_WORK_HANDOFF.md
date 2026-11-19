@@ -2,12 +2,12 @@
 
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T01:03:00Z
-Lease expires UTC: 2026-11-19T01:33:00Z
+Updated UTC: 2026-11-19T02:13:00Z
+Lease expires UTC: 2026-11-19T02:43:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 94bdab3e84b76aa8a46e7d238864b4ed71937d8b
+Verified app feature HEAD: 2552ea2c7e079b1a34100a409b4fd6eedfe21587
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD: 72c1b3953dd00b480a1a755c309f8d92f6d535ef
+Verified preview main HEAD: 659aae6a858186b6668f838d1062f1e262ceba3c
 Checkpoint build: 18.20 build59
 
 Build58 exact CI [44429745130](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130) completed SUCCESS on macOS 15 / iPhone 16 Pro Simulator: XcodeGen, project generation, simulator build, 302 unit tests (0 failures), 4 UI tests (0 failures), screenshot export and artifact upload. Artifact [14486146237](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130/artifacts/14486146237) was downloaded and inspected; it contains .xcresult and 26 screenshots, including populated/empty Dashboard captures in Light/Dark. Populated captures show 20,000 RON owned and 2,000 RON available credit separately.
@@ -19,3 +19,13 @@ Native commits in this stage: f865a5e88cd38b8adc33c4096c4c911b8d98ccd4, 556bea0c
 Exact build59 CI [44431761871](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44431761871) is FAILURE. XcodeGen, project generation and iOS Simulator app build passed. Test target compilation failed in `NativeiOS/Tests/LedgerStoreTests.swift:79-82`: optional chaining is missing before `map(\.id)` on the optional `debts` and `expenseTemplates` arrays. The model declarations confirm both arrays contain `WebImportedDebt` / `WebImportedTemplate` values with `id: UUID`; the correct test expression is `webImportMetadata?.debts?.map(\.id)` and similarly for expenseTemplates. No unit/UI test body ran. Exact failed-run artifact [14485943022](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44431761871/artifacts/14485943022) is available.
 
 Current work in progress: fix only the two optional-chain expressions in the existing test file, preserving the test's lossless metadata assertions; do not touch Models/LedgerStore or production code. Then inspect the feature branch HEAD again, commit with a fast-forward/expected-HEAD guard, and verify the new exact push run. If CI passes, inspect the exact .xcresult and arrangement captures, then continue VoiceOver and archived v18.20 screen-by-screen comparison. Do not claim 1:1 or merge app/main.
+
+
+## Native iOS build60 — exact CI green and artifact review (2026-11-19)
+
+- Reconciled the expired lease before work. Exact live refs at start: preview main `659aae6a858186b6668f838d1062f1e262ceba3c`; app feature `2552ea2c7e079b1a34100a409b4fd6eedfe21587`; app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (untouched). Claimed a new finite lease.
+- Exact Native iOS push run [44434598900](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44434598900) for app SHA `2552ea2c7e079b1a34100a409b4fd6eedfe21587` completed SUCCESS on macOS / iPhone 16 Pro Simulator. XcodeGen, project generation, simulator build, 304 unit tests (0 failures), 4 UI tests (0 failures), screenshot export and artifact upload all passed. This run includes the two optional-chain test fixes and the Romanian lowercase date formatter regression test; build is 18.20 build60.
+- Downloaded artifact [14488526360](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44434598900/artifacts/14488526360), inspected manifest and 26 screenshots. Populated Dashboard captures confirm `20.000,00 RON` owned and `2.000,00 RON` available credit are displayed in separate cards; populated dashboard and arrangement-mode captures exist in both Light and Dark. Empty-ledger captures cover Home, Finance, Budget, History, More, Obligations, Backup and autonomy planning/scenarios. Arrangement screenshot shows the full module handles, move-up/down controls, reset instruction and Gata action. This is not a full side-by-side pixel parity or real VoiceOver run.
+- Source audit confirms arrangement drag handle has a Romanian accessibility label/hint and adjustable increment/decrement actions; move buttons have labels and stable identifiers; reset and mode controls have identifiers. Actual VoiceOver traversal/actions have not been exercised on a device. Current UI smoke suite has 4 UI methods; all pass, but it does not currently assert VoiceOver runtime behavior.
+- Remaining screen-level gaps/verification: obtain archived WEB v18.20 reference captures or an equivalent deterministic browser export for each screen; compare native screenshots at matching viewport/state. Current artifact's Finance/Budget/History/More/Obligations/Backup captures are empty-ledger smoke screens, not populated workflows. Continue targeted functional and accessibility coverage for these screens, encrypted populated backup/restore, and full visual comparison. Do not claim 1:1.
+- **FIRST NEXT:** inspect archived WEB v18.20 bundle source for screen-specific navigation/content contracts and audit native views for missing accessible names/values/actions. Add focused non-financial UI tests or safe accessibility fixes only where a concrete mismatch is proven; then run exact CI and capture populated workflows. Do not change financial formulas, wholesale Models/LedgerStore, or app/main.
