@@ -81,3 +81,12 @@ Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543
 - Reports UI parity commit `6e0c35132cdf99047942eb94b59e40d2b5fd65ff` aligns section order and removes duplicate “Fluxuri înregistrate”; commit `874a7f1ba27a6efb7208d1a9e188e0c23742f717` removes correction links from the read-only Reports surface. The failing test is unrelated to Reports.
 - **FIRST NEXT:** update only `NativeiOS/UITests/NativeScreenSmokeTests.swift` so the scenarios smoke test navigates from assumptions back to Finanțe, then selects Mai mult → `more-menu-simulations` and asserts the Autonomie screen. Increment candidate build to 71 in `NativeiOS/xcodegen.yml`. Push a single coherent commit, inspect exact push CI to terminal state, require 315 unit + 6 UI PASS, then inspect the exact artifact. Keep Reports calculations/read-only behavior unchanged.
 - Privacy invariants unchanged: local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money. Never modify app/main or claim 1:1 prematurely.
+
+
+## 2026-11-19 14:06 UTC — recovered expired lease; monthly review implementation
+
+- Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Current preview main HEAD: 7cc6dc3b9a41c78f1399527fed2b3c6d83fe01da. Current app feature HEAD was resolved from the branch ref itself: df9b98b7b8bb4c18c8aacef7652177603eec5c3d. App main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- Previous lease expired at 13:45 UTC; no active lease remains. Claimed this finite lease through 2026-11-19T14:45:00Z before code changes.
+- First unfinished queue item is P1: port the archived WEB v18.20 four-step monthly review, using existing local per-month reviews progress, prior-month resume, and the exact archived labels/calculation values. Do not change financial formulas or mutate ledger balances from review steps.
+- Exact build72 CI [44532331346](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44532331346) for df9b98b completed SUCCESS: simulator build, 315 unit tests, 6 UI tests, screenshot export and artifact preservation all passed. The log confirms `Executed 315 tests, 0 failures` and `Executed 6 tests, 0 failures`. Artifact 14534433140 is retained; screenshot contents have not yet been independently inspected in this lease.
+- No product changes have been made in this lease yet. Keep app/main untouched. Local-only, no backend/account/bank sync/telemetry; available credit is not owned money.
