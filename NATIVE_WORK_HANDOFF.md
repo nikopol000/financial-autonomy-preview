@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T19:16:00Z
-Lease expires UTC: none
+Updated UTC: 2026-11-19T20:06:00Z
+Lease expires UTC: 2026-11-19T20:30:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 348b6f213fc03d1e28f318178708be9a521ae70d
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -25,3 +25,10 @@ Feature comparison: 375 commits ahead, 0 behind; app/main remains unchanged.
 3. When Xcode/Simulator CI is available, inspect subscription and CSV Light/Dark captures and exercise a real document-picker CSV. Continue financial-formula, lossless backup and screen-by-screen parity verification.
 
 Privacy invariants: local-only data; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Do not modify or merge app/main. Do not declare 100% parity until all function, formula, data-preservation, build/test and visual gates pass.
+
+
+## Active run lease — recurring projection integrity
+- Startup preview main HEAD: 1ee9289a47b2c398242db45e0fa8ac4b8fd8122d
+- App feature HEAD at lease claim: 348b6f213fc03d1e28f318178708be9a521ae70d
+- Exact first unfinished step: inspect build78 CI for the current feature HEAD; run 44596052554 failed before runner allocation (runner_id=0, steps=[], logs_url=null). Do not retry it. Continue the independent recurring-import/encrypted-backup integrity audit.
+- Concrete candidate finding: SnapshotValidator validates recurring metadata and ScheduleBook independently but does not compare each recurring record's financial ScheduleBook projection. Verify and add a regression test before changing code.
