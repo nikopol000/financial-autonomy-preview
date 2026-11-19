@@ -3975,3 +3975,15 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 
 **FIRST NEXT:** obtain/list the exact push workflow run for `d48a6808a23223cbb30e5f79663fb8a25665ad2e`. If SUCCESS, inspect all test counts and the exact .xcresult + populated Reports Light/Dark captures. If CI fails, repair only the real diagnostic. Then continue Reports visual parity, Subscriptions lifecycle/history/local reminders and the local CSV detector (analysis-only; never auto-post transactions). No app/main promotion.
 
+
+
+## Native iOS build68 — Reports P2 UI-test month selection (2026-11-19)
+
+**Status: IN PROGRESS — exact CI for the repair is running.**
+
+- Previous exact run [44494667991](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44494667991) on `d48a6808a23223cbb30e5f79663fb8a25665ad2e`: iOS Simulator build PASS; 315 unit tests PASS; 6 UI tests executed, 5 PASS and 1 failed because the populated Reports UI test asserted an October fixture row while ReportsView correctly defaulted to November 2026.
+- Artifact [14514488187](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44494667991/artifacts/14514488187) inspected. Accessibility hierarchy confirmed `reports-month-label = noiembrie 2026` and no November balance checks; the fixture observations are dated October. Empty Reports Light/Dark screenshots were also inspected.
+- Test-only app commit [`398876d735a913a84a586d6ec31c662c7f10aeac`](https://github.com/nikopol000/financial-autonomy-app/commit/398876d735a913a84a586d6ec31c662c7f10aeac) adds deterministic month navigation to `2026-10` before the populated Reports assertions. No production view or formula change.
+- Exact push CI [44504455375](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44504455375) for this commit: XcodeGen, project generation and simulator app build PASS; combined test step IN_PROGRESS. No passing test/artifact claim yet.
+
+**FIRST NEXT:** inspect run 44504455375. Require 315 unit + 6 UI PASS, inspect the exact populated Reports Light/Dark captures and .xcresult, then continue Reports visual parity. Do not retry the previous failed SHA or alter the current-month default to satisfy a fixture. Keep app/main untouched.
