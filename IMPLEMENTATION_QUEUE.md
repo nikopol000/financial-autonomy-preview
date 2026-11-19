@@ -4077,3 +4077,33 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - No native CSV parser/detector file was found; `MoreHubView` Tools remains a parity placeholder.
 - Classification remains an explicit user decision; it creates a recurring commitment only, never a transaction. Possible duplicates cannot be classified until checked.
 - **Next after build77's exact CI verification:** implement the parser/detector as a pure local engine, fileImporter UI and deterministic tests. Do not implement automatic posting or change balances.
+
+
+## 2026-11-19 — build78 candidate: local CSV recurrence detector
+
+Status: **Implemented on iOS feature; CI, simulator UI, and visual verification pending.**
+
+Completed:
+- Archived WEB v18.20 module 329 inspected; parser and recurrence thresholds ported to a pure Swift engine.
+- Local CSV document picker and More > Instrumente screen implemented.
+- Explicit classification only; duplicate suggestions are blocked from direct classification.
+- Recurring commitment + ScheduleBook projection saved through the existing LedgerStore API; no transaction or balance mutation.
+- DEBUG UI-test storage is isolated from the production encrypted store.
+- 10 unit-test methods and one Light/Dark UI test added.
+- Local Swift 6.2.1 engine type-check with dependency stubs and a focused smoke harness passed. No Xcode build/XCTest executed locally.
+
+Feature commits: engine `609ea09`, `e1127fb`, `9ed77e3`; tests `7e10c6a`, `f413c13`, `d4f9ab5`, `a9ec620`; view/integration/UI/build `a47b20e`, `846561b`, `0da8eb8`, `31b1cd9`, `803930c`, `1c1120a`, `f6635f9`. Current app feature HEAD: `a9ec6206ea333621ebf02f181fcd0111706b0aee`.
+
+CI evidence:
+- Build77 exact SHA `67c7edebd4089cd1850f4f6f42e47442ac8ef1c0`: combined status empty; available workflow-run lookup returned no PR-associated runs; no open PR. Push-run ID/logs/artifact unavailable.
+- Build78 exact SHA `a9ec6206ea333621ebf02f181fcd0111706b0aee`: combined status empty; available workflow-run lookup returned no runs. Do not report build/test/UI success or failure.
+- Expected build78 totals are 343 unit / 10 UI tests, inferred from the last verified build74 baseline and test additions; not executed.
+- Linux environment has Swift 6.2.1 but no `xcodebuild`. Local engine smoke is not a substitute for iOS CI.
+- No push-run relaunch was attempted. The next session must obtain the exact Actions push-run listing or required permission; do not rerun an old SHA.
+
+### First next action
+1. Obtain the Native iOS CI run for exact HEAD `a9ec6206ea333621ebf02f181fcd0111706b0aee`; verify XcodeGen, simulator build, all 343 expected unit tests and 10 UI tests, and retain the exact run/artifact links.
+2. Inspect CSV detector candidate/classified screenshots in Light and Dark. Exercise a real simulator document-picker CSV in addition to the injected UI fixture.
+3. Resolve any build/test/UI failure before further feature work.
+4. Verify build77 subscriptions/reminders visually and functionally against archived WEB v18.20.
+5. Continue the complete data-preservation, financial-formula, backup round-trip, and screen-by-screen parity audit. Do not mark 100% until all differences are resolved.
