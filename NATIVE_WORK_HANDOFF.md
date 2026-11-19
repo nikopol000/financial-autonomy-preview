@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T22:10:00Z
-Lease expires UTC: 2026-11-20T00:30:00Z
+Updated UTC: 2026-11-19T22:16:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1
+Verified app feature HEAD: b8e45835ca89c7780ff674a2cfff2611f415ab1d
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: 7b5a3ac67c50cd87540184532f6663ce8aca8bcd
-Feature comparison: 381 commits ahead, 0 behind; app/main remains unchanged.
+Verified preview main before handoff commit: 16011a32a6be5d4ca05d13fd7956c2fe3c28e6c0
+Feature comparison: 383 commits ahead, 0 behind; app/main remains unchanged.
 
 ## Completed this run
 - Re-read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and this handoff from preview `main`; startup handoff was READY/no lease.
@@ -60,10 +60,29 @@ Privacy invariants: local-only data; no backend, mandatory account, bank sync or
 Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main. Do not declare 100% parity until all function, formula, lossless-data, build/test and visual gates pass.
 
 
-## Active run lease — imported backup projection audit
+## Completed run lease — imported backup projection audit
 - Preview main HEAD at lease claim: 9464ad33dbbc23860f203a74d4da9da7edca6153
 - App feature HEAD at lease claim: 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1 (confirmed identical to the current feature ref by compare).
 - App main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature remains 381 ahead / 0 behind.
 - Exact first unfinished queue item: remaining encrypted-backup audit for legacy optional fields, imported templates/month plans/goals/projection and account/debt references.
 - Exact current Native iOS CI run 44615721018 for the feature HEAD failed before runner allocation (runner_id=0, steps=[], logs_url=null, artifacts=[]; log download 404 BlobNotFound; combined status empty). Do not retry it. The PR-only commit-run lookup returns no runs for this push commit.
 - Concrete issue under verification: SnapshotValidator checks imported loan metadata against LoanBook but omits the optional installments count and explicit scheduled-payment rows; it also does not validate month-plan/template/projection metadata as thoroughly as the v18.20 importer. Verify exact projection contracts and add focused regressions before implementation.
+
+
+## Completed this run — imported catalog and encrypted backup validation
+- Startup app feature HEAD was 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1; compare confirmed the branch had not advanced before work. Current feature HEAD is b8e45835ca89c7780ff674a2cfff2611f415ab1d. App main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature is 383 ahead / 0 behind.
+- Preview startup HEAD was 9464ad33dbbc23860f203a74d4da9da7edca6153; this run claimed a finite lease in preview commit 80ec231d3e7d51ff1e99ccc12289679b76275412. PROJECT_STATE commit 73a86d06750e5bf3f1a0b8b357e8c2095e8d7900 and IMPLEMENTATION_QUEUE commit 16011a32a6be5d4ca05d13fd7956c2fe3c28e6c0 record the completed stage and next action.
+- App implementation commit 1ed30dd5d678b532bb1cba6c7e053d0289702dd5 validates imported catalog/projection references and compares imported loan installments/schedule rows with LoanBook. Test commit b8e45835ca89c7780ff674a2cfff2611f415ab1d adds the encrypted import/restore and rejection regression.
+- Swift 6.2.1 isolated validator harness, loan projection harness and nested optional mutation syntax check passed. These are not app build/XCTest. Linux has no xcodebuild.
+- Exact new HEAD b8e45835ca89c7780ff674a2cfff2611f415ab1d has empty combined status; PR-only workflow lookup returns no runs. No push-run ID/job/log for this SHA is exposed by the available integration. Previous HEAD 75e6f3c had run 44615721018 fail before runner allocation (runner_id=0, no steps/logs/artifacts; log endpoint 404 BlobNotFound); no retry made.
+- Expected inventory 348 unit / 10 UI is source-derived only. New XCTest, full suite, iOS build, Simulator, document picker and screenshots remain unexecuted.
+- Active preview index.html is WEB 18.74; the native parity target remains archived WEB v18.20. No visual comparison was performed this stage.
+- Lease released; no concurrent iOS work is in progress.
+
+## Exact next action
+1. Check whether the exact push CI run for current feature HEAD b8e45835ca89c7780ff674a2cfff2611f415ab1d and macOS runner details can be exposed; do not retry old zero-runner run 44615721018.
+2. If run/runner visibility remains unavailable, continue the legacy Codable/default/migration audit for optional fields from pre-build28/49/53 snapshots; add only demonstrated preservation or validation regressions.
+3. At first available runner, run one fresh Native iOS CI on the then-current feature HEAD and inspect XcodeGen, Simulator build, full unit/UI suite, .xcresult and screenshots/artifacts.
+4. Then test CSV through the real iOS document picker and compare Subscriptions/CSV Light/Dark against archived WEB v18.20.
+
+Privacy invariants: local-only; no backend, mandatory account, bank synchronization or telemetry. Available credit is not owned money. Do not modify or merge app/main. No 100% parity claim until all functional, financial, data-preservation, build/test and visual gates pass.
