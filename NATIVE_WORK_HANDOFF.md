@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T14:19:43Z
-Lease expires UTC: none
+Updated UTC: 2026-11-19T14:21:35Z
+Lease expires UTC: 2026-11-19T14:40:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: fd92242b48fe00b45268a061f537396566674615
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -101,3 +101,9 @@ Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543
 - **FIRST NEXT:** retrieve exact push CI for fd92242; require simulator build, 319 unit tests, 7 UI tests and screenshot artifact. Inspect monthly-review Light/Dark captures and .xcresult, especially resuming at step 2 after navigating away/back and encrypted-backup progress. If CI is green, inspect web v18.20 automatic pending-review prompt behavior; implement only any confirmed gap. Then continue Subscriptions lifecycle/history/local reminders, followed by analysis-only CSV recurring detection.
 - Privacy: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main without explicit approval. No 1:1 claim.
 - Lease released. Status READY_FOR_NEXT_RUN.
+
+
+## 2026-11-19 14:22 UTC — short reconciliation lease
+
+- Reacquired a finite lease through 14:40 UTC to reconcile the checkpoint after inspecting the archived WEB v18.20 root. The exact build73 CI is still not observable through available GitHub Actions connectors.
+- Confirmed the web root automatically opens the earliest pending review month on unlock: pendingReviews walks from the started month up to (but excluding) the current month and selects the first month whose progress is below 4. The review modal is non-dismissable via outside tap; step 4 saves progress 4 and closes. The native build73 implementation currently has only the Reports entry/resume flow, so automatic pending-review presentation remains a confirmed parity gap.
