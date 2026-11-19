@@ -4009,3 +4009,13 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - P2: port archived monthly review as four steps with local per-month progress and prior-month resume; preserve read-only reports and never mutate balances during review.
 - P3: port Subscriptions lifecycle/status/history/local reminders; then CSV recurring detector as analysis-only with explicit user decision, never auto-post transactions.
 - Continue exact screen-by-screen Light/Dark and populated-data comparison against archived v18.20 bundle blob be453db2699273a194543de4532db6ea4b2e1cf2. No 1:1 claim until all formulas, data migration, tests and visuals are proven. App main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366 and must not be changed.
+
+## Native iOS continuation — build72 Reports correction (2026-11-19)
+
+- Completed: build71 commit b54b648f3ca8b9b3fa682ba6c8d2ecc5573a57a5; exact Native iOS CI 44530590714 SUCCESS — simulator build, 315/315 unit tests, 6/6 UI tests, screenshot export and artifact upload. The autonomy scenarios test now follows WEB v18.20 navigation Mai mult → Simulări.
+- Reports section order/copy: app commit 6e0c35132cdf99047942eb94b59e40d2b5fd65ff moved the sections to archived v18.20 order and removed the duplicate “Fluxuri înregistrate”. Build70 artifact 14529741149 was inspected for populated Reports Light/Dark.
+- Functional correction parity: archived v18.20 Reports has inline balance-check correction. App commit 874a7f1 had removed it; current app commit df9b98b7b8bb4c18c8aacef7652177603eec5c3d restores inline correction for account and loan observations through existing audited LedgerStore methods, with UI coverage for the latest account check. No formula/model/ledger rewrite. Build72 CI run 44532331346 is IN_PROGRESS; do not claim success until terminal.
+- P0 FIRST NEXT: inspect exact run 44532331346 and its artifact. Require 315 unit + 6 UI PASS and inspect populated Reports Light/Dark correction state.
+- P1 NEXT: port the archived four-step monthly review: “Cu ce bani ai pornit”, “Cum ai folosit bugetul”, “Economii și datorii”, “Cu ce mergi mai departe”; persist progress locally per month, allow resume/review of previous months, keep reports read-only except the explicit balance-correction action, and never mutate balances from review steps.
+- P2: Subscriptions lifecycle/status/history and local reminders; P3: CSV recurring detector, analysis-only, no automatic transaction creation.
+- Continue screen-by-screen Light/Dark populated and empty comparison against archived bundle blob be453db2699273a194543de4532db6ea4b2e1cf2. No 1:1 claim until formula, data-preservation, build/test and visual evidence are complete. App main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366 and must not be modified.
