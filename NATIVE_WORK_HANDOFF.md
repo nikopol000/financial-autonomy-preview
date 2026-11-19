@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T21:10:00Z
-Lease expires UTC: none
+Updated UTC: 2026-11-19T22:10:00Z
+Lease expires UTC: 2026-11-20T00:30:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -58,3 +58,12 @@ Privacy invariants: local-only data; no backend, mandatory account, bank sync or
 3. Once a runner starts, verify XcodeGen, Simulator build, full unit/UI suite and exact result/artifact/screenshots. Then test real CSV document picker and Light/Dark parity against archived WEB v18.20.
 
 Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main. Do not declare 100% parity until all function, formula, lossless-data, build/test and visual gates pass.
+
+
+## Active run lease — imported backup projection audit
+- Preview main HEAD at lease claim: 9464ad33dbbc23860f203a74d4da9da7edca6153
+- App feature HEAD at lease claim: 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1 (confirmed identical to the current feature ref by compare).
+- App main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature remains 381 ahead / 0 behind.
+- Exact first unfinished queue item: remaining encrypted-backup audit for legacy optional fields, imported templates/month plans/goals/projection and account/debt references.
+- Exact current Native iOS CI run 44615721018 for the feature HEAD failed before runner allocation (runner_id=0, steps=[], logs_url=null, artifacts=[]; log download 404 BlobNotFound; combined status empty). Do not retry it. The PR-only commit-run lookup returns no runs for this push commit.
+- Concrete issue under verification: SnapshotValidator checks imported loan metadata against LoanBook but omits the optional installments count and explicit scheduled-payment rows; it also does not validate month-plan/template/projection metadata as thoroughly as the v18.20 importer. Verify exact projection contracts and add focused regressions before implementation.
