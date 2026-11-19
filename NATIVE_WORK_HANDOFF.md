@@ -1,13 +1,13 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T20:12:30Z
-Lease expires UTC: none
+Updated UTC: 2026-11-19T21:04:00Z
+Lease expires UTC: 2026-11-19T21:34:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 63e98f706a70a39003c15daeb30c55385b43264c
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: f2d6778de367477bcfbf61964b27d85699e551fe
+Verified preview main before handoff commit: f99ea3c87104db7527a939d3bc47a1b7bc14506f
 Feature comparison: 377 commits ahead, 0 behind; app/main remains unchanged.
 
 ## Completed this run
