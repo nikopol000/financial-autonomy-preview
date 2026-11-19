@@ -4179,3 +4179,30 @@ Privacy invariants: local-only data; no backend, mandatory account, bank synchro
 **Next exact action:** check runner recovery without retrying the old failed runs; if still blocked, audit the remaining encrypted-backup optional fields and imported template/month-plan/goal/projection round trips. When runner allocation is available, run one fresh CI on the then-current HEAD and inspect build, tests and artifacts. Then real Simulator document-picker and Light/Dark screen review.
 
 Privacy and release gates unchanged: local-only, no backend/account/bank sync/telemetry; available credit is not owned money; app/main must remain unchanged; no 100% parity claim before all evidence gates pass.
+
+
+## 2026-11-20 — Imported backup validation stage
+
+**Completed**
+- App commit 1ed30dd5d678b532bb1cba6c7e053d0289702dd5: revalidate imported templates, month-plan budget/window references, debt-payment links, projection exposures/payoffs and operation template links after encrypted backup decode. Compare imported loan installment count and explicit schedule rows with LoanBook.
+- App commit b8e45835ca89c7780ff674a2cfff2611f415ab1d: add encrypted WEB import round-trip and regression assertions for imported catalog, goals/plans, projection, legacy optional nil-vs-empty fields and invalid references/projections.
+- Focused Swift 6.2.1 helper harnesses passed. They are not the iOS app build or XCTest.
+
+**Compatibility notes**
+- Optional metadata nil and explicit empty arrays remain distinct; no normalization is performed.
+- Native fixed-expense schedule edits remain separate from imported WebImportedMonthPlan source metadata. Do not add an equality invariant between ScheduleBook.fixedExpensePlans and imported monthPlans: LedgerStore records native edits in the schedule book independently.
+- No Models.swift, LedgerStore.swift, financial formula, transaction/balance logic or backup schema change.
+
+**CI / verification status**
+- Exact feature HEAD b8e45835ca89c7780ff674a2cfff2611f415ab1d: combined status empty; commit workflow lookup returns no runs because the available endpoint only exposes PR-triggered runs. No exact push run/job/log or runner result can be claimed.
+- Previous HEAD 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1 had run 44615721018 fail before runner allocation; do not retry it.
+- Expected inventory 348 unit / 10 UI is source-derived only. New XCTest, full suite, iOS build, Simulator, screenshots and document-picker test remain unexecuted. Linux host has Swift 6.2.1 but no xcodebuild.
+- Current active preview index.html is WEB 18.74; native target/reference remains archived WEB v18.20. No visual comparison this stage.
+
+**FIRST NEXT**
+1. Check visibility of the exact push CI run and runner state for current app feature HEAD; do not retry old zero-runner runs.
+2. If no runner/run details are available, continue audit of legacy Codable decoding/defaults and migration behavior across pre-build28/49/53 optional fields; add only concrete loss/rejection regressions.
+3. When a runner becomes available, run one fresh Native iOS CI on the then-current feature HEAD and inspect XcodeGen, Simulator build, full unit/UI suite, .xcresult and screenshots/artifacts.
+4. Then test CSV using the real iOS document picker and compare Subscriptions/CSV Light and Dark screens against archived WEB v18.20.
+
+Privacy/release gates unchanged: local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money; app/main must remain untouched; no 100% parity claim before all evidence gates pass.
