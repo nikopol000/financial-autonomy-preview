@@ -371,3 +371,48 @@ The independent native candidate remains on `nikopol000/financial-autonomy-app:f
 - Existing-recurring duplicate check uses normalized name, same frequency, and monthly-equivalent amount tolerance max(100 bani, 18%). If a duplicate is found, the UI does not offer classification buttons; it asks the user to inspect existing commitments. Otherwise the user explicitly chooses subscription/donation/other recurring expense or ignores the candidate.
 - Explicit classification creates only a recurring commitment with status active, coveredByBudget false, next payment from the last observed date/frequency and history action `Clasificare CSV confirmată`. It does not create a transaction or change balances.
 - **NEXT after build77 CI verification:** port this as a local-only fileImporter + pure parser/detector engine; add deterministic tests for delimiters, quoting, malformed rows, duplicate rows, amount parsing, interval tolerances, amount stability, merchant normalization and existing-commitment collisions. Classification must call the recurring store only after an explicit user choice. No backend, telemetry or automatic transaction posting.
+
+
+## Native iOS build78 candidate — local CSV recurrence detector (2026-11-19)
+
+### Verified repository state before checkpoint update
+- App feature branch: `feat/sync-preview-v18-20-ios`, HEAD `a9ec6206ea333621ebf02f181fcd0111706b0aee`.
+- App `main`: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (unchanged).
+- Preview `main` before this checkpoint: `540f6893b007ca7250ee7dfe6af9316f2551e2c9`.
+- Feature branch comparison: 372 commits ahead, 0 behind. No merge or write to app/main.
+
+### Build77 CI visibility limitation
+- Exact build77 commit: `67c7edebd4089cd1850f4f6f42e47442ac8ef1c0`.
+- Combined commit status returned an empty status list.
+- The available commit workflow-run lookup returned no runs because it exposes PR-associated runs; the feature branch has no open PR.
+- No push-run ID, runner log, XCTest result, or artifact was available. This is an observability limitation, not evidence of a CI pass or failure. The old SHA was not rerun.
+- As instructed, the independent CSV task was continued from the already-audited WEB v18.20 contract.
+
+### CSV detector implementation on the iOS feature branch
+- Inspected the archived WEB v18.20 bundle module 329 and its Tools integration (bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2`).
+- Added `NativeiOS/CSVRecurringDetector.swift`: 2,000,000 UTF-16-unit limit; UTF-8 BOM; comma/semicolon CSV; quoted fields and escaped quotes; strict required headers; RON only; negative payments only; ISO and DD.MM.YYYY dates; exact duplicate-row count; conservative NFKC merchant normalization; weekly/monthly/quarterly/yearly interval windows; upper median and max(100 bani, 18%) amount tolerance; duplicate comparison against recurring commitments using monthly-equivalent amounts.
+- Added `NativeiOS/CSVDetectorView.swift` and routed More > Instrumente to it. File access is local/read-only; classification is an explicit user action (Abonament, Donație, Altă recurență, or ignore). Potential duplicates cannot be classified from the detector result.
+- Classification creates only a recurring commitment and its existing ScheduleBook projection; it does not create an Operation, change account balances, or treat credit availability as owned cash.
+- Added a DEBUG-only UI-test launch fixture backed by `UITestLedgerPersistence`, so the test never reads or writes production local storage.
+- Added 10 unit-test methods and one Light/Dark UI test. Expected build78 totals, based on the last verified build74 baseline (323 unit / 8 UI) plus the build77 and build78 test additions, are 343 unit / 10 UI; these are expected counts only, not executed results.
+
+### Commits in the current feature batch
+- Engine: `609ea095697ce057baa0cd930be93e63b5ba9467`, `e1127fbd50b6273156b42e7d53c4331a9dc2aa01`, `9ed77e35b2b536aaa2154ab3b1e7562e598baba4`.
+- Tests: `7e10c6afbe9349f46ca8b89602759ac8ecfadd3a`, `f413c1375ae0a46c80b1963c3dbcafc5ab6c601d`, `d4f9ab52503325513756f7026726b74ff9071535`, `a9ec6206ea333621ebf02f181fcd0111706b0aee`.
+- View/integration/UI/build: `a47b20e1e30e5330672211c3a150e7824302b34e`, `846561bd9ae0d14bdb249975dfb0a9b1c706e438`, `0da8eb88a671979ff4cf2857290a1af6930429c2`, `31b1cd98a03d6a04c9e7156913bacb8712322ec9`, `803930ca0eca95e691e4e9a243052c05b6768405`, `1c1120ac692be20aff5329c516d62be877b6e7e8`, `f6635f9fb69ab24d32cbafdc1012c12da4222ed6`.
+- Final feature HEAD: `a9ec6206ea333621ebf02f181fcd0111706b0aee` (`fix(test): escape quoted CSV amount in Swift fixture`).
+
+### Checks actually executed
+- Local Swift 6.2.1 type-check of the CSV engine with minimal dependency stubs: PASS.
+- Local Swift smoke harness with dependency stubs: PASS for quoted/escaped CSV, UTF-8 BOM, Romanian decimal/grouped amount parsing, monthly recurrence detection, NFKC/reference normalization, duplicate collision, and next-payment date.
+- Foundation regex/date/formatting smoke checks: PASS.
+- `xcodebuild` is not installed in the Linux execution environment. No iOS Simulator build or XCTest suite was run locally.
+- For the exact build78 HEAD `a9ec6206ea333621ebf02f181fcd0111706b0aee`, combined commit status was empty and the available workflow-run lookup returned no runs. No build, unit/UI test, screenshot, or artifact result is claimed for build78.
+- Build77 subscription screens still lack confirmed CI and Light/Dark artifact inspection.
+
+### Remaining parity work
+- Verify the exact build78 push CI run and inspect its XCTest result plus candidate/classified screenshots in Light and Dark.
+- Verify build77 subscription UI and reminders against the archived web contract.
+- Exercise the real document picker with a simulator-provided CSV; the current UI test injects a deterministic local fixture, while parser behavior is covered by unit tests.
+- Continue the remaining end-to-end financial, backup round-trip, and full-screen visual comparison against the active WEB v18.20 bundle. Do not claim 100% parity.
+- Privacy invariants remain: local-only data, no account requirement, backend, bank synchronization, or telemetry; available credit is not owned money.
