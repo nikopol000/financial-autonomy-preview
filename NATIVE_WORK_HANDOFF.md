@@ -2,13 +2,13 @@
 
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T15:06:00Z
+Updated UTC: 2026-11-19T15:16:00Z
 Lease expires UTC: 2026-11-19T16:00:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: fd92242b48fe00b45268a061f537396566674615
+Verified app feature HEAD: f21ed0a3737d34771444c24900d1e2586bdbd03b
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 Verified preview main HEAD before this handoff lease: bcdbf9b96d729ba171cc9a9290eba2374cdf5ee8
-Checkpoint build: 18.20 build73; exact build72 CI 44532331346 for df9b98b completed SUCCESS (315 unit + 6 UI PASS); build73 monthly review implementation is committed at fd92242, but its exact push CI run is not visible through the available connector.
+Checkpoint build: 18.20 build74; exact build73 CI 44541998606 SUCCESS (319 unit + 7 UI PASS); build74 commit f21ed0a is pushed and exact CI 44552166386 has simulator build PASS with test step IN_PROGRESS.
 
 The previous lease was READY_FOR_NEXT_RUN and has now been claimed through 2026-11-19T12:45:00Z. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app feature/main and preview main refs were rechecked before work.
 
@@ -125,3 +125,14 @@ Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543
 - Archived WEB v18.20 bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js` (blob `be453db2699273a194543de4532db6ea4b2e1cf2`) inspected: after successful unlock/load, the root selects `pendingReviews(state)[0]`; pending months iterate from the started month up to but excluding current month, selecting the earliest review with progress below 4. The review modal blocks outside dismissal and closes after stage 4.
 - **FIRST IMPLEMENTATION:** port this auto-pending-review-on-unlock behavior to native RootView, preserving local/imported progress precedence and keeping reports/calculations read-only. Add deterministic engine tests and a Light/Dark UI test for earliest pending month, resume stage and final dismissal. Keep the existing manual Reports entry; no financial formula changes.
 - Finite lease claimed through 2026-11-19T16:00:00Z. No app repository changes have been made under this lease yet.
+
+
+## Native iOS build74 — automatic pending monthly review (2026-11-19)
+
+- Closed P0 build73 verification: exact Native iOS push run [44541998606](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44541998606) for `fd92242b48fe00b45268a061f537396566674615` completed SUCCESS. XcodeGen, project generation, iOS Simulator build, **319/319 unit tests**, **7/7 UI tests**, screenshot export and artifact upload passed. Artifact [14537594994](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44541998606/artifacts/14537594994) downloaded; October 2026 monthly-review step 2/4 resume captures were inspected in Light and Dark.
+- Archived WEB v18.20 unlock contract was inspected in bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js` (blob `be453db2699273a194543de4532db6ea4b2e1cf2`): after unlock/load, open the earliest month from the started month up to but excluding current month whose review progress is below 4; imported progress is the baseline and local per-month progress overrides it; the modal cannot be dismissed outside and closes after stage 4.
+- App feature commit [f21ed0a3737d34771444c24900d1e2586bdbd03b](https://github.com/nikopol000/financial-autonomy-app/commit/f21ed0a3737d34771444c24900d1e2586bdbd03b), build 74, implements that behavior in RootView using a non-dismissible full-screen MonthlyReviewView. Added MonthlyReviewEngine with deterministic pending-month selection, four unit tests, a dedicated Light/Dark automatic-open UI test, a test fixture with imported/local progress precedence, and build number 74. Reports/financial formulas and ledger entries were not changed.
+- Exact push CI [44552166386](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44552166386) targets this exact commit. XcodeGen, project generation and iOS Simulator application build passed; Swift test step is **IN_PROGRESS**. Expected inventory is 323 unit + 8 UI tests; these totals are expected, not yet executed. No test or screenshot result is claimed for build74 yet.
+- App feature HEAD: `f21ed0a3737d34771444c24900d1e2586bdbd03b`. App main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (untouched). Preview main before this documentation checkpoint: `6902294c5292bb99676e0974aa76d112130bc500`.
+- **FIRST NEXT:** inspect exact run 44552166386 to terminal state. Require simulator build, 323/323 unit tests and 8/8 UI tests. Download/inspect .xcresult and automatic-review Light/Dark screenshots; confirm October is selected at step 3/4 (local progress overrides imported), step 4 completes and dismisses, and existing manual Reports resume still works. Fix only an exact CI diagnostic if needed. Then continue Subscriptions lifecycle/history/local reminders and the analysis-only CSV recurring detector. No app/main promotion or 1:1 claim.
+- Privacy invariants unchanged: local-only, no backend, mandatory account, bank sync or telemetry. Available credit remains separate from owned money.
