@@ -3903,3 +3903,12 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Dashboard order tests add five methods (302 unit tests expected, plus 4 UI methods); the UI test now checks header/arrangement controls and money value accessibility identifiers. Not yet verified on the exact current commit.
 - CI history: run 44428442384 failed on a label mismatch; run 44428600963 failed because the existing DashboardBudgetDetailEngine helper was omitted during prefix replacement. Both diagnostics have been corrected in later commits. Run 44428548387 was cancelled by a newer push and is not a result.
 - FIRST NEXT: inspect [run 44428742297](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44428742297) for exact HEAD 2023e537b8fde2cfbaccd25abcf85ba903e45084. Require simulator build, all 302 unit tests and 4 UI tests to pass. Then inspect retained populated Dashboard Light/Dark screenshots and .xcresult. On failure, fix only the exact logged issue. After green, continue VoiceOver and full archived v18.20 screen-by-screen visual comparison. Do not claim 1:1 or merge app/main.
+
+## Native iOS build58 — Dashboard compiler fixes and exact test run
+
+- Current app feature HEAD ed848636d606fff35b941ae5758019bfb711fb33; build 58. App main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- Dashboard v18.20 HomeHeader, arrangement mode, drag/drop, move-up/down, reset, persisted full order, hidden module ID preservation and split spending/next-income reorderable modules are implemented in source. Dashboard layout is stored in the local encrypted snapshot and mirrored to imported metadata. Credit remains separate from owned money.
+- Exact CI 44429607764: XcodeGen/project generation PASS; iOS Simulator build PASS; test target compilation failed on missing imported: argument label in DashboardOrderTests. Corrected in app commit ed84863.
+- Current exact run [44429745130](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130) targets ed848636d606fff35b941ae5758019bfb711fb33, IN_PROGRESS at checkpoint. Expected inventory: 302 unit tests + 4 UI tests; none claimed as passing until exact run completes.
+- FIRST NEXT: inspect run 44429745130. On green, inspect its artifact and populated Dashboard screenshots in Light/Dark, confirm header/reorder controls and owned-vs-credit values, then continue VoiceOver and screen-by-screen comparison to archived WEB v18.20. On failure, fix only exact CI evidence. No 1:1 claim; no app/main merge.
+
