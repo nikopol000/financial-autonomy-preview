@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T23:09:00Z
-Lease expires UTC: 2026-11-19T23:45:00Z
+Updated UTC: 2026-11-19T23:23:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: b8e45835ca89c7780ff674a2cfff2611f415ab1d
+Verified app feature HEAD: aad3fceceb184911c55d26ffb16dfd5369f43b88
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: 16011a32a6be5d4ca05d13fd7956c2fe3c28e6c0
-Feature comparison: 383 commits ahead, 0 behind; app/main remains unchanged.
+Verified preview main before handoff commit: 6ae342fb35aee61697c794906cab2b2e9bec94e0
+Feature comparison: 389 commits ahead, 0 behind; app/main remains unchanged.
 
 ## Completed this run
 - Re-read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and this handoff from preview `main`; startup handoff was READY/no lease.
@@ -94,3 +94,21 @@ Privacy invariants: local-only; no backend, mandatory account, bank synchronizat
 - Exact current HEAD combined status is empty; the available commit-workflow-run connector returns no runs because it only lists PR-triggered runs. No exact push-run/job/runner result is exposed; do not infer CI success/failure or rerun old zero-runner failures.
 - First unfinished queue action: audit legacy Codable decoding/default/migration behavior for pre-build28/49/53 optional fields; identify a concrete loss/rejection regression before modifying app code.
 - Lease expires 2026-11-19T23:45:00Z. Work only on feat/sync-preview-v18-20-ios; never modify app/main.
+
+
+## Completed run — legacy Codable and CSV whitespace parity (2026-11-19 23:23 UTC)
+- App feature commits: \`756cd3d198a9486b720e12f1752bb3bdda29c065\` (legacy Codable tests), \`5e39bd4f9f713f00f8f10e78d37778bf6fc6934b\` (fixture correction), \`261b83db827b154d873a49917174f83fb3e6188e\` (ECMAScript whitespace helper in CSV engine), \`bd664ba0d9e5052dbbe4d789f53fa6253c9f9f46\` (subscription parser uses helper), \`16057201e529c25958bca0941d9ba743ae96387b\` (CSV regression tests), \`aad3fceceb184911c55d26ffb16dfd5369f43b88\` (subscription regression assertions).
+- Startup preview docs/AGENTS/WORKFLOW and handoff were read; startup app feature/main and preview main verified from branch refs. Current app feature is 389 ahead / 0 behind app/main.
+- Legacy pre-build28/49/53 optional fields and BudgetSettings/Operation defaults were audited. No production migration defect found; regression coverage added.
+- Archived WEB v18.20 bundle module 204/329 uses ECMAScript whitespace. U+FEFF is whitespace; U+0085 and U+200B are not. Swift Foundation whitespace sets disagreed. Added a scalar-exact helper and used it in CSV field trim, quoted-field validation, merchant normalization, CSV amount parsing and subscription amount parsing.
+- Local Swift 6.2.1 focused harness PASS; Node reference harness PASS. Not XCTest, not full iOS build.
+- Exact current commit combined status empty; workflow-run connector returns no PR runs only. No exact push-run ID/runner details exposed. No CI success/failure claim.
+- No Xcode build, XCTest, Simulator, real document picker or visual comparison. Expected inventory 350 unit / 10 UI is estimated only.
+- No financial formulas, balances, transaction models, LedgerStore, backup schema, or app/main changes.
+
+## Next exact action
+1. Recheck exact push CI run/runner visibility for \`aad3fceceb184911c55d26ffb16dfd5369f43b88\`; do not relaunch old zero-runner attempts.
+2. If the push run remains unobservable, audit \`CSVDetectorView.handleImport\` and \`.fileImporter\` security-scoped URL access, byte-size preflight/read, and UTF-8 decoding against WEB v18.20; add only evidence-backed parity/safety fixes.
+3. When a macOS runner is available, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/artifacts; then exercise real CSV document selection and compare CSV/Subscriptions Light/Dark screens.
+4. Continue financial formula and lossless backup checks. Keep all work on \`feat/sync-preview-v18-20-ios\`; never modify/merge app/main without explicit approval.
+
