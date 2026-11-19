@@ -3956,3 +3956,22 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - **P0 FIRST:** inspect run 44458150109 to terminal state; require 305 unit + 4 UI PASS and inspect Light/Dark Record captures for `Cheltuială`. Fix only exact CI diagnostics.
 - **P1 NEXT:** implement the first Reports slice from archived WEB v18.20: month selection, exact first-month budget proration, income/expense/debt-payment totals, spend-by-name and expense-detail/unitemized totals, category budget usage. Keep it read-only and preserve existing financial engines. Add deterministic unit/UI tests. Remaining report sections (balance-check intervals, owned cash/savings/debt opening-to-closing) must be explicitly tracked, then port Subscriptions lifecycle/history/reminders and CSV detector without posting transactions.
 - Continue exact screen-by-screen comparison against archived bundle `be453db2699273a194543de4532db6ea4b2e1cf2`; no 1:1 claim. Never touch app/main or merge without explicit approval.
+
+## Native iOS build68 — Reports P2 reconciliation hardening (2026-11-19)
+
+**Status: IMPLEMENTED ON FEATURE BRANCH; EXACT PUSH CI NOT VISIBLE THROUGH AVAILABLE CONNECTOR. Do not mark verified.**
+
+- Feature branch `financial-autonomy-app:feat/sync-preview-v18-20-ios`:
+  - `f6ceaecbdd92d481ed9f1a1c50f007d33e71f19a` — Reports P2 balance checks and cash/savings/debt roll-forward. Exact CI [44487930654](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44487930654): app simulator build PASS; test target compile FAIL because UI test imported `UITestFixture` across target boundary. No tests executed.
+  - `9ccdf816ef71146e1e89aa521d5ea96c2155a1bd` — replaces cross-target fixture reference with stable UUID string.
+  - `936cb0ab6129d5ec8e37dbab59778af602de5668` — fails closed on cumulative explanation overflow.
+  - `d48a6808a23223cbb30e5f79663fb8a25665ad2e` — adds same-day credit event-order/signed-explanation test and explanation-overflow test.
+- Exact current feature HEAD verified by compare: `d48a6808a23223cbb30e5f79663fb8a25665ad2e`. Stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` untouched.
+- Archived v18.20 contract reviewed: imported debt balance checks use signed negative native values and negative cumulative difference; presentation flips to positive debt. Event order is date + intraday order. New tests assert reverse storage order is sorted by eventOrder and signed explanation amounts reduce unexplained debt once.
+- ReportsEngineTests: 10 methods. Added test-only coverage for same-day credit-line checks and overflow fail-closed. Reports calculations remain read-only.
+- Exact latest push CI for d48a680 is **unverified**. Combined commit statuses are empty; the connector's commit-workflow endpoint returns PR-triggered runs only. Workflow YAML confirms the feature-branch push trigger, but no push-run listing or workflow-dispatch tool is available. Do not infer CI success or runner failure. Do not repeatedly rerun the old f6ceaec failure.
+- Artifact 14511855581 belongs to the failed f6ceaec run; it is not a passing result. No new passing artifact or screenshots exist yet.
+- Checkpoint: PROJECT_STATE update committed as `2595eeca3af3b96f057e7b76a78f97bd9ee17868`.
+
+**FIRST NEXT:** obtain/list the exact push workflow run for `d48a6808a23223cbb30e5f79663fb8a25665ad2e`. If SUCCESS, inspect all test counts and the exact .xcresult + populated Reports Light/Dark captures. If CI fails, repair only the real diagnostic. Then continue Reports visual parity, Subscriptions lifecycle/history/local reminders and the local CSV detector (analysis-only; never auto-post transactions). No app/main promotion.
+
