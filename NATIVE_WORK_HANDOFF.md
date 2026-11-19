@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T15:20:38.012Z
-Lease expires UTC: none
+Updated UTC: 2026-11-19T16:10:00Z
+Lease expires UTC: 2026-11-19T16:35:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: f21ed0a3737d34771444c24900d1e2586bdbd03b
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff release: aa1cee4cf8713e69d962eb061aadeef7d2a8641c
-Checkpoint build: 18.20 build74; exact Native iOS CI 44552166386 SUCCESS (323 unit + 8 UI PASS); artifact 14543808934 inspected; automatic pending monthly review verified in Light/Dark.
+Verified preview main HEAD before this handoff lease: 99e00ba1580295d6bfe5a4c2c45da650cce3184b
+Checkpoint build: 18.20 build74; exact Native iOS CI 44552166386 SUCCESS (323 unit + 8 UI PASS); artifact 14543808934 inspected. Next: audit and port P2 Subscriptions lifecycle/history/local reminders from archived WEB v18.20.
 
 The previous lease was READY_FOR_NEXT_RUN and has now been claimed through 2026-11-19T12:45:00Z. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app feature/main and preview main refs were rechecked before work.
 
@@ -150,3 +150,11 @@ Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543
 - App feature HEAD: `f21ed0a3737d34771444c24900d1e2586bdbd03b`; app main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (untouched). Preview main before this final checkpoint: `aa1cee4cf8713e69d962eb061aadeef7d2a8641c`.
 - **FIRST NEXT:** begin P2 Subscriptions parity from archived WEB v18.20: audit imported recurring fields and current native subscription implementation; port lifecycle/status transitions, subscription history and local notifications/reminders with deterministic date tests, preserving local-only behavior and never posting payment transactions automatically. Then port CSV recurring detector as analysis-only with explicit user decision. Continue full Light/Dark screen and data-preservation audit. No app/main promotion.
 - Privacy invariants unchanged: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
+
+
+## 2026-11-19 16:10 UTC — Subscriptions parity lease
+
+- Re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and NATIVE_WORK_HANDOFF.md from preview main.
+- Rechecked app feature branch HEAD, app main and preview main before claiming this finite lease.
+- First unfinished item: audit v18.20 recurring/subscription contract and current native support; then implement a small local-only lifecycle/history/reminder increment with deterministic tests. No automatic transaction creation; available credit remains excluded from owned money.
+- No app repository files changed yet. Lease expires at 2026-11-19T16:35:00Z.
