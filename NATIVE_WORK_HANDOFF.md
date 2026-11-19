@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T21:04:00Z
-Lease expires UTC: 2026-11-19T21:34:00Z
+Updated UTC: 2026-11-19T21:10:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 63e98f706a70a39003c15daeb30c55385b43264c
+Verified app feature HEAD: 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: f99ea3c87104db7527a939d3bc47a1b7bc14506f
-Feature comparison: 377 commits ahead, 0 behind; app/main remains unchanged.
+Verified preview main before handoff commit: 7b5a3ac67c50cd87540184532f6663ce8aca8bcd
+Feature comparison: 381 commits ahead, 0 behind; app/main remains unchanged.
 
 ## Completed this run
 - Re-read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and this handoff from preview `main`; startup handoff was READY/no lease.
@@ -41,3 +41,20 @@ Privacy invariants: local-only data; no backend, mandatory account, bank sync or
 - App feature HEAD at lease claim: 348b6f213fc03d1e28f318178708be9a521ae70d
 - Exact first unfinished step: inspect build78 CI for the current feature HEAD; run 44596052554 failed before runner allocation (runner_id=0, steps=[], logs_url=null). Do not retry it. Continue the independent recurring-import/encrypted-backup integrity audit.
 - Concrete candidate finding: SnapshotValidator validates recurring metadata and ScheduleBook independently but does not compare each recurring record's financial ScheduleBook projection. Verify and add a regression test before changing code.
+
+
+## Completed this run — reminder/DST/restore synchronization
+- Re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Startup handoff was READY/no lease; claimed finite lease in preview commit e95c7ea1bbab20a57b826dfab3f5526dc2fe39cf and released it below.
+- Startup app feature HEAD 63e98f706a70a39003c15daeb30c55385b43264c; app main a9b30be147abecea45a63bf7dd8d0a3eb3370366. Final app feature HEAD 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1; app main unchanged; compare 381 ahead / 0 behind.
+- Exact current CI run 44615721018 for 75e6f3c failed before runner allocation: job 135883730133, runner_id=0, empty runner/group names, steps=[], null logs URL, log endpoint 404 BlobNotFound, no artifacts and empty combined status. Run 44615474760 for 6159537 has the same pre-runner failure. No retries made.
+- Fixed notification reconciliation deleting already-delivered subscription alerts and switched trigger DateComponents to UTC so repeated Bucharest 03:30 during 2026 fall-back remains two distinct instants. App commits 67a1e12fc7d68e313b2e5878818687267902cf2f and 615953799eac3ded43976f792279c35cb8f864c8.
+- Fixed in-app validated backup restore to resync local reminders immediately; added restore-state regression. App commits ce613d9429e39e0e52db44802682d6323fa2a4da and 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1.
+- Audited WEB v18.20 reminder ISO-8601 field and native encrypted round-trip; no loss in serialized reminder/history/end-date path found. Existing encrypted round-trip test covers it. Swift 6.2.1 Foundation harness passed exact UTC date-component conversion. No Xcode build/XCTest/Simulator verification.
+- Preview continuity commits: PROJECT_STATE bcdac463e03626b1a15734ab1126abf830712ec7; IMPLEMENTATION_QUEUE 7b5a3ac67c50cd87540184532f6663ce8aca8bcd.
+
+## Exact next action
+1. Re-read preview continuity files and verify live heads; check whether runner allocation is restored for current app feature HEAD 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1. Do not retry the existing zero-runner failures.
+2. If still blocked, continue the remaining encrypted-backup field audit for legacy optional fields, templates/month plans, goals/projection and account/debt references; add only concrete round-trip tests.
+3. Once a runner starts, verify XcodeGen, Simulator build, full unit/UI suite and exact result/artifact/screenshots. Then test real CSV document picker and Light/Dark parity against archived WEB v18.20.
+
+Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main. Do not declare 100% parity until all function, formula, lossless-data, build/test and visual gates pass.
