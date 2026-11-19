@@ -3912,3 +3912,14 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Current exact run [44429745130](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130) targets ed848636d606fff35b941ae5758019bfb711fb33, IN_PROGRESS at checkpoint. Expected inventory: 302 unit tests + 4 UI tests; none claimed as passing until exact run completes.
 - FIRST NEXT: inspect run 44429745130. On green, inspect its artifact and populated Dashboard screenshots in Light/Dark, confirm header/reorder controls and owned-vs-credit values, then continue VoiceOver and screen-by-screen comparison to archived WEB v18.20. On failure, fix only exact CI evidence. No 1:1 claim; no app/main merge.
 
+
+
+## 2026-11-19 — Native iOS build59 Dashboard arrangement parity refinement (IN PROGRESS)
+
+- **Reference:** archived WEB v18.20 bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. The current WEB preview is newer and is not the iOS parity target.
+- **Verified baseline:** build58 exact CI [44429745130](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130) SUCCESS, 302 unit + 4 UI tests, artifact [14486146237](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130/artifacts/14486146237) inspected (26 captures).
+- **Implemented on iOS feature only:** match HomeHeader typography to archived WEB tokens; replace whole-module arrangement outline with the compact WEB-style handle row and targeted-drop highlight; add adjustable accessibility action on the drag handle; use the archived up/down arrow glyphs; add UI assertions for actual Autonomie/Spatiu move and reset in Light/Dark plus arrangement screenshot; add LedgerStore snapshot reload/mirrored metadata test; increment candidate to build59.
+- **Native commits:** `f865a5e`, `556bea0`, `8fca03e`, `6c8fcea`, `ab2c608`, `64c2c2d`, `94bdab3`. Exact current HEAD `94bdab3e84b76aa8a46e7d238864b4ed71937d8b`.
+- **Verification:** source/diff inspection completed. Exact build59 CI has no combined status entries; the available workflow-run endpoint is PR-only and no matching PR exists, so build/test status is currently UNKNOWN. Do not claim build or tests passed. Expected 303 unit + 4 UI.
+- **Not changed:** financial formulas, account balances, production Models/LedgerStore, owned-vs-credit accounting, app/main, backend/bank sync/telemetry.
+- **FIRST NEXT:** obtain exact push-run result for build59; require simulator build and 303+4 tests; inspect arrangement captures and then run VoiceOver/remaining screen-by-screen parity. Do not claim 1:1.
