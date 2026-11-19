@@ -1,14 +1,18 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T17:10:00Z
-Lease expires UTC: none
+Updated UTC: 2026-11-19T18:04:00Z
+Lease expires UTC: 2026-11-19T18:20:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: a9ec6206ea333621ebf02f181fcd0111706b0aee
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: 24bb54ad29ae08202dd16cbb496955e33e4da65e
+Verified preview main before handoff commit: f58832bc2ee6fdf0fde5bc5a407c3d8d5d324c1f
 Feature comparison: 372 commits ahead, 0 behind; app/main remains unchanged.
+
+## Current operation
+- Inspect exact build78 Native iOS CI. Run 44576111444 for feature SHA a9ec6206ea333621ebf02f181fcd0111706b0aee completed failure in 2 seconds; job 135743938042 has steps=null and logs_url=null, and log download returned 404 BlobNotFound. This is a pre-runner/infrastructure failure; do not retry the same commit.
+- Continue independent WEB v18.20 CSV parity audit; fix confirmed file-size mismatch (web picker enforces 2,000,000 bytes while native currently allows 8,000,000 bytes before the parser's UTF-16 limit).
 
 ## Completed this run
 - Read preview AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md, and this handoff before work.
