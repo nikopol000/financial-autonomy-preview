@@ -4055,3 +4055,17 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - App feature HEAD: `f21ed0a3737d34771444c24900d1e2586bdbd03b`; app main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (untouched). Preview main before this final checkpoint: `aa1cee4cf8713e69d962eb061aadeef7d2a8641c`.
 - **FIRST NEXT:** begin P2 Subscriptions parity from archived WEB v18.20: audit imported recurring fields and current native subscription implementation; port lifecycle/status transitions, subscription history and local notifications/reminders with deterministic date tests, preserving local-only behavior and never posting payment transactions automatically. Then port CSV recurring detector as analysis-only with explicit user decision. Continue full Light/Dark screen and data-preservation audit. No app/main promotion.
 - Privacy invariants unchanged: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
+
+
+## 2026-11-19 16:28 UTC — P2 Subscriptions (implemented on iOS feature; CI/visual verification pending)
+
+**Status:** IMPLEMENTED ON FEATURE / VERIFICATION PENDING. Candidate build 77, exact feature HEAD `67c7edebd4089cd1850f4f6f42e47442ac8ef1c0`.
+
+- Ported the WEB v18.20 recurring lifecycle/history/detail/add flow and local notification scheduling. Provider cancellation is explicit; intent alone does not stop the commitment. Status changes clear reminders and append history. No payment transaction is generated.
+- Added optional, backward-compatible local recurring storage with fallback to imported `WebImportMetadata.recurring`; atomic store update keeps the scheduled-obligation projection aligned. Encrypted backup validation and round-trip tests cover local and imported recurring records.
+- Added 10 unit tests and one Light/Dark UI test. Expected suite totals from build74 baseline: 333 unit + 9 UI; **not executed/verified yet**.
+- Exact push CI result for `67c7edebd4089cd1850f4f6f42e47442ac8ef1c0` is not exposed by the available integration: combined status empty, PR-only workflow-runs result empty, no open PR. No runner logs or artifacts were available. Do not mark CI green or failed.
+- Subscription UI screenshots and full financial/formula comparison remain unverified. Native-only scheduled items still use their existing editor; imported recurring items route through subscription decisions.
+- Privacy invariants retained: local-only, no backend/account/bank sync/telemetry, no automatic transaction posting, available credit is not owned money. `app/main` unchanged.
+
+**FIRST NEXT ACTION:** retrieve and inspect the exact Native iOS CI push run for build77 commit `67c7edebd4089cd1850f4f6f42e47442ac8ef1c0`. Verify build, 333 unit tests and 9 UI tests from runner logs; inspect artifacts and Light/Dark subscription captures. If CI does not reach a runner, document that evidence and continue the independent CSV recurring-detector audit/analysis-only implementation. Then complete financial and visual comparison against the archived WEB v18.20 bundle.
