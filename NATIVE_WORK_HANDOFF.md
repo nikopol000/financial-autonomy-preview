@@ -1,13 +1,13 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
 Updated UTC: 2026-11-19T14:21:35Z
-Lease expires UTC: 2026-11-19T14:40:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: fd92242b48fe00b45268a061f537396566674615
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff release: 3a5aca923e8817d0b6a50ee378df804926db529d
+Verified preview main HEAD before this handoff release: 877c59764ae26c4478d8f7a290f9738fdf780919
 Checkpoint build: 18.20 build73; exact build72 CI 44532331346 for df9b98b completed SUCCESS (315 unit + 6 UI PASS); build73 monthly review implementation is committed at fd92242, but its exact push CI run is not visible through the available connector.
 
 The previous lease was READY_FOR_NEXT_RUN and has now been claimed through 2026-11-19T12:45:00Z. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app feature/main and preview main refs were rechecked before work.
@@ -107,3 +107,11 @@ Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543
 
 - Reacquired a finite lease through 14:40 UTC to reconcile the checkpoint after inspecting the archived WEB v18.20 root. The exact build73 CI is still not observable through available GitHub Actions connectors.
 - Confirmed the web root automatically opens the earliest pending review month on unlock: pendingReviews walks from the started month up to (but excluding) the current month and selects the first month whose progress is below 4. The review modal is non-dismissable via outside tap; step 4 saves progress 4 and closes. The native build73 implementation currently has only the Reports entry/resume flow, so automatic pending-review presentation remains a confirmed parity gap.
+
+
+## 2026-11-19 14:22 UTC — reconciled checkpoint and released lease
+
+- Build72 CI is SUCCESS (315 unit + 6 UI). Build73 is committed at fd92242 but its exact push run is not visible through the available connector; no result is inferred.
+- Confirmed WEB v18.20 auto-review behavior from the archived bundle: on unlock, select the earliest unfinished month from started month through the month before current; review modal blocks outside dismissal; final step saves 4 and closes. Native build73 currently supports Reports entry/resume only; auto-open remains the next functional gap.
+- Exact next action: retrieve build73 push CI, require 319 unit + 7 UI PASS and inspect Light/Dark screenshots; then implement the auto-pending-review presentation and its resume/completion tests.
+- Lease released. Status READY_FOR_NEXT_RUN.
