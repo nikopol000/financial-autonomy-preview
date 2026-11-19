@@ -5,10 +5,10 @@ Owner: Financial Autonomy iOS automation
 Updated UTC: 2026-11-19T10:12:30Z
 Lease expires UTC: 2026-11-19T10:50:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 398876d735a913a84a586d6ec31c662c7f10aeac
+Verified app feature HEAD: 37730ec643a55c2dd7ed23915a2391afbc03c3ec
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 Verified preview main HEAD before this lease commit: dc0be129b118cba029088cfadc92237c5cd254f6
-Checkpoint build: 18.20 build68; Reports P2 engine tests green; test-only October month navigation fix committed; exact CI 44504455375 in progress
+Checkpoint build: 18.20 build68; Reports P2 engine tests green; test-only month-navigation placement correction committed; exact CI 44505878835 queued
 
 The previous lease was READY_FOR_NEXT_RUN and has now been claimed for this finite implementation window. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app branch/main and preview main refs were rechecked before work.
 
@@ -29,10 +29,17 @@ App feature commits already present:
 The branch HEAD advanced to 398876d735a913a84a586d6ec31c662c7f10aeac after the narrow UI-test-only repair; app/main remains unchanged. App main a9b30be147abecea45a63bf7dd8d0a3eb3370366 remains unchanged.
 
 FIRST ACTION:
-1. Inspect exact push CI [44504455375](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44504455375) for feature HEAD 398876d735a913a84a586d6ec31c662c7f10aeac. XcodeGen, project generation and iOS Simulator application build have passed; the combined test step was IN_PROGRESS at the last poll.
-2. Require 315 unit tests and all 6 UI tests to pass. Inspect .xcresult and populated Reports Light/Dark captures, including October balance checks, correction navigation and cash/savings/debt roll-forward.
+1. Inspect exact push CI [44505878835](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44505878835) for feature HEAD 37730ec643a55c2dd7ed23915a2391afbc03c3ec; it was QUEUED at the last check.
+2. Require XcodeGen, project generation, simulator build, 315 unit tests and all 6 UI tests to pass. Inspect .xcresult and populated Reports Light/Dark captures; confirm the October fixture and reconciliation link are present.
 3. If CI fails, fix only the exact logged diagnostic; do not change the Reports current-month default or financial formulas to satisfy a fixture.
-4. Finish archived WEB v18.20 Reports visual comparison; then implement Subscriptions lifecycle/history/local reminders and the non-mutating CSV detector, each with data-preservation tests.
+4. Finish archived WEB v18.20 Reports content/order/visual comparison and monthly-review gap analysis; then implement Subscriptions lifecycle/history/local reminders and the non-mutating CSV detector.
 5. Update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with terminal CI evidence and release this handoff to READY_FOR_NEXT_RUN.
 
 Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543de4532db6ea4b2e1cf2). Reports are read-only. Available credit remains separate from owned money. No backend, mandatory account, bank sync or telemetry. Never touch app/main, never merge/promote without explicit approval, never claim 1:1 until calculations, data preservation, build/tests and every screen are validated.
+
+
+## 2026-11-19 — Reports UI test placement correction
+
+- Exact run 44504455375 for 398876d: 315 unit tests PASS, 5/6 UI tests PASS; the populated Reports test still failed because the month-navigation helper was accidentally inserted in the History smoke-test path, not the populated Reports method. Artifact 14519536861 confirms the failed hierarchy remained on November 2026 with no November checks.
+- App feature commit 37730ec643a55c2dd7ed23915a2391afbc03c3ec moves the helper into the populated Reports test and asserts the October 2026 label. Only UI-test source changed.
+- Exact run 44505878835 for 37730ec was QUEUED at this update. No result is claimed.
