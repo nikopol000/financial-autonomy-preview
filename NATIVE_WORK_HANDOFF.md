@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T22:16:00Z
-Lease expires UTC: none
+Updated UTC: 2026-11-19T23:09:00Z
+Lease expires UTC: 2026-11-19T23:45:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: b8e45835ca89c7780ff674a2cfff2611f415ab1d
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -86,3 +86,11 @@ Privacy invariants: local-only; no backend, mandatory account, bank sync or tele
 4. Then test CSV through the real iOS document picker and compare Subscriptions/CSV Light/Dark against archived WEB v18.20.
 
 Privacy invariants: local-only; no backend, mandatory account, bank synchronization or telemetry. Available credit is not owned money. Do not modify or merge app/main. No 100% parity claim until all functional, financial, data-preservation, build/test and visual gates pass.
+
+
+## Active run lease — legacy Codable compatibility audit (2026-11-19 23:09 UTC)
+- Preview main HEAD before lease: c58c1becfd4142557bd08f07aa0f241fa4e07a7b.
+- App feature HEAD verified from branch ref: b8e45835ca89c7780ff674a2cfff2611f415ab1d; app main: a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature comparison 383 ahead / 0 behind.
+- Exact current HEAD combined status is empty; the available commit-workflow-run connector returns no runs because it only lists PR-triggered runs. No exact push-run/job/runner result is exposed; do not infer CI success/failure or rerun old zero-runner failures.
+- First unfinished queue action: audit legacy Codable decoding/default/migration behavior for pre-build28/49/53 optional fields; identify a concrete loss/rejection regression before modifying app code.
+- Lease expires 2026-11-19T23:45:00Z. Work only on feat/sync-preview-v18-20-ios; never modify app/main.
