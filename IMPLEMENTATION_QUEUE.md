@@ -4107,3 +4107,21 @@ CI evidence:
 3. Resolve any build/test/UI failure before further feature work.
 4. Verify build77 subscriptions/reminders visually and functionally against archived WEB v18.20.
 5. Continue the complete data-preservation, financial-formula, backup round-trip, and screen-by-screen parity audit. Do not mark 100% until all differences are resolved.
+
+
+## 2026-11-19 18:08 UTC — Native build78 CI blocked before steps; CSV file-size parity correction committed
+
+**Status:** CSV byte-limit correction committed on the iOS feature branch; iOS CI, XCTest, Simulator screenshots, and real document-picker verification remain blocked/unverified.
+
+- Exact build78 push run `44576111444` for `a9ec6206ea333621ebf02f181fcd0111706b0aee` failed before exposing workflow steps: job `135743938042`, `steps=null`, `logs_url=null`, log endpoint 404 `BlobNotFound`. Combined status empty.
+- Archived WEB v18.20 module 309 enforces a 2,000,000-byte CSV file cap; module 329 separately enforces a 2,000,000 UTF-16-code-unit parser cap. Native had the UTF-16 cap but an 8,000,000-byte file-read cap. Corrected the mismatch in app commit `f41dc27288b387d75f6403d13859a7ead2b7c8b2`, with pre-read URL file-size and post-read Data byte checks plus one exact-boundary unit test.
+- Local Swift 6.2.1 focused Foundation harness passed the byte boundary, multibyte UTF-8 rejection, and URL file-size/read path. No Xcode build/XCTest was possible locally; this does not establish app compilation.
+- Fix-commit push run `44584388924` for `f41dc27288b387d75f6403d13859a7ead2b7c8b2` also failed with job `135773264709`, `steps=null`, `logs_url=null`; no build/test logs or artifact. Do not repeatedly rerun until runner startup is restored. Expected inventory 344 unit / 10 UI is not executed.
+- iOS feature HEAD `f41dc27288b387d75f6403d13859a7ead2b7c8b2`; iOS main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; feature is 373 ahead, 0 behind. No Models/LedgerStore rewrite, formula or ledger mutation.
+
+### FIRST NEXT ACTION
+1. Check for GitHub Actions runner recovery and obtain repo-level startup diagnostics for the two zero-step failures. Do not re-run the same failed attempts.
+2. When a runner can start, trigger one fresh CI for the current feature HEAD and verify XcodeGen, simulator build, 344 unit / 10 UI tests and screenshots.
+3. Exercise a real CSV via the iOS document picker; compare candidate/classified screens in Light/Dark to WEB v18.20.
+4. Audit build77 subscriptions/reminders against archived WEB module 327; verify encrypted backup and existing imported recurring data remain lossless.
+5. Continue full financial/formula and screen-by-screen parity review. No 100% claim until all evidence gates pass.
