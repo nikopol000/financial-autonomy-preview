@@ -2,13 +2,13 @@
 
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T10:12:30Z
-Lease expires UTC: 2026-11-19T10:50:00Z
+Updated UTC: 2026-11-19T11:08:10Z
+Lease expires UTC: 2026-11-19T11:35:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 37730ec643a55c2dd7ed23915a2391afbc03c3ec
+Verified app feature HEAD: 226033a722691b2ef7e2536dca2f907edf8776f3
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this lease commit: dc0be129b118cba029088cfadc92237c5cd254f6
-Checkpoint build: 18.20 build68; Reports P2 engine tests green; test-only month-navigation placement correction committed; exact CI 44505878835 queued
+Verified preview main HEAD before this lease commit: 4164a0a3410b035eecae9690726cdd87a29ac581
+Checkpoint build: 18.20 build68; Reports P2 engine tests green; exact CI 44507181175 failed only in the populated Reports UI assertion because the queried label exceeded XCTest's 128-character identifier limit
 
 The previous lease was READY_FOR_NEXT_RUN and has now been claimed for this finite implementation window. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app branch/main and preview main refs were rechecked before work.
 
@@ -43,3 +43,13 @@ Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543
 - Exact run 44504455375 for 398876d: 315 unit tests PASS, 5/6 UI tests PASS; the populated Reports test still failed because the month-navigation helper was accidentally inserted in the History smoke-test path, not the populated Reports method. Artifact 14519536861 confirms the failed hierarchy remained on November 2026 with no November checks.
 - App feature commit 37730ec643a55c2dd7ed23915a2391afbc03c3ec moves the helper into the populated Reports test and asserts the October 2026 label. Only UI-test source changed.
 - Exact run 44505878835 for 37730ec was QUEUED at this update. No result is claimed.
+
+
+## 2026-11-19 11:08 UTC — current lease and exact UI test failure
+
+- Previous lease expired at 10:50 UTC. Re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Current refs: preview main `4164a0a3410b035eecae9690726cdd87a29ac581`; app feature `226033a722691b2ef7e2536dca2f907edf8776f3`; app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (unchanged).
+- Claimed a finite lease until 2026-11-19T11:35:00Z before modifying code.
+- Exact push CI [44507181175](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44507181175) for `226033a722691b2ef7e2536dca2f907edf8776f3`: XcodeGen, project generation and iOS Simulator app build PASS; all 315 unit tests PASS (0 failures); 6 UI tests ran, 5 PASS and `testPopulatedReportsRollForwardInLightAndDark` failed at line 192 because XCTest string-identifier lookup rejects the full 174-character credit-not-owned-money sentence (128-character maximum). This is a test-query defect, not an app or financial calculation failure.
+- Artifact [14519693588](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44507181175/artifacts/14519693588) contains `.xcresult` and captures. The run reached the populated Reports cash/debt attachment in Light before the assertion. Dark populated Reports was not reached.
+- **FIRST ACTION:** make a test-only change to query the long accessibility sentence using `NSPredicate(format: "label BEGINSWITH %@", "Creditul disponibil nu este bani proprii.")` rather than using the full sentence as an XCUI string identifier. Commit only `NativeiOS/UITests/NativeScreenSmokeTests.swift` on the feature branch. Then inspect the exact push CI for the new SHA and require all 315 unit + 6 UI tests to pass; inspect populated Reports Light/Dark captures and `.xcresult`.
+- No production view, financial formula, Models.swift, LedgerStore.swift, backup schema or credit semantics changed in this repair. Available credit remains separate from owned money. No backend, mandatory account, bank sync or telemetry. Never touch app/main or claim 1:1 prematurely.
