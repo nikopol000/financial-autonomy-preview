@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T13:03:00Z
-Lease expires UTC: 2026-11-19T13:45:00Z
+Updated UTC: 2026-11-19T14:19:43Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 874a7f1ba27a6efb7208d1a9e188e0c23742f717
+Verified app feature HEAD: fd92242b48fe00b45268a061f537396566674615
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD: cba0460c872c7c5935f32618d4ad2c249099876c
-Checkpoint build: 18.20 build70; exact CI 44522888811 for 874a7f1 completed FAILURE (315 unit PASS, 5/6 UI PASS); Reports section-order/copy parity is implemented; next repair is the autonomy-planning UI test route via More → Simulări
+Verified preview main HEAD before this handoff release: 3a5aca923e8817d0b6a50ee378df804926db529d
+Checkpoint build: 18.20 build73; exact build72 CI 44532331346 for df9b98b completed SUCCESS (315 unit + 6 UI PASS); build73 monthly review implementation is committed at fd92242, but its exact push CI run is not visible through the available connector.
 
 The previous lease was READY_FOR_NEXT_RUN and has now been claimed through 2026-11-19T12:45:00Z. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app feature/main and preview main refs were rechecked before work.
 
@@ -90,3 +90,14 @@ Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543
 - First unfinished queue item is P1: port the archived WEB v18.20 four-step monthly review, using existing local per-month reviews progress, prior-month resume, and the exact archived labels/calculation values. Do not change financial formulas or mutate ledger balances from review steps.
 - Exact build72 CI [44532331346](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44532331346) for df9b98b completed SUCCESS: simulator build, 315 unit tests, 6 UI tests, screenshot export and artifact preservation all passed. The log confirms `Executed 315 tests, 0 failures` and `Executed 6 tests, 0 failures`. Artifact 14534433140 is retained; screenshot contents have not yet been independently inspected in this lease.
 - No product changes have been made in this lease yet. Keep app/main untouched. Local-only, no backend/account/bank sync/telemetry; available credit is not owned money.
+
+
+## 2026-11-19 14:19 UTC — build73 monthly review port checkpoint; lease released
+
+- Re-read all required preview continuity documents. Preview main HEAD before this handoff update: 3a5aca923e8817d0b6a50ee378df804926db529d. App feature HEAD: fd92242b48fe00b45268a061f537396566674615. App main: a9b30be147abecea45a63bf7dd8d0a3eb3370366 (unchanged).
+- Closed build72 P0: exact run 44532331346 completed SUCCESS. Logs confirm 315 unit tests and 6 UI tests, zero failures; simulator build, XcodeGen, screenshot export and artifact preservation passed. Artifact 14534433140 retained.
+- Build73 monthly review commits on the feature branch: 2a0c0bb, ecce950, bf56590, da5758b, c3187e1, 3dccac9, dd9f95f, b286519, fd92242. New local optional progress survives encrypted native backups; imported metadata review values remain a fallback and are mirrored when progress is updated. Financial ledger entries and formulas are unchanged.
+- Expected build73 test totals: 319 unit + 7 UI. Exact CI result is not observable yet: combined status empty; commit-workflow connector only exposes PR runs; workflow YAML confirms push/workflow_dispatch and cancel-in-progress. No result is inferred. Do not push another commit until the exact run is observed.
+- **FIRST NEXT:** retrieve exact push CI for fd92242; require simulator build, 319 unit tests, 7 UI tests and screenshot artifact. Inspect monthly-review Light/Dark captures and .xcresult, especially resuming at step 2 after navigating away/back and encrypted-backup progress. If CI is green, inspect web v18.20 automatic pending-review prompt behavior; implement only any confirmed gap. Then continue Subscriptions lifecycle/history/local reminders, followed by analysis-only CSV recurring detection.
+- Privacy: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main without explicit approval. No 1:1 claim.
+- Lease released. Status READY_FOR_NEXT_RUN.
