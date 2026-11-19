@@ -4069,3 +4069,11 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Privacy invariants retained: local-only, no backend/account/bank sync/telemetry, no automatic transaction posting, available credit is not owned money. `app/main` unchanged.
 
 **FIRST NEXT ACTION:** retrieve and inspect the exact Native iOS CI push run for build77 commit `67c7edebd4089cd1850f4f6f42e47442ac8ef1c0`. Verify build, 333 unit tests and 9 UI tests from runner logs; inspect artifacts and Light/Dark subscription captures. If CI does not reach a runner, document that evidence and continue the independent CSV recurring-detector audit/analysis-only implementation. Then complete financial and visual comparison against the archived WEB v18.20 bundle.
+
+
+## 2026-11-19 16:30 Europe/Bucharest — P3 CSV detector contract audited (implementation not started)
+
+- Exact WEB v18.20 parser/detector contract and safety gates are recorded in PROJECT_STATE.md: 2 MB maximum, strict required headers/date/RON/negative-expense handling, CSV quoting, exact duplicate row removal, conservative merchant normalization, recurrence interval tolerances, median amount stability and existing-subscription duplicate detection.
+- No native CSV parser/detector file was found; `MoreHubView` Tools remains a parity placeholder.
+- Classification remains an explicit user decision; it creates a recurring commitment only, never a transaction. Possible duplicates cannot be classified until checked.
+- **Next after build77's exact CI verification:** implement the parser/detector as a pure local engine, fileImporter UI and deterministic tests. Do not implement automatic posting or change balances.
