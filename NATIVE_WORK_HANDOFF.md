@@ -2,20 +2,22 @@
 
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T05:10:00Z
-Lease expires UTC: 2026-11-19T05:45:00Z
+Updated UTC: 2026-11-19T06:11:00Z
+Lease expires UTC: 2026-11-19T06:41:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 46be85f1e09b6fc158a5ce8ca2cdeac8a8587a58
+Verified app feature HEAD: 9d42b57a12446a47505e37b7f7f703accdb24ab7
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD: 3c6a6cace7f0b51052f0ffc19c18667912df4a87
-Checkpoint build: 18.20 build64
+Verified preview main HEAD: cdbf6f2509160b5fc1ce6de32d646a85e4b65357
+Checkpoint build: 18.20 build67
 
-This run owns the finite lease above. Do not duplicate its implementation while the lease is active.
+This run owns the finite lease above. Do not duplicate this implementation while the lease is active.
 
-P0 completed at startup: exact Native iOS CI [44458150109](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44458150109) for feature HEAD 46be85f1e09b6fc158a5ce8ca2cdeac8a8587a58 completed SUCCESS on macOS / iPhone 16 Pro Simulator. XcodeGen, project generation, simulator build, 305 unit tests, 4 UI tests, screenshot export and artifact upload passed. Artifact [14498519292](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44458150109/artifacts/14498519292) was downloaded; its manifest contains empty-ledger navigation captures and existing populated Dashboard/autonomy captures. This does not prove Reports parity or VoiceOver on a physical device.
+P0 completed: exact Native iOS CI [44465703610](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44465703610) for feature HEAD 9d42b57a12446a47505e37b7f7f703accdb24ab7 completed SUCCESS on macOS / iPhone 16 Pro Simulator. XcodeGen, project generation, simulator build, 309 unit tests, 5 UI tests, screenshot attachment export and artifact upload passed. Artifact [14502645447](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44465703610/artifacts/14502645447) is retained. The CI log confirms Reports Light/Dark smoke coverage.
 
-P1 in progress: implement the first read-only Reports slice against the archived WEB v18.20 contract: month navigation; exact first-month budget proration and per-category remainder allocation; income, consumption expense and debt-payment totals; spend by Name; expense-detail totals including Nedetaliat; category budget usage. Preserve existing ledger, imported metadata and local encrypted storage. No formula/ledger mutations, backend, account requirement, bank sync or telemetry.
+P1 completed: read-only Reports first slice is implemented on the feature branch: month navigation; first-month budget proration and category remainder allocation; income/expense/debt-payment totals; spend by Name; detail totals including Nedetaliat; category usage. ReportsEngine and ReportsView are present on the live feature branch. No ledger mutation was added.
 
-After implementation: add deterministic unit coverage and a Reports navigation/UI smoke capture; increment the native build; push only to financial-autonomy-app:feat/sync-preview-v18-20-ios; inspect CI for the exact new commit; update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with verified results and remaining report sections (balance checks, owned cash/savings/debt roll-forward), then release this handoff to READY_FOR_NEXT_RUN with the exact commit and next action.
+P2 in progress: complete the remaining archived WEB v18.20 Reports contract: balance-check rows with cumulative/unexplained amounts and safe correction entry point; owned cash opening/closing; savings opening/closing and introduced opening balances; debt opening/closing, introduced debt, credit used and principal repaid. Reuse existing account/loan reconciliation engines; keep reports read-only except the explicit existing audited balance-check correction action. Preserve source data and all existing imported metadata.
+
+After implementation: add deterministic unit tests for imported and native balance observations, multiple check anchors, linked operations, credit/debt separation and month roll-forward; add Reports UI assertions/captures in Light/Dark; increment build; push only to financial-autonomy-app:feat/sync-preview-v18-20-ios; inspect CI for the exact new commit and artifact; update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with verified facts and remaining work; then release this handoff to READY_FOR_NEXT_RUN with the exact commit and next action.
 
 Never merge or push to financial-autonomy-app/main. Do not claim 1:1 completion.
