@@ -1,16 +1,23 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T11:15:00Z
-Lease expires UTC: none
+Updated UTC: 2026-11-19T12:03:00Z
+Lease expires UTC: 2026-11-19T12:45:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 829bdc38fc9b76a927c648dd601e6ea9b475d08d
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD: f5721a57feacfcc5a7e99f4d184cb00d210bb179
-Checkpoint build: 18.20 build68; test-only Reports credit-copy query repair committed as 829bdc; exact CI for this new SHA not observable through the available connector
+Verified preview main HEAD: 656a4c31f2b79f453e2abd46bc06e4778918d4ce
+Checkpoint build: 18.20 build68; exact CI 44512680608 for 829bdc completed SUCCESS; Reports section-order/copy/empty-state parity is now in progress
 
-The previous lease was READY_FOR_NEXT_RUN and has now been claimed for this finite implementation window. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app branch/main and preview main refs were rechecked before work.
+The previous lease was READY_FOR_NEXT_RUN and has now been claimed through 2026-11-19T12:45:00Z. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app feature/main and preview main refs were rechecked before work.
+
+## 2026-11-19 12:03 UTC — Reports parity stage lease
+
+- Current app feature HEAD verified: 829bdc38fc9b76a927c648dd601e6ea9b475d08d. App main: a9b30be147abecea45a63bf7dd8d0a3eb3370366 (unchanged). Preview main before lease commit: 656a4c31f2b79f453e2abd46bc06e4778918d4ce.
+- Exact push CI [44512680608](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44512680608) for 829bdc completed SUCCESS. Simulator build, 315 unit tests, 6 UI tests, screenshot export and artifact upload passed. Artifact 14523284181 is being inspected.
+- First queued implementation: P1 Reports section order/copy/empty-state parity against archived WEB v18.20. No formula/model/ledger changes permitted in this stage.
+
 
 Latest exact Native iOS push run for feature HEAD d48a6808a23223cbb30e5f79663fb8a25665ad2e:
 - Run [44494667991](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44494667991), event push, completed FAILURE.
