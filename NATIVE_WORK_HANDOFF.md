@@ -2,13 +2,13 @@
 
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T12:03:00Z
-Lease expires UTC: 2026-11-19T12:45:00Z
+Updated UTC: 2026-11-19T13:03:00Z
+Lease expires UTC: 2026-11-19T13:45:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 829bdc38fc9b76a927c648dd601e6ea9b475d08d
+Verified app feature HEAD: 874a7f1ba27a6efb7208d1a9e188e0c23742f717
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD: 656a4c31f2b79f453e2abd46bc06e4778918d4ce
-Checkpoint build: 18.20 build68; exact CI 44512680608 for 829bdc completed SUCCESS; Reports section-order/copy/empty-state parity is now in progress
+Verified preview main HEAD: cba0460c872c7c5935f32618d4ad2c249099876c
+Checkpoint build: 18.20 build70; exact CI 44522888811 for 874a7f1 completed FAILURE (315 unit PASS, 5/6 UI PASS); Reports section-order/copy parity is implemented; next repair is the autonomy-planning UI test route via More → Simulări
 
 The previous lease was READY_FOR_NEXT_RUN and has now been claimed through 2026-11-19T12:45:00Z. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app feature/main and preview main refs were rechecked before work.
 
@@ -70,3 +70,14 @@ Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543
 - PROJECT_STATE checkpoint commit: e7b1dd7d4bd8e5c4f51d85e662676c1e22780049. IMPLEMENTATION_QUEUE checkpoint commit: f5721a57feacfcc5a7e99f4d184cb00d210bb179.
 - First next action: obtain and inspect exact push CI for 829bdc; if green, complete Reports UI section-order/copy parity against archived bundle be453db2699273a194543de4532db6ea4b2e1cf2. Monthly review, Subscriptions and CSV remain unported.
 - Lease released; Status READY_FOR_NEXT_RUN. No production ReportsView or financial formulas changed in this run.
+
+
+## 2026-11-19 13:03 UTC — recovered expired lease and CI triage
+
+- Previous lease expired at 12:45 UTC. Re-read all five required preview continuity documents and verified current refs before work: preview main `cba0460c872c7c5935f32618d4ad2c249099876c`; app feature `874a7f1ba27a6efb7208d1a9e188e0c23742f717`; app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (unchanged).
+- Claimed a finite lease until 2026-11-19T13:45:00Z. Current work is a narrow UI-test navigation repair; no production financial behavior change.
+- Exact push CI [44522888811](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44522888811) for `874a7f1ba27a6efb7208d1a9e188e0c23742f717`: XcodeGen/project generation/iOS Simulator build PASS; 315 unit tests PASS (including 10 ReportsEngine tests); 6 UI tests, 5 PASS and 1 FAIL. The failure is `testAutonomyPlanningScreensInLightAndDark` line 240: after the assumptions screen, the test tries to tap `Scenarii autonomie` inside the Finanțe tab. That destination is no longer part of the v18.20 bottom-navigation structure; scenarios are reached from Mai mult → Simulări. `RootView.swift` confirms the five tabs and `MoreHubView.swift` maps `simulations` to `AutonomyScenariosView`.
+- Artifact [14529741149](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44522888811) inspected. Populated Reports checks and cash/debt screenshots were captured in both Light and Dark. They show October 2026, two balance checks (122.00/90.00 RON), expected 120.00/87.00 RON, cumulative differences 2.00/3.00 RON, unexplained 0.00/1.00 RON, and cash/savings/debt roll-forward. Reports screen smoke test passed. This is screenshot inspection, not a full side-by-side visual sign-off.
+- Reports UI parity commit `6e0c35132cdf99047942eb94b59e40d2b5fd65ff` aligns section order and removes duplicate “Fluxuri înregistrate”; commit `874a7f1ba27a6efb7208d1a9e188e0c23742f717` removes correction links from the read-only Reports surface. The failing test is unrelated to Reports.
+- **FIRST NEXT:** update only `NativeiOS/UITests/NativeScreenSmokeTests.swift` so the scenarios smoke test navigates from assumptions back to Finanțe, then selects Mai mult → `more-menu-simulations` and asserts the Autonomie screen. Increment candidate build to 71 in `NativeiOS/xcodegen.yml`. Push a single coherent commit, inspect exact push CI to terminal state, require 315 unit + 6 UI PASS, then inspect the exact artifact. Keep Reports calculations/read-only behavior unchanged.
+- Privacy invariants unchanged: local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money. Never modify app/main or claim 1:1 prematurely.
