@@ -501,3 +501,26 @@ Privacy invariants: local-only data; no backend, mandatory account, bank synchro
 4. Then test the real CSV document picker and compare Subscriptions/CSV in Light and Dark against archived WEB v18.20. No 100% parity claim until all functional, financial, data-preservation, build/test and visual gates pass.
 
 Privacy invariants: local-only data; no backend, mandatory account, bank synchronization or telemetry. Available credit is not owned money. Do not modify or merge app/main.
+
+
+## 2026-11-20 — Imported catalog and encrypted-backup validation
+
+**App feature branch feat/sync-preview-v18-20-ios**
+- Implementation commit [1ed30dd5d678b532bb1cba6c7e053d0289702dd5](https://github.com/nikopol000/financial-autonomy-app/commit/1ed30dd5d678b532bb1cba6c7e053d0289702dd5): SnapshotValidator now revalidates imported income/expense templates, month-plan budgets and debt-payment references, additional budget windows, projection exposure/payoff references, and operation webTemplateID links after portable-backup decoding. Imported loan metadata must also agree with the native LoanBook on installment count and explicit payment schedule rows, in addition to the already-checked principal, APR, name, opening day, payment and due day.
+- Regression commit [b8e45835ca89c7780ff674a2cfff2611f415ab1d](https://github.com/nikopol000/financial-autonomy-app/commit/b8e45835ca89c7780ff674a2cfff2611f415ab1d): added a WEB v18.20 import → AES-GCM portable backup → restore test covering income/expense templates, operation template link, two month plans, budget windows, loan schedule metadata, projection, goals/plans and legacy nil-vs-empty optional fields. The same test asserts rejection of mismatched loan installments/schedule, orphaned income references, unknown projection exposure, negative template amount, orphaned month-plan debt payment and dangling operation template link.
+- This closes a real validation gap: the raw WEB JSON importer already rejected these cases, but a decoded encrypted LedgerSnapshot previously did not re-run equivalent checks for templates/month plans/projection and omitted two fields when comparing imported loan metadata with LoanBook.
+- No Models.swift, LedgerStore.swift, balance/transaction logic, financial formula or backup schema was rewritten.
+
+**Compatibility decision:** WebImportedMonthPlan is retained as imported source metadata, while native fixed-expense edits are recorded separately in ScheduleBook.fixedExpensePlans by FixedExpenseMonthPlans.recording. A strict equality check between these two structures would reject legitimate native edits; this run intentionally validates each structure and its references without forcing those independently editable layers to match.
+
+**Executed local checks:** Swift 6.2.1 isolated harness compiled and passed for the catalog validator (valid catalog accepted; orphan income reference, unknown projection exposure and negative template rejected), loan projection equality (matching accepted; installment/schedule drift rejected; nil legacy schedule accepted), and nested optional-model mutation syntax. These are focused harnesses with model stubs, not the iOS application build or XCTest. xcodebuild is not installed in the Linux environment.
+
+**Not executed:** the new XCTest method, full unit/UI suite, iOS build, Simulator, document picker, screenshots or visual comparison. Expected inventory is now 348 unit / 10 UI tests, estimated from the prior 347/10 source inventory plus one new unit-test method; it is not an executed count.
+
+**Exact CI visibility:** current app feature HEAD b8e45835ca89c7780ff674a2cfff2611f415ab1d has an empty combined commit status and the available commit-workflow lookup returns no runs (that connector endpoint filters to PR-triggered runs). No exact push-run ID/job/log for this SHA is exposed, so no success/failure or runner allocation is claimed for this commit. Previous HEAD 75e6f3c35806dc2fba3a57e1d0df05ff975b2ed1 had exact push run [44615721018](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44615721018), which failed before runner allocation (runner_id=0, no steps, no logs, no artifacts, log endpoint 404 BlobNotFound). Do not retry that old run.
+
+**Preview reference:** current preview index.html declares WEB version 18.74. The iOS target remains archived WEB v18.20; no screen comparison was performed in this backup-validation iteration.
+
+**Next exact action:** check whether the exact push CI run for b8e45835ca89c7780ff674a2cfff2611f415ab1d and macOS runner details can be exposed; do not retry the old zero-runner run. If CI remains unobservable or pre-runner blocked, continue the remaining legacy Codable/migration audit and add only evidence-backed backup regressions. At the first available runner, run one fresh Native iOS CI on the then-current feature HEAD and inspect the XcodeGen/build, full unit/UI suite, .xcresult and artifacts; then test the real CSV document picker and Light/Dark screens against archived WEB v18.20.
+
+Privacy invariants unchanged: local-only data; no backend, mandatory account, bank synchronization or telemetry. Available credit is not owned money. Do not modify or merge app/main and do not claim 100% parity until functional, financial, data-preservation, build/test and visual gates all pass.
