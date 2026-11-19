@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T11:08:10Z
-Lease expires UTC: 2026-11-19T11:35:00Z
+Updated UTC: 2026-11-19T11:15:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 226033a722691b2ef7e2536dca2f907edf8776f3
+Verified app feature HEAD: 829bdc38fc9b76a927c648dd601e6ea9b475d08d
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this lease commit: 4164a0a3410b035eecae9690726cdd87a29ac581
-Checkpoint build: 18.20 build68; Reports P2 engine tests green; exact CI 44507181175 failed only in the populated Reports UI assertion because the queried label exceeded XCTest's 128-character identifier limit
+Verified preview main HEAD: f5721a57feacfcc5a7e99f4d184cb00d210bb179
+Checkpoint build: 18.20 build68; test-only Reports credit-copy query repair committed as 829bdc; exact CI for this new SHA not observable through the available connector
 
 The previous lease was READY_FOR_NEXT_RUN and has now been claimed for this finite implementation window. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app branch/main and preview main refs were rechecked before work.
 
@@ -29,11 +29,11 @@ App feature commits already present:
 The branch HEAD advanced to 398876d735a913a84a586d6ec31c662c7f10aeac after the narrow UI-test-only repair; app/main remains unchanged. App main a9b30be147abecea45a63bf7dd8d0a3eb3370366 remains unchanged.
 
 FIRST ACTION:
-1. Inspect exact push CI [44505878835](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44505878835) for feature HEAD 37730ec643a55c2dd7ed23915a2391afbc03c3ec; it was QUEUED at the last check.
-2. Require XcodeGen, project generation, simulator build, 315 unit tests and all 6 UI tests to pass. Inspect .xcresult and populated Reports Light/Dark captures; confirm the October fixture and reconciliation link are present.
-3. If CI fails, fix only the exact logged diagnostic; do not change the Reports current-month default or financial formulas to satisfy a fixture.
-4. Finish archived WEB v18.20 Reports content/order/visual comparison and monthly-review gap analysis; then implement Subscriptions lifecycle/history/local reminders and the non-mutating CSV detector.
-5. Update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with terminal CI evidence and release this handoff to READY_FOR_NEXT_RUN.
+1. Obtain the exact Native iOS push CI run for feature HEAD 829bdc38fc9b76a927c648dd601e6ea9b475d08d. Previous run 44507181175 for 226033a had a successful simulator build and 315/315 unit tests; 5/6 UI tests passed. The remaining failure was only an XCTest query over a 174-character accessibility label (128-character identifier limit).
+2. Verify the new commit's simulator build, all 315 unit tests and all 6 UI tests; inspect .xcresult and populated Reports Light/Dark captures.
+3. If the connector still cannot expose push runs, record that limitation without inferring a runner result or rerunning an old SHA. Do not push another commit while an unobservable run may be active because the workflow cancels in-progress runs on each push.
+4. Once green, align ReportsView section order/copy/empty states with archived v18.20 and remove duplicate Fluxuri înregistrate; add UI assertions. Then port the local four-step monthly review, Subscriptions and analysis-only CSV detector.
+5. Keep this handoff READY_FOR_NEXT_RUN with exact HEADs, run evidence and the next unfinished action.
 
 Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543de4532db6ea4b2e1cf2). Reports are read-only. Available credit remains separate from owned money. No backend, mandatory account, bank sync or telemetry. Never touch app/main, never merge/promote without explicit approval, never claim 1:1 until calculations, data preservation, build/tests and every screen are validated.
 
@@ -53,3 +53,13 @@ Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543
 - Artifact [14519693588](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44507181175/artifacts/14519693588) contains `.xcresult` and captures. The run reached the populated Reports cash/debt attachment in Light before the assertion. Dark populated Reports was not reached.
 - **FIRST ACTION:** make a test-only change to query the long accessibility sentence using `NSPredicate(format: "label BEGINSWITH %@", "Creditul disponibil nu este bani proprii.")` rather than using the full sentence as an XCUI string identifier. Commit only `NativeiOS/UITests/NativeScreenSmokeTests.swift` on the feature branch. Then inspect the exact push CI for the new SHA and require all 315 unit + 6 UI tests to pass; inspect populated Reports Light/Dark captures and `.xcresult`.
 - No production view, financial formula, Models.swift, LedgerStore.swift, backup schema or credit semantics changed in this repair. Available credit remains separate from owned money. No backend, mandatory account, bank sync or telemetry. Never touch app/main or claim 1:1 prematurely.
+
+
+## 2026-11-19 11:15 UTC — lease released after test-only repair
+
+- Exact app feature HEAD: 829bdc38fc9b76a927c648dd601e6ea9b475d08d; exact app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366 (unchanged); exact preview main HEAD before this handoff update: f5721a57feacfcc5a7e99f4d184cb00d210bb179.
+- Run 44507181175 for parent 226033a: app build PASS, 315 unit tests PASS, 5/6 UI tests PASS; only failure was the 128-character XCTest identifier limit. Artifact 14519693588 uploaded.
+- Feature commit 829bdc38fc9b76a927c648dd601e6ea9b475d08d contains the narrow NSPredicate prefix-query repair in UI tests only. Exact CI for this SHA is not visible via combined status or PR-only workflow-run listing; workflow YAML confirms the push trigger. Do not claim a result.
+- PROJECT_STATE checkpoint commit: e7b1dd7d4bd8e5c4f51d85e662676c1e22780049. IMPLEMENTATION_QUEUE checkpoint commit: f5721a57feacfcc5a7e99f4d184cb00d210bb179.
+- First next action: obtain and inspect exact push CI for 829bdc; if green, complete Reports UI section-order/copy parity against archived bundle be453db2699273a194543de4532db6ea4b2e1cf2. Monthly review, Subscriptions and CSV remain unported.
+- Lease released; Status READY_FOR_NEXT_RUN. No production ReportsView or financial formulas changed in this run.
