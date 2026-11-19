@@ -1,13 +1,13 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T14:21:35Z
-Lease expires UTC: none
+Updated UTC: 2026-11-19T15:06:00Z
+Lease expires UTC: 2026-11-19T16:00:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: fd92242b48fe00b45268a061f537396566674615
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff release: 877c59764ae26c4478d8f7a290f9738fdf780919
+Verified preview main HEAD before this handoff lease: bcdbf9b96d729ba171cc9a9290eba2374cdf5ee8
 Checkpoint build: 18.20 build73; exact build72 CI 44532331346 for df9b98b completed SUCCESS (315 unit + 6 UI PASS); build73 monthly review implementation is committed at fd92242, but its exact push CI run is not visible through the available connector.
 
 The previous lease was READY_FOR_NEXT_RUN and has now been claimed through 2026-11-19T12:45:00Z. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app feature/main and preview main refs were rechecked before work.
@@ -115,3 +115,13 @@ Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543
 - Confirmed WEB v18.20 auto-review behavior from the archived bundle: on unlock, select the earliest unfinished month from started month through the month before current; review modal blocks outside dismissal; final step saves 4 and closes. Native build73 currently supports Reports entry/resume only; auto-open remains the next functional gap.
 - Exact next action: retrieve build73 push CI, require 319 unit + 7 UI PASS and inspect Light/Dark screenshots; then implement the auto-pending-review presentation and its resume/completion tests.
 - Lease released. Status READY_FOR_NEXT_RUN.
+
+
+## 2026-11-19 15:06 UTC — build73 CI verified; automatic pending-review stage lease
+
+- Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Live refs rechecked: app feature `fd92242b48fe00b45268a061f537396566674615`; app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (untouched); preview main before lease `bcdbf9b96d729ba171cc9a9290eba2374cdf5ee8`.
+- Exact Native iOS push run [44541998606](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44541998606) for build73 HEAD `fd92242b48fe00b45268a061f537396566674615` completed SUCCESS. Runner steps XcodeGen, project generation, iOS Simulator build, unit tests, UI tests, screenshot export and artifact upload all passed. Logs confirm **319/319 unit tests and 7/7 UI tests**, including `testMonthlyReviewResumesInLightAndDark`.
+- Artifact [14537594994](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44541998606/artifacts/14537594994) downloaded and inspected. Monthly review resume captures show October 2026 at step 2/4 in both Light and Dark. Populated Reports Light/Dark captures show October checks (122/120 RON and 90/87 RON), correction links, owned cash, budget, details and savings/debt sections. This validates the build73 test path and captures, not complete side-by-side visual parity.
+- Archived WEB v18.20 bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js` (blob `be453db2699273a194543de4532db6ea4b2e1cf2`) inspected: after successful unlock/load, the root selects `pendingReviews(state)[0]`; pending months iterate from the started month up to but excluding current month, selecting the earliest review with progress below 4. The review modal blocks outside dismissal and closes after stage 4.
+- **FIRST IMPLEMENTATION:** port this auto-pending-review-on-unlock behavior to native RootView, preserving local/imported progress precedence and keeping reports/calculations read-only. Add deterministic engine tests and a Light/Dark UI test for earliest pending month, resume stage and final dismissal. Keep the existing manual Reports entry; no financial formula changes.
+- Finite lease claimed through 2026-11-19T16:00:00Z. No app repository changes have been made under this lease yet.
