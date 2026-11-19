@@ -1,13 +1,13 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T03:25:00Z
-Lease expires UTC: none
+Updated UTC: 2026-11-19T04:05:00Z
+Lease expires UTC: 2026-11-19T04:35:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: a009c167cdd5d5213adfb9c03211a27fc14b726f
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD: 86e096095f1c32e0d7cee6432ec6d9b2de7f55f6
+Verified preview main HEAD: 4ba87832b650e87486babd6feba387387735b70f
 Checkpoint build: 18.20 build62
 
 Build58 exact CI [44429745130](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130) completed SUCCESS on macOS 15 / iPhone 16 Pro Simulator: XcodeGen, project generation, simulator build, 302 unit tests (0 failures), 4 UI tests (0 failures), screenshot export and artifact upload. Artifact [14486146237](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44429745130/artifacts/14486146237) was downloaded and inspected; it contains .xcresult and 26 screenshots, including populated/empty Dashboard captures in Light/Dark. Populated captures show 20,000 RON owned and 2,000 RON available credit separately.
