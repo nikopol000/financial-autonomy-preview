@@ -3941,7 +3941,7 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 
 ## Native iOS build62 — navigation parity and remaining modules (2026-11-19)
 
-- Completed on \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`, app commit [\`a009c16\`](https://github.com/nikopol000/financial-autonomy-app/commit/a009c167cdd5d5213adfb9c03211a27fc14b726f): bottom navigation aligned to archived WEB v18.20 (Acasă / Finanțe / Înregistrează / Istoric / Mai mult); Budget moved into More; More hub contains the exact eight v18.20 destinations and descriptions; Record tab reuses OperationEntryView and resets after successful save; Settings title corrected; icon-only account/schedule/loan add buttons labelled and identified.
+- Completed on `financial-autonomy-app:feat/sync-preview-v18-20-ios`, app commit [`a009c16`](https://github.com/nikopol000/financial-autonomy-app/commit/a009c167cdd5d5213adfb9c03211a27fc14b726f): bottom navigation aligned to archived WEB v18.20 (Acasă / Finanțe / Înregistrează / Istoric / Mai mult); Budget moved into More; More hub contains the exact eight v18.20 destinations and descriptions; Record tab reuses OperationEntryView and resets after successful save; Settings title corrected; icon-only account/schedule/loan add buttons labelled and identified.
 - Added UI assertions for the Record tab, all eight More entries, Budget navigation and Settings navigation. Build number 62.
 - Baseline proof: build61 exact CI [44443914037](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44443914037) SUCCESS, 305 unit + 4 UI tests; artifact [14492268412](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44443914037/artifacts/14492268412) inspected (32 captures).
 - Current exact build62 CI [44450532570](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44450532570): XcodeGen/project generation and simulator build PASS; test step IN_PROGRESS when checkpointed. Do not claim build62 tests or screenshots green until terminal success.
@@ -4211,15 +4211,15 @@ Privacy/release gates unchanged: local-only; no backend, mandatory account, bank
 ## 2026-11-19 — Legacy Codable and CSV Unicode whitespace parity
 
 **Completed on app feature only**
-- Current app feature HEAD at checkpoint: \`aad3fceceb184911c55d26ffb16dfd5369f43b88\` (389 ahead / 0 behind app/main); app/main remains \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\`.
-- Legacy decoding coverage: \`756cd3d\`, fixture correction \`5e39bd4\`. Tests cover pre-build28 month-plan optional fields, pre-build49 appearance, pre-build53 reviews, old BudgetSettings defaults, missing Operation.voided and nil-vs-empty values.
-- WEB v18.20 archived bundle module 204/329 uses ECMAScript whitespace. Swift whitespace sets were not equivalent (U+FEFF vs U+0085/U+200B). Fixed with \`WebWhitespace\`: \`261b83d\`, \`bd664ba\`; regression tests \`1605720\`, \`aad3fce\`.
+- Current app feature HEAD at checkpoint: `aad3fceceb184911c55d26ffb16dfd5369f43b88` (389 ahead / 0 behind app/main); app/main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Legacy decoding coverage: `756cd3d`, fixture correction `5e39bd4`. Tests cover pre-build28 month-plan optional fields, pre-build49 appearance, pre-build53 reviews, old BudgetSettings defaults, missing Operation.voided and nil-vs-empty values.
+- WEB v18.20 archived bundle module 204/329 uses ECMAScript whitespace. Swift whitespace sets were not equivalent (U+FEFF vs U+0085/U+200B). Fixed with `WebWhitespace`: `261b83d`, `bd664ba`; regression tests `1605720`, `aad3fce`.
 - Swift 6.2.1 focused parser/amount/normalization harness PASS; Node WEB reference harness PASS. These are not XCTest or full app build.
-- Current exact CI status for \`aad3fce\`: combined statuses empty; available workflow-run lookup returns no PR runs. No push-run/runner result exposed. Do not infer success/failure or retry previous zero-runner attempts.
+- Current exact CI status for `aad3fce`: combined statuses empty; available workflow-run lookup returns no PR runs. No push-run/runner result exposed. Do not infer success/failure or retry previous zero-runner attempts.
 - No Xcode build, XCTest, Simulator, document picker, screenshot or visual comparison executed. Inventory estimate 350 unit / 10 UI is source-derived, not executed.
 
 **First next action**
-1. Check exact push-run listing/runner visibility for \`aad3fceceb184911c55d26ffb16dfd5369f43b88\`; no repeated dispatch of old failed runs.
+1. Check exact push-run listing/runner visibility for `aad3fceceb184911c55d26ffb16dfd5369f43b88`; no repeated dispatch of old failed runs.
 2. If unavailable, audit CSV fileImporter security-scoped access, file-size checks and UTF-8 decoding against WEB v18.20. Add only demonstrated fixes/tests.
 3. On a usable macOS runner, run XcodeGen + Simulator build + full unit/UI tests and inspect .xcresult; then test real document picker and compare CSV/Subscriptions Light/Dark screens.
 
