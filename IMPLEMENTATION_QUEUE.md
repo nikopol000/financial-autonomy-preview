@@ -4125,3 +4125,17 @@ CI evidence:
 3. Exercise a real CSV via the iOS document picker; compare candidate/classified screens in Light/Dark to WEB v18.20.
 4. Audit build77 subscriptions/reminders against archived WEB module 327; verify encrypted backup and existing imported recurring data remain lossless.
 5. Continue full financial/formula and screen-by-screen parity review. No 100% claim until all evidence gates pass.
+
+## Native iOS — recurring amount Unicode-whitespace parity (2026-11-19 19:10 UTC)
+
+**Completed on feature:**
+- Exact WEB v18.20 module 204 amount normalization removes all JavaScript whitespace (`/\\s/g`). Native subscription amount entry previously removed only ASCII spaces, rejecting tab, NBSP and narrow NBSP thousands separators.
+- Fixed `SubscriptionEngine.parseAmountMinor` to filter all `Character.isWhitespace` characters. Added three regression assertions for U+0009, U+00A0 and U+202F.
+- App commits: `f8f04149ab21699497b93b143a7370d44b44ff0c` (implementation), `348b6f213fc03d1e28f318178708be9a521ae70d` (tests/current feature HEAD).
+- Focused Swift 6.2.1 helper harness: 12 amount parsing cases PASS. Node WEB-normalization harness: 4 whitespace cases PASS. No Xcode build or XCTest was run.
+
+**CI blocker evidence:**
+- Previous exact push run `44584388924` for `f41dc27288b387d75f6403d13859a7ead2b7c8b2`: job `135773264709` failed with no steps/log URL; step endpoint empty; log endpoint 404 `BlobNotFound`; no artifacts; combined status empty.
+- Current `348b6f213fc03d1e28f318178708be9a521ae70d` combined status empty; connector workflow-run endpoint is PR-only and returns no runs. No exact push-run ID/runner logs available. Do not retry the old SHA or infer current build/test result.
+
+**FIRST NEXT:** obtain the exact push-run for `348b6f213fc03d1e28f318178708be9a521ae70d` and inspect runner/build/tests/artifacts. If runner diagnostics remain unavailable, independently audit recurring import and encrypted-backup validation against WEB v18.20 for concrete lossless-read mismatches. Then perform Simulator document-picker and Light/Dark screenshot checks when Xcode runner access is restored. No app/main promotion; no 1:1 claim.
