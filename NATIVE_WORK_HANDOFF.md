@@ -2,12 +2,12 @@
 
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T06:11:00Z
-Lease expires UTC: 2026-11-19T06:41:00Z
+Updated UTC: 2026-11-19T07:04:00Z
+Lease expires UTC: 2026-11-19T07:54:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 9d42b57a12446a47505e37b7f7f703accdb24ab7
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD: cdbf6f2509160b5fc1ce6de32d646a85e4b65357
+Verified preview main HEAD: 53a65acb7830464b1c9f3fc02e18d929cc643f24
 Checkpoint build: 18.20 build67
 
 This run owns the finite lease above. Do not duplicate this implementation while the lease is active.
