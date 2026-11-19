@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T15:16:00Z
-Lease expires UTC: 2026-11-19T16:00:00Z
+Updated UTC: 2026-11-19T15:20:38.012Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: f21ed0a3737d34771444c24900d1e2586bdbd03b
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff lease: bcdbf9b96d729ba171cc9a9290eba2374cdf5ee8
-Checkpoint build: 18.20 build74; exact build73 CI 44541998606 SUCCESS (319 unit + 7 UI PASS); build74 commit f21ed0a is pushed and exact CI 44552166386 has simulator build PASS with test step IN_PROGRESS.
+Verified preview main HEAD before this handoff release: aa1cee4cf8713e69d962eb061aadeef7d2a8641c
+Checkpoint build: 18.20 build74; exact Native iOS CI 44552166386 SUCCESS (323 unit + 8 UI PASS); artifact 14543808934 inspected; automatic pending monthly review verified in Light/Dark.
 
 The previous lease was READY_FOR_NEXT_RUN and has now been claimed through 2026-11-19T12:45:00Z. Startup re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main. Exact app feature/main and preview main refs were rechecked before work.
 
@@ -136,3 +136,17 @@ Archived WEB v18.20 bundle remains the parity target (blob be453db2699273a194543
 - App feature HEAD: `f21ed0a3737d34771444c24900d1e2586bdbd03b`. App main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (untouched). Preview main before this documentation checkpoint: `6902294c5292bb99676e0974aa76d112130bc500`.
 - **FIRST NEXT:** inspect exact run 44552166386 to terminal state. Require simulator build, 323/323 unit tests and 8/8 UI tests. Download/inspect .xcresult and automatic-review Light/Dark screenshots; confirm October is selected at step 3/4 (local progress overrides imported), step 4 completes and dismisses, and existing manual Reports resume still works. Fix only an exact CI diagnostic if needed. Then continue Subscriptions lifecycle/history/local reminders and the analysis-only CSV recurring detector. No app/main promotion or 1:1 claim.
 - Privacy invariants unchanged: local-only, no backend, mandatory account, bank sync or telemetry. Available credit remains separate from owned money.
+
+
+## Native iOS build74 — automatic monthly review on launch verified (2026-11-19)
+
+- Exact Native iOS push CI [44552166386](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44552166386) for app commit `f21ed0a3737d34771444c24900d1e2586bdbd03b` completed **SUCCESS**. XcodeGen, project generation, iOS Simulator build, unit tests, UI tests, screenshot export and artifact preservation all passed. Logs report **323/323 unit tests** and **8/8 UI tests**, with `** TEST SUCCEEDED **`.
+- New `MonthlyReviewEngineTests` all passed: earliest past pending month, local progress overriding imported review metadata, current-month exclusion, completed-month exclusion, and native-only start-date inference from the earliest operation. The UI test `testAutomaticMonthlyReviewOpensEarliestPendingMonthInLightAndDark` passed in both appearances. Existing manual Reports entry/resume test also passed.
+- Artifact [14543808934](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44552166386/artifacts/14543808934) (25.9 MB) downloaded and inspected. Automatic review captures show **octombrie 2026 · 3 din 4** in Light and Dark, proving local October progress (2) overrides imported progress (0) while September local progress (4) skips that month. The screen has no back/close navigation action; the full-screen presentation uses `interactiveDismissDisabled(true)`. The UI test advanced to step 4, saved completion and verified return to the tab bar.
+- Captured populated values in step 3: savings 35.00 RON; debt 310.00 RON; credit spending 30.00 RON; principal repaid 20.00 RON; operational debt change 10.00 RON; initially declared debt 50.00 RON. Credit remains presented as debt, not owned money.
+- App feature commit [f21ed0a3737d34771444c24900d1e2586bdbd03b](https://github.com/nikopol000/financial-autonomy-app/commit/f21ed0a3737d34771444c24900d1e2586bdbd03b), candidate build 74. Changed RootView, app UI-test fixture, ReportsEngine start-date helper, new MonthlyReviewEngine, four unit tests, one Light/Dark UI test and XcodeGen build number. No Models.swift or LedgerStore.swift rewrite; no financial formula or transaction/balance mutation.
+- WEB v18.20 root behavior was checked in archived bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2`: first unfinished month from started month up to (excluding) current month; imported progress merged with native local progress taking precedence; full-screen modal cannot be dismissed outside; step 4 closes. Native launch now follows that selection contract after local store load.
+- **Remaining visual limitation:** Light/Dark automatic-review screenshots were inspected, but there is not yet a full pixel/side-by-side visual sign-off for every screen against the active web bundle. Do not claim 100% parity.
+- App feature HEAD: `f21ed0a3737d34771444c24900d1e2586bdbd03b`; app main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (untouched). Preview main before this final checkpoint: `aa1cee4cf8713e69d962eb061aadeef7d2a8641c`.
+- **FIRST NEXT:** begin P2 Subscriptions parity from archived WEB v18.20: audit imported recurring fields and current native subscription implementation; port lifecycle/status transitions, subscription history and local notifications/reminders with deterministic date tests, preserving local-only behavior and never posting payment transactions automatically. Then port CSV recurring detector as analysis-only with explicit user decision. Continue full Light/Dark screen and data-preservation audit. No app/main promotion.
+- Privacy invariants unchanged: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
