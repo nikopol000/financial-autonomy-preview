@@ -436,3 +436,24 @@ The independent native candidate remains on `nikopol000/financial-autonomy-app:f
 3. Inspect CSV candidate/classified screenshots in Light and Dark and exercise a real simulator document-picker CSV; compare the native parser and UI against WEB v18.20 modules 309/329.
 4. Inspect build77 subscription screens/reminders against WEB v18.20 module 327 and the recurring engine in module 204; continue backup/data-preservation and financial-formula audits.
 5. Complete screen-by-screen Light/Dark and populated-data comparison. Do not claim 100% until functions, formulas, lossless existing-data reads, build/tests and all visual differences are verified.
+
+## Native iOS recurring amount whitespace parity correction — 2026-11-19 19:10 UTC
+
+**Status:** one confirmed WEB v18.20 input-normalization mismatch corrected on the iOS feature branch; focused helper verification passed. Native iOS CI/XCTest and visual verification remain unconfirmed.
+
+- Startup: re-read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and `NATIVE_WORK_HANDOFF.md` from preview `main`. Handoff was READY with no lease before this run; a finite lease was claimed and then released at the end.
+- Actual starting heads: app feature `f41dc27288b387d75f6403d13859a7ead2b7c8b2`; app `main` `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; preview `main` `8e08b9d5df93dd88968b3401605d3386cdcf1190`. Current app feature HEAD after the fix: `348b6f213fc03d1e28f318178708be9a521ae70d`; app `main` remains unchanged; feature comparison is 375 ahead / 0 behind.
+- Rechecked the previous exact push run `44584388924` for `f41dc27288b387d75f6403d13859a7ead2b7c8b2`: completed failure before steps; job `135773264709` had `steps: null`, `logs_url: null`; the job-steps endpoint returned an empty array; log download returned HTTP 404 `BlobNotFound`; run artifacts were empty; combined status was empty. The connector exposes no repository-level hosted-runner diagnostics and its commit-workflow-run wrapper returns PR-triggered runs only, not push runs. No rerun was made and the root cause is unknown.
+- Archived WEB v18.20 module 204's amount parser uses `String(...).trim().replace(/\\s/g, "")`. Native `SubscriptionEngine.parseAmountMinor` previously removed only ASCII U+0020 spaces. Consequently tab, NBSP (U+00A0), and narrow NBSP (U+202F) thousands separators were accepted by WEB but rejected by the native add-recurring form.
+- Corrected `SubscriptionEngine.parseAmountMinor` to remove all Unicode whitespace with `String(raw.filter { !$0.isWhitespace })`. Added deterministic assertions for tab, NBSP and narrow NBSP in `SubscriptionEngineTests.testRomanianAndInternationalAmountSeparatorsAreParsedSafely`.
+- iOS commits: implementation [`f8f04149ab21699497b93b143a7370d44b44ff0c`](https://github.com/nikopol000/financial-autonomy-app/commit/f8f04149ab21699497b93b143a7370d44b44ff0c); tests [`348b6f213fc03d1e28f318178708be9a521ae70d`](https://github.com/nikopol000/financial-autonomy-app/commit/348b6f213fc03d1e28f318178708be9a521ae70d).
+- Local verification: Swift 6.2.1 compiled and ran a focused harness copied from the updated parser; 12 valid/invalid amount cases passed, including tab/NBSP/narrow-NBSP. Node verified WEB v18.20's `/\\s/g` normalization for the same four whitespace classes. This is a focused helper check, not an Xcode app build or XCTest run.
+- Exact current commit `348b6f213fc03d1e28f318178708be9a521ae70d`: combined status remains empty; the available workflow-run endpoint returns no PR-triggered runs. The workflow is push-triggered, but no exact push-run ID, runner logs, simulator build, XCTest result, screenshot or artifact is currently exposed. Do not claim CI/build/tests passed.
+- No financial formula, amount value, transaction, balance, `Models.swift`, `LedgerStore.swift`, backup schema, or app `main` change. Local-only privacy invariants and credit separation remain unchanged.
+
+### First next action
+1. Obtain the exact Native iOS push-run result for current feature HEAD `348b6f213fc03d1e28f318178708be9a521ae70d`; inspect runner allocation, XcodeGen, simulator build, unit/UI tests and artifacts. Do not rerun the old zero-step failures.
+2. If push-run/runner diagnostics remain unavailable, continue an independent source-level audit of recurring import/backup validation against WEB v18.20 and document any concrete compatibility defect before changing code.
+3. After native CI is available, inspect subscription and CSV Light/Dark screenshots and exercise the real document picker in Simulator. Continue the complete data-preservation, financial-formula and screen-by-screen audit; do not claim 100% parity until every gate passes.
+
+Privacy invariants: local-only; no backend, mandatory account, bank synchronization or telemetry. Available credit is not owned money. No app/main merge or promotion.
