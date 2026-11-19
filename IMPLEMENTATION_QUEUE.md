@@ -3998,3 +3998,14 @@ GitHub contents API small-file write probe: if this paragraph is present on main
 - Exact push run [44505878835](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44505878835) for `37730ec` was QUEUED at checkpoint time. No result is claimed.
 
 **FIRST NEXT:** inspect run 44505878835 to terminal state; require 315 unit + 6 UI PASS, inspect .xcresult and populated Reports Light/Dark screenshots. Then align Reports section order/copy with archived WEB v18.20 and track the missing monthly review flow. Keep app/main untouched.
+
+
+## Native iOS build68 — exact next actions after credit-copy assertion repair (2026-11-19)
+
+- Latest verified feature HEAD: 829bdc38fc9b76a927c648dd601e6ea9b475d08d (test-only NSPredicate prefix query replacing the overlong XCUI identifier).
+- Previous exact run 44507181175 on 226033a: simulator app build PASS; 315 unit tests PASS; 5/6 UI tests PASS. The single UI failure was XCTest's 128-character string-identifier limit, not product behavior. Artifact 14519693588 is retained. The new exact push run for 829bdc has no visible combined status or PR workflow-run record through the available connector; workflow YAML confirms push trigger. Do not infer success/failure and do not rerun the old SHA.
+- P0: obtain the exact push-run ID for 829bdc and verify XcodeGen, simulator build, 315 unit tests, 6 UI tests, .xcresult and populated Reports Light/Dark captures. If the tool still cannot list push runs, record this exact visibility limitation and preserve the commit for CI verification through GitHub Actions UI.
+- P1: once test fix is green, align ReportsView to archived WEB v18.20: section order Name → balance checks → owned cash → monthly budget → expense details → savings/debt; remove duplicate Fluxuri înregistrate; match row labels and empty-state behavior. Add UI assertions for section ordering and no duplicate flow section. Keep calculations unchanged.
+- P2: port archived monthly review as four steps with local per-month progress and prior-month resume; preserve read-only reports and never mutate balances during review.
+- P3: port Subscriptions lifecycle/status/history/local reminders; then CSV recurring detector as analysis-only with explicit user decision, never auto-post transactions.
+- Continue exact screen-by-screen Light/Dark and populated-data comparison against archived v18.20 bundle blob be453db2699273a194543de4532db6ea4b2e1cf2. No 1:1 claim until all formulas, data migration, tests and visuals are proven. App main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366 and must not be changed.
