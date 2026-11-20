@@ -5,12 +5,12 @@ Owner: Financial Autonomy iOS automation
 Updated UTC: 2026-11-20T06:28:00Z
 Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: a94b5a491ce2d1333b40c417c53f87904b4557e0
+Verified app feature HEAD: 91d09d3859d84205e219bdfc14bb511369c36796
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: a407909b0a6b8446dc6e3e0958961c204a8db023
-Feature comparison: 393 commits ahead, 0 behind; app/main remains unchanged.
+Verified preview main before handoff commit: d483189ff5fdf26bd945eeea619545c70a87f509
+Feature comparison: 401 commits ahead, 0 behind; app/main remains unchanged.
 
-## Completed this run
+## Previous run — recurring amount parser parity
 - Re-read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and this handoff from preview `main`; startup handoff was READY/no lease.
 - Reconciled actual heads: app feature `f41dc27288b387d75f6403d13859a7ead2b7c8b2` at startup, app `main` `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, preview `main` `8e08b9d5df93dd88968b3401605d3386cdcf1190` before the lease commit. Final app feature HEAD is `348b6f213fc03d1e28f318178708be9a521ae70d`; feature is 375 ahead / 0 behind.
 - Inspected exact prior push run `44584388924` for `f41dc27288b387d75f6403d13859a7ead2b7c8b2`: job `135773264709` completed failure with zero steps, null logs URL, empty steps endpoint, log endpoint 404 `BlobNotFound`, no artifacts and empty combined status. No repo-level hosted-runner diagnostics or push-run listing are exposed by the available connector; no retry was made and the infrastructure root cause is unknown.
@@ -19,7 +19,7 @@ Feature comparison: 393 commits ahead, 0 behind; app/main remains unchanged.
 - Focused Swift 6.2.1 parser harness passed 12 valid/invalid amount cases; Node verified four WEB whitespace-normalization cases. This is not an iOS app build or XCTest run. Exact current commit combined status is empty; the connector's workflow-run lookup is PR-only and exposes no push run. No build, unit/UI test, Simulator screenshot or artifact is claimed.
 - Preview continuity commits: PROJECT_STATE `199b52b3f2a54d4b724f14c6204638f20ca028e7`; IMPLEMENTATION_QUEUE `f66fd447d6aae95f8f388a2dc669b475c05a89b4`.
 
-## Completed this run — recurring projection integrity
+## Previous run — recurring projection integrity
 - Verified the exact build78 push run for startup HEAD `348b6f213fc03d1e28f318178708be9a521ae70d`: run 44596052554 failed before runner allocation (runner_id 0, no steps/logs/artifacts).
 - Audited WEB v18.20 recurring import and native encrypted restore. Added exact recurring metadata → ScheduleBook projection validation in app commit `052b7d6d5122176b40908f72c441dedaf4898708`.
 - Added projection mismatch/missing projection tests and a WEB-imported lifecycle-field encrypted round-trip test. Current app feature HEAD: `63e98f706a70a39003c15daeb30c55385b43264c`.
@@ -231,7 +231,7 @@ Feature comparison: 401 ahead / 0 behind.
 App audit commit: `91d09d3859d84205e219bdfc14bb511369c36796` (`NativeiOS/PARITY_CHECKLIST.md`, docs only).
 Preview PROJECT_STATE checkpoint: `76fed580142e71623a2996e0b24a334352e42280`.
 Preview IMPLEMENTATION_QUEUE checkpoint: `7d02bcab07b468a5514d4a5e143b891cbedd771e`.
-Preview main HEAD before this handoff commit: `7d02bcab07b468a5514d4a5e143b891cbedd771e`.
+Preview main HEAD before this handoff commit: `d483189ff5fdf26bd945eeea619545c70a87f509`.
 
 - Read-only source reconciliation of archived WEB v18.20 modules 209, 210, 220, 221 and 223 is recorded in Build19. Confirmed current-month `paidMonths`, finite installment and `closedAt` obligation gaps; refinance suppression and unknown-date scope need fixtures.
 - WEB v4/RON import fields and encrypted backup preservation were audited. Unsupported fields fail closed; `closedAt` is currently rejected. Native `FAiOSBK1` is not a WEB JSON export.
