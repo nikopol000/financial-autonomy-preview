@@ -161,3 +161,15 @@ Audit WEB v18.20 CSV date validation and amount parsing against native behavior,
 - Source evidence: WEB module 204 `validDate` accepts ISO year 0000 via `new Date(day + "T12:00:00Z")` and round-trip; WEB module 329 calls it for CSV rows. WEB `nextDate` uses `Date.UTC`, whose 0–99 year behavior maps to 1900–1999; verify this edge before adding a CSV-only next-payment helper.
 - Audit amount parsing for exact differences after the ECMAScript whitespace fix. Add focused tests only for demonstrated behavior.
 - Lease expires 2026-11-20T04:50:00Z. Work only on `feat/sync-preview-v18-20-ios`; do not modify app/main.
+
+
+## Active run lease — CSV year-zero date and amount parity audit (2026-11-20 05:04 UTC)
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T05:04:00Z
+- Lease expires UTC: 2026-11-20T05:50:00Z
+- Preview main HEAD at claim: 2c2ccb04e6e478b432913572dfd0a48722e051de
+- App feature HEAD at claim: a94b5a491ce2d1333b40c417c53f87904b4557e0 (verified live); app stable main: a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- Previous lease expired at 2026-11-20T04:50:00Z. Re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff before work; current queue's first unfinished action is CSV date validation/amount parsing against archived WEB v18.20, beginning with year 0000.
+- Exact Native iOS CI for current app feature HEAD: run 44651522653, completed FAILURE; job 136007313101, runner_id=0, steps=[], no logs/artifacts; combined status has zero contexts. Do not retry this pre-runner failure. No newer exact-HEAD run is listed.
+- Work only on app feature branch. Do not modify/merge app main. Keep any year-zero compatibility helper CSV-scoped; do not weaken shared RecurrenceCalendar or alter financial semantics.
