@@ -385,15 +385,22 @@ Preview main HEAD at release checkpoint: `5005c9ff954c6b2d4e68dcaa751df50fa3277a
 **Exact next action:** add a v2/v3 migration → encrypted PortableBackup seal/open regression for normalized optional metadata; continue remaining lossless backup field audit. At first macOS runner allocation, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/screenshots. Formula changes remain blocked pending explicit approval. No 100% parity claim.
 
 
-## Active run lease — v2/v3 migration encrypted PortableBackup round-trip regression
-- Status: IN_PROGRESS
-- Owner: Financial Autonomy iOS automation
-- Updated UTC: 2026-11-20T11:11:00Z
-- Lease expires UTC: 2026-11-20T11:56:00Z
-- Preview main HEAD at claim: 47a1e60ce938ed8b0b916cbc22bc190f622d092e
-- App feature HEAD verified live: 5cf7682f784103c1aaa04248dcd07fe158ce082d
-- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-- Feature comparison: 407 ahead / 0 behind.
-- Exact first unfinished action: add an XCTest regression that imports representative WEB v2 and v3 states, exercises the actual PortableBackup.seal/open encrypted round-trip, and asserts normalized optional metadata survives unchanged. Keep source data synthetic and local; do not alter formulas or the backup envelope.
-- Do not modify Models.swift or LedgerStore.swift wholesale. Recheck feature branch HEAD immediately before publishing source changes. At first usable macOS runner, execute XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/screenshots.
-- No app/main changes, no backend/account/bank sync/telemetry. Available credit is not owned money.
+## Completed run — v2/v3 encrypted PortableBackup metadata round-trip regression
+
+Status: READY_FOR_NEXT_RUN
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-20T11:21:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T11:21:00Z
+Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
+Verified app feature HEAD: `91c0b9d288ae192495bc772246991d3e03a8b96e`
+Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
+Feature comparison: 408 ahead / 0 behind.
+Preview main HEAD before final handoff update: `9af023e8925904c2b48a6e3c5a55063906f28a9b`.
+
+- App commit `91c0b9d288ae192495bc772246991d3e03a8b96e` adds a v2/v3 migration → actual `PortableBackup.seal/open` XCTest regression for normalized optional metadata. It asserts defaults and preservation of appearance, dashboardLayout, projection and paidMonths through encrypted round-trip. Only `NativeiOS/Tests/WebBackupV18_20Tests.swift` changed.
+- Executed: `swiftc -parse` on an isolated snippet containing the exact new test method PASS. Syntax only; XCTest, CryptoKit runtime, Xcode build, Simulator and UI were not executed.
+- Exact CI run `44726401611` for the new HEAD failed with no job steps, log endpoint 404 BlobNotFound, no artifacts and no combined status contexts. No compiler/test diagnostics; do not retry this same pre-step failure.
+- No app/main changes, financial formula changes, Models/LedgerStore rewrite, backend/account/bank sync or telemetry. Available credit is not owned money.
+
+**Exact next action:** continue the non-financial WEB v18.20 lossless import/export audit across remaining optional top-level and nested fields, including older encrypted native snapshot Codable compatibility; add only evidence-backed fixtures. At the first macOS runner that actually executes steps, run XcodeGen, Simulator build, full unit/UI tests and inspect .xcresult/screenshots. Financial formulas remain gated on explicit approval of the recorded obligation contract. No 100% parity claim.
