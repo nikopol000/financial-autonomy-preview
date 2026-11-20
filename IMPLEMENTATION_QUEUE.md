@@ -4430,3 +4430,20 @@ Privacy: local-only; no backend, mandatory account, bank sync or telemetry. Avai
 - App feature: 412 ahead / 0 behind stable app/main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; app/main untouched.
 
 **First next action:** audit historical Codable compatibility of remaining `Models.swift` persisted types: `MoneyAccount`, `Operation`, `BudgetSettings`, `WebImportMetadata` and nested imported debt/month-plan/recurring records. Verify which later-added fields are optional or custom-decoded; add a populated encrypted legacy fixture only for a proven missing-key regression. At first real macOS runner, run XcodeGen, Simulator build and all unit/UI tests, inspect `.xcresult`. Keep formulas unchanged pending explicit approval; maintain local-only privacy and exclude available credit from owned money. No 100% parity claim.
+
+
+## Completed 2026-11-20 — remaining Models Codable audit and reconciliation-link key migration
+
+**Completed on app feature branch only:** `ed929b2610df92cca1f39a547ee5fd64bac17811` (417 ahead / 0 behind app/main).
+
+- Audited MoneyAccount, Operation, BudgetSettings, WebImportMetadata and nested WEB debt/recurring/month-plan/template records against their introduction commits. Later-added fields are optional or have existing custom decoding. No speculative defaulting decoder was added.
+- Found one proven historical key rename: `Operation.reconciliationCheckID` was renamed to canonical WEB spelling `reconciliationCheckId` in commit `1ccf8070b404`. Older native JSON can contain the old spelling and would silently lose the balance-check link.
+- Fixed Operation decoding to accept the old key, emit only the canonical key, and reject conflicting values. Added regression tests for legacy-key recovery, canonical re-encoding, conflicting-key rejection, a populated legacy snapshot and encrypted PortableBackup re-export/restore.
+- Added an encrypted PortableBackup regression for MoneyAccount closure/origin metadata, Operation details/budget fields and BudgetSettings; asserts credit availability remains separate from owned money.
+- App commits: `4f0135dc`, `6864431a`, `def0d6f4`, `427700df`, `ed929b26`. No LedgerStore rewrite, no financial formula change, no app/main write/merge.
+
+**Executed checks:** Swift 6.2.1 Operation Codable runtime harness PASS (old key read, canonical key written, conflicting values rejected); isolated XCTest source type-check harnesses with model stubs PASS. These are not app XCTest runs. XcodeGen/xcodebuild/XCTest/Simulator/UI/.xcresult/screenshots remain unexecuted because the host is Linux without Xcode tooling.
+
+**Exact CI:** [run 44752718302](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44752718302), for exact HEAD `ed929b26`, FAILURE before runner allocation; job `136344427802`, runner_id 0, empty steps, null logs URL, no artifacts and no combined status contexts. Four preceding push runs in this batch show the same pre-runner failure. Do not manually retry the same infrastructure failure.
+
+**Next queue item — exact action:** inspect historical JSON key evolution and required/optional boundaries for OperationAuditEntry, BalanceObservation, ReconciliationExplanation, observation/explanation audit containers, LedgerSnapshot and remaining nested loan/goal records. Add a compatibility alias only when a previous persisted spelling is proven by commit history. Then compare Autonomie, Space and daily-pace formulas read-only against archived WEB v18.20; do not change financial formulas without explicit approval. At the first macOS runner that executes steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact .xcresult/screenshots. Maintain local-only privacy and credit-is-not-owned-money. Do not claim 100% parity.
