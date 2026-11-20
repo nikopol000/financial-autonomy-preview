@@ -1,10 +1,10 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T15:22:00Z
-Lease expires UTC: none
-Released UTC: 2026-11-20T15:22:00Z
+Updated UTC: 2026-11-20T17:05:00Z
+Lease expires UTC: 2026-11-20T17:50:00Z
+Released UTC: none
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
 Verified app feature HEAD: \`d382e2e59e68651427e4d1feed5ec4be09866bdc\`
 Verified app stable main HEAD: \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\`
@@ -555,3 +555,16 @@ IMPLEMENTATION_QUEUE checkpoint commit: `ce5deed3d9a36d77cf2b293b5759716fb628231
 - Parent run [44762409132](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44762409132) for `d382e2e` failed before runner allocation (runner ID 0, zero steps, no artifacts, log 404 BlobNotFound). It was not rerun.
 
 **Exact next action:** add absent-versus-empty regression coverage for `WebImportedMonthPlanBudget.additionalWindows` and `WebImportedDebt.schedule`, including encrypted PortableBackup restore; preserve fail-closed unknown-key and explicit-null/malformed behavior. At the first macOS runner with actual steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact .xcresult, then continue populated restore and screen-by-screen Light/Dark comparison. Financial obligation changes remain gated on explicit approval of the v18.20 calculation contract. No 100% parity claim.
+
+
+## Active run lease — absent/empty/null import metadata integrity
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T17:05:00Z
+- Lease expires UTC: 2026-11-20T17:50:00Z
+- Preview main HEAD at claim: 13f5a11016aa59a5f02fbb79cb1c64492caaf610
+- App feature HEAD verified live: 28fc5e1e61f9061376c1e1a3375ac6ed80170e76
+- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- First unfinished action: reconcile existing coverage for absent-versus-empty `WebImportedMonthPlanBudget.additionalWindows` and `WebImportedDebt.schedule`; add explicit WEB import and native Codable encrypted-backup regressions that preserve absent versus empty and reject explicit null/malformed arrays. Keep unknown-key rejection strict. Do not change financial formulas or broad model/store architecture.
+- Exact current Native iOS CI run for the feature HEAD: 44771123457; job 136408749627 completed FAILURE before runner allocation (runner_id 0, no steps, no artifacts). Do not retry this pre-runner failure.
+- Work only on `financial-autonomy-app:feat/sync-preview-v18-20-ios`; no app/main writes or merge. Preserve local-only privacy and credit-is-not-owned-money invariants.
