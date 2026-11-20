@@ -858,3 +858,26 @@ Reference: \`_expo/static/js/web/index-v01820-history-back-navigation-20261014.j
 4. Implement the paid-month, finite-installment, closed-debt and refinance obligation contract only after explicit user approval and with shared WEB/native reference fixtures.
 
 No production formula change, no \`Models.swift\` or \`LedgerStore.swift\` rewrite, no app/main modification or merge. Privacy remains local-only; no backend, mandatory account, bank sync or telemetry. Available credit remains excluded from owned money. No 100% parity claim.
+
+
+## Native iOS parity checkpoint — 2026-11-20 16:14 UTC — complete legacy archive and nested budget metadata backup regressions
+
+**Status:** Two focused backup-regression test changes committed on the native feature branch. No production code or financial formula changed. This is not an app build, XCTest execution or parity completion.
+
+- Preview main at this checkpoint sequence start: `f16a1e918471c122a08c04c3832e414a53f00372` (the finite audit lease claim).
+- App feature branch: `feat/sync-preview-v18-20-ios`; exact final HEAD: [`28fc5e1e61f9061376c1e1a3375ac6ed80170e76`](https://github.com/nikopol000/financial-autonomy-app/commit/28fc5e1e61f9061376c1e1a3375ac6ed80170e76).
+- App stable `main`: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged. Live compare: **421 ahead / 0 behind**. A compare of the final commit against the feature branch returned `identical`; no concurrent feature-branch advance was present.
+- App commits in this batch:
+  - [`f078fdb10ab821c3b1308a423c5c34bcca52f874`](https://github.com/nikopol000/financial-autonomy-app/commit/f078fdb10ab821c3b1308a423c5c34bcca52f874): the legacy WEB v1 archive test now runs the encrypted `PortableBackup.seal/open` round-trip for every imported version in `[2, 3, 4]`, not only v3. It compares the opaque JSON archive before and after restore.
+  - [`28fc5e1e61f9061376c1e1a3375ac6ed80170e76`](https://github.com/nikopol000/financial-autonomy-app/commit/28fc5e1e61f9061376c1e1a3375ac6ed80170e76): expanded the nested month-plan budget regression to cover primary start/end dates; additional-window anchor date, income reference, start/end dates and both true/false dashboard flags; the auto window's absent amount; and encrypted portable restore equality for month-plan metadata and operations.
+- Changed only `NativeiOS/Tests/WebBackupV18_20Tests.swift`. No production parser/model, `Models.swift`, `LedgerStore.swift`, backup envelope, transaction, balance or formula change.
+- Executed on Linux Swift 6.2.1:
+  - `swiftc -parse` on the exact legacy-archive XCTest method body: **PASS** (syntax only).
+  - `swiftc -typecheck` on the exact nested-budget XCTest method body with isolated model/API stubs matching the current source signatures: **PASS** (not the app target).
+  - Isolated Codable runtime harness using mirrored metadata structs: **PASS** for nested optional fields, explicit `false`, absent auto-window amount and opaque legacy JSON `Data` round-trip. This does not execute `PortableBackup` or CryptoKit in the app target.
+  - Environment check: Swift 6.2.1 available; `xcodebuild` and `xcodegen` are absent. Native app build, app XCTest, CryptoKit portable-backup runtime, Simulator, UI tests, `.xcresult`, Files/document picker and screenshots remain **NOT EXECUTED / NOT VERIFIED**.
+- Exact final-HEAD Native iOS CI check for `28fc5e1`: combined status contains **zero contexts**; the connected workflow-run lookup returns **no PR-triggered runs** for this push commit. The checked workflow `.github/workflows/native-ios-ci.yml` is configured for pushes to this feature branch when `NativeiOS/**/*.swift` changes, but the connector does not expose the push-run ID/state. Therefore no current-commit CI pass or failure is claimed.
+- The last observable run before this batch, [`44762409132`](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44762409132) for parent `d382e2e`, failed before runner allocation: job `136378075935`, runner ID 0, empty steps, no artifacts and log download 404 `BlobNotFound`. It was not rerun.
+- Local-only architecture and available-credit-is-not-owned-money invariant remain unchanged. No app/main write or merge.
+
+**Exact next action:** continue the non-financial nested Codable/import audit with explicit absent-versus-empty coverage for `WebImportedMonthPlanBudget.additionalWindows` and `WebImportedDebt.schedule`, including encrypted portable restore; preserve strict rejection of unknown keys and explicit-null/malformed values. At the first observable macOS runner, run XcodeGen, Simulator build, full unit/UI suite and inspect the exact `.xcresult`; then continue populated restore and screen-by-screen Light/Dark comparison. Financial obligation changes (`paidMonths`, finite installments, `closedAt`, refinance settlement) remain blocked pending explicit approval of the recorded v18.20 calculation contract. No 100% parity claim.
