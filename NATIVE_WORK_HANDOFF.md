@@ -1,10 +1,10 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T22:08:00Z
-Lease expires UTC: none
-Released UTC: 2026-11-20T22:08:00Z
+Updated UTC: 2026-11-20T22:10:00Z
+Lease expires UTC: 2026-11-20T22:55:00Z
+Released UTC: none
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
 Verified app feature HEAD: dda4976f873d94d155f69a1dbe9dec6d9c45c472
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -682,3 +682,11 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - Exact next action: map every WEB date-only field through importer, SnapshotValidator and downstream calendar/recurrence consumers; define a complete scoped year-zero contract before implementation. At first macOS runner with steps, execute XcodeGen, Simulator build, full unit/UI tests and inspect `.xcresult`; then real Files and populated Light/Dark checks. Keep financial obligation changes approval-gated.
 
 Status: READY_FOR_NEXT_RUN. Lease released.
+
+
+## Active run lease — complete WEB date-only field/consumer map
+- Continuing the same non-financial v18.20 year-zero compatibility audit after the initial source-level finding was checkpointed.
+- Preview main at claim: `e1260e7763b50947b48c1a386dc2f013b546c0cd`.
+- App feature HEAD at claim: `dda4976f873d94d155f69a1dbe9dec6d9c45c472`; stable app main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (432 ahead / 0 behind).
+- Exact task: map all `WebBackupV18_20.validDay` fields and all downstream `SnapshotValidator` / `RecurrenceCalendar` / schedule consumers to determine whether a complete scoped year-zero fix is safe. Documentation only unless a self-contained, fully restorable fix is proven.
+- No formula changes; no app/main writes or merge.
