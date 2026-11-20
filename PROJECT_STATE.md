@@ -656,3 +656,13 @@ Privacy invariants: local-only; no backend, mandatory account, bank synchronizat
 4. No 100% parity claim until the approved formulas, all WEB data, build/tests and visual differences are validated.
 
 Privacy invariants unchanged: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Work only on `financial-autonomy-app:feat/sync-preview-v18-20-ios`; never modify or merge app/main without explicit approval.
+
+
+## Native iOS parity addendum — 2026-11-20 06:31 UTC, WEB backup year-zero date boundary
+
+- App feature HEAD: `7208fe0dc31814b18cec94813bac0bb450108766` ([Build19/backup-date audit documentation](https://github.com/nikopol000/financial-autonomy-app/commit/7208fe0dc31814b18cec94813bac0bb450108766)); app stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature is **402 ahead / 0 behind**.
+- Archived WEB v18.20 module 204's ECMAScript Date round-trip accepts `0000-01-01` and `0000-02-29`. Node 22.16.0 probe: 3/3 dates (including `0001-01-01`) parsed and round-tripped.
+- Native `WebBackupV18_20.validDay` uses Foundation DateFormatter `yyyy-MM-dd`; Swift 6.2.1 / Foundation 6.2.1 Linux probe rejected both year-zero dates and accepted `0001-01-01`. This indicates a likely WEB-backup import gap; actual iOS Foundation behavior is still unverified.
+- No production code changed. The existing CSV compatibility helper remains CSV-scoped; no shared calendar or backup date semantics were broadened. This is fail-closed rejection, not silent data loss.
+- Exact docs commit `7208fe0dc31814b18cec94813bac0bb450108766`: combined status empty; no workflow runs exposed. Last code-bearing commit `26b65fa1cef0489d28c93e730da757112f881ce8` still has pre-runner failure 44680247030; do not retry. No Xcode build, XCTest, Simulator, Files-provider or visual validation.
+- **Next:** continue non-financial import/backup compatibility review and preserve the strict fail-closed boundary. Do not extend CSV year-zero handling to WEB backup/shared calendar without explicit scope approval. Formula fixes remain blocked pending the explicit v18.20 obligation-contract approval recorded above.
