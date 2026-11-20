@@ -1,17 +1,17 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T19:11:36Z
-Lease expires UTC: 2026-11-20T19:31:36Z
-Lease claimed UTC: 2026-11-20T19:11:36Z
+Updated UTC: 2026-11-20T19:15:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T19:15:00Z
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
-Verified app feature HEAD: `0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987`
+Verified app feature HEAD: `c33b05932cdbc395f25cfeb6c86c6135c51e43af`
 Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
-Verified preview main before handoff commit: `014f688a5152f9faa07f33aeedb0875e4d9e7f78`
-Feature comparison: **424 ahead / 0 behind**; app/main remains unchanged.
-PROJECT_STATE checkpoint commit: `986f00ed89c69786d78d62d5404fdc3e9c99f282`.
-IMPLEMENTATION_QUEUE checkpoint commit: `a5281c0824bf5ed4153f9f95767c2c7ed2f7929a`.
+Verified preview main before handoff commit: `27d6187020ece97d84fd63a5f49a59d12fd2301d`
+Feature comparison: **426 ahead / 0 behind**; app/main remains unchanged.
+PROJECT_STATE checkpoint commit: `5228dd037256633d05670cc84925908c952eef76`.
+IMPLEMENTATION_QUEUE checkpoint commit: `27d6187020ece97d84fd63a5f49a59d12fd2301d`.
 
 ## Latest completed run — audit graph and WEB v18.20 obligation reconciliation
 
@@ -600,3 +600,19 @@ IMPLEMENTATION_QUEUE checkpoint commit: `ce5deed3d9a36d77cf2b293b5759716fb628231
 - Lease released; handoff is READY_FOR_NEXT_RUN.
 
 **Exact next action:** audit remaining optional collection fields in `WebImportMetadata` and `LedgerSnapshot` against historical encoder/introduction commits; distinguish legitimate legacy absence from explicit null, then add only evidence-backed restore regressions. At first macOS runner with steps, run XcodeGen, Simulator build, full unit/UI tests and inspect exact `.xcresult`; continue Files/document-picker and populated Light/Dark comparisons. Financial obligation changes remain approval-gated.
+
+
+## Completed run — optional WebImportMetadata / LedgerSnapshot collection audit
+
+- App feature branch only; final exact HEAD `c33b05932cdbc395f25cfeb6c86c6135c51e43af`; stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; compare 426 ahead / 0 behind.
+- App commits: `4e8be2d5ec0364ac59891443c3f8b87e7fa571c1` adds presence-aware decoders; `c33b05932cdbc395f25cfeb6c86c6135c51e43af` adds absent/empty/null and encrypted-restore regressions.
+- Audited native serialization: `EncryptedLocalStore.write` and `PortableBackup.seal` use `JSONEncoder`; corresponding read/restore uses `JSONDecoder`. Nil optional collection fields are omitted by the native writer; empty collections are serialized. WEB v2/v3 `names: null` is normalized to `[]` before native metadata construction.
+- All 21 optional collection fields in `WebImportMetadata` and `LedgerSnapshot` now preserve absent vs empty and reject explicit null/wrong type. Optional object fields and required core arrays retain previous semantics.
+- Executed: Swift 6.2.1 Foundation Codable harness 21/21 field categories PASS; `swiftc -parse` for both new XCTest method bodies PASS. Not executed: XcodeGen, Xcode build, app XCTest, CryptoKit through app target, Simulator/UI, Files picker, .xcresult or screenshots.
+- Exact HEAD combined status has zero contexts; connected workflow-run lookup exposes no push run. No current-head CI pass/fail claim. Do not repeat previous zero-runner failure.
+- No formulas, balances, operations, LedgerStore, app/main, privacy architecture or backup envelope changes.
+- PROJECT_STATE: `5228dd037256633d05670cc84925908c952eef76`; IMPLEMENTATION_QUEUE: `27d6187020ece97d84fd63a5f49a59d12fd2301d`.
+
+**Exact next action:** at first macOS runner with actual steps, run XcodeGen, Simulator build, complete unit/UI suite and inspect exact .xcresult. While no runner execution is observable, continue populated full-snapshot restore and Files/document-picker regression audit; then populated Light/Dark screen comparison against archived WEB v18.20. Financial obligation formula changes remain approval-gated.
+
+Status: READY_FOR_NEXT_RUN. Lease released. No 100% parity claim.
