@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T09:22:00Z
-Lease expires UTC: none
+Updated UTC: 2026-11-20T14:12:00Z
+Lease expires UTC: 2026-11-20T14:55:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -481,3 +481,16 @@ Preview PROJECT_STATE + IMPLEMENTATION_QUEUE checkpoint commit: `5f849037b9db64e
 - No production model/formula change, no Models/LedgerStore rewrite, no app/main modification or merge. Local-only privacy and available-credit-is-not-owned-money invariants remain intact.
 
 **Exact next action:** audit remaining persisted `Models.swift` types — MoneyAccount, Operation, BudgetSettings, WebImportMetadata and nested WEB imported debt/month-plan/recurring records — against their introduction commits. Add a populated legacy/encrypted fixture only if history proves a later non-optional key was absent in an older persisted shape. At the first macOS runner that executes steps, run XcodeGen, Simulator build, all unit/UI tests and inspect the exact .xcresult; continue populated restore and screen-by-screen Light/Dark comparison. Financial formula changes remain gated on explicit approval. No 100% parity claim.
+
+
+## Active run lease — persisted model and encrypted-backup audit
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T14:12:00Z
+- Lease expires UTC: 2026-11-20T14:55:00Z
+- Preview main at claim: 28536ac21601a5d4df69164fc91ecb5acb7fc740
+- App feature HEAD verified live: 3cf96feabf118f4811053ee995af09b743d709cf
+- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- Exact first unfinished action: finish historical Codable audit for MoneyAccount, Operation, BudgetSettings, WebImportMetadata and nested imported debt/month-plan/recurring records; add a focused populated encrypted round-trip regression for optional account/operation metadata only if it is not already covered. No speculative decoder relaxation.
+- CI for exact app HEAD: Native iOS CI run 44741906262 completed FAILURE before any runner step; job 136307396835 has null steps/logs URL and no artifacts; combined status has zero contexts. Do not retry this pre-runner failure.
+- Work only on app feature branch. Do not modify/merge app/main. Preserve local-only privacy and available-credit-is-not-owned-money. No financial formula changes without explicit approval.
