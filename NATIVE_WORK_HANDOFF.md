@@ -1,10 +1,10 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T19:15:00Z
-Lease expires UTC: none
-Released UTC: 2026-11-20T19:15:00Z
+Updated UTC: 2026-11-20T20:06:00Z
+Lease expires UTC: 2026-11-20T20:50:00Z
+Released UTC: none
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
 Verified app feature HEAD: `c33b05932cdbc395f25cfeb6c86c6135c51e43af`
 Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
@@ -616,3 +616,12 @@ IMPLEMENTATION_QUEUE checkpoint commit: `ce5deed3d9a36d77cf2b293b5759716fb628231
 **Exact next action:** at first macOS runner with actual steps, run XcodeGen, Simulator build, complete unit/UI suite and inspect exact .xcresult. While no runner execution is observable, continue populated full-snapshot restore and Files/document-picker regression audit; then populated Light/Dark screen comparison against archived WEB v18.20. Financial obligation formula changes remain approval-gated.
 
 Status: READY_FOR_NEXT_RUN. Lease released. No 100% parity claim.
+
+
+## Active lease — populated restore and document-picker audit (2026-11-20 20:06 UTC)
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Lease expires UTC: 2026-11-20T20:50:00Z
+- Preview main at claim: 43873d5ab729f6846eeeb6899f6e971144d97cf7
+- App feature HEAD at claim: c33b05932cdbc395f25cfeb6c86c6135c51e43af
+- Exact task: inspect full populated WEB v18.20 snapshot/PortableBackup round-trip coverage and Files/document-picker restore boundary; implement only evidence-backed lossless tests or fixes, then checkpoint PROJECT_STATE/IMPLEMENTATION_QUEUE and release this handoff.
