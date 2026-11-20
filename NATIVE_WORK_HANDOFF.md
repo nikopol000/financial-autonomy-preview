@@ -1,17 +1,17 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T17:05:00Z
-Lease expires UTC: 2026-11-20T17:50:00Z
-Released UTC: none
+Updated UTC: 2026-11-20T17:11:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T17:11:00Z
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
-Verified app feature HEAD: \`d382e2e59e68651427e4d1feed5ec4be09866bdc\`
-Verified app stable main HEAD: \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\`
-Verified preview main before handoff commit: \`cb7ea026ba94c75701ef253788330b52656d1c05\`
-Feature comparison: **419 ahead / 0 behind**; app/main remains unchanged.
-PROJECT_STATE checkpoint commit: \`40d00499cbfb20bac842fc1fd27d30ec53e60b87\`.
-IMPLEMENTATION_QUEUE checkpoint commit: \`cb7ea026ba94c75701ef253788330b52656d1c05\`.
+Verified app feature HEAD: `9ec40a0e66a79dd0348101992f46de9ac71bf0f5`
+Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
+Verified preview main before handoff commit: `7e10a132dfd1438408eb2faa0eb4708795b6c6af`
+Feature comparison: **422 ahead / 0 behind**; app/main remains unchanged.
+PROJECT_STATE checkpoint commit: `7e10a132dfd1438408eb2faa0eb4708795b6c6af`.
+IMPLEMENTATION_QUEUE checkpoint commit: `7e10a132dfd1438408eb2faa0eb4708795b6c6af`.
 
 ## Latest completed run — audit graph and WEB v18.20 obligation reconciliation
 
@@ -557,14 +557,21 @@ IMPLEMENTATION_QUEUE checkpoint commit: `ce5deed3d9a36d77cf2b293b5759716fb628231
 **Exact next action:** add absent-versus-empty regression coverage for `WebImportedMonthPlanBudget.additionalWindows` and `WebImportedDebt.schedule`, including encrypted PortableBackup restore; preserve fail-closed unknown-key and explicit-null/malformed behavior. At the first macOS runner with actual steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact .xcresult, then continue populated restore and screen-by-screen Light/Dark comparison. Financial obligation changes remain gated on explicit approval of the v18.20 calculation contract. No 100% parity claim.
 
 
-## Active run lease — absent/empty/null import metadata integrity
-- Status: IN_PROGRESS
+## Completed run — absent/empty/null optional collection compatibility (2026-11-20 17:10 UTC)
+- Status: RELEASED
 - Owner: Financial Autonomy iOS automation
 - Updated UTC: 2026-11-20T17:05:00Z
-- Lease expires UTC: 2026-11-20T17:50:00Z
+- Lease expires UTC: none
 - Preview main HEAD at claim: 13f5a11016aa59a5f02fbb79cb1c64492caaf610
 - App feature HEAD verified live: 28fc5e1e61f9061376c1e1a3375ac6ed80170e76
 - App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 - First unfinished action: reconcile existing coverage for absent-versus-empty `WebImportedMonthPlanBudget.additionalWindows` and `WebImportedDebt.schedule`; add explicit WEB import and native Codable encrypted-backup regressions that preserve absent versus empty and reject explicit null/malformed arrays. Keep unknown-key rejection strict. Do not change financial formulas or broad model/store architecture.
 - Exact current Native iOS CI run for the feature HEAD: 44771123457; job 136408749627 completed FAILURE before runner allocation (runner_id 0, no steps, no artifacts). Do not retry this pre-runner failure.
 - Work only on `financial-autonomy-app:feat/sync-preview-v18-20-ios`; no app/main writes or merge. Preserve local-only privacy and credit-is-not-owned-money invariants.
+
+
+## Exact next action
+1. Audit other optional collection fields in nested month-plan/catalog/projection metadata for absent/null behavior differences between archived WEB v18.20 validation and native Codable decoding; add only evidence-backed lossless/fail-closed regressions.
+2. Recheck exact-HEAD Native iOS push-run visibility without rerunning the zero-runner failure for `9ec40a0`.
+3. At the first macOS runner that executes steps, run XcodeGen, Simulator build, all unit/UI tests and inspect the exact `.xcresult`; then exercise Files/document-picker and populated Light/Dark comparisons.
+4. Keep financial obligation formula changes approval-gated; no 100% parity claim.
