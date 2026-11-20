@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T01:15:00Z
-Lease expires UTC: none
+Updated UTC: 2026-11-20T02:10:00Z
+Lease expires UTC: 2026-11-20T04:50:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: a94b5a491ce2d1333b40c417c53f87904b4557e0
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -151,3 +151,13 @@ Privacy invariants: local-only; no backend, mandatory account, bank synchronizat
 
 ## Exact next action
 Audit WEB v18.20 CSV date validation and amount parsing against native behavior, starting with year 0000; add focused regression coverage and do not weaken shared calendar/financial invariants. Continue checking exact-HEAD CI without rerunning pre-runner failures. At first usable macOS runner, execute XcodeGen, Simulator build, full unit/UI suite, .xcresult and screenshot checks. Then exercise the real .csv picker and compare CSV/Subscriptions Light/Dark against archived WEB v18.20. Lease released; handoff READY_FOR_NEXT_RUN.
+
+
+## Active run lease — CSV year-zero date and amount parity audit
+- Startup preview main HEAD: a8b67a6abfa7a4850ea36927764995efe1890dc4
+- App feature HEAD verified from live branch: a94b5a491ce2d1333b40c417c53f87904b4557e0; app main: a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- Exact first unfinished item: compare CSV date validation and amount parsing with archived WEB v18.20, beginning with year 0000. Keep any fix scoped to CSV; do not weaken shared RecurrenceCalendar.
+- Exact Native iOS CI for startup feature HEAD: run 44651522653, failure in 3 seconds; job 136007313101 returned null steps/logs URL, no artifacts, and combined status empty. Do not rerun this pre-step failure.
+- Source evidence: WEB module 204 `validDate` accepts ISO year 0000 via `new Date(day + "T12:00:00Z")` and round-trip; WEB module 329 calls it for CSV rows. WEB `nextDate` uses `Date.UTC`, whose 0–99 year behavior maps to 1900–1999; verify this edge before adding a CSV-only next-payment helper.
+- Audit amount parsing for exact differences after the ECMAScript whitespace fix. Add focused tests only for demonstrated behavior.
+- Lease expires 2026-11-20T04:50:00Z. Work only on `feat/sync-preview-v18-20-ios`; do not modify app/main.
