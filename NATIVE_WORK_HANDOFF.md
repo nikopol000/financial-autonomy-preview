@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T01:08:00Z
-Lease expires UTC: 2026-11-20T01:45:00Z
+Updated UTC: 2026-11-20T01:15:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 40f46f37a6251ed7aa2d9815fa7b06cb13b4e008
+Verified app feature HEAD: a94b5a491ce2d1333b40c417c53f87904b4557e0
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: 38384068a2e5d8ca0140a7a230379662cd291403
-Feature comparison: 391 commits ahead, 0 behind; app/main remains unchanged.
+Verified preview main before handoff commit: a407909b0a6b8446dc6e3e0958961c204a8db023
+Feature comparison: 393 commits ahead, 0 behind; app/main remains unchanged.
 
 ## Completed this run
 - Re-read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and this handoff from preview `main`; startup handoff was READY/no lease.
@@ -137,3 +137,17 @@ Privacy invariants: local-only; no backend, mandatory account, bank synchronizat
 - Exact first unfinished queue item: audit CSV content-type/extension filtering, CR/LF/CRLF, BOM, delimiter and header edge cases against archived WEB v18.20.
 - Evidence already inspected: WEB v18.20 picker uses accept=`.csv`; native fileImporter currently allows both `.commaSeparatedText` and `.plainText`. Native parser iterates Swift Character values; CRLF is one extended grapheme cluster, unlike the WEB parser's separate CR and LF code units. Verify with a focused test, then fix only these demonstrated mismatches.
 - Work only on app feature branch. No app/main changes. Lease expires 2026-11-20T01:45:00Z.
+
+
+## Completed this run — CSV picker and CR/LF parity (2026-11-20 01:15 UTC)
+- Startup refs: preview main `ef60555fb705615b4779c195e1eca43a28def42f`; lease claim commit `a407909b0a6b8446dc6e3e0958961c204a8db023`; app feature `40f46f37a6251ed7aa2d9815fa7b06cb13b4e008`; app/main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Final app feature HEAD `a94b5a491ce2d1333b40c417c53f87904b4557e0`, 393 ahead / 0 behind app/main. No app/main changes.
+- App commits: `6097f106f9a16878ae80ec4e0af4cea89a116427` (CSV-only picker filter and Unicode-scalar parser) and `a94b5a491ce2d1333b40c417c53f87904b4557e0` (scalar append and test literal correction).
+- Archived WEB v18.20 bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2`: picker accepts `.csv` only; parser handles CRLF as separate CR/LF and detects delimiter from first line. Native previously allowed plain text and Swift Character grouped CRLF. Both mismatches are corrected.
+- Added four parser tests and one picker content-type test. Focused Swift 6.2.1 parser harness 5/5 PASS; Node WEB parser reference 4/4 PASS. No Xcode build/XCTest/Simulator.
+- Exact CI run [44651522653](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44651522653) for final HEAD failed in 3 seconds; job `136007313101` has runner_id 0, empty runner/group, steps [], no useful log body and zero artifacts; combined status empty. No retry.
+- Residual: WEB accepts date year 0000 while shared native RecurrenceCalendar rejects years below 1. Not changed; next audit must keep any fix scoped to CSV or document the intentional boundary.
+- No financial formula, Models/LedgerStore, balance/transaction or backup-schema changes.
+
+## Exact next action
+Audit WEB v18.20 CSV date validation and amount parsing against native behavior, starting with year 0000; add focused regression coverage and do not weaken shared calendar/financial invariants. Continue checking exact-HEAD CI without rerunning pre-runner failures. At first usable macOS runner, execute XcodeGen, Simulator build, full unit/UI suite, .xcresult and screenshot checks. Then exercise the real .csv picker and compare CSV/Subscriptions Light/Dark against archived WEB v18.20. Lease released; handoff READY_FOR_NEXT_RUN.

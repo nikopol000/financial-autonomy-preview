@@ -4248,3 +4248,22 @@ Keep local-only architecture, no backend/mandatory account/bank sync/telemetry. 
 4. Continue the remaining financial formula and lossless backup checks. No 100% parity claim until all function, formula, data-preservation, build/test and visual gates pass.
 
 Privacy invariants: local-only data; no backend, mandatory account, bank synchronization or telemetry. Available credit is not owned money. Keep all app changes on `feat/sync-preview-v18-20-ios`; never modify or merge app/main without explicit approval.
+
+
+## 2026-11-20 — CSV picker MIME and CR/LF parity
+
+**Completed on app feature only**
+- App implementation commit `6097f106f9a16878ae80ec4e0af4cea89a116427`: picker now accepts only `UTType.commaSeparatedText`, matching WEB v18.20's `.csv` accept filter; CSV parser iterates Unicode scalars rather than Swift Characters so CRLF is two parser tokens; first-line delimiter detection now matches the WEB split boundary.
+- App follow-up commit `a94b5a491ce2d1333b40c417c53f87904b4557e0`: corrected scalar appends and test-source escapes/key paths.
+- Five XCTest methods added: CRLF + semicolon-in-data delimiter detection, CR-only records, quoted CRLF preservation, reordered headers/extra column with CRLF, and CSV-only picker content types.
+- Focused Swift 6.2.1 extracted parser-loop harness: 5/5 pass. Archived WEB parser algorithm Node harness: 4/4 pass. These are not Xcode XCTest or app build results.
+- Exact Native iOS CI for final HEAD `a94b5a491ce2d1333b40c417c53f87904b4557e0`: [run 44651522653](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44651522653) FAILURE; job `136007313101`, `runner_id=0`, empty runner/group, `steps=[]`, empty log body, zero artifacts, empty combined statuses. No runner allocation; do not retry this run.
+- App feature is 393 ahead / 0 behind app/main; app/main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`. No financial formulas, Models/LedgerStore, balances, transactions or backup schema changed.
+- No XcodeGen, xcodebuild, XCTest, Simulator, real document picker or visual comparison. Current active WEB preview is 18.74; parity target remains archived v18.20.
+
+**First next action**
+1. Audit CSV date validation and amount parsing against archived WEB v18.20, starting with the observed year-zero boundary (WEB accepts year 0000; native shared RecurrenceCalendar currently accepts 1...9999). Keep any compatibility handling CSV-scoped unless wider calendar semantics are explicitly approved.
+2. Recheck exact-HEAD CI/runner visibility; do not retry pre-runner failures. At the first usable macOS runner, run XcodeGen, full unit/UI suite and inspect .xcresult/artifacts.
+3. Then exercise the actual .csv document picker and compare CSV/Subscriptions Light/Dark screens to archived WEB v18.20.
+
+Privacy/release gates: local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money; never modify/merge app/main; do not declare 100% parity before all evidence gates pass.

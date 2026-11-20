@@ -572,3 +572,24 @@ No 100% parity claim. All function, formula, lossless-data, build/test and visua
 4. Continue the remaining financial formula and lossless backup checks. No 100% parity claim until all function, formula, data-preservation, build/test and visual gates pass.
 
 Privacy invariants: local-only data; no backend, mandatory account, bank synchronization or telemetry. Available credit is not owned money. Keep all app changes on `feat/sync-preview-v18-20-ios`; never modify or merge app/main without explicit approval.
+
+
+## Native iOS parity checkpoint — 2026-11-20, CSV picker and line-ending parity
+
+- Startup preview main was `ef60555fb705615b4779c195e1eca43a28def42f`; the finite coordination lease was claimed in preview commit `a407909b0a6b8446dc6e3e0958961c204a8db023`. Startup app feature was `40f46f37a6251ed7aa2d9815fa7b06cb13b4e008`; app stable main remained `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Final app feature HEAD: `a94b5a491ce2d1333b40c417c53f87904b4557e0`; compare against app/main: **393 ahead / 0 behind**. App/main was not modified.
+- Re-read the archived WEB v18.20 bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. WEB picker uses `accept=".csv"`; parser detects delimiter from the first line split by `/\\r?\\n/` and iterates CR/LF separately, skipping the LF after CR.
+- Concrete mismatches: native `.fileImporter` allowed both `.commaSeparatedText` and `.plainText` (broader than WEB's .csv-only filter); Swift `Array(String)` groups CRLF into one extended grapheme `Character`, so the parser's separate CR/LF comparisons did not split CRLF records. The same Character iteration also made first-line delimiter detection differ for CRLF files.
+- App commit `6097f106f9a16878ae80ec4e0af4cea89a116427`: restrict picker to `UTType.commaSeparatedText`, iterate Unicode scalars for the CSV state machine and header-line delimiter detection, and add four parser tests plus one picker-content-type test. Follow-up app commit `a94b5a491ce2d1333b40c417c53f87904b4557e0` corrects scalar-to-String appends and the inserted Swift test literals/key paths.
+- Focused Swift 6.2.1 extracted parser-loop harness: **5 checks passed** (CRLF record boundaries, delimiter detection limited to header line, CR-only records, quoted CRLF preservation, LF records). Verified that Swift Character groups CRLF into one Character. Node reference harness using the archived WEB parser algorithm: **4 cases passed**. These are focused harnesses, not XCTest or an Xcode app build.
+- Added five XCTest methods to source; the new XCTest methods, existing suite, UI tests, XcodeGen, Simulator and actual document-picker interaction have **not** been executed. `xcodebuild` is unavailable on this Linux host.
+- Exact current Native iOS CI: [run 44651522653](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44651522653) for `a94b5a491ce2d1333b40c417c53f87904b4557e0`, FAILURE. Job `136007313101` has `runner_id=0`, blank runner/group names, `steps=[]`; run log endpoint returned an empty body, artifacts count is zero, and combined commit statuses are empty. It terminated within 3 seconds before a runner was allocated. No retry was made. Prior exact run for parent `6097f106` also failed; it was not retried.
+- No `Models.swift`, `LedgerStore.swift`, balances, transaction models, backup schema, financial formulas or app/main files changed. Local-only/privacy and available-credit invariants remain intact.
+- Residual CSV date boundary for the next audit: archived WEB `validDate` accepts `0000-01-01` (ECMAScript ISO date round-trip); native `RecurrenceCalendar.parse` restricts years to 1...9999. This edge was observed by source inspection and a Node reference check, not changed because the shared native calendar is used across the app and year zero is not a normal civil financial date. Decide a CSV-scoped compatibility treatment without weakening shared calendar invariants.
+
+### Exact next action
+1. Audit WEB v18.20 CSV date validation and amount parsing against native behavior, starting with the year-zero boundary; add focused cases and avoid changing shared financial/calendar semantics without explicit evidence.
+2. Keep checking exact-commit Native iOS CI/runner allocation on the current feature HEAD; do not retry pre-runner failures. At the first usable macOS runner, run XcodeGen, Simulator build, full unit/UI tests, inspect `.xcresult` and screenshots.
+3. Exercise the real .csv document picker and compare CSV/Subscriptions Light/Dark screens with archived WEB v18.20; continue full financial and lossless backup parity checks.
+
+Privacy invariants: local-only; no backend, mandatory account, bank synchronization or telemetry. Available credit is not owned money. Never modify or merge app/main. No 100% parity claim until functional, financial, lossless-data, build/test and visual evidence gates pass.
