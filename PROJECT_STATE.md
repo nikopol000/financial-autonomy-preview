@@ -616,3 +616,43 @@ Privacy invariants: local-only; no backend, mandatory account, bank synchronizat
 4. Continue screen-by-screen populated-data, backup/restore, accessibility and visual validation. No 100% parity claim until all function, formula, lossless-data, build/test and visual gates pass.
 
 Privacy invariants: local-only; no backend, mandatory account, bank synchronization or telemetry. Available credit is not owned money. Keep all app changes on `feat/sync-preview-v18-20-ios`; never modify or merge app/main without explicit approval.
+
+
+## Native iOS parity checkpoint — 2026-11-20 06:26 UTC, Autonomie / Spațiu / safe-pace and backup audit
+
+**Status:** Source-level formula and WEB-state preservation audit completed. No financial formula or model was changed. The next formula implementation is **blocked pending explicit approval of the calculation contract** required by AGENTS.md and DEVELOPMENT_WORKFLOW.md. Native Xcode build, XCTest, Simulator and visual comparison remain unverified.
+
+- Startup preview main HEAD: `b3710801fa78fb3c3e32aae076e20f431cb29620` (finite audit lease claimed; handoff will be released after this checkpoint).
+- App feature HEAD after audit documentation commit: `91d09d3859d84205e219bdfc14bb511369c36796` — [docs-only parity audit](https://github.com/nikopol000/financial-autonomy-app/commit/91d09d3859d84205e219bdfc14bb511369c36796), updating `NativeiOS/PARITY_CHECKLIST.md`.
+- App stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature comparison: **401 ahead / 0 behind**. No source-main change or merge.
+- Latest app feature commit message: `docs(ios): audit autonomy space and backup parity gaps`. Latest app stable-main commit remains `test: reconcile unexplained credit line balance update`.
+- Reference: archived WEB v18.20 bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2`; current active preview is WEB 18.74, so all comparisons in this checkpoint are against the archived v18.20 target.
+
+### Formula reconciliation
+
+- Confirmed structural matches: `WebDashboardSpaceEngine` mirrors WEB module 209's owned-money / remaining-budget Space expression; `WebDailyPaceEngine.dailyBudget` mirrors module 221's included-Primary per-window daily allowance; `WebDailyPaceEngine.coverage` mirrors module 220's next-income horizon and floor safe-daily calculation; `WebAutonomyEngine` mirrors module 223's configured monthly-cost components, prorated daily budget, remainder distribution, exposed inflation and first-uncovered-day stop.
+- Confirmed parity blockers: current-month `paidMonths` is preserved by the importer but ignored by both native obligation engines; daily Coverage/Spațiu does not suppress exhausted finite-installment debts as WEB module 210 does; native Autonomie has only partial installment handling and omits the WEB paid-month marker; debt `closedAt` is used by WEB module 210 but is absent from `WebImportedDebt` and rejected by the strict native parser. Refinance suppression also needs a dedicated cross-platform fixture. An additional unknown-fixed-date scope difference remains unclassified pending a representative fixture.
+- Example for the paid-month contract: with 50,000 minor units of owned cash, current-month obligations of 1,500 + 10,000 + 500 all marked paid (no matching operations), and a six-day horizon, WEB's remaining obligations are 0 and safe pace is 8,333 minor/day; native currently retains 12,000 minor of obligations and computes 6,333 minor/day. Space differs by the same 12,000 minor before the remaining-budget reservation.
+- No formula was changed. The exact proposed contract and source references are recorded in app commit `91d09d3859d84205e219bdfc14bb511369c36796`, `NativeiOS/PARITY_CHECKLIST.md`, Build19.
+
+### WEB import / encrypted backup audit
+
+- Supported v4/RON state fields are mapped into `WebImportMetadata`, native snapshot fields, schedule and loan books; unknown envelope/state/nested keys fail closed instead of being silently dropped.
+- Existing source tests cover historical plans, templates, budget windows, contribution, projection, names, reviews and paid-month metadata through encrypted native backup/restore. They were inspected but **not executed** in this run.
+- `closedAt` is a concrete unsupported WEB debt field: WEB v18.20 uses it to suppress obligations, but the native parser rejects it as unsupported. The native `FAiOSBK1` portable backup is a separate local format, not a WEB JSON export; no reverse WEB export exists.
+- No real user backup was opened. No actual Files-provider roundtrip was performed.
+
+### Native iOS CI and verification boundary
+
+- Exact docs commit `91d09d3859d84205e219bdfc14bb511369c36796`: combined status is empty and the available commit-workflow lookup returns no runs.
+- Last code-bearing HEAD `26b65fa1cef0489d28c93e730da757112f881ce8`: Native iOS CI run [44680247030](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44680247030) is FAILURE before runner allocation. Job `136101633516` has `runner_id=0`, no steps, no logs (log endpoint 404 `BlobNotFound`) and no artifacts; combined status is empty. No retry was made.
+- No XcodeGen, xcodebuild, XCTest, Simulator, document-picker, screenshot or visual comparison was run in this audit. Source inspection is not native build/test evidence.
+
+### Exact next action
+
+1. Obtain explicit approval of the proposed v18.20 obligation contract before changing financial formulas: current-month paid-month suppression; finite installment-count and current-month payment suppression; `closedAt` preservation/suppression; and refinance settlement suppression. Preserve future-month schedules and do not add future income or available credit to owned cash.
+2. While that approval is absent, continue a non-financial audit of remaining WEB v18.20 import fields and native backup restore/legacy Codable compatibility; do not weaken fail-closed validation or claim lossless import for unsupported fields.
+3. Check exact-HEAD Native iOS CI/runner visibility without rerunning the recorded zero-runner failure. At the first usable macOS runner, run XcodeGen, Simulator build, full unit/UI suite and inspect the exact .xcresult; then continue populated-data backup/restore and screen-by-screen Light/Dark visual validation.
+4. No 100% parity claim until the approved formulas, all WEB data, build/tests and visual differences are validated.
+
+Privacy invariants unchanged: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Work only on `financial-autonomy-app:feat/sync-preview-v18-20-ios`; never modify or merge app/main without explicit approval.
