@@ -403,4 +403,6 @@ Preview main HEAD before final handoff update: `9af023e8925904c2b48a6e3c5a550639
 - Exact CI run `44726401611` for the new HEAD failed with no job steps, log endpoint 404 BlobNotFound, no artifacts and no combined status contexts. No compiler/test diagnostics; do not retry this same pre-step failure.
 - No app/main changes, financial formula changes, Models/LedgerStore rewrite, backend/account/bank sync or telemetry. Available credit is not owned money.
 
+- Preview checkpoint commits: `PROJECT_STATE.md` `cddfd8aa94ef91c089549b5c86362b7dfb5cc8da`; `IMPLEMENTATION_QUEUE.md` `9af023e8925904c2b48a6e3c5a55063906f28a9b`. Handoff release checkpoint at the previous preview HEAD: `f763bae465f9ecdefd6d03e5b554a1a3a3fb2be4`.
+
 **Exact next action:** continue the non-financial WEB v18.20 lossless import/export audit across remaining optional top-level and nested fields, including older encrypted native snapshot Codable compatibility; add only evidence-backed fixtures. At the first macOS runner that actually executes steps, run XcodeGen, Simulator build, full unit/UI tests and inspect .xcresult/screenshots. Financial formulas remain gated on explicit approval of the recorded obligation contract. No 100% parity claim.
