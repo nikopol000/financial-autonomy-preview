@@ -735,3 +735,25 @@ Checkpoint documentation was committed on preview main in e8323d6cb33f7810c70b9b
 - Privacy/branch invariants preserved: local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money; no app/main modification or merge.
 
 **Exact next action:** continue the remaining non-financial lossless import/export audit: inspect optional top-level and nested WEB v18.20 fields and compatibility of older encrypted native snapshots with the expanded optional metadata; add focused fixtures only for proven mapping/retention behavior. At the first macOS runner with actual steps, run XcodeGen, Simulator build, complete unit/UI tests and inspect .xcresult. Do not change financial formulas without explicit approval of the recorded obligation contract. No 100% parity claim.
+
+
+## Native iOS parity — 2026-11-20 12:24 UTC — pre-build55 native snapshot compatibility
+
+**Completed on `financial-autonomy-app:feat/sync-preview-v18-20-ios` only.**
+
+- Startup app feature HEAD: `91c0b9d288ae192495bc772246991d3e03a8b96e`; final app feature HEAD: `af68a4f86d6a98b893850c0f1ee3c369979230f6`. Stable app `main`: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged. Feature comparison: **411 ahead / 0 behind**.
+- Root cause confirmed from the build55 checkpoint: `paidMonths` was added to existing persisted `ScheduleBook` and `LoanBook` types. Both properties are non-optional dictionaries with source defaults, but synthesized Codable still requires the key. A pre-build55 encrypted native snapshot containing either book without `paidMonths` therefore failed JSON decoding before restore.
+- App commits:
+  - `99db74ad1f17f527a1fcbb3a657b750193b71c6a` — `ScheduleBook` custom Codable compatibility: absent `paidMonths` defaults to `[:]`; existing `items` remains required; present values and optional fixed-expense metadata are retained.
+  - `a23896f5045b2aa5061923dcc83b9c4c1e9a3ea2` — equivalent `LoanBook` compatibility: absent `paidMonths` defaults to `[:]`; existing `loans` remains required; principal observations/explanations and audit fields remain optional and preserved.
+  - `af68a4f86d6a98b893850c0f1ee3c369979230f6` — two legacy snapshot regression tests.
+- A present `paidMonths: null` or malformed value remains rejected; only a genuinely absent key gets the historical empty-declaration default. Current non-empty paid-month dictionaries still round-trip unchanged. No ledger replay or balance mutation is introduced.
+- Changed only `NativeiOS/ScheduledItems.swift`, `NativeiOS/LoanLedger.swift` and `NativeiOS/Tests/LegacyOperationDecodingTests.swift`. No wholesale Models/LedgerStore rewrite, no financial formula change, no backup envelope change and no app/main write.
+- Executed on Linux Swift 6.2.1: isolated Codable runtime harness **PASS** for missing-key defaults, populated items/loans preservation, present paid-month preservation, encode/decode round-trip and explicit-null rejection; isolated XCTest-source type-check harness **PASS** for the new fixture/initializer calls. These are focused harnesses, not the app XCTest suite.
+- Environment check: Swift 6.2.1 available; `xcodebuild` and `xcodegen` are not installed. XcodeGen, iOS Simulator build, full XCTest/UI, CryptoKit runtime through the app target and screenshots were **not executed**.
+- Exact final-HEAD combined status is empty; the connected workflow-run lookup returns no PR-triggered runs (the workflow itself is push-triggered). No exact push-run ID or runner result is exposed for `af68a4f`; do not infer CI success or failure. The parent test-only HEAD `91c0b9d` had run [44726401611](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44726401611), completed before any step: job `136254813953`, empty steps, no artifacts and log retrieval 404 `BlobNotFound`. That pre-step failure was not rerun.
+- Native candidate remains WEB v18.20 / build78 in `xcodegen.yml`; no version/build increment in this compatibility-only batch.
+
+**Exact next action:** continue the non-financial Codable audit of remaining nested persisted types for fields added after their original snapshot format, using build/commit evidence rather than guessing. Start with goal/plan and debt/schedule nested models; add a backward-compatibility decoder only where an older persisted shape is proven to omit a later-added non-optional key. Keep explicit-null/malformed values fail-closed. At the first observable macOS runner, execute XcodeGen, Simulator build, full unit/UI suite and inspect the exact `.xcresult`/screenshots. Continue populated encrypted restore and screen-by-screen Light/Dark comparison.
+
+Privacy invariants unchanged: local-only; no backend, mandatory account, bank synchronization or telemetry. Available credit is not owned money. Financial formula changes remain blocked pending explicit approval of the v18.20 obligation contract. No 100% parity claim.
