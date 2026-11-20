@@ -881,3 +881,35 @@ No production formula change, no \`Models.swift\` or \`LedgerStore.swift\` rewri
 - Local-only architecture and available-credit-is-not-owned-money invariant remain unchanged. No app/main write or merge.
 
 **Exact next action:** continue the non-financial nested Codable/import audit with explicit absent-versus-empty coverage for `WebImportedMonthPlanBudget.additionalWindows` and `WebImportedDebt.schedule`, including encrypted portable restore; preserve strict rejection of unknown keys and explicit-null/malformed values. At the first observable macOS runner, run XcodeGen, Simulator build, full unit/UI suite and inspect the exact `.xcresult`; then continue populated restore and screen-by-screen Light/Dark comparison. Financial obligation changes (`paidMonths`, finite installments, `closedAt`, refinance settlement) remain blocked pending explicit approval of the recorded v18.20 calculation contract. No 100% parity claim.
+
+
+## Native iOS parity checkpoint — 2026-11-20 17:10 UTC — optional collection presence/null preservation
+
+**App feature final HEAD:** `9ec40a0e66a79dd0348101992f46de9ac71bf0f5` — **422 ahead / 0 behind** app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`. Stable app `main` remains unchanged. Preview main at lease claim: `13f5a11016aa59a5f02fbb79cb1c64492caaf610`; finite handoff lease was claimed in preview commit `5ce9ada03c9976145d74111e8f6891209691cd70`.
+
+### Implemented
+- App commit [`9ec40a0e66a79dd0348101992f46de9ac71bf0f5`](https://github.com/nikopol000/financial-autonomy-app/commit/9ec40a0e66a79dd0348101992f46de9ac71bf0f5) adds explicit Codable decoding for `WebImportedDebt.schedule` and `WebImportedMonthPlanBudget.additionalWindows`.
+- A missing key remains `nil`; an explicitly empty array remains `[]`; an explicit JSON `null` or malformed array now fails closed in native snapshot decoding. Encoding remains synthesized, so nil optionals are omitted and empty arrays are emitted.
+- Added `testAbsentAndEmptyImportedCollectionsSurviveEncryptedRestore`: imports two loans (schedule absent vs empty) and two budget records (additionalWindows absent vs empty), then verifies all four distinctions survive `PortableBackup.seal/open`.
+- Added `testNullAndMalformedOptionalCollectionsRemainRejected`: exercises null, string and wrong-element-type arrays through WEB import, plus explicit-null rejection through native Codable decoding.
+- The existing populated budget test already covered absent vs empty `additionalWindows` after backup; this stage adds the missing import-level debt-schedule distinction and locks both array types against explicit-null collapse.
+- Only `NativeiOS/Models.swift` and `NativeiOS/Tests/WebBackupV18_20Tests.swift` changed. No wholesale model/store rewrite, financial formula, balance, transaction, backup envelope, privacy architecture or app/main change.
+
+### Verification actually executed
+- Swift 6.2.1 standalone Codable runtime harness: **12 assertions PASS** for absent/empty preservation, round-trip encoding, and rejection of explicit null/malformed arrays. The harness used the exact custom decoder logic and matching model fields, not the app target.
+- Swift 6.2.1 `swiftc -parse` for both new XCTest method bodies: **PASS**.
+- Isolated `swiftc -typecheck` harness with matching model/API stubs for both new XCTest method bodies: **PASS**. This is not the FinancialAutonomy XCTest target.
+- Not executed: XcodeGen, `xcodebuild`, app XCTest, CryptoKit `PortableBackup` runtime through the app target, Simulator, UI tests, `.xcresult`, Files picker or screenshots. Environment is Linux with Swift 6.2.1 and no Xcode/XcodeGen.
+
+### Exact-HEAD Native iOS CI
+- Push run [44780554682](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44780554682) targets the exact final HEAD `9ec40a0e66a79dd0348101992f46de9ac71bf0f5`; result **FAILURE before runner allocation**.
+- Job `136441794152`: requested label `macos-15`, `runner_id=0`, empty runner name, completed in ~2 seconds, `steps=[]`; artifacts: zero. Log download returned 404 `BlobNotFound`. Combined commit status is pending with zero status contexts.
+- This is the same pre-runner infrastructure failure class, not a compiler or XCTest diagnostic. Do not retry this run. No build/test success is claimed.
+
+### Exact next action
+1. Continue the remaining non-financial Codable/import audit for other optional collection fields (especially nested month-plan/catalog/projection arrays), comparing WEB v18.20 raw presence/null rules with native JSONDecoder behavior; add only proven fail-closed/lossless regressions.
+2. Recheck current push-run/runner observability for the then-current feature HEAD without retrying zero-runner failures.
+3. At the first macOS runner that executes steps, run XcodeGen, Simulator build, all unit/UI tests and inspect the exact `.xcresult`; then exercise Files/document-picker and populated Light/Dark screen comparisons against archived WEB v18.20.
+4. Keep financial obligation changes (`paidMonths`, finite installments, `closedAt`, refinance settlement) gated on explicit approval of the recorded v18.20 calculation contract.
+
+Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. No 100% parity claim.

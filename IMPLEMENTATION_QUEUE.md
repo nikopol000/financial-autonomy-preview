@@ -4490,3 +4490,19 @@ No 100% parity claim.
 - Previous observable parent run `44762409132` for `d382e2e` failed before runner allocation (runner ID 0, zero steps, no artifacts, log 404 BlobNotFound). Do not repeat that same pre-runner failure.
 
 **FIRST NEXT ACTION:** add explicit absent-versus-empty regression coverage for `WebImportedMonthPlanBudget.additionalWindows` and `WebImportedDebt.schedule`, including PortableBackup seal/open; preserve strict rejection of unknown keys and explicit null/malformed values. At the first macOS runner with actual steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact `.xcresult`; continue populated-data restore and screen-by-screen Light/Dark comparison. Financial formula changes remain approval-gated by the v18.20 obligation contract. No 100% parity claim.
+
+
+## 2026-11-20 17:10 UTC — absent/empty/null optional collection compatibility
+
+**Completed on `financial-autonomy-app:feat/sync-preview-v18-20-ios` only:** app commit `9ec40a0e66a79dd0348101992f46de9ac71bf0f5` (422 ahead / 0 behind stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`).
+
+- `WebImportedDebt.schedule` and `WebImportedMonthPlanBudget.additionalWindows` now use presence-aware custom Codable decoders. Missing key => nil; present empty array => []; explicit null/wrong type => decoding error. Encoders remain synthesized and preserve omission vs empty-array output.
+- Added import + encrypted restore coverage for debt schedule absent vs empty and budget additionalWindows absent vs empty.
+- Added WEB importer rejection coverage for null/string/wrong-element arrays and native Codable explicit-null rejection for both properties.
+- Only `NativeiOS/Models.swift` and `NativeiOS/Tests/WebBackupV18_20Tests.swift` changed. No formulas, balances, transaction model, LedgerStore, backup envelope, privacy architecture or app/main changes.
+
+**Checks actually executed:** Swift 6.2.1 standalone Codable harness 12/12 PASS; `swiftc -parse` of both test methods PASS; isolated XCTest method type-check with matching model/API stubs PASS. Not executed: XcodeGen, xcodebuild, app XCTest, CryptoKit through the app target, Simulator, UI, Files picker, .xcresult or screenshots.
+
+**Exact Native iOS CI:** run [44780554682](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44780554682) for exact HEAD `9ec40a0e66a79dd0348101992f46de9ac71bf0f5` failed before runner allocation. Job `136441794152`: runner_id 0, requested `macos-15`, empty steps, no artifacts; logs 404 `BlobNotFound`; combined status pending with zero contexts. Do not retry this pre-runner failure; it has no compiler/test diagnostics.
+
+**FIRST NEXT:** audit other optional collection fields in nested month-plan/catalog/projection metadata for the same absent/null distinction between WEB v18.20 validation and native Codable. Add only evidence-backed lossless/fail-closed tests. Continue exact-HEAD CI observability without rerunning zero-runner failures; at first macOS runner with actual steps run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult. Financial formula changes remain approval-gated. No 100% parity claim.
