@@ -4288,3 +4288,27 @@ Privacy/release gates: local-only; no backend, mandatory account, bank sync or t
 4. Continue populated-data backup/restore, accessibility and screen-by-screen visual parity. Do not declare 100% until all evidence gates pass.
 
 Privacy: local-only, no backend/account/bank sync/telemetry; available credit is not owned money; app/main must remain untouched.
+
+
+## Native iOS — 2026-11-20 06:27 UTC — Autonomie / Spațiu / safe pace + backup audit
+
+**Completed (source audit only):**
+- App feature documentation commit: `91d09d3859d84205e219bdfc14bb511369c36796` (`NativeiOS/PARITY_CHECKLIST.md`, Build19). App feature HEAD is `91d09d3859d84205e219bdfc14bb511369c36796`; app/main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature is **401 ahead / 0 behind**.
+- Reconciled archived WEB v18.20 modules 209, 210, 220, 221 and 223 with native WebDashboardSpaceEngine, WebDailyPaceEngine and WebAutonomyEngine. Space, planned daily pace, safe-daily horizon and the base Autonomie simulation are structurally aligned; numeric parity is not proven by native tests.
+- Confirmed gaps: native obligation engines ignore current-month `paidMonths`; daily Coverage/Spațiu do not apply finite installment-count suppression; Autonomie's installment logic omits the WEB paid-month marker; `closedAt` is used by WEB but absent from native debt model/parser and causes fail-closed import rejection; refinance suppression needs a dedicated fixture. Unknown fixed-date scope is still pending a fixture.
+- Audited WEB v4/RON import and encrypted native backup mapping. Known metadata and audit/catalog/month-plan/projection fields are retained; unknown keys fail closed. Native `FAiOSBK1` is not a WEB JSON export. `closedAt` is a confirmed unsupported WEB debt field.
+- No financial formula, model, balance, transaction, backup schema or UI code changed. No real user backup was opened.
+
+**Approval gate — BLOCKED:** AGENTS.md and DEVELOPMENT_WORKFLOW.md require explicit user approval before changing financial formulas/meaning. The proposed v18.20 contract is recorded in `NativeiOS/PARITY_CHECKLIST.md` Build19 and PROJECT_STATE.md: current-month paid-month suppression; finite installment-count/current-month payment suppression; closedAt preservation/suppression; refinance settlement suppression. Do not implement these formula changes until approved.
+
+**CI / verification:**
+- Exact app docs commit `91d09d3859d84205e219bdfc14bb511369c36796`: combined status empty; available commit-workflow lookup returns no runs.
+- Last code-bearing commit `26b65fa1cef0489d28c93e730da757112f881ce8`: Native iOS CI run [44680247030](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44680247030) FAILURE before runner allocation; job `136101633516`, `runner_id=0`, zero steps, log endpoint 404 `BlobNotFound`, no artifacts, combined status empty. No retry.
+- No XcodeGen, xcodebuild, XCTest, Simulator, Files-provider, screenshot or visual checks executed in this run.
+
+**FIRST NEXT:**
+1. Without formula approval, continue a non-financial audit of remaining WEB v18.20 import fields and native backup restore/legacy Codable compatibility; keep strict fail-closed handling for unsupported data.
+2. If explicit approval arrives, add reference fixtures and tests for `paidMonths`, finite installments, `closedAt` and refinance suppression before changing the engines.
+3. Keep checking exact-HEAD CI/runner visibility without retrying the recorded pre-runner failure. At the first usable macOS runner, run XcodeGen, Simulator build and the complete unit/UI suite; inspect .xcresult, then perform populated-data backup/restore and screen-by-screen Light/Dark visual comparison.
+
+Privacy invariants: local-only, no backend/account/bank sync/telemetry; available credit is not owned money; never modify or merge app/main; no 100% parity claim until all formula, lossless-data, build/test and visual gates pass.
