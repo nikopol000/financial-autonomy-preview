@@ -2,13 +2,13 @@
 
 Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T18:07:00Z
+Updated UTC: 2026-11-20T18:16:54Z
 Lease expires UTC: none
-Released UTC: 2026-11-20T18:07:00Z
+Released UTC: 2026-11-20T18:16:54Z
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
 Verified app feature HEAD: `0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987`
 Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
-Verified preview main before handoff commit: `a5281c0824bf5ed4153f9f95767c2c7ed2f7929a`
+Verified preview main before handoff commit: `014f688a5152f9faa07f33aeedb0875e4d9e7f78`
 Feature comparison: **424 ahead / 0 behind**; app/main remains unchanged.
 PROJECT_STATE checkpoint commit: `986f00ed89c69786d78d62d5404fdc3e9c99f282`.
 IMPLEMENTATION_QUEUE checkpoint commit: `a5281c0824bf5ed4153f9f95767c2c7ed2f7929a`.
@@ -577,14 +577,15 @@ IMPLEMENTATION_QUEUE checkpoint commit: `ce5deed3d9a36d77cf2b293b5759716fb628231
 4. Keep financial obligation formula changes approval-gated; no 100% parity claim.
 
 
-## Active run lease — nested optional collection / projection validation audit (2026-11-20 18:08 UTC)
-- Status: IN_PROGRESS
+## Completed run lease — nested optional collection / projection validation audit (2026-11-20 18:16 UTC)
+- Status: RELEASED
+- Released UTC: 2026-11-20T18:16:54Z
 - Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`.
-- Verified live app feature HEAD: `9ec40a0e66a79dd0348101992f46de9ac71bf0f5`; stable app main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature compare 422 ahead / 0 behind.
+- Verified live app feature HEAD: `0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987`; stable app main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature compare 424 ahead / 0 behind.
 - Startup preview main HEAD: `b21e581cce467a8fde3dfc5b36fe958bb3d77c73`; startup handoff was READY with no active lease.
-- First unfinished action: audit nested month-plan/catalog/projection arrays. Specifically preserve legacy absence vs empty for `WebImportedMonthPlan.budgets`, reject explicit null/malformed values, and add regression coverage that matches archived WEB v18.20 required arrays (`monthPlans.budgets/expenses/debtPayments`, `projection.exposed/payoffs`, and recurring history). No financial formula changes.
-- Exact current feature combined status has zero contexts; connector workflow-run lookup is PR-only and returns no push run. Last observable exact push run for parent `9ec40a0` is 44780554682, which failed before runner allocation (runner_id 0, steps empty, no artifacts, log 404); do not retry.
-- Lease expires 2026-11-20T18:45:00Z. No app/main modification or merge. Preserve local-only data and credit-is-not-owned-money invariant.
+- Completed: presence-aware legacy/empty/null handling for `WebImportedMonthPlan.budgets`; regression coverage for required month-plan/projection/recurring arrays. App commits `e6cad8c44f140436fe864c8afe99c2f6c8b77eaf` and `0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987`.
+- Exact current feature combined status has zero contexts; connector workflow-run lookup is PR-only and returns no push run. Parent run 44780554682 failed before runner allocation (runner_id 0, steps empty, no artifacts, log 404); not retried.
+- Lease released. No app/main modification or merge. Preserve local-only data and credit-is-not-owned-money invariant.
 
 
 ## Completed run — nested month-plan/catalog/projection array integrity (2026-11-20 18:07 UTC)
