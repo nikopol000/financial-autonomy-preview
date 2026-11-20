@@ -4312,3 +4312,15 @@ Privacy: local-only, no backend/account/bank sync/telemetry; available credit is
 3. Keep checking exact-HEAD CI/runner visibility without retrying the recorded pre-runner failure. At the first usable macOS runner, run XcodeGen, Simulator build and the complete unit/UI suite; inspect .xcresult, then perform populated-data backup/restore and screen-by-screen Light/Dark visual comparison.
 
 Privacy invariants: local-only, no backend/account/bank sync/telemetry; available credit is not owned money; never modify or merge app/main; no 100% parity claim until all formula, lossless-data, build/test and visual gates pass.
+
+
+## Native iOS — 2026-11-20 06:32 UTC — WEB backup year-zero date boundary
+
+**Completed (focused compatibility probe and documentation only):**
+- App feature commit `7208fe0dc31814b18cec94813bac0bb450108766` records the additional boundary in `NativeiOS/PARITY_CHECKLIST.md`. App feature is 402 ahead / 0 behind; app/main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- WEB v18.20 module 204 / Node 22.16.0 accepts and round-trips `0000-01-01` and `0000-02-29`.
+- Native `WebBackupV18_20.validDay` uses strict Foundation DateFormatter. Swift 6.2.1 / Foundation 6.2.1 Linux probe rejected both year-zero dates and accepted `0001-01-01`. This is likely a valid-WEB-backup import rejection; iOS Foundation must still be tested.
+- The CSV-only compatibility helper was not extended. No shared calendar, backup semantics, formulas, models, balances or transactions changed.
+- This is a focused Foundation/Node probe, not Xcode build/XCTest.
+
+**Next:** continue the non-financial import/backup compatibility review; do not broaden year-zero handling beyond CSV without explicit scope approval. Financial obligation changes remain blocked pending explicit approval of the Build19 v18.20 calculation contract. Native XcodeGen/build/full XCTest/UI and populated backup/visual verification remain open.
