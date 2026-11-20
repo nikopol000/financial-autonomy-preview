@@ -4596,3 +4596,31 @@ No 100% parity claim. Local-only/no-backend/no-bank-sync/no-telemetry and credit
 - XcodeGen, xcodebuild, app XCTest, actual Files provider, Simulator/UI and screenshots remain unexecuted. No formula or app/main changes.
 
 **FIRST NEXT:** add a restore transactionality regression proving denied/oversized/malformed file input leaves the entire current ledger unchanged; at the first macOS runner with steps, run XcodeGen, Simulator build, full unit/UI tests, inspect xcresult, then exercise fileExporter/fileImporter and populated Light/Dark screen comparisons. Financial obligation changes remain approval-gated. No 100% parity claim.
+
+
+## 2026-11-20 21:12 UTC — selected-backup restore transactionality (COMPLETED)
+
+**App feature branch:** `financial-autonomy-app:feat/sync-preview-v18-20-ios` only. Final HEAD `2766fb956d6d63ef940bfc9988f901a1591eaffb`; **431 ahead / 0 behind** stable app `main` `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (unchanged).
+
+### App commits
+- `678b49b6e82cd4718f8ce2be2386f5fa984881da`: isolated non-mutating `BackupRestorePreparation.prepare` (security-scoped bounded read, native backup open, WEB v18.20 fallback).
+- `7d4c7ae36bbfacb1508b80ed8893afe60ab5119b`: BackupView uses the helper and still defers store mutation to the explicit destructive confirmation.
+- `a6326e8c15f5f6c95c5c198ab08707519201342c`: denied-scope, oversized and malformed-input transactionality regression; compares the complete encoded live and persisted LedgerSnapshot.
+- `2766fb956d6d63ef940bfc9988f901a1591eaffb`: wrong-password encrypted input regression and scope-release assertion.
+
+### Checks actually run
+- Swift 6.2.1 parser checks for helper, BackupView integration shape and XCTest source: PASS.
+- Isolated XCTest type-check using matching model/store API stubs: PASS (not the app target).
+- Isolated helper runtime harness: 5/5 scenarios PASS for denied access, oversized input, malformed input, wrong password and prepare-without-apply until explicit confirmation. Crypto/store are stubs; not app XCTest/CryptoKit.
+- Not run: XcodeGen, xcodebuild, app XCTest, real Files provider, Simulator/UI, .xcresult or screenshots.
+
+### Exact Native iOS CI
+- Final HEAD run [44818062507](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44818062507): FAILURE before runner allocation. Job `136571449171`, `runner_id=0`, `steps=[]`, no runner name, log 404 `BlobNotFound`, zero artifacts and zero combined status contexts. Not retried; no compiler/test diagnostics.
+- The push-triggered workflow remains configured for the feature branch and NativeiOS Swift paths.
+
+**FIRST NEXT**
+1. At the first macOS runner with actual steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact `.xcresult`.
+2. Exercise real `fileImporter`/`fileExporter` on Simulator and compare populated Light/Dark screens against archived WEB v18.20.
+3. While CI cannot allocate a runner, continue an independent read-only WEB v18.20 parity audit and record concrete non-financial gaps; do not make financial formula changes (`paidMonths`, finite installments, `closedAt`, refinance settlement) without explicit approval of the Build19 calculation contract.
+
+No 100% parity claim. Preserve local-only storage, no backend/mandatory account/bank sync/telemetry, and credit-is-not-owned-money invariant.
