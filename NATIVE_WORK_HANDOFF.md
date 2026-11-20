@@ -348,3 +348,17 @@ Privacy invariants: local-only; no backend, mandatory account, bank sync or tele
 3. At the first actual macOS runner allocation, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/artifacts; then exercise a real CSV document picker and compare History/CSV/Subscriptions Light/Dark screenshots.
 
 Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main without explicit approval. Do not declare 100% parity until all functional, financial, lossless-data, build/test and visual gates pass.
+
+## Active run lease — WEB v18.20 optional-key presence/null parity
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T10:05:00Z
+- Lease expires UTC: 2026-11-20T10:50:00Z
+- Preview main HEAD at claim: 51265bfe8bd2ba2684cdab1fe775a7314a6b5d00
+- App feature HEAD verified live: 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f
+- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- Feature comparison at claim: 406 ahead / 0 behind.
+- First unfinished action: audit archived WEB v18.20 v2/v3 optional-key semantics for absent, null and falsey values across appearance, dashboardLayout, projection, paidMonths, names, nameChanges, rolesEffectiveFrom, balanceChecks and checkAudit. Preserve fail-closed validation; do not broaden financial semantics.
+- Source evidence: archived WEB module 204 validates before orderedState/upgradeNames. Missing names/nameChanges/rolesEffectiveFrom/balanceChecks/checkAudit are defaulted during normalization; explicit null is accepted only for names (nullish names fallback), while null nameChanges/rolesEffectiveFrom/balanceChecks/checkAudit and null appearance/dashboardLayout/projection/paidMonths are rejected. False, zero and empty-string values are not treated as missing.
+- Exact current Native iOS CI for app HEAD 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f: run 44709829628 FAILURE; job 136198418312 reports completed failure with null steps/logs, no artifacts; combined status has zero contexts. Do not rerun this pre-runner failure.
+- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. Do not modify/merge app/main. Formula changes remain blocked pending explicit approval. Local-only privacy and credit-is-not-owned-money invariants remain mandatory.
