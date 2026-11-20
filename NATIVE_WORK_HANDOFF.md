@@ -458,3 +458,26 @@ Preview main before this handoff release commit: `e058816a9f9a01bf6868bab899a93e
 - App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 - First unfinished action: audit historical compatibility of NativeGoal/NativeGoalPlan, DebtScheduleDefinition, ScheduledItem/FixedExpenseMonthPlan and nested loan observation/audit types; add a focused populated encrypted-backup regression only if existing tests do not cover a persisted field.
 - Keep app changes exclusively on feat/sync-preview-v18-20-ios; no app/main writes or merge. Do not alter financial formulas or Models/LedgerStore wholesale. Preserve local-only privacy and credit-is-not-owned-money invariants.
+
+
+## Completed run — nested persisted Codable audit (2026-11-20 13:12 UTC)
+
+Status: READY_FOR_NEXT_RUN
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-20T13:12:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T13:12:00Z
+Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
+Startup app feature HEAD: `af68a4f86d6a98b893850c0f1ee3c369979230f6`
+Final app feature HEAD: `3cf96feabf118f4811053ee995af09b743d709cf`
+App stable `main`: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (unchanged)
+Feature comparison: **412 ahead / 0 behind**.
+Preview main at lease claim: `f4c4343ffe09be1f449641ac9578fc7e816f920e`; lease commit: `63d6f220673535ad85ba1d32eef7336c8cc44a3a`.
+Preview PROJECT_STATE + IMPLEMENTATION_QUEUE checkpoint commit: `5f849037b9db64e5dbc8dc7871e9577be56e271d`.
+
+- Audited historical Codable evolution of NativeGoal/Plan/PlanStep, DebtScheduleDefinition/DebtScheduledPayment, ScheduledItem/ScheduleBook, LoanBook, and nested loan observation/explanation/audit types. No unsafe missing-key defaults were added: the required goal/debt fields existed at first persisted introduction; later schedule/loan additions were optional or already handled by custom decoders. Build55 `paidMonths` compatibility remains covered by the existing absent-only decoders.
+- App commit `3cf96feabf118f4811053ee995af09b743d709cf` adds a populated two-row custom debt schedule encrypted-backup regression source test. Swift 6.2.1 isolated Codable harness PASS; `swiftc -parse` of the XCTest method PASS. The app XCTest itself was NOT executed.
+- Exact-HEAD CI run `44741906262` for `3cf96fe`: FAILURE before any step; job `136307396835`, steps endpoint empty, logs unavailable, artifacts empty, combined status has no contexts. No retry. `xcodebuild` and `xcodegen` are not installed in the available Linux environment.
+- No production model/formula change, no Models/LedgerStore rewrite, no app/main modification or merge. Local-only privacy and available-credit-is-not-owned-money invariants remain intact.
+
+**Exact next action:** audit remaining persisted `Models.swift` types — MoneyAccount, Operation, BudgetSettings, WebImportMetadata and nested WEB imported debt/month-plan/recurring records — against their introduction commits. Add a populated legacy/encrypted fixture only if history proves a later non-optional key was absent in an older persisted shape. At the first macOS runner that executes steps, run XcodeGen, Simulator build, all unit/UI tests and inspect the exact .xcresult; continue populated restore and screen-by-screen Light/Dark comparison. Financial formula changes remain gated on explicit approval. No 100% parity claim.
