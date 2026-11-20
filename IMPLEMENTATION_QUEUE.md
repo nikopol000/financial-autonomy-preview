@@ -4267,3 +4267,24 @@ Privacy invariants: local-only data; no backend, mandatory account, bank synchro
 3. Then exercise the actual .csv document picker and compare CSV/Subscriptions Light/Dark screens to archived WEB v18.20.
 
 Privacy/release gates: local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money; never modify/merge app/main; do not declare 100% parity before all evidence gates pass.
+
+
+## 2026-11-20 05:22 UTC — CSV year-zero/date/amount parity and local recurring backup coverage
+
+**Completed on app feature branch only**
+- Final app feature HEAD: `26b65fa1cef0489d28c93e730da757112f881ce8`; app/main unchanged at `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature is 399 ahead / 0 behind.
+- CSV date validation and detection now use a CSV-scoped proleptic-Gregorian helper matching WEB v18.20's ISO year-zero acceptance and day intervals. CSV classification reproduces Date.UTC's 0...99 → 1900...1999 remapping, including 0000-02-29 normalization. Shared RecurrenceCalendar and SubscriptionEngine semantics outside CSV were not changed.
+- Native amount parser was compared to WEB module 204: whitespace removal, dot/comma grouping, decimal precision, positive amount parsing and 1e12 minor-unit ceiling matched; no production amount change.
+- App commits: implementation `145b70b0e1017640a288ba198d23bb5b5a059e68`; follow-up/coverage `e9711d1fbeaa3f7c59fc66dbdca7a1acbbe976c5`, `5ba466fece3cc32e0d02da59ad1191f5a9dcaf11`, `35f5233e474262740ed3b1bad20255c2ec12a7bc`, `b53dd520c237e445313ac94660b0cbe321f0874a`, `9199d3f2985d9205bec9b606ee00f08899f0cff3`; encrypted backup regression `26b65fa1cef0489d28c93e730da757112f881ce8`.
+- Added 3 CSV XCTest methods and 1 encrypted PortableBackup XCTest for a CSV-classified recurring commitment. They are source additions, NOT executed.
+- Isolated Swift 6.2.1 helper harness 14/14 date assertions PASS; isolated Swift amount parser 13/13 PASS; Node v22.16.0 WEB reference 25/25 PASS. These are focused harnesses, not Xcode XCTest or app build.
+- Exact CI for final HEAD: run [44680247030](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44680247030), FAILURE before runner allocation; job 136101633516 has runner_id=0 and steps=[]; no logs/artifacts, combined status empty. Fresh predecessor runs 44679350291 and 44680005592 failed identically. No retry. `xcodebuild`/`xcodegen` unavailable on Linux.
+- No Models/LedgerStore, financial formula, balance, transaction, backup schema or app/main change. Native build/full XCTest/UI, Simulator, actual picker, screenshots and visual comparison remain unverified.
+
+**Exact next action**
+1. Check current exact-HEAD CI/runner allocation without rerunning the recorded zero-runner attempts.
+2. If still blocked, audit archived WEB v18.20 Autonomie/Spațiu and daily safe-budget formulas against native engines without changing financial semantics absent an approved contract; continue the lossless web-state/backup adapter review.
+3. On a usable macOS runner, execute XcodeGen, Simulator build and full unit/UI suite; inspect .xcresult/artifacts, then exercise the real CSV picker and compare CSV/Subscriptions Light/Dark.
+4. Continue populated-data backup/restore, accessibility and screen-by-screen visual parity. Do not declare 100% until all evidence gates pass.
+
+Privacy: local-only, no backend/account/bank sync/telemetry; available credit is not owned money; app/main must remain untouched.
