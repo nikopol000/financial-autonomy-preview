@@ -951,3 +951,40 @@ Privacy invariants: local-only; no backend, mandatory account, bank sync or tele
 No financial formulas, balances, operations, `LedgerStore`, backup envelope, privacy architecture or app/main files were changed. Local-only data and the credit-is-not-owned-money invariant remain intact. No 100% parity claim.
 
 **Exact next action:** audit remaining optional collection fields in `WebImportMetadata` and `LedgerSnapshot` for historical absent/null behavior. Use model introduction/encoder history to distinguish valid legacy absence from malformed explicit null before changing any decoder; add only evidence-backed preservation/fail-closed tests. Continue exact-HEAD CI observability without retrying the zero-runner parent. At the first macOS runner with actual steps, run XcodeGen, Simulator build, full unit/UI suite and inspect the exact `.xcresult`; then continue populated backup restore, Files/document-picker and Light/Dark screen comparison. Financial obligation changes remain approval-gated.
+
+
+## Native iOS parity checkpoint — 2026-11-20 19:15 UTC — optional metadata/snapshot collection presence
+
+**Working source:** `nikopol000/financial-autonomy-app:feat/sync-preview-v18-20-ios` only.
+
+- Startup preview main after the finite lease claim: `1cd70048145ac6714e02b13373e0a0178e537f87`.
+- Startup app feature HEAD: `0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987`.
+- Final app feature HEAD: [`c33b05932cdbc395f25cfeb6c86c6135c51e43af`](https://github.com/nikopol000/financial-autonomy-app/commit/c33b05932cdbc395f25cfeb6c86c6135c51e43af), **426 ahead / 0 behind** app stable `main` `a9b30be147abecea45a63bf7dd8d0a3eb3370366`. Stable app `main` remains unchanged.
+
+### Historical encoder/decoder finding
+
+- `PortableBackup.seal` and `EncryptedLocalStore.write` serialize native snapshots with Swift `JSONEncoder`; both restore paths decode with `JSONDecoder`. Synthesized optional encoding omits nil keys, while an explicit empty array/dictionary is serialized as an empty collection.
+- WEB v2/v3 migration normalizes an explicit raw WEB `names: null` to an empty `names` array (existing import regression at `WebBackupV18_20Tests.swift`); it does not create a native metadata null. The native JSONEncoder path therefore provides no historical source for explicit-null optional collection keys.
+- Kept all documented legacy absences valid. Did not add defaults for missing keys and did not change optional object fields (`appearance`, `dashboardLayout`, `scheduleBook`, `loanBook`, `budgetSettings`, `projection`, etc.) or the required core arrays.
+
+### Implemented app commits
+
+- [`4e8be2d5ec0364ac59891443c3f8b87e7fa571c1`](https://github.com/nikopol000/financial-autonomy-app/commit/4e8be2d5ec0364ac59891443c3f8b87e7fa571c1) — custom presence-aware Codable decoding for every optional collection in `WebImportMetadata` and `LedgerSnapshot`: absent => nil; empty collection => preserved; explicit JSON null or wrong type => decoding error. Synthesized encoding remains in place, preserving nil omission and empty collection emission.
+- [`c33b05932cdbc395f25cfeb6c86c6135c51e43af`](https://github.com/nikopol000/financial-autonomy-app/commit/c33b05932cdbc395f25cfeb6c86c6135c51e43af) — regression coverage for 10 metadata arrays, 2 metadata dictionaries, 8 snapshot arrays and 1 snapshot dictionary, plus an encrypted restore fixture containing all optional collections as empty values.
+- Only `NativeiOS/Models.swift` and `NativeiOS/Tests/WebBackupV18_20Tests.swift` changed. No `LedgerStore`, financial formula, balance, transaction, backup envelope, privacy architecture or app/main file changed.
+
+### Verification actually executed
+
+- Swift 6.2.1 Foundation Codable runtime harness with matching model shapes and the exact presence-aware decoder logic: **21/21 optional collection fields** passed absent/empty/null behavior and re-encoding checks. This is an isolated harness, not the FinancialAutonomy target.
+- `swiftc -parse` on the two new XCTest method bodies: **PASS**.
+- `xcodebuild` and `xcodegen` are unavailable on the Linux host. Not executed: XcodeGen generation, iOS Simulator build, app XCTest, CryptoKit `PortableBackup` through the app target, UI tests, Files provider, `.xcresult` or screenshots.
+
+### Exact-HEAD Native iOS CI
+
+- Combined status for exact final HEAD `c33b05932cdbc395f25cfeb6c86c6135c51e43af`: zero status contexts.
+- Connected workflow-run lookup returned no runs; the available wrapper exposes PR-triggered runs, while `.github/workflows/native-ios-ci.yml` is push-triggered for this feature branch and `NativeiOS/**/*.swift`. Exact push-run ID/state is not exposed through this integration. No CI pass or compiler failure is claimed for this HEAD.
+- Earlier run [`44780554682`](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44780554682) for `9ec40a0` failed before runner allocation (`runner_id=0`, no steps/artifacts, log 404); it was not retried.
+
+**Exact next action:** at the first macOS runner that executes steps, run XcodeGen, Simulator build, the complete unit/UI suite and inspect the exact `.xcresult`. While no runner execution is observable, continue the independent populated-snapshot restore and Files/document-picker audit, then screen-by-screen populated Light/Dark comparison against archived WEB v18.20. Keep `paidMonths`, finite installments, `closedAt` and refinance formula changes gated on explicit approval of the Build19 calculation contract.
+
+Privacy invariants remain local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. No 100% parity claim.
