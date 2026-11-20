@@ -805,3 +805,56 @@ Privacy invariants unchanged: local-only; no backend, mandatory account, bank sy
 - Privacy/branch invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. App/main remains unchanged.
 
 **Exact next action:** continue the historical key-evolution audit for `OperationAuditEntry`, `BalanceObservation`, `ReconciliationExplanation`, their audit containers, `LedgerSnapshot` and remaining nested loan/goal records; inspect commit diffs for renamed JSON keys or later required fields and add aliases only when old serialized shapes are proven. Then perform a read-only formula contract comparison of Autonomie, Space and daily-pace engines against archived WEB v18.20; keep any formula change gated on explicit approval. At the first macOS runner that executes steps, run XcodeGen, Simulator build, full unit/UI tests and inspect the exact .xcresult/screenshots. No 100% parity claim.
+
+
+## Native iOS parity checkpoint — 2026-11-20 15:22 UTC — audit graph and obligation comparison
+
+**Status:** The persisted audit/goal/loan Codable history review is complete. Added focused encrypted-backup and legacy-container XCTest regression sources. The archived WEB v18.20 obligation comparison is complete and confirms financial parity blockers; no financial formulas were changed because the calculation contract remains approval-gated by AGENTS.md and DEVELOPMENT_WORKFLOW.md.
+
+- Startup preview main HEAD: \`3b99f2c04a79c75f4c871847b992664259e372bf\`; startup handoff was \`READY_FOR_NEXT_RUN\` with no lease.
+- Startup app feature HEAD: \`ed929b2610df92cca1f39a547ee5fd64bac17811\`.
+- Final app feature HEAD: \`d382e2e59e68651427e4d1feed5ec4be09866bdc\`.
+- App stable main HEAD: \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\`, unchanged. Feature comparison: **419 ahead / 0 behind**. No app/main write or merge.
+
+### Persisted Codable history audit
+
+- \`OperationAuditEntry\` was introduced in \`b371a60fbf8f02c80462e7611ac1f3528c0f677d\`. Its required \`action\` and \`before\` fields existed at first persistence; \`id\`/\`recordedAt\` defaults and optional \`replacementID\` were present from introduction. No later required key or rename was found.
+- \`BalanceObservation\` was introduced in \`04f6dc1badebdd2033e38f04ee7b1c365545cc6b\`. Later \`webDifferenceMinor\` and \`eventOrder\` were optional additions in \`cfed8f91127a4b970310e2be0f9aaff0c22de6de\`; no key rename or required-field addition was found.
+- \`ReconciliationExplanation\` was introduced in \`ff8d3896811594e8d9170159cd8eef2411c9d2b4\`. \`linkedOperationID\` was added as optional in \`5004b525290d572d67fc32252185da2c0528d750\`; no legacy alias is needed.
+- \`BalanceObservationAuditEntry\` and \`ReconciliationExplanationAuditEntry\` were added with the account-audit implementation in \`3191d432b1c88c22a655eb4bc2e7edee1ebc8570\`; their \`after\` snapshots are optional and no later required fields or renamed keys were found.
+- Loan principal observation/explanation audit entries were introduced in \`4bce76c7e9a2b563493a73f3ca7414f2b7860b23\`. Later changes are validation/link semantics, not new required Codable keys. \`LoanAgreementAuditEntry\` fields were present together when the optional \`loanAudit\` container was introduced.
+- \`LedgerSnapshot.schemaVersion\`, \`accounts\`, \`operations\` and \`observations\` existed in the first persisted snapshot (\`04f6dc1\`). Later audit/explanation/metadata/loan/schedule/goal containers are optional. The only proven key rename in this graph remains Operation's \`reconciliationCheckID\` → canonical \`reconciliationCheckId\`, already repaired by the legacy alias in \`def0d6f40a65267a12ea4620a25a772292f0bbd3\`.
+- Goal/plan/step fields were introduced together in \`0d676ce0928ae68304073a05b44cedc600b2809e\`; the follow-up \`9b54a2503043\` aligned the contract without adding a later required persisted key. Debt schedule fields existed at first schedule-engine introduction; later loan/schedule/audit additions are optional or use explicit legacy decoders. No speculative defaulting decoder was added.
+
+### Regression coverage added
+
+- App commit [\`4781cbb28657d95129f3f04d9401e9043c1e2a4e\`](https://github.com/nikopol000/financial-autonomy-app/commit/4781cbb28657d95129f3f04d9401e9043c1e2a4e) adds \`testAllReconciliationAuditContainersAndGoalPlanSurviveEncryptedBackup\` in \`NativeiOS/Tests/OperationAuditTests.swift\`. It constructs operation, account-observation, explanation, loan-principal and loan-agreement audit history plus a populated goal/plan/step, validates the snapshot, then exercises \`PortableBackup.seal/open\` and equality assertions when XCTest runs.
+- App commit [\`d382e2e59e68651427e4d1feed5ec4be09866bdc\`](https://github.com/nikopol000/financial-autonomy-app/commit/d382e2e59e68651427e4d1feed5ec4be09866bdc) fixes a false-positive legacy test: it now seeds \`operationAudit\`, \`observationAudit\` and \`explanationAudit\` as present empty arrays before removing those keys, then asserts all three absent containers decode as nil.
+- Executed on the available Linux host: Swift 6.2.1 \`swiftc -parse\` PASS for both changed test methods; an isolated type-check harness with model/API stubs matching the source signatures PASS for the populated audit-graph test. These are not app XCTest or PortableBackup runtime results.
+- Not executed: XcodeGen, \`xcodebuild\`, app XCTest, CryptoKit through the app target, Simulator, UI tests, \`.xcresult\` or screenshots. The host is Linux without Xcode tooling.
+
+### Native iOS CI for exact final HEAD
+
+- Exact push run [44762409132](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44762409132) for \`d382e2e59e68651427e4d1feed5ec4be09866bdc\`: completed FAILURE before runner allocation.
+- Job \`136378075935\`: \`runner_id=0\`, empty runner name, requested label \`macos-15\`, \`steps=[]\`, no logs URL; log download returned 404 \`BlobNotFound\`; artifacts empty; combined commit status has no contexts.
+- This is an infrastructure failure before build/test execution, not a compiler or XCTest diagnostic. Do not rerun this same pre-runner failure.
+
+### Read-only formula reconciliation against archived WEB v18.20
+
+Reference: \`_expo/static/js/web/index-v01820-history-back-navigation-20261014.js\`, blob \`be453db2699273a194543de4532db6ea4b2e1cf2\`. WEB module 209/210 owns \`obligationsFor\`; module 220 uses it for Coverage; module 223 uses it for Autonomie.
+
+- Core expressions remain structurally aligned: Space's owned-money minus obligations minus non-negative remaining budget; Primary daily-budget inclusion and per-window clamp; Coverage's inclusive next-income horizon and floor safe-daily calculation; Autonomie's configured monthly-cost components, prorated daily budget, remainder distribution, exposed inflation and first-uncovered-day stop. These are source-level matches, not numeric XCTest proof.
+- **Confirmed gap — current-month paid markers:** WEB skips a current-month fixed expense, scheduled debt or recurring obligation when \`paidMonths[month]\` contains its ID. Native \`WebDailyPaceEngine.obligations\` and \`WebAutonomyEngine.obligations\` subtract recorded operations but do not consult \`WebImportMetadata.paidMonths\`. This affects Coverage, Space (through \`currentMonthObligationsMinor\`) and Autonomie.
+- **Confirmed gap — finite installments:** WEB's no-schedule debt branch uses configured installment count, historical installment count, the current-month paid marker and current-month installment transactions. Native Autonomie has partial installment-count/current-transaction logic but omits the paid-month marker; native DailyPace/Coverage/Space does not apply the finite installment limit.
+- **Closed debt predicate:** WEB explicitly suppresses debt obligations when \`closedAt <= asOfDay\`. The native imported debt shape does not retain a \`closedAt\` field; strict import currently rejects this state rather than silently discarding it.
+- **Refinance settlement:** WEB explicitly suppresses a debt after a qualifying non-voided refinance payment fully settles it by the as-of date. Native balance derivation may cover common loan cases, but parity for later positive observations and revolving products has not been proven; a cross-platform fixture is required.
+- No formulas, balances, transaction semantics or imported debt schema were changed. These changes remain blocked until the user explicitly approves the exact v18.20 obligation contract recorded in \`NativeiOS/PARITY_CHECKLIST.md\` Build19 and required by AGENTS.md / DEVELOPMENT_WORKFLOW.md.
+
+### Exact next action
+
+1. Continue a non-financial WEB v18.20 import/backup audit with populated fixtures, focusing on remaining nested metadata and full legacy snapshot round-trips; add only evidence-backed lossless-restore regressions and preserve strict rejection of unsupported fields.
+2. Recheck live refs and exact-HEAD Native iOS CI next run; do not retry run \`44762409132\` while it has zero runner/steps/logs/artifacts.
+3. At the first macOS runner that executes steps, run XcodeGen, Simulator build, the full unit/UI suite, inspect the exact \`.xcresult\`, then exercise the Files/document-picker flows and compare populated Light/Dark screens against archived WEB v18.20.
+4. Implement the paid-month, finite-installment, closed-debt and refinance obligation contract only after explicit user approval and with shared WEB/native reference fixtures.
+
+No production formula change, no \`Models.swift\` or \`LedgerStore.swift\` rewrite, no app/main modification or merge. Privacy remains local-only; no backend, mandatory account, bank sync or telemetry. Available credit remains excluded from owned money. No 100% parity claim.
