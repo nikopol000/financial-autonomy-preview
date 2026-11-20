@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T06:30:00Z
-Lease expires UTC: 2026-11-20T06:50:00Z
+Updated UTC: 2026-11-20T06:34:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 91d09d3859d84205e219bdfc14bb511369c36796
+Verified app feature HEAD: 7208fe0dc31814b18cec94813bac0bb450108766
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: d483189ff5fdf26bd945eeea619545c70a87f509
-Feature comparison: 401 commits ahead, 0 behind; app/main remains unchanged.
+Verified preview main before handoff commit: 1fbe96c6d66eb0d7f293a51e4724d1094af1cc80
+Feature comparison: 402 commits ahead, 0 behind; app/main remains unchanged.
 
 ## Previous run — recurring amount parser parity
 - Re-read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and this handoff from preview `main`; startup handoff was READY/no lease.
@@ -244,12 +244,37 @@ No 100% parity claim. Privacy remains local-only; no backend, mandatory account,
 
 
 ## Active run lease — WEB backup year-zero compatibility audit (2026-11-20 06:30 UTC)
-- Status: IN_PROGRESS
+- Status: RELEASED
 - Owner: Financial Autonomy iOS automation
 - Updated UTC: 2026-11-20T06:30:00Z
-- Lease expires UTC: 2026-11-20T06:50:00Z
+- Lease expires UTC: none
+- Released UTC: 2026-11-20T06:34:00Z
 - Preview main HEAD at claim: b27a61032d86f82071012f66047504cc81e80e73
 - App feature HEAD verified live: 91d09d3859d84205e219bdfc14bb511369c36796
 - App stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 - First unfinished non-financial audit action: compare WEB v18.20 backup day validation against the native backup adapter without broadening shared RecurrenceCalendar semantics. No financial formula changes.
 - Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; do not modify or merge app/main.
+
+
+## Completed run — WEB backup year-zero compatibility audit (2026-11-20 06:34 UTC)
+
+Status: READY_FOR_NEXT_RUN
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-20T06:34:00Z
+Lease expires UTC: none
+Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
+Verified app feature HEAD: `7208fe0dc31814b18cec94813bac0bb450108766`
+Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
+Feature comparison: 402 ahead / 0 behind.
+App audit commits: `91d09d3859d84205e219bdfc14bb511369c36796`, `7208fe0dc31814b18cec94813bac0bb450108766` (documentation only).
+Preview PROJECT_STATE checkpoint: `e4cb1608159ff9a40098361ceaa6bc4f0509dd7f`.
+Preview IMPLEMENTATION_QUEUE checkpoint: `1fbe96c6d66eb0d7f293a51e4724d1094af1cc80`.
+Preview main HEAD before this handoff commit: `1fbe96c6d66eb0d7f293a51e4724d1094af1cc80`.
+
+- Confirmed WEB v18.20 accepts year-zero ISO dates; native WEB backup adapter's Foundation DateFormatter rejects year zero on the tested Swift 6.2.1/Linux runtime. Actual iOS Foundation still needs confirmation. The finding is documented; the CSV helper remains CSV-scoped.
+- Build19 formula audit still has confirmed paidMonths/installment/closedAt gaps. Financial formula implementation is blocked until explicit approval of the exact calculation contract.
+- No production code or formula changes were made in this run. Node Date probe: 3/3 valid; Swift Foundation probe: 2 year-zero dates rejected, year 0001 accepted. No XcodeGen, xcodebuild, XCTest, Simulator, Files-provider, screenshots or visual validation.
+- Exact app docs HEAD `7208fe0dc31814b18cec94813bac0bb450108766`: combined status empty, no workflow runs exposed. Last code-bearing HEAD `26b65fa1cef0489d28c93e730da757112f881ce8`: run 44680247030 failed before runner allocation; do not retry.
+- Next action: continue non-financial WEB v18.20 import/backup and legacy Codable audit; preserve fail-closed behavior. If formula approval is supplied, implement only the agreed obligations contract with reference fixtures and tests. At the first usable macOS runner, run XcodeGen, full native unit/UI suite, populated backup/restore and visual comparison.
+
+No 100% parity claim. Keep local-only, no backend/account/bank sync/telemetry; available credit is not owned money. Never modify or merge app/main.
