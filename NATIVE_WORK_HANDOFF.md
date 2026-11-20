@@ -1,17 +1,17 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T22:10:00Z
-Lease expires UTC: 2026-11-20T22:55:00Z
-Released UTC: none
+Updated UTC: 2026-11-20T22:13:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T22:13:00Z
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
-Verified app feature HEAD: dda4976f873d94d155f69a1dbe9dec6d9c45c472
+Verified app feature HEAD: e126908cdf63cf11feaec4affdf17c47bffd8185
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: 1e5f21b01fa699d4c525ead35aa14ad41615ec93
+Verified preview main before handoff commit: fe172446bd683fd77d674398a9d2c5a511cf8dba
 Feature comparison: **431 ahead / 0 behind**; app/main remains unchanged.
-PROJECT_STATE checkpoint commit: d44a05fe1a6655a47186d2d85e5ee67ee407a02b
-IMPLEMENTATION_QUEUE checkpoint commit: 1e5f21b01fa699d4c525ead35aa14ad41615ec93
+PROJECT_STATE checkpoint commit: 8599afdbefbf4617f972931e2d20e00f0898f58a
+IMPLEMENTATION_QUEUE checkpoint commit: fe172446bd683fd77d674398a9d2c5a511cf8dba
 
 ## Latest completed run — audit graph and WEB v18.20 obligation reconciliation
 
@@ -690,3 +690,14 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - App feature HEAD at claim: `dda4976f873d94d155f69a1dbe9dec6d9c45c472`; stable app main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (432 ahead / 0 behind).
 - Exact task: map all `WebBackupV18_20.validDay` fields and all downstream `SnapshotValidator` / `RecurrenceCalendar` / schedule consumers to determine whether a complete scoped year-zero fix is safe. Documentation only unless a self-contained, fully restorable fix is proven.
 - No formula changes; no app/main writes or merge.
+
+
+## Latest completed run — complete WEB v18.20 date-only consumer map
+- App feature HEAD: `e126908cdf63cf11feaec4affdf17c47bffd8185` (PARITY_CHECKLIST documentation only); stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; 433 ahead / 0 behind.
+- The year-zero mismatch is mapped end-to-end: importer fields, transaction/check Date conversions, SnapshotValidator, and ScheduledDueEngine all depend on RecurrenceCalendar's 1...9999 range. No parser-only fix is safe; full scoped contract required. No runtime code changed.
+- Verification: Node 22.16.0 and Swift 6.2.1 Foundation probes; source audit. No Xcode/iOS runtime/XCTest/Simulator/Files/UI.
+- Exact current app HEAD combined status empty; PR-only workflow lookup exposes no runs; docs-only commit is outside CI path filter. Last code HEAD `2766fb9` run `44818062507` failed before runner allocation and was not retried.
+- Preview checkpoints: PROJECT_STATE `8599afdbefbf4617f972931e2d20e00f0898f58a`; IMPLEMENTATION_QUEUE `fe172446bd683fd77d674398a9d2c5a511cf8dba`.
+- Exact next action: compare legacy reminder ISO-8601 timestamp acceptance/normalization/timezone semantics between archived WEB v18.20 and native importer; continue exact-HEAD Apple validation when a runner executes steps. Financial formula changes remain approval-gated.
+
+Status: READY_FOR_NEXT_RUN. Lease released.
