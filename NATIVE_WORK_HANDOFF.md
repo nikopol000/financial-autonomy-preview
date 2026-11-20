@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T00:15:00Z
-Lease expires UTC: none
+Updated UTC: 2026-11-20T01:08:00Z
+Lease expires UTC: 2026-11-20T01:45:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 40f46f37a6251ed7aa2d9815fa7b06cb13b4e008
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -127,3 +127,13 @@ Privacy invariants: local-only; no backend, mandatory account, bank synchronizat
 2. If still no runner/steps, audit CSV content-type filtering, CR/LF, BOM, delimiter and header edge cases against archived WEB v18.20; add only evidence-backed tests/fixes.
 3. At first usable macOS runner, run XcodeGen, Simulator build, full unit/UI tests and inspect .xcresult/screenshots; then exercise real document picker and compare Light/Dark screens.
 4. Continue financial formula and lossless backup validation. Keep this handoff READY_FOR_NEXT_RUN with no lease; do not modify app/main.
+
+
+## Active run lease — CSV MIME and line-ending parity audit (2026-11-20 01:08 UTC)
+- Preview main HEAD when claimed: ef60555fb705615b4779c195e1eca43a28def42f
+- App feature HEAD verified from live ref: 40f46f37a6251ed7aa2d9815fa7b06cb13b4e008
+- App stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- Startup CI for exact feature HEAD: Native iOS CI run 44644011074 completed FAILURE in 2 seconds; job 135981886195 has runner_id=0, blank runner/group, steps=[], logs_url unavailable in the job response; run log endpoint is not useful and artifacts count is zero. Do not rerun this pre-runner failure.
+- Exact first unfinished queue item: audit CSV content-type/extension filtering, CR/LF/CRLF, BOM, delimiter and header edge cases against archived WEB v18.20.
+- Evidence already inspected: WEB v18.20 picker uses accept=`.csv`; native fileImporter currently allows both `.commaSeparatedText` and `.plainText`. Native parser iterates Swift Character values; CRLF is one extended grapheme cluster, unlike the WEB parser's separate CR and LF code units. Verify with a focused test, then fix only these demonstrated mismatches.
+- Work only on app feature branch. No app/main changes. Lease expires 2026-11-20T01:45:00Z.
