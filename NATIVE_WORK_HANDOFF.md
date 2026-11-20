@@ -2,13 +2,27 @@
 
 Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T14:24:37.476Z
+Updated UTC: 2026-11-20T15:22:00Z
 Lease expires UTC: none
-Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: ed929b2610df92cca1f39a547ee5fd64bac17811
-Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: a526cc0659cd6a0441a128e4787c77eb93f17eed
-Feature comparison: 417 commits ahead, 0 behind; app/main remains unchanged.
+Released UTC: 2026-11-20T15:22:00Z
+Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
+Verified app feature HEAD: \`d382e2e59e68651427e4d1feed5ec4be09866bdc\`
+Verified app stable main HEAD: \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\`
+Verified preview main before handoff commit: \`cb7ea026ba94c75701ef253788330b52656d1c05\`
+Feature comparison: **419 ahead / 0 behind**; app/main remains unchanged.
+PROJECT_STATE checkpoint commit: \`40d00499cbfb20bac842fc1fd27d30ec53e60b87\`.
+IMPLEMENTATION_QUEUE checkpoint commit: \`cb7ea026ba94c75701ef253788330b52656d1c05\`.
+
+## Latest completed run — audit graph and WEB v18.20 obligation reconciliation
+
+- App commits: \`4781cbb28657d95129f3f04d9401e9043c1e2a4e\` (populated encrypted audit-graph regression source) and \`d382e2e59e68651427e4d1feed5ec4be09866bdc\` (real absent-key legacy audit-container fixture).
+- Historical Codable review found no additional renamed keys or later-required fields in OperationAuditEntry, BalanceObservation, ReconciliationExplanation, audit entries, LedgerSnapshot, nested loan/schedule records or goal/plan/step. The Operation reconciliation-check alias remains the only proven key rename. No speculative decoder added.
+- Swift 6.2.1 \`swiftc -parse\` passed for both test changes; isolated type-check harness with matching model/API stubs passed for the populated audit-graph test. These are not app XCTest/PortableBackup runtime results. XcodeGen, xcodebuild, full XCTest/UI, Simulator and screenshots remain unexecuted.
+- Exact final-HEAD Native iOS CI: [run 44762409132](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44762409132), FAILURE before runner allocation; job \`136378075935\`, runner_id 0, requested \`macos-15\`, empty steps, log download 404 \`BlobNotFound\`, no artifacts, no combined contexts. Do not retry this same pre-runner failure.
+- Read-only archived WEB v18.20 comparison confirmed missing native \`paidMonths\` suppression, incomplete finite-installment suppression in Coverage/Space and partial Autonomie support, plus unproven/unsupported \`closedAt\` and refinance-settlement parity. Core formulas are structurally aligned. Formula implementation remains blocked until explicit approval of the Build19 obligation contract in \`NativeiOS/PARITY_CHECKLIST.md\`.
+- No production formula, model, balance or transaction change; no Models/LedgerStore rewrite; no app/main write/merge. Local-only privacy and credit-is-not-owned-money invariants remain intact.
+
+**Exact next action:** continue non-financial WEB v18.20 import/backup audit with populated fixtures, focusing on nested metadata and complete legacy snapshot round-trips; add only evidence-backed lossless-restore tests and preserve fail-closed validation. Recheck live refs and exact-HEAD CI next run; do not retry run 44762409132 while it exposes no runner/steps/logs/artifacts. At the first macOS runner that executes steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact .xcresult; then exercise Files/document-picker flows and compare populated Light/Dark screens. Implement obligation formula changes only after explicit user approval. No 100% parity claim.
 
 ## Previous run — recurring amount parser parity
 - Re-read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and this handoff from preview `main`; startup handoff was READY/no lease.
