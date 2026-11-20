@@ -2,13 +2,13 @@
 
 Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T06:34:00Z
+Updated UTC: 2026-11-20T09:22:00Z
 Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 7208fe0dc31814b18cec94813bac0bb450108766
+Verified app feature HEAD: 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: 1fbe96c6d66eb0d7f293a51e4724d1094af1cc80
-Feature comparison: 402 commits ahead, 0 behind; app/main remains unchanged.
+Verified preview main before handoff commit: 4c731d9dd53d9ad946dcf80d40e4113cbedfee0d
+Feature comparison: 406 commits ahead, 0 behind; app/main remains unchanged.
 
 ## Previous run — recurring amount parser parity
 - Re-read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and this handoff from preview `main`; startup handoff was READY/no lease.
@@ -333,16 +333,18 @@ Preview PROJECT_STATE.md + IMPLEMENTATION_QUEUE.md checkpoint commit: `563691433
 
 Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main without explicit user approval. No 100% parity claim until all gates pass.
 
+## Completed run — embedded WEB v1 archive preservation and History parity (2026-11-20 09:22 UTC)
+- Re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main before work. Startup handoff was READY_FOR_NEXT_RUN/no lease; claimed finite lease in preview commit 4c731d9dd53d9ad946dcf80d40e4113cbedfee0d.
+- App feature startup HEAD 3f279443854f719a261eb0d02dfb4a18f7567ac5; final HEAD 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f. App main unchanged at a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature 406 ahead / 0 behind.
+- App commits: e6043d3aa2f0a10771c7110d22cad050dac704fc (legacy archive retention/validation/backup restore) and 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f (read-only History archive preview).
+- Archived WEB v18.20 modules 204/205 confirm truthy v1 legacy summary validation and v2/v3 spread preservation. Native now accepts, retains, validates and revalidates the optional summary; unknown nested keys are retained. History shows first 20 spending rows without replaying them into ledger balances.
+- Focused Swift and Node harnesses passed; no Xcode build/XCTest/Simulator/visual comparison was executed.
+- Exact CI run 44709829628 for final HEAD failed before runner allocation: job 136198418312, runner_id=0, steps=[], logs unavailable/404, artifacts empty; combined status pending with zero contexts. No retry.
+- Preview continuity commits to follow: PROJECT_STATE, IMPLEMENTATION_QUEUE and this READY_FOR_NEXT_RUN handoff. No app/main, formula, backend, account, bank-sync or telemetry changes.
 
-## Active run lease — embedded legacy v1 summary preservation (2026-11-20 09:07 UTC)
-- Status: IN_PROGRESS
-- Owner: Financial Autonomy iOS automation
-- Updated UTC: 2026-11-20T09:07:00Z
-- Lease expires UTC: 2026-11-20T09:52:00Z
-- Preview main HEAD at lease claim: 5839fdb632200e3eea7155d15d0ca7c3c830293c
-- App feature HEAD verified live: 3f279443854f719a261eb0d02dfb4a18f7567ac5
-- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-- Exact first unfinished action: preserve the optional embedded WEB v1 summary (legacy) carried by accepted v2/v3/v4 state. Archived WEB v18.20 module 205 migrates v1 state into state.legacy, and its v4 validator explicitly revalidates u.legacy using module 204's v1 validator. Native v2/v3 normalization and v4 allowlists currently reject this field.
-- Planned representation: bounded canonical JSON Data in WebImportMetadata, validated against the archived v1 contract and revalidated by SnapshotValidator after encrypted native restore. Keep all nested legacy fields intact; do not flatten or reinterpret them as current ledger entries.
-- Exact CI for current app feature HEAD: Native iOS CI run 44700496772 FAILURE before runner allocation (job 136167408093, runner_id=0, steps=[], logs_url=null, artifacts=[]); combined status has zero contexts. Do not rerun this failure or its zero-runner parent.
-- No financial formula changes; do not modify app/main, backend/account/bank sync or telemetry. Recheck feature HEAD and preview lease before app writes.
+## Exact next action
+1. Audit v2/v3 optional-key presence/null semantics for appearance, dashboardLayout, projection, paidMonths, names/nameChanges, rolesEffectiveFrom, balanceChecks and checkAudit against archived WEB v18.20; add focused fixtures for explicit null versus absent and falsey legacy values.
+2. Continue lossless import/export and encrypted backup validation; keep financial formula changes blocked pending the explicit v18.20 obligation contract.
+3. At the first actual macOS runner allocation, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/artifacts; then exercise a real CSV document picker and compare History/CSV/Subscriptions Light/Dark screenshots.
+
+Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main without explicit approval. Do not declare 100% parity until all functional, financial, lossless-data, build/test and visual gates pass.

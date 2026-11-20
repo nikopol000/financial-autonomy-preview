@@ -4344,3 +4344,18 @@ Privacy invariants: local-only, no backend/account/bank sync/telemetry; availabl
 4. Continue populated-data backup/restore, real CSV picker, accessibility and screen-by-screen Light/Dark comparison against archived WEB v18.20.
 
 Privacy: local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money; never modify/merge app/main. No 100% parity claim before all function, formula, data-preservation, build/test and visual gates pass.
+
+
+## Completed 2026-11-20 — optional embedded legacy archive and History display
+
+Done on app feature branch only:
+- e6043d3aa2f0a10771c7110d22cad050dac704fc — retain optional embedded WEB v1 legacy summary as canonical JSON Data; accept it in v2/v3 and v4 import; validate using the archived v1 contract; revalidate after encrypted native restore; add import/restore regressions.
+- 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f — expose first 20 legacy spending rows read-only in native History, preserving source order and preventing double-counting; add cap/no-replay regression.
+
+Verification actually executed: Swift 6.2.1 isolated legacy validator harness PASS; Swift preview/Codable harness PASS; Node 22.16 WEB-contract reference harness PASS. Not executed: Xcode build, XcodeGen, XCTest suite, Simulator, real file picker, UI screenshot or visual comparison.
+
+CI evidence for exact HEAD 882c7a4: Native iOS CI run 44709829628 FAILURE before runner allocation; job 136198418312, runner_id=0, steps=[], logs_url null, no artifacts, combined status pending with zero contexts. Do not rerun this zero-runner failure.
+
+First next action: audit optional-key null/absence semantics for v2/v3 and v4 against WEB v18.20 (appearance, dashboardLayout, projection, paidMonths, names, nameChanges, rolesEffectiveFrom, balanceChecks, checkAudit), especially explicit null versus absent; add focused regression fixtures. Continue lossless import/backup validation. When a macOS runner is actually allocated, run XcodeGen, Simulator build, all unit/UI tests and inspect artifacts/screenshots.
+
+Current branch safety: app feature 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f; app main a9b30be147abecea45a63bf7dd8d0a3eb3370366 unchanged; feature 406 ahead / 0 behind. No 100% parity claim.
