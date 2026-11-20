@@ -2,8 +2,8 @@
 
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T02:10:00Z
-Lease expires UTC: 2026-11-20T04:50:00Z
+Updated UTC: 2026-11-20T06:10:00Z
+Lease expires UTC: 2026-11-20T06:40:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: a94b5a491ce2d1333b40c417c53f87904b4557e0
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -200,3 +200,18 @@ Preview continuity checkpoint commit: `6740aaf34789ff22315cb076fb04a9dee1ad890b`
 4. Continue populated-data backup/restore, accessibility and screen-by-screen visual validation. Do not claim 100% until all functional, financial, lossless-data, build/test and visual gates pass.
 
 Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main without explicit user approval.
+
+
+## Active run lease — Autonomie/Spațiu and daily safe-pace reconciliation (2026-11-20 06:10 UTC)
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T06:10:00Z
+- Lease expires UTC: 2026-11-20T06:40:00Z
+- Preview main HEAD at claim: 07869ce91076d570fc6f1f71dc7542fc390177c7
+- App feature HEAD verified live: 26b65fa1cef0489d28c93e730da757112f881ce8
+- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- Feature comparison: 400 ahead / 0 behind.
+- Prior lease expired at 2026-11-20T05:50:00Z. Re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff from preview main before work.
+- Exact Native iOS CI for feature HEAD 26b65fa1cef0489d28c93e730da757112f881ce8: run 44680247030 FAILURE; job 136101633516, no steps/logs/artifacts, combined statuses empty. Do not retry this pre-runner failure.
+- First unfinished action from the latest checkpoint: read-only reconcile archived WEB v18.20 Autonomie/Spațiu and daily safe-budget pace against native engines, then audit lossless WEB-state/backup adapters. Do not change financial semantics without an explicitly approved calculation contract.
+- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. Do not modify or merge app/main. Keep data local-only; available credit is not owned money.
