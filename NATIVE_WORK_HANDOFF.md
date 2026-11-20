@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T06:10:00Z
-Lease expires UTC: 2026-11-20T06:40:00Z
+Updated UTC: 2026-11-20T06:28:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: a94b5a491ce2d1333b40c417c53f87904b4557e0
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -203,10 +203,11 @@ Privacy invariants: local-only; no backend, mandatory account, bank sync or tele
 
 
 ## Active run lease — Autonomie/Spațiu and daily safe-pace reconciliation (2026-11-20 06:10 UTC)
-- Status: IN_PROGRESS
+- Status: RELEASED
 - Owner: Financial Autonomy iOS automation
 - Updated UTC: 2026-11-20T06:10:00Z
-- Lease expires UTC: 2026-11-20T06:40:00Z
+- Lease expires UTC: none
+- Released UTC: 2026-11-20T06:28:00Z
 - Preview main HEAD at claim: 07869ce91076d570fc6f1f71dc7542fc390177c7
 - App feature HEAD verified live: 26b65fa1cef0489d28c93e730da757112f881ce8
 - App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -215,3 +216,28 @@ Privacy invariants: local-only; no backend, mandatory account, bank sync or tele
 - Exact Native iOS CI for feature HEAD 26b65fa1cef0489d28c93e730da757112f881ce8: run 44680247030 FAILURE; job 136101633516, no steps/logs/artifacts, combined statuses empty. Do not retry this pre-runner failure.
 - First unfinished action from the latest checkpoint: read-only reconcile archived WEB v18.20 Autonomie/Spațiu and daily safe-budget pace against native engines, then audit lossless WEB-state/backup adapters. Do not change financial semantics without an explicitly approved calculation contract.
 - Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. Do not modify or merge app/main. Keep data local-only; available credit is not owned money.
+
+
+## Completed run — Autonomie / Spațiu / daily safe pace and WEB backup audit (2026-11-20 06:28 UTC)
+
+Status: READY_FOR_NEXT_RUN
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-20T06:28:00Z
+Lease expires UTC: none
+Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
+Verified app feature HEAD: `91d09d3859d84205e219bdfc14bb511369c36796`
+Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
+Feature comparison: 401 ahead / 0 behind.
+App audit commit: `91d09d3859d84205e219bdfc14bb511369c36796` (`NativeiOS/PARITY_CHECKLIST.md`, docs only).
+Preview PROJECT_STATE checkpoint: `76fed580142e71623a2996e0b24a334352e42280`.
+Preview IMPLEMENTATION_QUEUE checkpoint: `7d02bcab07b468a5514d4a5e143b891cbedd771e`.
+Preview main HEAD before this handoff commit: `7d02bcab07b468a5514d4a5e143b891cbedd771e`.
+
+- Read-only source reconciliation of archived WEB v18.20 modules 209, 210, 220, 221 and 223 is recorded in Build19. Confirmed current-month `paidMonths`, finite installment and `closedAt` obligation gaps; refinance suppression and unknown-date scope need fixtures.
+- WEB v4/RON import fields and encrypted backup preservation were audited. Unsupported fields fail closed; `closedAt` is currently rejected. Native `FAiOSBK1` is not a WEB JSON export.
+- No financial formulas or model code changed. No XCTest, XcodeGen, xcodebuild, Simulator, Files-provider, screenshot or visual checks were run.
+- Exact docs commit `91d09d3859d84205e219bdfc14bb511369c36796`: combined status empty; no workflow runs exposed. Last code-bearing commit `26b65fa1cef0489d28c93e730da757112f881ce8` has Native iOS CI run 44680247030 FAILURE before runner allocation (job 136101633516, runner_id=0, steps empty, log 404 BlobNotFound, no artifacts). No retry.
+- Financial formula implementation remains blocked until explicit approval of the testable v18.20 obligation contract. Until then, continue non-financial WEB import/backup and legacy Codable audit; keep strict fail-closed handling.
+- At the first usable macOS runner, run XcodeGen, Simulator build and full unit/UI suite, inspect .xcresult, then test populated-data backup/restore and screen-by-screen Light/Dark parity.
+
+No 100% parity claim. Privacy remains local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money. Do not modify or merge app/main.
