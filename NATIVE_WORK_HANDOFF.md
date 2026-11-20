@@ -421,3 +421,28 @@ Preview main HEAD before final handoff update: `9af023e8925904c2b48a6e3c5a550639
 - Planned bounded fix: custom Codable decoding defaults only an absent paidMonths key to an empty dictionary for ScheduleBook and LoanBook; a present null or malformed value remains rejected. Preserve existing items/loans and optional fields. Add a pre-build55 snapshot regression that removes those keys from populated nested books, verifies the remaining data survives, and verifies explicit null still fails closed.
 - No financial formula changes, no Models.swift/LedgerStore.swift wholesale rewrite, no app/main writes/merge, no backend/account/bank sync/telemetry. Available credit is not owned money.
 - Exact current HEAD CI was checked: run 44726401611 for app feature HEAD 91c0b9d288ae192495bc772246991d3e03a8b96e has a completed failed job with steps unavailable/empty, no artifacts and no combined status contexts. Do not rerun this pre-step failure. The workflow is push-triggered; the connected workflow-run lookup only exposes PR runs.
+
+
+## Completed run — pre-build55 native ScheduleBook/LoanBook Codable compatibility (2026-11-20 12:24 UTC)
+
+Status: READY_FOR_NEXT_RUN
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-20T12:24:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T12:24:00Z
+Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
+Startup app feature HEAD: `91c0b9d288ae192495bc772246991d3e03a8b96e`
+Final app feature HEAD: `af68a4f86d6a98b893850c0f1ee3c369979230f6`
+App stable main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (unchanged)
+Feature comparison: **411 ahead / 0 behind**.
+App commits: `99db74ad1f17f527a1fcbb3a657b750193b71c6a`, `a23896f5045b2aa5061923dcc83b9c4c1e9a3ea2`, `af68a4f86d6a98b893850c0f1ee3c369979230f6`.
+Preview PROJECT_STATE checkpoint: `c29fa6769f96d1d72833fe79fdd55fb4eb8d04f2`.
+Preview IMPLEMENTATION_QUEUE checkpoint: `e058816a9f9a01bf6868bab899a93eac0f4b5977`.
+Preview main before this handoff release commit: `e058816a9f9a01bf6868bab899a93eac0f4b5977`.
+
+- Fixed a confirmed pre-build55 encrypted native snapshot decode regression: absent `ScheduleBook.paidMonths` and `LoanBook.paidMonths` now default to empty dictionaries; existing items/loans remain required and are preserved. Present dictionaries are preserved; explicit null/malformed dictionaries still fail closed.
+- Added populated old-snapshot regression tests and present/null cases. Isolated Swift 6.2.1 Codable runtime harness and XCTest-source type-check harness passed. These are not the app XCTest suite.
+- Exact final HEAD combined status empty; push-run ID/runner is not exposed by the connected workflow-run endpoint (PR-triggered runs only). Parent HEAD run 44726401611 had zero steps, no artifacts and log 404 BlobNotFound; not rerun. XcodeGen, xcodebuild, app XCTest/UI, Simulator and visual checks remain unexecuted.
+- No Models.swift/LedgerStore.swift wholesale rewrite, no financial formulas/balances/transactions/backup envelope changes, no app/main change. Local-only/privacy and available-credit-is-not-owned-money invariants preserved.
+
+**Exact next action:** audit remaining nested persisted models for defaulted non-optional fields added after older snapshots were written, beginning with goal/plan and debt/schedule types. Confirm historical introduction before adding any decoder. Add populated legacy fixtures, preserve present values, and reject explicit null/malformed values. At the first usable macOS runner, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/screenshots. Continue populated encrypted restore and screen-by-screen Light/Dark parity against archived WEB v18.20. Financial formulas remain gated on explicit approval. No 100% parity claim.
