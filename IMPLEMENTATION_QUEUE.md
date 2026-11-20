@@ -4387,3 +4387,33 @@ Checkpoint documentation was committed on preview main in e8323d6cb33f7810c70b9b
 - Feature HEAD `91c0b9d288ae192495bc772246991d3e03a8b96e`; stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; **408 ahead / 0 behind**. App/main untouched.
 
 **FIRST NEXT:** continue the non-financial WEB v18.20 lossless import/export audit across remaining optional top-level/nested fields and older encrypted native snapshot Codable compatibility; create only evidence-backed fixtures. At first actual macOS runner allocation, run XcodeGen, Simulator build, full unit/UI tests and inspect .xcresult/screenshots. Financial formula changes remain gated on explicit approval. Keep local-only/privacy and credit-is-not-owned-money invariants. No 100% parity claim.
+
+
+## 2026-11-20 12:24 UTC — pre-build55 ScheduleBook / LoanBook Codable fix
+
+**Completed**
+- `99db74ad1f17f527a1fcbb3a657b750193b71c6a`: custom ScheduleBook decoder/encoder; absent build55 `paidMonths` becomes empty while items remain required and optional plan/effective-date fields are preserved.
+- `a23896f5045b2aa5061923dcc83b9c4c1e9a3ea2`: same migration for LoanBook; loans remain required and optional principal/audit fields are preserved.
+- `af68a4f86d6a98b893850c0f1ee3c369979230f6`: tests populated pre-build55 schedule/loan books with missing paidMonths, preservation of items/loans, present paid-month round-trip, and rejection of explicit null.
+
+**Executed checks**
+- Swift 6.2.1 isolated Codable runtime harness: PASS (missing-key defaults, existing record preservation, present-value preservation, round-trip and null rejection).
+- Swift 6.2.1 XCTest-source type-check harness with model stubs: PASS.
+- Not executed: XcodeGen, iOS Simulator build, app XCTest, UI tests, CryptoKit through the app target, Simulator, screenshot or visual comparison. Linux host has no `xcodebuild` or `xcodegen`.
+
+**CI**
+- Final app feature HEAD `af68a4f86d6a98b893850c0f1ee3c369979230f6`: combined status empty; available workflow-run connector returns no PR-triggered runs and cannot expose the push run. Exact push-run/runner state is not observable; no CI result claimed.
+- Parent HEAD `91c0b9d288ae192495bc772246991d3e03a8b96e` run [44726401611](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44726401611) failed before any step (job `136254813953`, no artifacts, log 404 BlobNotFound). Not rerun.
+
+**Safety**
+- App feature HEAD `af68a4f86d6a98b893850c0f1ee3c369979230f6`; app/main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; **411 ahead / 0 behind**.
+- Only ScheduledItems.swift, LoanLedger.swift and LegacyOperationDecodingTests.swift changed. No Models/LedgerStore wholesale rewrite, financial formulas, balances, transactions, backup envelope or privacy architecture changed.
+- Candidate remains WEB v18.20 / build78. No 100% parity claim.
+
+**FIRST NEXT**
+1. Audit remaining nested persisted models (goal/plan and debt/schedule graph) for defaulted non-optional fields added after older snapshots were written. Establish the exact historical field boundary from commits/checkpoints before adding compatibility decoders.
+2. Add a populated legacy snapshot fixture for each confirmed missing-key case; preserve present values and reject explicit null/malformed values.
+3. Continue checking exact-HEAD push CI observability without retrying the recorded pre-step failure. At the first usable macOS runner, run XcodeGen, Simulator build, full unit/UI tests and inspect .xcresult/screenshots.
+4. Continue populated encrypted restore and screen-by-screen Light/Dark parity against archived WEB v18.20. Financial formulas remain gated on explicit approval of the obligation calculation contract.
+
+Privacy: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify/merge app/main without explicit user approval.
