@@ -4550,3 +4550,35 @@ Archived WEB v18.20 bundle: `_expo/static/js/web/index-v01820-history-back-navig
 5. Keep `paidMonths`, finite-installment, `closedAt` and refinance formula work blocked pending explicit approval of the Build19 obligation contract.
 
 No 100% parity claim.
+
+
+## 2026-11-20 19:15 UTC — optional WebImportMetadata / LedgerSnapshot collection audit (COMPLETED)
+
+**App branch:** `financial-autonomy-app:feat/sync-preview-v18-20-ios` only. Final app HEAD: `c33b05932cdbc395f25cfeb6c86c6135c51e43af`; **426 ahead / 0 behind** stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (unchanged).
+
+### App commits
+- `4e8be2d5ec0364ac59891443c3f8b87e7fa571c1` — presence-aware Codable decoding for all optional collection fields in `WebImportMetadata` and `LedgerSnapshot`. Missing legacy keys remain nil; explicit empty arrays/dictionaries remain empty; explicit null/wrong type fails closed. Non-collection optional objects and required core arrays retain their previous decoding behavior.
+- `c33b05932cdbc395f25cfeb6c86c6135c51e43af` — tests all 21 optional collection fields (10 metadata arrays + 2 metadata dictionaries + 8 snapshot arrays + 1 snapshot dictionary) for absent/empty/null and verifies an encrypted-restore fixture with empty optional collections.
+
+### Evidence / compatibility decision
+- Native encrypted portable backup and device-local persistence both serialize with Swift `JSONEncoder` and restore with `JSONDecoder`. Nil optional keys are omitted by the encoder; explicit empty collections are emitted. The archived WEB v2/v3 import's special `names: null` behavior is normalized to `[]` before constructing native metadata (existing regression coverage), so it does not require native null acceptance.
+- The new decoder preserves legitimate legacy absence; it does not synthesize defaults for missing fields. Explicit null cannot be emitted by the native writers and is rejected instead of being silently collapsed into nil.
+- Only `NativeiOS/Models.swift` and `NativeiOS/Tests/WebBackupV18_20Tests.swift` changed. No Models/LedgerStore wholesale replacement, financial formula, balance, transaction, backup envelope, privacy architecture or app/main change.
+
+### Verification
+- Swift 6.2.1 Foundation Codable runtime harness: **21/21 collection fields** passed absent/empty/null plus re-encoding semantics. Isolated matching model shapes; not app-target XCTest.
+- `swiftc -parse` on both added XCTest method bodies: PASS.
+- Not run: XcodeGen, `xcodebuild`, native app XCTest, CryptoKit PortableBackup through the app target, Simulator/UI, Files picker, `.xcresult` or screenshots (Linux host has no Xcode/XcodeGen).
+
+### Exact-HEAD CI
+- Combined status for `c33b05932cdbc395f25cfeb6c86c6135c51e43af`: zero contexts.
+- Connected workflow-run lookup: no runs exposed (PR-triggered wrapper only); workflow source is push-triggered for this feature branch. Exact push run ID/state is not observable; no pass/fail claimed.
+- Do not retry earlier zero-runner failure `44780554682` for parent `9ec40a0`.
+
+### FIRST NEXT
+1. At the first macOS runner that executes steps, run XcodeGen, Simulator build, full unit/UI suite and inspect the exact `.xcresult`.
+2. While no runner execution is observable, continue populated full-snapshot restore and Files/document-picker audit with evidence-backed regression coverage.
+3. Then compare populated Light/Dark screens, accessibility and navigation screen-by-screen against the archived WEB v18.20 bundle.
+4. Keep `paidMonths`, finite installments, `closedAt` and refinance obligation formula changes blocked pending explicit approval of the Build19 calculation contract.
+
+No 100% parity claim. Local-only/no-backend/no-bank-sync/no-telemetry and credit-is-not-owned-money invariants remain mandatory.
