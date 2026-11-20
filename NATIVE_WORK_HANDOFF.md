@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T06:28:00Z
-Lease expires UTC: none
+Updated UTC: 2026-11-20T06:30:00Z
+Lease expires UTC: 2026-11-20T06:50:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 91d09d3859d84205e219bdfc14bb511369c36796
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -241,3 +241,15 @@ Preview main HEAD before this handoff commit: `d483189ff5fdf26bd945eeea619545c70
 - At the first usable macOS runner, run XcodeGen, Simulator build and full unit/UI suite, inspect .xcresult, then test populated-data backup/restore and screen-by-screen Light/Dark parity.
 
 No 100% parity claim. Privacy remains local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money. Do not modify or merge app/main.
+
+
+## Active run lease — WEB backup year-zero compatibility audit (2026-11-20 06:30 UTC)
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T06:30:00Z
+- Lease expires UTC: 2026-11-20T06:50:00Z
+- Preview main HEAD at claim: b27a61032d86f82071012f66047504cc81e80e73
+- App feature HEAD verified live: 91d09d3859d84205e219bdfc14bb511369c36796
+- App stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- First unfinished non-financial audit action: compare WEB v18.20 backup day validation against the native backup adapter without broadening shared RecurrenceCalendar semantics. No financial formula changes.
+- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; do not modify or merge app/main.
