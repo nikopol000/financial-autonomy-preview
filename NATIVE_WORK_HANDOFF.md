@@ -524,14 +524,34 @@ IMPLEMENTATION_QUEUE checkpoint commit: `a526cc0659cd6a0441a128e4787c77eb93f17ee
 **Exact next action:** audit key evolution for OperationAuditEntry, BalanceObservation, ReconciliationExplanation, audit containers, LedgerSnapshot and remaining nested loan/goal records; then compare Autonomie/Space/daily-pace formulas read-only against archived WEB v18.20. At the first macOS runner that executes steps, run XcodeGen, Simulator build, full unit/UI tests and inspect exact .xcresult/screenshots. Financial formula changes remain gated on explicit approval. No 100% parity claim.
 
 
-## Active run lease — non-financial WEB v18.20 import/backup audit
-- Status: IN_PROGRESS
-- Owner: Financial Autonomy iOS automation
-- Updated UTC: 2026-11-20T16:09:00Z
-- Lease expires UTC: 2026-11-20T16:50:00Z
-- Preview main HEAD at claim: edeef28c254aba78767f8b9a98c2eb19dd80c52b
-- App feature HEAD verified live: d382e2e59e68651427e4d1feed5ec4be09866bdc
-- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-- Feature comparison: 419 ahead / 0 behind.
-- First unfinished action: continue the non-financial WEB v18.20 import/backup audit with populated fixtures, focusing on nested metadata and complete legacy snapshot round-trips; add only evidence-backed lossless-restore regressions and preserve strict rejection of unsupported fields. Recheck exact-HEAD Native iOS CI without repeating the known pre-runner failure.
-- Formula changes remain approval-gated. Keep all app writes on feat/sync-preview-v18-20-ios; do not modify/merge app/main. Preserve local-only privacy and credit-is-not-owned-money.
+## Completed run — non-financial WEB v18.20 import/backup audit
+
+Status: READY_FOR_NEXT_RUN
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-20T16:15:10.459Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T16:15:10.459Z
+Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
+Verified app feature HEAD: `28fc5e1e61f9061376c1e1a3375ac6ed80170e76`
+Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
+Feature comparison: **421 ahead / 0 behind**; app/main remains unchanged.
+Preview main before final handoff commit: `ce5deed3d9a36d77cf2b293b5759716fb6282319`.
+PROJECT_STATE checkpoint commit: `01f7661137d7550f3bcb663985f62e02a1d4c216`.
+IMPLEMENTATION_QUEUE checkpoint commit: `ce5deed3d9a36d77cf2b293b5759716fb6282319`.
+
+### Completed app changes
+- `f078fdb10ab821c3b1308a423c5c34bcca52f874`: WEB v1 archive import versions 2, 3 and 4 each now run through encrypted native PortableBackup seal/open in the regression test.
+- `28fc5e1e61f9061376c1e1a3375ac6ed80170e76`: nested month-plan budget test now verifies primary and additional window date bounds, anchor/income references, true/false dashboard flags, nil auto amount and encrypted restore equality.
+- Only `NativeiOS/Tests/WebBackupV18_20Tests.swift` changed. No production code, models, LedgerStore, formulas, balances, transactions, backup envelope or app/main changes.
+
+### Verification actually executed
+- Swift 6.2.1 `swiftc -parse` for the exact legacy-archive test method body: PASS (syntax only).
+- Swift 6.2.1 `swiftc -typecheck` for the exact nested-budget test method body with isolated matching model/API stubs: PASS (not the app target).
+- Isolated Codable runtime harness with mirrored WEB metadata structs: PASS for optional nested fields, false booleans, nil amount and opaque legacy JSON Data.
+- `xcodebuild` and `xcodegen` are unavailable on the Linux host. App build/XCTest, CryptoKit PortableBackup runtime, Simulator, UI, Files picker, .xcresult and visual checks remain unexecuted.
+
+### Native iOS CI
+- Exact final HEAD `28fc5e1`: combined status has zero contexts; connected workflow-run lookup exposes no PR-triggered run for this push commit. The checked workflow is push-triggered for this branch and the changed Swift test path, but its push run ID/state is not exposed. No CI pass/fail is claimed for this exact commit.
+- Parent run [44762409132](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44762409132) for `d382e2e` failed before runner allocation (runner ID 0, zero steps, no artifacts, log 404 BlobNotFound). It was not rerun.
+
+**Exact next action:** add absent-versus-empty regression coverage for `WebImportedMonthPlanBudget.additionalWindows` and `WebImportedDebt.schedule`, including encrypted PortableBackup restore; preserve fail-closed unknown-key and explicit-null/malformed behavior. At the first macOS runner with actual steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact .xcresult, then continue populated restore and screen-by-screen Light/Dark comparison. Financial obligation changes remain gated on explicit approval of the v18.20 calculation contract. No 100% parity claim.
