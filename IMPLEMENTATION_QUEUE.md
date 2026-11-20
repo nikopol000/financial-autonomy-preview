@@ -4272,7 +4272,7 @@ Privacy/release gates: local-only; no backend, mandatory account, bank sync or t
 ## 2026-11-20 05:22 UTC — CSV year-zero/date/amount parity and local recurring backup coverage
 
 **Completed on app feature branch only**
-- Final app feature HEAD: `26b65fa1cef0489d28c93e730da757112f881ce8`; app/main unchanged at `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature is 399 ahead / 0 behind.
+- Final app feature HEAD: `26b65fa1cef0489d28c93e730da757112f881ce8`; app/main unchanged at `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature is 400 ahead / 0 behind.
 - CSV date validation and detection now use a CSV-scoped proleptic-Gregorian helper matching WEB v18.20's ISO year-zero acceptance and day intervals. CSV classification reproduces Date.UTC's 0...99 → 1900...1999 remapping, including 0000-02-29 normalization. Shared RecurrenceCalendar and SubscriptionEngine semantics outside CSV were not changed.
 - Native amount parser was compared to WEB module 204: whitespace removal, dot/comma grouping, decimal precision, positive amount parsing and 1e12 minor-unit ceiling matched; no production amount change.
 - App commits: implementation `145b70b0e1017640a288ba198d23bb5b5a059e68`; follow-up/coverage `e9711d1fbeaa3f7c59fc66dbdca7a1acbbe976c5`, `5ba466fece3cc32e0d02da59ad1191f5a9dcaf11`, `35f5233e474262740ed3b1bad20255c2ec12a7bc`, `b53dd520c237e445313ac94660b0cbe321f0874a`, `9199d3f2985d9205bec9b606ee00f08899f0cff3`; encrypted backup regression `26b65fa1cef0489d28c93e730da757112f881ce8`.

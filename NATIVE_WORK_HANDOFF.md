@@ -191,7 +191,7 @@ Preview continuity checkpoint commit: `6740aaf34789ff22315cb076fb04a9dee1ad890b`
 - App stage commits: `145b70b0e1017640a288ba198d23bb5b5a059e68`, `e9711d1fbeaa3f7c59fc66dbdca7a1acbbe976c5`, `5ba466fece3cc32e0d02da59ad1191f5a9dcaf11`, `35f5233e474262740ed3b1bad20255c2ec12a7bc`, `b53dd520c237e445313ac94660b0cbe321f0874a`, `9199d3f2985d9205bec9b606ee00f08899f0cff3`, `26b65fa1cef0489d28c93e730da757112f881ce8`.
 - Swift 6.2.1 isolated harnesses: 14 date checks and 13 amount cases passed. Node v22.16.0 archived WEB reference: 25 cases passed. These are not Xcode build/XCTest.
 - Exact final-HEAD Native iOS CI run [44680247030](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44680247030) failed before runner allocation: job `136101633516`, runner_id 0, zero steps, no logs/artifacts, empty combined status. Do not rerun this or the predecessor pre-runner runs `44679350291` and `44680005592`. `xcodebuild` and `xcodegen` are unavailable in this Linux environment.
-- Feature branch comparison: 399 ahead / 0 behind app/main. App/main untouched. No Models/LedgerStore, formula, balance, transaction or backup-schema change. Native build/full XCTest/UI, Simulator, real document picker and visual parity remain unverified.
+- Feature branch comparison: 400 ahead / 0 behind app/main. App/main untouched. No Models/LedgerStore, formula, balance, transaction or backup-schema change. Native build/full XCTest/UI, Simulator, real document picker and visual parity remain unverified.
 
 ## Exact next action
 1. At the next run, re-read all continuity files and verify live HEADs; inspect exact current feature-HEAD Native iOS CI/runner state without retrying recorded zero-runner failures.
