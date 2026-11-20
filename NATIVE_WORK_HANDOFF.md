@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T17:11:00Z
-Lease expires UTC: none
-Released UTC: 2026-11-20T17:11:00Z
+Updated UTC: 2026-11-20T18:08:00Z
+Lease expires UTC: 2026-11-20T18:45:00Z
+Released UTC: none
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
 Verified app feature HEAD: `9ec40a0e66a79dd0348101992f46de9ac71bf0f5`
 Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
-Verified preview main before handoff commit: `7e10a132dfd1438408eb2faa0eb4708795b6c6af`
+Verified preview main before handoff commit: `b21e581cce467a8fde3dfc5b36fe958bb3d77c73`
 Feature comparison: **422 ahead / 0 behind**; app/main remains unchanged.
 PROJECT_STATE checkpoint commit: `7e10a132dfd1438408eb2faa0eb4708795b6c6af`.
 IMPLEMENTATION_QUEUE checkpoint commit: `7e10a132dfd1438408eb2faa0eb4708795b6c6af`.
@@ -575,3 +575,13 @@ IMPLEMENTATION_QUEUE checkpoint commit: `ce5deed3d9a36d77cf2b293b5759716fb628231
 2. Recheck exact-HEAD Native iOS push-run visibility without rerunning the zero-runner failure for `9ec40a0`.
 3. At the first macOS runner that executes steps, run XcodeGen, Simulator build, all unit/UI tests and inspect the exact `.xcresult`; then exercise Files/document-picker and populated Light/Dark comparisons.
 4. Keep financial obligation formula changes approval-gated; no 100% parity claim.
+
+
+## Active run lease — nested optional collection / projection validation audit (2026-11-20 18:08 UTC)
+- Status: IN_PROGRESS
+- Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`.
+- Verified live app feature HEAD: `9ec40a0e66a79dd0348101992f46de9ac71bf0f5`; stable app main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature compare 422 ahead / 0 behind.
+- Startup preview main HEAD: `b21e581cce467a8fde3dfc5b36fe958bb3d77c73`; startup handoff was READY with no active lease.
+- First unfinished action: audit nested month-plan/catalog/projection arrays. Specifically preserve legacy absence vs empty for `WebImportedMonthPlan.budgets`, reject explicit null/malformed values, and add regression coverage that matches archived WEB v18.20 required arrays (`monthPlans.budgets/expenses/debtPayments`, `projection.exposed/payoffs`, and recurring history). No financial formula changes.
+- Exact current feature combined status has zero contexts; connector workflow-run lookup is PR-only and returns no push run. Last observable exact push run for parent `9ec40a0` is 44780554682, which failed before runner allocation (runner_id 0, steps empty, no artifacts, log 404); do not retry.
+- Lease expires 2026-11-20T18:45:00Z. No app/main modification or merge. Preserve local-only data and credit-is-not-owned-money invariant.
