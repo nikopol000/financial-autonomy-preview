@@ -4469,3 +4469,24 @@ Privacy: local-only; no backend, mandatory account, bank sync or telemetry. Avai
 4. Implement paid-month, finite-installment, closed-debt and refinance obligation semantics only after explicit user approval and with shared WEB/native reference fixtures.
 
 No 100% parity claim.
+
+
+## 2026-11-20 16:14 UTC — completed legacy archive v2/v3/v4 and nested budget-window restore coverage
+
+**Completed on `financial-autonomy-app:feat/sync-preview-v18-20-ios`:**
+- `f078fdb10ab821c3b1308a423c5c34bcca52f874`: extended the existing WEB v1 archive regression so v2, v3 and v4 imports each pass through native encrypted `PortableBackup.seal/open`; archive JSON is compared before and after restore.
+- `28fc5e1e61f9061376c1e1a3375ac6ed80170e76`: expanded the historical budget-window fixture to exercise `primaryStartDate/primaryEndDate`, nested additional-window `anchorDate/incomeId/startDate/endDate/showOnDashboard`, explicit false, absent auto amount, and encrypted round-trip equality for month-plan metadata and operations.
+- Only `NativeiOS/Tests/WebBackupV18_20Tests.swift` changed. No app production code, models, LedgerStore, formulas, balances, transactions, backup envelope or app/main branch changed.
+- Live final branch compare: exact HEAD `28fc5e1e61f9061376c1e1a3375ac6ed80170e76` is identical to `feat/sync-preview-v18-20-ios`; **421 ahead / 0 behind** stable app `main` `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+
+**Executed verification:**
+- Exact legacy-archive XCTest method body: `swiftc -parse` PASS (syntax only).
+- Exact nested-budget XCTest method body in an isolated model/API-stub harness: `swiftc -typecheck` PASS (not the app target).
+- Isolated Swift Codable runtime harness using mirrored WEB metadata structs: PASS for optional nested date/income fields, false boolean values, absent auto amount and opaque legacy JSON Data.
+- Swift 6.2.1 available; `xcodebuild` and `xcodegen` absent. App build, actual XCTest, CryptoKit PortableBackup runtime, Simulator/UI, Files picker, screenshots and visual comparison remain **NOT RUN / NOT VERIFIED**.
+
+**Native iOS CI:**
+- Exact `28fc5e1` combined commit status has zero contexts; workflow-run connector returns no PR-triggered runs for this push commit. The checked `.github/workflows/native-ios-ci.yml` is push-triggered for this branch and the changed Swift test path, but the connector does not expose the push run ID/state. Do not claim CI passed or failed for this exact commit.
+- Previous observable parent run `44762409132` for `d382e2e` failed before runner allocation (runner ID 0, zero steps, no artifacts, log 404 BlobNotFound). Do not repeat that same pre-runner failure.
+
+**FIRST NEXT ACTION:** add explicit absent-versus-empty regression coverage for `WebImportedMonthPlanBudget.additionalWindows` and `WebImportedDebt.schedule`, including PortableBackup seal/open; preserve strict rejection of unknown keys and explicit null/malformed values. At the first macOS runner with actual steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact `.xcresult`; continue populated-data restore and screen-by-screen Light/Dark comparison. Financial formula changes remain approval-gated by the v18.20 obligation contract. No 100% parity claim.
