@@ -406,3 +406,18 @@ Preview main HEAD before final handoff update: `9af023e8925904c2b48a6e3c5a550639
 - Preview checkpoint commits: `PROJECT_STATE.md` `cddfd8aa94ef91c089549b5c86362b7dfb5cc8da`; `IMPLEMENTATION_QUEUE.md` `9af023e8925904c2b48a6e3c5a55063906f28a9b`. Handoff release checkpoint at the previous preview HEAD: `f763bae465f9ecdefd6d03e5b554a1a3a3fb2be4`.
 
 **Exact next action:** continue the non-financial WEB v18.20 lossless import/export audit across remaining optional top-level and nested fields, including older encrypted native snapshot Codable compatibility; add only evidence-backed fixtures. At the first macOS runner that actually executes steps, run XcodeGen, Simulator build, full unit/UI tests and inspect .xcresult/screenshots. Financial formulas remain gated on explicit approval of the recorded obligation contract. No 100% parity claim.
+
+
+## Active run lease — legacy native ScheduleBook/LoanBook Codable compatibility
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T12:10:00Z
+- Lease expires UTC: 2026-11-20T12:55:00Z
+- Preview main HEAD at claim: a5dd46a9f44c2d85c5918f82492016c10f6512ca
+- App feature HEAD verified live: 91c0b9d288ae192495bc772246991d3e03a8b96e
+- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- Feature comparison at startup: 408 ahead / 0 behind.
+- First unfinished queue action: audit backward compatibility of expanded optional WEB/native backup metadata and older encrypted native snapshots. A concrete build55 regression is identified: ScheduleBook.paidMonths and LoanBook.paidMonths were added to existing persisted book types as non-optional dictionaries with default values, but synthesized Codable requires the keys when those nested books are decoded from pre-build55 snapshots.
+- Planned bounded fix: custom Codable decoding defaults only an absent paidMonths key to an empty dictionary for ScheduleBook and LoanBook; a present null or malformed value remains rejected. Preserve existing items/loans and optional fields. Add a pre-build55 snapshot regression that removes those keys from populated nested books, verifies the remaining data survives, and verifies explicit null still fails closed.
+- No financial formula changes, no Models.swift/LedgerStore.swift wholesale rewrite, no app/main writes/merge, no backend/account/bank sync/telemetry. Available credit is not owned money.
+- Exact current HEAD CI was checked: run 44726401611 for app feature HEAD 91c0b9d288ae192495bc772246991d3e03a8b96e has a completed failed job with steps unavailable/empty, no artifacts and no combined status contexts. Do not rerun this pre-step failure. The workflow is push-triggered; the connected workflow-run lookup only exposes PR runs.
