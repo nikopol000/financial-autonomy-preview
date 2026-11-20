@@ -4582,3 +4582,17 @@ No 100% parity claim.
 4. Keep `paidMonths`, finite installments, `closedAt` and refinance obligation formula changes blocked pending explicit approval of the Build19 calculation contract.
 
 No 100% parity claim. Local-only/no-backend/no-bank-sync/no-telemetry and credit-is-not-owned-money invariants remain mandatory.
+
+
+## 2026-11-20 20:12 UTC — populated backup restore + Files security-scope boundary (COMPLETED; Apple runner blocked)
+
+**App commit:** 1aabaada95b3d4ac01b9e117d6ada252d7fc1131 on feat/sync-preview-v18-20-ios (427 ahead / 0 behind stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366).
+
+- Added bounded, security-scoped backup file reading and fail-closed behavior when the document provider does not grant access.
+- Added 4 unit regression sources for scope denial, max+1 bounded reads, oversized provider content and scope cleanup on read errors.
+- Expanded populated encrypted WEB import restore assertions to compare every top-level LedgerSnapshot property after PortableBackup seal/open.
+- Executed on Linux Swift 6.2.1: reader runtime harness 4/4 PASS; helper/test source parse PASS; isolated XCTest source type-check PASS after removing only the target module import. These are not app XCTest.
+- Exact HEAD Native iOS CI run [44808600534](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44808600534) completed FAILURE before runner steps were exposed: job steps null, no logs URL, log fetch 404 BlobNotFound, zero artifacts, zero combined contexts. Not retried. Parent run 44800661617 had the same pre-runner shape.
+- XcodeGen, xcodebuild, app XCTest, actual Files provider, Simulator/UI and screenshots remain unexecuted. No formula or app/main changes.
+
+**FIRST NEXT:** add a restore transactionality regression proving denied/oversized/malformed file input leaves the entire current ledger unchanged; at the first macOS runner with steps, run XcodeGen, Simulator build, full unit/UI tests, inspect xcresult, then exercise fileExporter/fileImporter and populated Light/Dark screen comparisons. Financial obligation changes remain approval-gated. No 100% parity claim.

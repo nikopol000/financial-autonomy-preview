@@ -988,3 +988,37 @@ No financial formulas, balances, operations, `LedgerStore`, backup envelope, pri
 **Exact next action:** at the first macOS runner that executes steps, run XcodeGen, Simulator build, the complete unit/UI suite and inspect the exact `.xcresult`. While no runner execution is observable, continue the independent populated-snapshot restore and Files/document-picker audit, then screen-by-screen populated Light/Dark comparison against archived WEB v18.20. Keep `paidMonths`, finite installments, `closedAt` and refinance formula changes gated on explicit approval of the Build19 calculation contract.
 
 Privacy invariants remain local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. No 100% parity claim.
+
+
+## Native iOS parity checkpoint — 2026-11-20 20:12 UTC — populated snapshot restore and scoped backup-file reads
+
+**Working source:** nikopol000/financial-autonomy-app:feat/sync-preview-v18-20-ios only.
+
+- Startup preview main: 43873d5ab729f6846eeeb6899f6e971144d97cf7; finite handoff lease claim: 7afd144ec72bec408f08094e2a3230a902f6e5a5.
+- App feature startup HEAD: c33b05932cdbc395f25cfeb6c86c6135c51e43af; final app feature HEAD: [1aabaada95b3d4ac01b9e117d6ada252d7fc1131](https://github.com/nikopol000/financial-autonomy-app/commit/1aabaada95b3d4ac01b9e117d6ada252d7fc1131).
+- App stable main: a9b30be147abecea45a63bf7dd8d0a3eb3370366, unchanged. Feature comparison: **427 ahead / 0 behind**.
+
+### Implemented app change
+
+- 1aabaada95b3d4ac01b9e117d6ada252d7fc1131 adds BackupDocumentReader: it refuses a picked backup when security-scoped access cannot be started, releases the scope with defer on success and read failure, requests at most maximumBytes + 1, and rejects oversized provider reads.
+- BackupView.readBackup now uses that helper before attempting native or WEB v18.20 decryption. A denied provider scope cannot be read accidentally; the existing restore confirmation/validation boundary remains unchanged.
+- Added four reader regressions: denied scope performs no read; successful read uses the one-byte overflow sentinel and releases scope; oversized bytes are rejected and scope released; provider read errors still release scope.
+- Expanded the populated WEB catalog PortableBackup test to compare every top-level LedgerSnapshot field after encrypted restore (schema, appearance, metadata, reviews, recurring, layout, goals/plans, schedule/loan books, budgets/settings, accounts, operations, observations, audits and explanations).
+- Changed only NativeiOS/BackupDocumentReader.swift, NativeiOS/BackupView.swift, NativeiOS/Tests/BackupDocumentReaderTests.swift and NativeiOS/Tests/WebBackupV18_20Tests.swift. No wholesale Models/LedgerStore change, financial formula, balance, transaction or app/main change.
+
+### Verification actually executed
+
+- Linux host Swift 6.2.1 runtime harness for the exact BackupDocumentReader implementation: **4/4 PASS** (denied access, bounded successful read, oversized data rejection, cleanup on thrown read).
+- swiftc -parse for the new helper and new XCTest source: **PASS**.
+- swiftc -typecheck for the new XCTest source after removing only the app-target @testable import, with the exact helper source: **PASS**. This is a Foundation/XCTest isolated check, not the app target.
+- Not executed: XcodeGen, Xcode build, app XCTest, actual iOS document provider, CryptoKit PortableBackup in the app target, Simulator/UI, xcresult or screenshots. Linux has Swift 6.2.1 but no Xcode/XcodeGen.
+
+### Exact-HEAD Native iOS CI
+
+- Exact final HEAD 1aabaada95b3d4ac01b9e117d6ada252d7fc1131: push run [44808600534](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44808600534), completed **FAILURE** in ~3 seconds. Job 136538998308 has steps=null, no logs URL; fetching logs returned 404 BlobNotFound; artifacts: **0**; combined status contexts: **0**.
+- The exact run therefore failed before any runner step/log/artifact became observable; it provides no compiler or XCTest diagnostic. It was not retried.
+- Parent exact run [44800661617](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44800661617) for c33b059 showed the same pre-runner failure shape and was not retried. The connector's commit-run wrapper is PR-only; direct Actions run listing was used to identify the push run.
+
+No financial formula, account balance, operation, backup envelope, local encryption architecture or app/main change. Local-only/no backend/no bank sync/no telemetry and credit-is-not-owned-money invariants remain intact.
+
+**Exact next action:** continue the backup Files/document-picker boundary audit with a transactionality regression proving a malformed/denied/oversized selected file cannot change any current ledger field; then, at the first macOS runner that executes steps, run XcodeGen, Simulator build, all unit/UI tests and inspect the exact xcresult. Exercise the actual fileExporter/fileImporter flow on Simulator before claiming Files parity. Continue populated Light/Dark screen comparison afterward. Keep paidMonths, finite installments, closedAt and refinance formula work gated on explicit Build19 contract approval. No 100% parity claim.
