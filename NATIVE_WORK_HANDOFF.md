@@ -278,3 +278,15 @@ Preview main HEAD before this handoff commit: `1fbe96c6d66eb0d7f293a51e4724d1094
 - Next action: continue non-financial WEB v18.20 import/backup and legacy Codable audit; preserve fail-closed behavior. If formula approval is supplied, implement only the agreed obligations contract with reference fixtures and tests. At the first usable macOS runner, run XcodeGen, full native unit/UI suite, populated backup/restore and visual comparison.
 
 No 100% parity claim. Keep local-only, no backend/account/bank sync/telemetry; available credit is not owned money. Never modify or merge app/main.
+
+
+## Active run lease — WEB v18.20 legacy v2/v3 import normalization
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T07:11:00Z
+- Lease expires UTC: 2026-11-20T07:40:00Z
+- Preview main HEAD at claim: f8d5b1b99c51563e80dbb3443504aed73620f06d
+- App feature HEAD verified live: 7208fe0dc31814b18cec94813bac0bb450108766
+- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- First unfinished non-financial action: align the native WEB backup adapter with archived WEB v18.20 accepted v2/v3 state migration (orderedState + upgradeNames), including generated names, roles, same-day order and optional top-level defaults. Keep v4 behavior unchanged and unknown fields fail-closed.
+- No financial formula changes, no app/main writes, no backend/account/bank sync/telemetry. Verify exact branch HEAD again before app writes.
