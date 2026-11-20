@@ -1,17 +1,17 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T21:08:00Z
-Lease expires UTC: 2026-11-20T21:55:00Z
-Released UTC: none
+Updated UTC: 2026-11-20T21:12:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T21:12:00Z
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
-Verified app feature HEAD: 1aabaada95b3d4ac01b9e117d6ada252d7fc1131
+Verified app feature HEAD: 2766fb956d6d63ef940bfc9988f901a1591eaffb
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: cadf9431dcef721d68fc0a2e85101e1ec2e4d61e
-Feature comparison: **427 ahead / 0 behind**; app/main remains unchanged.
-PROJECT_STATE checkpoint commit: cadf9431dcef721d68fc0a2e85101e1ec2e4d61e
-IMPLEMENTATION_QUEUE checkpoint commit: cadf9431dcef721d68fc0a2e85101e1ec2e4d61e
+Verified preview main before handoff commit: 4da6368a38d6aa85e96f5409b7b94a05ba050156
+Feature comparison: **431 ahead / 0 behind**; app/main remains unchanged.
+PROJECT_STATE checkpoint commit: daec368c2692bd312c0109406a276dfcd3a1fdca
+IMPLEMENTATION_QUEUE checkpoint commit: 4da6368a38d6aa85e96f5409b7b94a05ba050156
 
 ## Latest completed run — audit graph and WEB v18.20 obligation reconciliation
 
@@ -648,3 +648,18 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - Exact first unfinished action: extract the selected-backup read/decrypt/validate preparation path from BackupView into a testable non-mutating helper, then add regression tests proving denied security scope, oversized provider data and malformed/undecryptable input leave the complete current LedgerSnapshot and persisted snapshot unchanged. Verify a successfully prepared backup also remains unapplied until explicit restore confirmation.
 - Exact HEAD Native iOS CI run 44808600534 failed before runner allocation (job 136538998308, runner_id=0, steps=[], no logs/artifacts, combined contexts empty); do not retry this failure. Continue independent work.
 - Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. No app/main writes or merge. Preserve local-only data and credit-is-not-owned-money invariant.
+
+
+## Completed run — selected-backup restore transactionality (2026-11-20 21:12 UTC)
+
+- Startup preview main was `80e4d6c1c393baa14645e92554a6cff05955d1ca`; startup app feature `1aabaada95b3d4ac01b9e117d6ada252d7fc1131`; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366). Startup handoff was READY/no lease; this run claimed a finite lease and released it below.
+- Final app feature HEAD: [`2766fb956d6d63ef940bfc9988f901a1591eaffb`](https://github.com/nikopol000/financial-autonomy-app/commit/2766fb956d6d63ef940bfc9988f901a1591eaffb), **431 ahead / 0 behind** app main; main unchanged.
+- App commits: `678b49b6` (non-mutating preparation helper), `7d4c7ae3` (BackupView integration), `a6326e8c` (denied/oversized/malformed transactionality test), `2766fb95` (wrong-password regression).
+- Verified behavior: file preparation returns a candidate snapshot only; BackupView places it in pending state. The only store mutation remains behind explicit destructive confirmation. Rejected input tests compare the complete sorted-key JSON encoding of live and persisted snapshots.
+- Swift 6.2.1 parser checks PASS; isolated XCTest type-check with matching stubs PASS; isolated helper runtime harness 5/5 PASS (crypto/store stubbed). No XcodeGen/xcodebuild/app XCTest/real Files provider/Simulator/UI/.xcresult/screenshots.
+- Exact HEAD Native iOS CI run [44818062507](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44818062507) failed before runner allocation: job `136571449171`, runner_id 0, steps empty, log 404 BlobNotFound, no artifacts, no combined contexts. Not retried.
+- Preview checkpoint commits: PROJECT_STATE `daec368c2692bd312c0109406a276dfcd3a1fdca`; IMPLEMENTATION_QUEUE `4da6368a38d6aa85e96f5409b7b94a05ba050156`.
+- Exact next action: at first macOS runner with actual steps run XcodeGen, Simulator build, full unit/UI tests and inspect exact xcresult; then exercise real Files import/export and populated Light/Dark parity. Until then continue read-only non-financial v18.20 parity audit. Financial obligation formula changes remain blocked pending explicit Build19 contract approval.
+- Local-only/no-backend/no-mandatory-account/no-bank-sync/no-telemetry and credit-is-not-owned-money invariants preserved. No app/main change or 100% parity claim.
+
+Status: READY_FOR_NEXT_RUN. Lease released.
