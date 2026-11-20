@@ -4506,3 +4506,47 @@ No 100% parity claim.
 **Exact Native iOS CI:** run [44780554682](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44780554682) for exact HEAD `9ec40a0e66a79dd0348101992f46de9ac71bf0f5` failed before runner allocation. Job `136441794152`: runner_id 0, requested `macos-15`, empty steps, no artifacts; logs 404 `BlobNotFound`; combined status pending with zero contexts. Do not retry this pre-runner failure; it has no compiler/test diagnostics.
 
 **FIRST NEXT:** audit other optional collection fields in nested month-plan/catalog/projection metadata for the same absent/null distinction between WEB v18.20 validation and native Codable. Add only evidence-backed lossless/fail-closed tests. Continue exact-HEAD CI observability without rerunning zero-runner failures; at first macOS runner with actual steps run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult. Financial formula changes remain approval-gated. No 100% parity claim.
+
+
+## 2026-11-20 18:06 UTC — nested month-plan/catalog/projection array integrity (COMPLETED)
+
+**App branch:** `financial-autonomy-app:feat/sync-preview-v18-20-ios` only. Stable app `main` remains untouched.
+
+### Implemented commits
+
+- `e6cad8c44f140436fe864c8afe99c2f6c8b77eaf` — presence-aware decoder for `WebImportedMonthPlan.budgets`. Pre-build28 snapshots may omit the key (`nil)); present empty remains `[]`; explicit null, wrong container type and malformed elements are rejected. Decoder lives in an extension to preserve the importer's existing memberwise initializer.
+- `0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987` — tests for absent/empty/null/malformed behavior, synthesized JSON encoding, encrypted native restore, and strict required-array validation for month-plan, projection and recurring catalog data.
+
+Final app feature HEAD `0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987`; compare against app `main`: **424 ahead / 0 behind**. App/main HEAD `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
+
+### Reference evidence
+
+Archived WEB v18.20 bundle: `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+
+- WEB requires month-plan `budgets`, `expenses`, `debtPayments` arrays.
+- WEB requires projection `exposed` and `payoffs` arrays.
+- WEB recurring import requires `history` array.
+- Native parser already enforced these required fields; new regression tests lock missing/null/wrong-type rejection. The remaining native-only compatibility distinction was optional `WebImportedMonthPlan.budgets` in old encrypted snapshots, now hardened so null is not treated as absent.
+
+### Checks actually run
+
+- Swift 6.2.1 focused Codable runtime harness: 7/7 assertions PASS.
+- `swiftc -typecheck` and `swiftc -parse` on both new test methods with isolated matching model/API stubs: PASS.
+- Environment: Linux x86_64, Swift 6.2.1; `xcodebuild` and `xcodegen` absent.
+- Not run: native Xcode build, app XCTest, CryptoKit PortableBackup through app target, Simulator, UI tests, Files picker, `.xcresult` or screenshots.
+
+### CI / blockers
+
+- Exact final HEAD combined status: zero contexts.
+- Connected workflow-run wrapper returns no runs because it is PR-triggered only; push-run ID/state is not exposed. Workflow source confirms push trigger for this feature branch and NativeiOS Swift files.
+- Parent run `44780554682` for `9ec40a0` failed before runner allocation (`runner_id=0`, no steps/artifacts, log 404 `BlobNotFound`); not retried.
+- No formulas, balances, operations, LedgerStore, backup envelope, privacy architecture or app/main files changed.
+
+**FIRST NEXT**
+1. Audit remaining optional collection fields in `WebImportMetadata` and `LedgerSnapshot` against their historical encoder/introduction commits. Decide whether explicit null can occur in any legitimate legacy native snapshot; do not default blindly.
+2. Add only evidence-backed absent/empty/null restore regressions.
+3. Keep exact-HEAD CI observability; do not retry pre-runner parent failures. At first macOS runner with steps, run XcodeGen, Simulator build, full unit/UI tests and inspect exact `.xcresult`.
+4. Continue populated encrypted restore, Files/document-picker and screen-by-screen Light/Dark comparison against archived WEB v18.20.
+5. Keep `paidMonths`, finite-installment, `closedAt` and refinance formula work blocked pending explicit approval of the Build19 obligation contract.
+
+No 100% parity claim.
