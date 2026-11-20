@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T22:13:00Z
-Lease expires UTC: none
-Released UTC: 2026-11-20T22:13:00Z
+Updated UTC: 2026-11-20T23:09:19Z
+Lease expires UTC: 2026-11-21T00:00:00Z
+Released UTC: none
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
 Verified app feature HEAD: e126908cdf63cf11feaec4affdf17c47bffd8185
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: fe172446bd683fd77d674398a9d2c5a511cf8dba
+Verified preview main before handoff commit: 3b83f97954e32549ff33ed2114e8e81858f809ab
 Feature comparison: **431 ahead / 0 behind**; app/main remains unchanged.
 PROJECT_STATE checkpoint commit: 8599afdbefbf4617f972931e2d20e00f0898f58a
 IMPLEMENTATION_QUEUE checkpoint commit: fe172446bd683fd77d674398a9d2c5a511cf8dba
@@ -701,3 +701,10 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - Exact next action: compare legacy reminder ISO-8601 timestamp acceptance/normalization/timezone semantics between archived WEB v18.20 and native importer; continue exact-HEAD Apple validation when a runner executes steps. Financial formula changes remain approval-gated.
 
 Status: READY_FOR_NEXT_RUN. Lease released.
+
+
+## Active run lease — WEB v18.20 reminder timestamp compatibility (2026-11-20 23:09 UTC)
+- Startup preview main HEAD: 3b83f97954e32549ff33ed2114e8e81858f809ab.
+- App feature HEAD verified by live compare: e126908cdf63cf11feaec4affdf17c47bffd8185; stable app main: a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- Handoff was READY_FOR_NEXT_RUN with no active lease before this claim.
+- Exact task: compare archived WEB v18.20 Date.parse reminder behavior with native importer/scheduler; implement only the standard ISO date/time forms needed to preserve WEB-accepted instants and original source strings, with DST and year-zero regression coverage. No financial formula changes.
