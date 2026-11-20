@@ -1,17 +1,17 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T20:06:00Z
-Lease expires UTC: 2026-11-20T20:50:00Z
-Released UTC: none
+Updated UTC: 2026-11-20T20:13:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T20:13:00Z
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
-Verified app feature HEAD: `c33b05932cdbc395f25cfeb6c86c6135c51e43af`
-Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
-Verified preview main before handoff commit: `27d6187020ece97d84fd63a5f49a59d12fd2301d`
-Feature comparison: **426 ahead / 0 behind**; app/main remains unchanged.
-PROJECT_STATE checkpoint commit: `5228dd037256633d05670cc84925908c952eef76`.
-IMPLEMENTATION_QUEUE checkpoint commit: `27d6187020ece97d84fd63a5f49a59d12fd2301d`.
+Verified app feature HEAD: 1aabaada95b3d4ac01b9e117d6ada252d7fc1131
+Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+Verified preview main before handoff commit: cadf9431dcef721d68fc0a2e85101e1ec2e4d61e
+Feature comparison: **427 ahead / 0 behind**; app/main remains unchanged.
+PROJECT_STATE checkpoint commit: cadf9431dcef721d68fc0a2e85101e1ec2e4d61e
+IMPLEMENTATION_QUEUE checkpoint commit: cadf9431dcef721d68fc0a2e85101e1ec2e4d61e
 
 ## Latest completed run — audit graph and WEB v18.20 obligation reconciliation
 
@@ -625,3 +625,17 @@ Status: READY_FOR_NEXT_RUN. Lease released. No 100% parity claim.
 - Preview main at claim: 43873d5ab729f6846eeeb6899f6e971144d97cf7
 - App feature HEAD at claim: c33b05932cdbc395f25cfeb6c86c6135c51e43af
 - Exact task: inspect full populated WEB v18.20 snapshot/PortableBackup round-trip coverage and Files/document-picker restore boundary; implement only evidence-backed lossless tests or fixes, then checkpoint PROJECT_STATE/IMPLEMENTATION_QUEUE and release this handoff.
+
+
+## Completed run — populated snapshot restore and Files security-scope boundary (2026-11-20 20:13 UTC)
+
+- App commit: 1aabaada95b3d4ac01b9e117d6ada252d7fc1131 on feat/sync-preview-v18-20-ios; app stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366 unchanged; 427 ahead / 0 behind.
+- Added BackupDocumentReader with fail-closed security-scope acquisition, a bounded maximumBytes+1 provider read and defer-based scope release; BackupView uses it for native/WEB backup import.
+- Added four reader regression tests and expanded the populated WEB catalog encrypted restore test to compare all top-level LedgerSnapshot fields.
+- Executed: Linux Swift 6.2.1 helper runtime harness 4/4 PASS; helper/new XCTest parse PASS; isolated XCTest typecheck PASS after removing only @testable import. Not app XCTest.
+- Exact-HEAD Native iOS CI run 44808600534 completed FAILURE before runner steps were exposed; job 136538998308 steps=null, logs URL absent, log fetch 404 BlobNotFound, artifacts 0, combined statuses 0. Not retried. Parent run 44800661617 had same pre-runner failure shape.
+- Not executed: XcodeGen, xcodebuild, app XCTest, actual iOS Files provider, Simulator/UI, xcresult or screenshots. No formulas, LedgerStore wholesale changes or app/main modifications.
+
+**Exact next action:** add a restore transactionality regression proving denied/oversized/malformed selected backup input leaves every current ledger field unchanged. At the first macOS runner with steps, run XcodeGen, Simulator build, full unit/UI tests and inspect exact xcresult; then exercise fileExporter/fileImporter on Simulator and compare populated Light/Dark screens with archived WEB v18.20. Keep paidMonths, finite installments, closedAt and refinance changes gated on explicit Build19 calculation-contract approval. No 100% parity claim.
+
+Status: READY_FOR_NEXT_RUN. Lease released.
