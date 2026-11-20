@@ -913,3 +913,41 @@ No production formula change, no \`Models.swift\` or \`LedgerStore.swift\` rewri
 4. Keep financial obligation changes (`paidMonths`, finite installments, `closedAt`, refinance settlement) gated on explicit approval of the recorded v18.20 calculation contract.
 
 Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. No 100% parity claim.
+
+
+## Native iOS parity checkpoint — 2026-11-20 18:06 UTC — nested month-plan/catalog/projection array integrity
+
+**Completed on `nikopol000/financial-autonomy-app:feat/sync-preview-v18-20-ios` only.**
+
+- Startup app feature HEAD: `9ec40a0e66a79dd0348101992f46de9ac71bf0f5`; app stable `main`: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Final app feature HEAD: [`0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987`](https://github.com/nikopol000/financial-autonomy-app/commit/0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987), **424 ahead / 0 behind** app stable `main`; stable `main` unchanged.
+- Preview main at startup: `b21e581cce467a8fde3dfc5b36fe958bb3d77c73`; finite handoff lease claimed in preview commit `ebad89b781b60dd8504be470cb945c7ddfcdc6a6`.
+
+### App changes
+
+- [`e6cad8c44f140436fe864c8afe99c2f6c8b77eaf`](https://github.com/nikopol000/financial-autonomy-app/commit/e6cad8c44f140436fe864c8afe99c2f6c8b77eaf): `WebImportedMonthPlan.budgets` now has presence-aware Codable decoding. Missing remains `nil` for pre-build28 native snapshots; an explicit empty array remains `[]`; explicit `null`, a non-array or malformed elements fail closed. The decoder is in an extension so the existing memberwise initializer used by the importer remains available; synthesized encoding still omits nil and emits empty arrays.
+- [`0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987`](https://github.com/nikopol000/financial-autonomy-app/commit/0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987): added regressions for legacy absent/empty/null/malformed month-plan budgets, canonical encode omission/presence, and encrypted PortableBackup restore preserving absent versus empty. Added importer rejection coverage for missing/null/malformed `monthPlans.budgets/expenses/debtPayments`, `projection.exposed/payoffs`, and `recurring.history`.
+
+### WEB v18.20 comparison
+
+- Re-read the archived reference bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`.
+- The exact WEB validator requires `Array.isArray` for each month-plan `budgets`, `expenses`, and `debtPayments`; requires both projection `exposed` and `payoffs` arrays; and the native importer independently requires recurring `history` to be an array.
+- Native `parseMonthPlans`, `parseProjection`, and `parseRecurring` enforce those same required-array boundaries. The native model's optional month-plan budgets remain optional only for historical native snapshots; explicit null is now rejected rather than collapsed into legacy absence.
+- `WebImportedDebt.schedule` and `WebImportedMonthPlanBudget.additionalWindows` retain the previous presence-aware behavior from `9ec40a0`.
+
+### Verification actually executed
+
+- Swift 6.2.1 focused Codable runtime harness: **7/7 PASS** for absent, empty, synthesized encode omission/presence, and explicit null/string/wrong-element rejection.
+- Swift 6.2.1 `swiftc -typecheck` and `swiftc -parse` on the two new XCTest methods using isolated matching model/API stubs: **PASS**. This is not the FinancialAutonomy target.
+- Host: Swift 6.2.1 on Linux x86_64; `xcodebuild` and `xcodegen` are unavailable.
+- Not executed: XcodeGen, iOS build, app XCTest, CryptoKit PortableBackup runtime through the app target, Simulator, UI tests, Files picker, `.xcresult` or screenshots.
+
+### Native iOS CI for exact final HEAD
+
+- Combined status for `0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987`: zero contexts.
+- Connected commit-workflow lookup: no runs returned (the available wrapper exposes PR-triggered runs only); exact push-run ID/state is not observable through the connected integration. The checked workflow is push-triggered for this feature branch and `NativeiOS/**/*.swift`.
+- Parent exact run [44780554682](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44780554682) for `9ec40a0` failed before runner allocation (`runner_id=0`, empty steps, no artifacts, log 404 `BlobNotFound`). It was not retried; no compiler/test diagnostic exists for that run.
+
+No financial formulas, balances, operations, `LedgerStore`, backup envelope, privacy architecture or app/main files were changed. Local-only data and the credit-is-not-owned-money invariant remain intact. No 100% parity claim.
+
+**Exact next action:** audit remaining optional collection fields in `WebImportMetadata` and `LedgerSnapshot` for historical absent/null behavior. Use model introduction/encoder history to distinguish valid legacy absence from malformed explicit null before changing any decoder; add only evidence-backed preservation/fail-closed tests. Continue exact-HEAD CI observability without retrying the zero-runner parent. At the first macOS runner with actual steps, run XcodeGen, Simulator build, full unit/UI suite and inspect the exact `.xcresult`; then continue populated backup restore, Files/document-picker and Light/Dark screen comparison. Financial obligation changes remain approval-gated.
