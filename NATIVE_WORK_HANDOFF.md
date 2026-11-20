@@ -2,13 +2,13 @@
 
 Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-19T23:29:00Z
+Updated UTC: 2026-11-20T00:15:00Z
 Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: aad3fceceb184911c55d26ffb16dfd5369f43b88
+Verified app feature HEAD: 40f46f37a6251ed7aa2d9815fa7b06cb13b4e008
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: eb36b9f8697e390935a52b4ce0a2b3fff81ec895
-Feature comparison: 389 commits ahead, 0 behind; app/main remains unchanged.
+Verified preview main before handoff commit: 38384068a2e5d8ca0140a7a230379662cd291403
+Feature comparison: 391 commits ahead, 0 behind; app/main remains unchanged.
 
 ## Completed this run
 - Re-read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and this handoff from preview `main`; startup handoff was READY/no lease.
@@ -112,3 +112,18 @@ Privacy invariants: local-only; no backend, mandatory account, bank synchronizat
 3. When a macOS runner is available, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/artifacts; then exercise real CSV document selection and compare CSV/Subscriptions Light/Dark screens.
 4. Continue financial formula and lossless backup checks. Keep all work on `feat/sync-preview-v18-20-ios`; never modify/merge app/main without explicit approval.
 
+
+
+## Completed this run — CSV document-import parity (2026-11-20 00:15 UTC)
+- Startup handoff was READY_FOR_NEXT_RUN/no lease. Read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and NATIVE_WORK_HANDOFF.md from preview main; reconciled actual refs before writing.
+- App feature moved from aad3fceceb184911c55d26ffb16dfd5369f43b88 to 40f46f37a6251ed7aa2d9815fa7b06cb13b4e008; app/main a9b30be147abecea45a63bf7dd8d0a3eb3370366 unchanged. Preview main before this documentation commit: 38384068a2e5d8ca0140a7a230379662cd291403. Feature compare: 391 ahead / 0 behind.
+- Inspected exact archived WEB v18.20 bundle and found native CSV picker differences: ignored failed security-scope acquisition, noisy cancellation alert, and strict UTF-8 rejection versus WEB File.text replacement semantics.
+- App commits: implementation 33fd978ebc101c4c1b26d17147b28b65b59e706e; tests 40f46f37a6251ed7aa2d9815fa7b06cb13b4e008. Six isolated Swift XCTest cases passed; Node Blob.text/2 MB boundary reference passed. No Xcode build/full app XCTest/Simulator/visual verification.
+- Exact push CI runs 44643972585 and 44644011074 failed with empty step lists, null log URLs, log 404 BlobNotFound and no artifacts; exact current combined status empty. Do not rerun these pre-step failures.
+- No Models/LedgerStore/formula/balance/transaction/backup-schema or app/main changes. Active WEB is 18.74; iOS reference remains archived 18.20.
+
+## Exact next action
+1. Inspect exact push CI visibility/runner for 40f46f37a6251ed7aa2d9815fa7b06cb13b4e008; do not repeat runs 44636189505, 44643972585 or 44644011074.
+2. If still no runner/steps, audit CSV content-type filtering, CR/LF, BOM, delimiter and header edge cases against archived WEB v18.20; add only evidence-backed tests/fixes.
+3. At first usable macOS runner, run XcodeGen, Simulator build, full unit/UI tests and inspect .xcresult/screenshots; then exercise real document picker and compare Light/Dark screens.
+4. Continue financial formula and lossless backup validation. Keep this handoff READY_FOR_NEXT_RUN with no lease; do not modify app/main.
