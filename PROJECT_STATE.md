@@ -702,3 +702,5 @@ No 100% parity claim. Privacy invariants unchanged: local-only, no backend/accou
 - No xcodebuild/XcodeGen, full XCTest, Simulator, document-picker run or screenshot/visual comparison was executed. Do not mark build, XCTest or visual UI verified.
 - Privacy invariants preserved: local-only, no backend, mandatory account, bank sync or telemetry; available credit remains distinct from owned cash. No financial formulas, Models/LedgerStore wholesale rewrite, or app/main changes.
 - Next exact action: compare v2/v3 optional-key presence/null behavior for appearance, dashboardLayout, projection, paidMonths, names/nameChanges, rolesEffectiveFrom, balanceChecks and checkAudit against archived WEB v18.20; add focused null/falsey regression cases. Then continue lossless import/export audit. At first usable macOS runner, execute XcodeGen, Simulator build, all unit/UI tests, inspect .xcresult and capture History/Light/Dark screens.
+
+Checkpoint documentation was committed on preview main in e8323d6cb33f7810c70b9b76574e91d00a607960; app feature HEAD remains 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f.

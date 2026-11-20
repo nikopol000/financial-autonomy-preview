@@ -4359,3 +4359,5 @@ CI evidence for exact HEAD 882c7a4: Native iOS CI run 44709829628 FAILURE before
 First next action: audit optional-key null/absence semantics for v2/v3 and v4 against WEB v18.20 (appearance, dashboardLayout, projection, paidMonths, names, nameChanges, rolesEffectiveFrom, balanceChecks, checkAudit), especially explicit null versus absent; add focused regression fixtures. Continue lossless import/backup validation. When a macOS runner is actually allocated, run XcodeGen, Simulator build, all unit/UI tests and inspect artifacts/screenshots.
 
 Current branch safety: app feature 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f; app main a9b30be147abecea45a63bf7dd8d0a3eb3370366 unchanged; feature 406 ahead / 0 behind. No 100% parity claim.
+
+Checkpoint documentation was committed on preview main in e8323d6cb33f7810c70b9b76574e91d00a607960; app feature HEAD remains 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f.

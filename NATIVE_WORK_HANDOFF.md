@@ -340,7 +340,7 @@ Privacy invariants: local-only; no backend, mandatory account, bank sync or tele
 - Archived WEB v18.20 modules 204/205 confirm truthy v1 legacy summary validation and v2/v3 spread preservation. Native now accepts, retains, validates and revalidates the optional summary; unknown nested keys are retained. History shows first 20 spending rows without replaying them into ledger balances.
 - Focused Swift and Node harnesses passed; no Xcode build/XCTest/Simulator/visual comparison was executed.
 - Exact CI run 44709829628 for final HEAD failed before runner allocation: job 136198418312, runner_id=0, steps=[], logs unavailable/404, artifacts empty; combined status pending with zero contexts. No retry.
-- Preview continuity commits to follow: PROJECT_STATE, IMPLEMENTATION_QUEUE and this READY_FOR_NEXT_RUN handoff. No app/main, formula, backend, account, bank-sync or telemetry changes.
+- Preview continuity checkpoint commit: e8323d6cb33f7810c70b9b76574e91d00a607960 (PROJECT_STATE, IMPLEMENTATION_QUEUE and READY_FOR_NEXT_RUN handoff). No app/main, formula, backend, account, bank-sync or telemetry changes.
 
 ## Exact next action
 1. Audit v2/v3 optional-key presence/null semantics for appearance, dashboardLayout, projection, paidMonths, names/nameChanges, rolesEffectiveFrom, balanceChecks and checkAudit against archived WEB v18.20; add focused fixtures for explicit null versus absent and falsey legacy values.
