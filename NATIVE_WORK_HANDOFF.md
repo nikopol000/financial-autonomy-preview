@@ -332,3 +332,17 @@ Preview PROJECT_STATE.md + IMPLEMENTATION_QUEUE.md checkpoint commit: `563691433
 4. Continue populated-data backup/restore, real CSV picker, accessibility and screen-by-screen Light/Dark comparison against archived WEB v18.20.
 
 Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main without explicit user approval. No 100% parity claim until all gates pass.
+
+
+## Active run lease — embedded legacy v1 summary preservation (2026-11-20 09:07 UTC)
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T09:07:00Z
+- Lease expires UTC: 2026-11-20T09:52:00Z
+- Preview main HEAD at lease claim: 5839fdb632200e3eea7155d15d0ca7c3c830293c
+- App feature HEAD verified live: 3f279443854f719a261eb0d02dfb4a18f7567ac5
+- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- Exact first unfinished action: preserve the optional embedded WEB v1 summary (legacy) carried by accepted v2/v3/v4 state. Archived WEB v18.20 module 205 migrates v1 state into state.legacy, and its v4 validator explicitly revalidates u.legacy using module 204's v1 validator. Native v2/v3 normalization and v4 allowlists currently reject this field.
+- Planned representation: bounded canonical JSON Data in WebImportMetadata, validated against the archived v1 contract and revalidated by SnapshotValidator after encrypted native restore. Keep all nested legacy fields intact; do not flatten or reinterpret them as current ledger entries.
+- Exact CI for current app feature HEAD: Native iOS CI run 44700496772 FAILURE before runner allocation (job 136167408093, runner_id=0, steps=[], logs_url=null, artifacts=[]); combined status has zero contexts. Do not rerun this failure or its zero-runner parent.
+- No financial formula changes; do not modify app/main, backend/account/bank sync or telemetry. Recheck feature HEAD and preview lease before app writes.
