@@ -383,3 +383,17 @@ Preview main HEAD at release checkpoint: `5005c9ff954c6b2d4e68dcaa751df50fa3277a
 - Exact-HEAD Native iOS CI run `44717297116`: FAILURE before runner allocation; job `136223843103`, runner_id 0, steps empty, no logs/artifacts, combined status empty. Do not retry this pre-runner failure.
 
 **Exact next action:** add a v2/v3 migration → encrypted PortableBackup seal/open regression for normalized optional metadata; continue remaining lossless backup field audit. At first macOS runner allocation, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/screenshots. Formula changes remain blocked pending explicit approval. No 100% parity claim.
+
+
+## Active run lease — v2/v3 migration encrypted PortableBackup round-trip regression
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T11:11:00Z
+- Lease expires UTC: 2026-11-20T11:56:00Z
+- Preview main HEAD at claim: 47a1e60ce938ed8b0b916cbc22bc190f622d092e
+- App feature HEAD verified live: 5cf7682f784103c1aaa04248dcd07fe158ce082d
+- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- Feature comparison: 407 ahead / 0 behind.
+- Exact first unfinished action: add an XCTest regression that imports representative WEB v2 and v3 states, exercises the actual PortableBackup.seal/open encrypted round-trip, and asserts normalized optional metadata survives unchanged. Keep source data synthetic and local; do not alter formulas or the backup envelope.
+- Do not modify Models.swift or LedgerStore.swift wholesale. Recheck feature branch HEAD immediately before publishing source changes. At first usable macOS runner, execute XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/screenshots.
+- No app/main changes, no backend/account/bank sync/telemetry. Available credit is not owned money.
