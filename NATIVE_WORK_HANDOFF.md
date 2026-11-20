@@ -1,10 +1,10 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T20:13:00Z
-Lease expires UTC: none
-Released UTC: 2026-11-20T20:13:00Z
+Updated UTC: 2026-11-20T21:08:00Z
+Lease expires UTC: 2026-11-20T21:55:00Z
+Released UTC: none
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
 Verified app feature HEAD: 1aabaada95b3d4ac01b9e117d6ada252d7fc1131
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -639,3 +639,12 @@ Status: READY_FOR_NEXT_RUN. Lease released. No 100% parity claim.
 **Exact next action:** add a restore transactionality regression proving denied/oversized/malformed selected backup input leaves every current ledger field unchanged. At the first macOS runner with steps, run XcodeGen, Simulator build, full unit/UI tests and inspect exact xcresult; then exercise fileExporter/fileImporter on Simulator and compare populated Light/Dark screens with archived WEB v18.20. Keep paidMonths, finite installments, closedAt and refinance changes gated on explicit Build19 calculation-contract approval. No 100% parity claim.
 
 Status: READY_FOR_NEXT_RUN. Lease released.
+
+
+## Active lease — backup restore transactionality regression (2026-11-20 21:08 UTC)
+- Preview main HEAD before lease: a192bf5fe0ce312e6c54ee89bb5990d3bccee0a7.
+- App feature HEAD verified live: 1aabaada95b3d4ac01b9e117d6ada252d7fc1131; app stable main: a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature comparison: 427 ahead / 0 behind.
+- Startup handoff was READY_FOR_NEXT_RUN with no lease.
+- Exact first unfinished action: extract the selected-backup read/decrypt/validate preparation path from BackupView into a testable non-mutating helper, then add regression tests proving denied security scope, oversized provider data and malformed/undecryptable input leave the complete current LedgerSnapshot and persisted snapshot unchanged. Verify a successfully prepared backup also remains unapplied until explicit restore confirmation.
+- Exact HEAD Native iOS CI run 44808600534 failed before runner allocation (job 136538998308, runner_id=0, steps=[], no logs/artifacts, combined contexts empty); do not retry this failure. Continue independent work.
+- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. No app/main writes or merge. Preserve local-only data and credit-is-not-owned-money invariant.
