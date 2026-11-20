@@ -4361,3 +4361,17 @@ First next action: audit optional-key null/absence semantics for v2/v3 and v4 ag
 Current branch safety: app feature 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f; app main a9b30be147abecea45a63bf7dd8d0a3eb3370366 unchanged; feature 406 ahead / 0 behind. No 100% parity claim.
 
 Checkpoint documentation was committed on preview main in e8323d6cb33f7810c70b9b76574e91d00a607960; app feature HEAD remains 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f.
+
+
+## 2026-11-20 10:16 UTC — completed WEB v18.20 v2/v3 optional-key semantics audit
+
+**Status: IMPLEMENTED / isolated checks passed; native CI blocked before runner.**
+- App commit: `5cf7682f784103c1aaa04248dcd07fe158ce082d` — `fix(backup): match WEB optional-key null semantics`.
+- Changed: `NativeiOS/WebBackupV18_20.swift`; `NativeiOS/Tests/WebBackupV18_20Tests.swift`.
+- Fixed a demonstrated parity defect: explicit null for `nameChanges`, `rolesEffectiveFrom`, `balanceChecks` and `checkAudit` was being treated as absent. WEB v18.20 rejects those nulls before its migration defaults. Only absent keys now default. Explicit null for `names` remains accepted (WEB uses `names ?? []`). Null/false/0/empty string for `appearance`, `dashboardLayout`, `projection` and `paidMonths` remains rejected; absence remains optional. v4 strict behavior is unchanged.
+- Added one v2/v3 XCTest matrix and corrected the prior fixture to test missing fields. Unknown fields still fail closed.
+- Verification: Swift 6.2.1 isolated harness 74/74 PASS; `swiftc -parse` for the new test-method snippet PASS. Not an Xcode build or XCTest run.
+- Exact CI run [44717297116](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44717297116) FAILURE before runner allocation: job `136223843103`, runner_id 0, zero steps, no logs/artifacts, combined status empty. No retry.
+- Feature HEAD `5cf7682f784103c1aaa04248dcd07fe158ce082d`; app/main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; 407 ahead / 0 behind.
+
+**First next action:** add a v2/v3 migration → encrypted PortableBackup seal/open regression for normalized optional metadata, then continue remaining lossless backup field audit. At first usable macOS runner, run XcodeGen, Simulator build and full unit/UI suite; inspect .xcresult and screenshots. Keep formulas unchanged until the explicit v18.20 obligation contract is approved. No 100% parity claim.

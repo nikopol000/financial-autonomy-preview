@@ -350,10 +350,11 @@ Privacy invariants: local-only; no backend, mandatory account, bank sync or tele
 Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main without explicit approval. Do not declare 100% parity until all functional, financial, lossless-data, build/test and visual gates pass.
 
 ## Active run lease — WEB v18.20 optional-key presence/null parity
-- Status: IN_PROGRESS
+- Status: RELEASED
 - Owner: Financial Autonomy iOS automation
 - Updated UTC: 2026-11-20T10:05:00Z
-- Lease expires UTC: 2026-11-20T10:50:00Z
+- Lease expires UTC: none
+- Released UTC: 2026-11-20T10:16:00Z
 - Preview main HEAD at claim: 51265bfe8bd2ba2684cdab1fe775a7314a6b5d00
 - App feature HEAD verified live: 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f
 - App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -362,3 +363,23 @@ Privacy invariants: local-only; no backend, mandatory account, bank sync or tele
 - Source evidence: archived WEB module 204 validates before orderedState/upgradeNames. Missing names/nameChanges/rolesEffectiveFrom/balanceChecks/checkAudit are defaulted during normalization; explicit null is accepted only for names (nullish names fallback), while null nameChanges/rolesEffectiveFrom/balanceChecks/checkAudit and null appearance/dashboardLayout/projection/paidMonths are rejected. False, zero and empty-string values are not treated as missing.
 - Exact current Native iOS CI for app HEAD 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f: run 44709829628 FAILURE; job 136198418312 reports completed failure with null steps/logs, no artifacts; combined status has zero contexts. Do not rerun this pre-runner failure.
 - Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. Do not modify/merge app/main. Formula changes remain blocked pending explicit approval. Local-only privacy and credit-is-not-owned-money invariants remain mandatory.
+
+
+## Completed run — WEB v18.20 v2/v3 optional-key presence/null parity (2026-11-20 10:16 UTC)
+
+Status: READY_FOR_NEXT_RUN
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-20T10:16:00Z
+Lease expires UTC: none
+Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
+Verified app feature HEAD: `5cf7682f784103c1aaa04248dcd07fe158ce082d`
+Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
+Feature comparison: 407 ahead / 0 behind.
+Preview main HEAD at release checkpoint: `5005c9ff954c6b2d4e68dcaa751df50fa3277a05`.
+
+- Archived WEB v18.20 validator source (bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2`, modules 204/206/207) proves missing fields and explicit null have different semantics. Only `names` accepts explicit null through `?? []`; null `nameChanges`, `rolesEffectiveFrom`, `balanceChecks`, `checkAudit`, `appearance`, `dashboardLayout`, `projection` and `paidMonths` is rejected. False/0/empty string is not treated as missing.
+- App commit `5cf7682f784103c1aaa04248dcd07fe158ce082d` updates the v2/v3 normalizer and tests. Only the backup adapter and its test file changed. v4 path, formulas, Models/LedgerStore and app/main remain unchanged.
+- Swift 6.2.1 isolated harness: 74/74 assertions PASS. Swift parser check of the new XCTest method snippet PASS. No Xcode build or XCTest suite executed.
+- Exact-HEAD Native iOS CI run `44717297116`: FAILURE before runner allocation; job `136223843103`, runner_id 0, steps empty, no logs/artifacts, combined status empty. Do not retry this pre-runner failure.
+
+**Exact next action:** add a v2/v3 migration → encrypted PortableBackup seal/open regression for normalized optional metadata; continue remaining lossless backup field audit. At first macOS runner allocation, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/screenshots. Formula changes remain blocked pending explicit approval. No 100% parity claim.
