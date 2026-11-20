@@ -1,17 +1,17 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T23:09:19Z
-Lease expires UTC: 2026-11-21T00:00:00Z
-Released UTC: none
+Updated UTC: 2026-11-20T23:25:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T23:25:00Z
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
-Verified app feature HEAD: e126908cdf63cf11feaec4affdf17c47bffd8185
+Verified app feature HEAD: 4a7f99a3ac9622f531a522985e229706ce1033b9
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: 3b83f97954e32549ff33ed2114e8e81858f809ab
-Feature comparison: **431 ahead / 0 behind**; app/main remains unchanged.
-PROJECT_STATE checkpoint commit: 8599afdbefbf4617f972931e2d20e00f0898f58a
-IMPLEMENTATION_QUEUE checkpoint commit: fe172446bd683fd77d674398a9d2c5a511cf8dba
+Verified preview main before handoff commit: 35f9b043bc0dad3d9de3588bad284abbc27959e1
+Feature comparison: **435 ahead / 0 behind**; app/main remains unchanged.
+PROJECT_STATE checkpoint commit: d6494e2fcf114ceb50dccb082c767980d6ed9285
+IMPLEMENTATION_QUEUE checkpoint commit: 35f9b043bc0dad3d9de3588bad284abbc27959e1
 
 ## Latest completed run — audit graph and WEB v18.20 obligation reconciliation
 
@@ -708,3 +708,12 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - App feature HEAD verified by live compare: e126908cdf63cf11feaec4affdf17c47bffd8185; stable app main: a9b30be147abecea45a63bf7dd8d0a3eb3370366.
 - Handoff was READY_FOR_NEXT_RUN with no active lease before this claim.
 - Exact task: compare archived WEB v18.20 Date.parse reminder behavior with native importer/scheduler; implement only the standard ISO date/time forms needed to preserve WEB-accepted instants and original source strings, with DST and year-zero regression coverage. No financial formula changes.
+
+
+## Latest completed run — WEB v18.20 reminder timestamp compatibility
+- App commits: b8cec50ed36cb463d972020267e878077baf494c and 4a7f99a3ac9622f531a522985e229706ce1033b9 on feat/sync-preview-v18-20-ios only.
+- Archived bundle module 204 uses Date.parse for recurring reminder validation. Native importer, SubscriptionEngine display/validation and notification scheduling now share WebReminderTimestamp; original reminder strings remain unchanged.
+- Node 22.16.0 reference matrix 29/29 PASS; Swift 6.2.1 isolated runtime harness 29/29 PASS; parser tests type-check with matching stubs. No app-target XCTest/Xcode build/Simulator/UI/Files verification.
+- Exact final-HEAD Native iOS CI run 44836430006 failed before runner allocation (runner_id=0, steps=[], empty logs, zero artifacts); parent run 44836033588 had the same pre-runner failure. Neither was retried.
+- Stable app main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366. No financial formulas, Models/LedgerStore or privacy architecture changed.
+- Next: macOS runner with real steps -> XcodeGen, Simulator build, full unit/UI tests and exact xcresult; while blocked, audit recurring lifecycle transitions/history/reminder clearing and local notification reconciliation against WEB v18.20. No Build19 formula changes without approval.
