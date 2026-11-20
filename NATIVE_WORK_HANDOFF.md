@@ -303,3 +303,32 @@ No 100% parity claim. Keep local-only, no backend/account/bank sync/telemetry; a
 - Previous lease expired at 2026-11-20T07:40:00Z. All continuity documents and this handoff were reread from current preview main before work.
 - Exact first unfinished action: implement and test WEB v18.20 accepted v2/v3 state migration in the native backup adapter, matching orderedState + upgradeNames: deterministic same-day order, generated/retained names, inferred financial roles, audit-before name migration, and optional top-level defaults. Preserve v4 behavior and reject unknown fields.
 - No financial formula changes; do not touch Models/LedgerStore wholesale, app/main, backend/account/bank sync or telemetry. Recheck app feature HEAD before every write.
+
+
+## Completed run — WEB v18.20 legacy v2/v3 backup migration (2026-11-20 08:12 UTC)
+
+Status: READY_FOR_NEXT_RUN
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-20T08:12:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T08:12:00Z
+Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
+Verified app feature HEAD: `3f279443854f719a261eb0d02dfb4a18f7567ac5`
+Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
+Feature comparison: 404 ahead / 0 behind.
+Preview PROJECT_STATE.md + IMPLEMENTATION_QUEUE.md checkpoint commit: `5636914333b0cea8cf4fe7f7697d734c37836687`.
+
+- Implemented archived WEB v18.20 v2/v3 `orderedState` + `upgradeNames` normalization in `NativeiOS/WebBackupV18_20.swift`; v4 passes through unchanged. Covers same-day default order, explicit order preservation, generated/retained name catalog, role inference, audit-before migration and optional top-level nullish defaults.
+- App commits: `1f5be3b127a9ba75b4bf363c1894651baffbecaa`, `3f279443854f719a261eb0d02dfb4a18f7567ac5`.
+- Added 3 XCTest regression methods. Isolated Swift harness 15/15 PASS; archived WEB Node reference fixture PASS. XCTest/Xcode build/Simulator/visual validation not run.
+- Exact final-HEAD CI run `44700496772` failed before runner allocation (runner_id=0, steps=[], no logs/artifacts); no retry. Combined status pending with no contexts.
+- App main unchanged; no formulas, Models/LedgerStore, backup schema, privacy architecture or app/main changes.
+- Known boundary: optional embedded WEB `legacy` v1 summary remains rejected by native strict allowlist; year-zero WEB backup date behavior remains separately documented. These are not silently discarded.
+
+## Exact next action
+1. Audit optional embedded `legacy` v1 summary and remaining v2/v3 top-level keys; establish a lossless typed representation or retain an explicit tested fail-closed boundary.
+2. Keep financial formula changes blocked pending explicit approval of the v18.20 obligation contract.
+3. On the next run, re-read continuity docs and verify live refs/CI. Do not retry recorded zero-runner failures. At the first usable macOS runner, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/screenshots.
+4. Continue populated-data backup/restore, real CSV picker, accessibility and screen-by-screen Light/Dark comparison against archived WEB v18.20.
+
+Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main without explicit user approval. No 100% parity claim until all gates pass.
