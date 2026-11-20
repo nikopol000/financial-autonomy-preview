@@ -290,3 +290,16 @@ No 100% parity claim. Keep local-only, no backend/account/bank sync/telemetry; a
 - App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 - First unfinished non-financial action: align the native WEB backup adapter with archived WEB v18.20 accepted v2/v3 state migration (orderedState + upgradeNames), including generated names, roles, same-day order and optional top-level defaults. Keep v4 behavior unchanged and unknown fields fail-closed.
 - No financial formula changes, no app/main writes, no backend/account/bank sync/telemetry. Verify exact branch HEAD again before app writes.
+
+
+## Active run lease — WEB v18.20 legacy v2/v3 import normalization (2026-11-20 08:02 UTC)
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T08:02:00Z
+- Lease expires UTC: 2026-11-20T08:47:00Z
+- Preview main HEAD at lease claim: 45bf785a9c905dc13bc97c782f87aed95e639a43
+- App feature HEAD verified live: 7208fe0dc31814b18cec94813bac0bb450108766
+- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- Previous lease expired at 2026-11-20T07:40:00Z. All continuity documents and this handoff were reread from current preview main before work.
+- Exact first unfinished action: implement and test WEB v18.20 accepted v2/v3 state migration in the native backup adapter, matching orderedState + upgradeNames: deterministic same-day order, generated/retained names, inferred financial roles, audit-before name migration, and optional top-level defaults. Preserve v4 behavior and reject unknown fields.
+- No financial formula changes; do not touch Models/LedgerStore wholesale, app/main, backend/account/bank sync or telemetry. Recheck app feature HEAD before every write.
