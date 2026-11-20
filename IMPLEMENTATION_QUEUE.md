@@ -4324,3 +4324,23 @@ Privacy invariants: local-only, no backend/account/bank sync/telemetry; availabl
 - This is a focused Foundation/Node probe, not Xcode build/XCTest.
 
 **Next:** continue the non-financial import/backup compatibility review; do not broaden year-zero handling beyond CSV without explicit scope approval. Financial obligation changes remain blocked pending explicit approval of the Build19 v18.20 calculation contract. Native XcodeGen/build/full XCTest/UI and populated backup/visual verification remain open.
+
+
+## 2026-11-20 08:12 UTC — Native WEB v18.20 legacy v2/v3 backup migration
+
+**Completed on `financial-autonomy-app:feat/sync-preview-v18-20-ios` only**
+- Final app feature HEAD: `3f279443854f719a261eb0d02dfb4a18f7567ac5` (404 ahead / 0 behind app/main); stable app/main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- App commits: `1f5be3b127a9ba75b4bf363c1894651baffbecaa` (v2/v3 migration + tests), `3f279443854f719a261eb0d02dfb4a18f7567ac5` (Swift interpolation correction).
+- `WebBackupV18_20.decodeState` now runs a v2/v3-only normalization matching archived WEB v18.20 `orderedState` + `upgradeNames`; v4 is untouched. Missing/null order uses original same-day array position × 1000; explicit order survives. Name catalog records are retained; generated `name-N` skips collisions; transactions and audit-before receive name IDs, canonical display names and inferred roles. Optional name/history/role-effective-date/balance-check top-level fields receive WEB defaults.
+- Three regression tests cover v2, v3 and fail-closed/v4 boundaries. Tests are committed but NOT run in XCTest.
+- Swift 6.2.1 isolated harness 15/15 PASS; Node 22.16 archived WEB reference fixture PASS. Not Xcode build/XCTest.
+- Exact CI for final HEAD: run `44700496772` FAILURE before runner allocation (job `136167408093`, runner_id=0, steps=[], no logs/artifacts; combined status pending/no contexts). Do not retry this pre-runner failure. Parent run `44700346092` failed the same way.
+- No Models/LedgerStore, formulas, financial models, balances, transaction schema, backup schema, app/main or privacy architecture changes.
+
+**First next action**
+1. Audit WEB v18.20's optional embedded `legacy` v1 summary in v2/v3 states and all remaining optional top-level keys. Decide whether to add a typed, lossless metadata representation or retain explicit fail-closed rejection; add synthetic fixtures before any mapping.
+2. Keep the approved financial-obligation contract gate closed; no `paidMonths`/installment/closedAt/refinance formula changes without explicit user approval.
+3. Check exact-HEAD CI visibility at the next run without rerunning recorded zero-runner failures. At the first macOS runner, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/screenshots.
+4. Continue populated-data backup/restore, real CSV picker, accessibility and screen-by-screen Light/Dark comparison against archived WEB v18.20.
+
+Privacy: local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money; never modify/merge app/main. No 100% parity claim before all function, formula, data-preservation, build/test and visual gates pass.
