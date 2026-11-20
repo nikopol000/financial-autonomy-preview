@@ -1,17 +1,17 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T22:04:00Z
-Lease expires UTC: 2026-11-20T22:49:00Z
-Released UTC: none
+Updated UTC: 2026-11-20T22:08:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T22:08:00Z
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
-Verified app feature HEAD: 2766fb956d6d63ef940bfc9988f901a1591eaffb
+Verified app feature HEAD: dda4976f873d94d155f69a1dbe9dec6d9c45c472
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: 4da6368a38d6aa85e96f5409b7b94a05ba050156
+Verified preview main before handoff commit: 1e5f21b01fa699d4c525ead35aa14ad41615ec93
 Feature comparison: **431 ahead / 0 behind**; app/main remains unchanged.
-PROJECT_STATE checkpoint commit: daec368c2692bd312c0109406a276dfcd3a1fdca
-IMPLEMENTATION_QUEUE checkpoint commit: 4da6368a38d6aa85e96f5409b7b94a05ba050156
+PROJECT_STATE checkpoint commit: d44a05fe1a6655a47186d2d85e5ee67ee407a02b
+IMPLEMENTATION_QUEUE checkpoint commit: 1e5f21b01fa699d4c525ead35aa14ad41615ec93
 
 ## Latest completed run — audit graph and WEB v18.20 obligation reconciliation
 
@@ -671,3 +671,14 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - App feature HEAD at claim: `2766fb956d6d63ef940bfc9988f901a1591eaffb`; app stable main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (431 ahead / 0 behind).
 - Exact task: verify the documented WEB v18.20 year-0000 ISO date acceptance mismatch against the native importer, implement a backup-scoped proleptic-Gregorian validator (without changing CSV/global calendar semantics), add import/restore-focused regression tests, and run available Swift checks.
 - Formula changes (`paidMonths`, finite installments, `closedAt`, refinance) remain out of scope pending explicit Build19 approval. No app/main writes or merge.
+
+
+## Latest completed run — WEB v18.20 year-zero date restore audit
+- App feature HEAD: `dda4976f873d94d155f69a1dbe9dec6d9c45c472` (documentation-only PARITY_CHECKLIST finding); stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; 432 ahead / 0 behind.
+- Confirmed WEB accepts proleptic-Gregorian year 0000, while native importer DateFormatter rejects it and SnapshotValidator independently re-rejects metadata/account date fields through RecurrenceCalendar's 1...9999 parser. A parser-only fix would still fail restore. Full scoped compatibility needs a complete date-field/consumer map; no partial code change made.
+- Node 22.16.0 and Swift 6.2.1 Foundation probes executed. No Xcode/iOS runtime/XCTest/Simulator/UI.
+- Exact current app HEAD combined statuses: zero contexts; workflow lookup exposed no runs. Markdown-only commit is outside CI path filter. Last code commit `2766fb9` run `44818062507` failed before runner allocation (runner_id 0, empty steps, log 404, zero artifacts); not retried.
+- Preview checkpoints: PROJECT_STATE `d44a05fe1a6655a47186d2d85e5ee67ee407a02b`; IMPLEMENTATION_QUEUE `1e5f21b01fa699d4c525ead35aa14ad41615ec93`.
+- Exact next action: map every WEB date-only field through importer, SnapshotValidator and downstream calendar/recurrence consumers; define a complete scoped year-zero contract before implementation. At first macOS runner with steps, execute XcodeGen, Simulator build, full unit/UI tests and inspect `.xcresult`; then real Files and populated Light/Dark checks. Keep financial obligation changes approval-gated.
+
+Status: READY_FOR_NEXT_RUN. Lease released.
