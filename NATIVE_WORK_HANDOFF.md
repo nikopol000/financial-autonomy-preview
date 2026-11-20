@@ -522,3 +522,16 @@ IMPLEMENTATION_QUEUE checkpoint commit: `a526cc0659cd6a0441a128e4787c77eb93f17ee
 - No app/main modification or merge; no financial formula changes. Local-only/privacy and credit-is-not-owned-money invariants preserved.
 
 **Exact next action:** audit key evolution for OperationAuditEntry, BalanceObservation, ReconciliationExplanation, audit containers, LedgerSnapshot and remaining nested loan/goal records; then compare Autonomie/Space/daily-pace formulas read-only against archived WEB v18.20. At the first macOS runner that executes steps, run XcodeGen, Simulator build, full unit/UI tests and inspect exact .xcresult/screenshots. Financial formula changes remain gated on explicit approval. No 100% parity claim.
+
+
+## Active run lease — non-financial WEB v18.20 import/backup audit
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T16:09:00Z
+- Lease expires UTC: 2026-11-20T16:50:00Z
+- Preview main HEAD at claim: edeef28c254aba78767f8b9a98c2eb19dd80c52b
+- App feature HEAD verified live: d382e2e59e68651427e4d1feed5ec4be09866bdc
+- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- Feature comparison: 419 ahead / 0 behind.
+- First unfinished action: continue the non-financial WEB v18.20 import/backup audit with populated fixtures, focusing on nested metadata and complete legacy snapshot round-trips; add only evidence-backed lossless-restore regressions and preserve strict rejection of unsupported fields. Recheck exact-HEAD Native iOS CI without repeating the known pre-runner failure.
+- Formula changes remain approval-gated. Keep all app writes on feat/sync-preview-v18-20-ios; do not modify/merge app/main. Preserve local-only privacy and credit-is-not-owned-money.
