@@ -4656,3 +4656,37 @@ Status: AUDIT COMPLETE; no product-code change in this run. No 100% parity claim
 3. Keep `paidMonths`, finite installment, `closedAt` and refinance obligation formulas blocked pending explicit Build19 contract approval.
 
 Status: date-only consumer map complete; year-zero implementation deferred because partial acceptance is unsafe. No 100% parity claim.
+
+
+## 2026-11-20 23:25 UTC — WEB v18.20 reminder Date.parse compatibility (COMPLETED; Native CI pre-runner blocked)
+
+**App feature branch:** nikopol000/financial-autonomy-app:feat/sync-preview-v18-20-ios only. Final HEAD 4a7f99a3ac9622f531a522985e229706ce1033b9; **435 ahead / 0 behind** stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366 (unchanged).
+
+### App commits
+- b8cec50ed36cb463d972020267e878077baf494c — shared WEB reminder timestamp parser; importer and SubscriptionEngine now resolve the same instant; initial source-preservation and parser tests.
+- 4a7f99a3ac9622f531a522985e229706ce1033b9 — added YYYY / YYYY-MM Date.parse forms and arbitrary fractional precision; expanded import/parser regressions.
+
+### Compatibility contract evidenced from archived bundle
+- Archived WEB v18.20 bundle be453db2699273a194543de4532db6ea4b2e1cf2, module 204 validates recurring reminders with Date.parse and the editor stores toISOString().
+- Native now handles date-only/partial date as UTC, local no-zone date-time in device timezone, Z and ±HH:mm / ±HHmm offsets, arbitrary fractional digits truncated to milliseconds, day 29...31 normalization, 24:00, year zero, and DST overlap/gap rules.
+- The original reminder string is preserved in metadata and encrypted portable backup. Local notification trigger components remain UTC.
+- No formula, balance, Models/LedgerStore, app/main or privacy architecture change.
+
+### Checks actually run
+- Node 22.16.0 reference matrix: 29/29 PASS.
+- Swift 6.2.1 isolated runtime harness: 29/29 PASS.
+- swiftc -parse: helper, parser XCTest source and WEB import regression method snippet PASS.
+- swiftc -typecheck: parser XCTest source with matching API stubs after removing only @testable app-module import PASS. Not app-target XCTest.
+- Not run: XcodeGen, xcodebuild, full app XCTest/UI, CryptoKit target restore, Simulator, real notification delivery, Files provider, xcresult or screenshots.
+
+### Exact Native iOS CI
+- Final HEAD run 44836430006 completed FAILURE before runner: job 136633861576, runner_id=0, empty runner_name, steps=[], empty logs, zero artifacts, zero combined status contexts.
+- Parent commit run 44836033588 had the same pre-runner failure. Neither was retried; no compiler/test output exists.
+- Workflow push/path trigger is configured for the feature branch and NativeiOS Swift files.
+
+**FIRST NEXT**
+1. At the first macOS run with a real runner and steps, run XcodeGen, Simulator build, all unit/UI tests and inspect the exact .xcresult. Then exercise actual fileImporter/fileExporter and compare populated Light/Dark screens to WEB v18.20.
+2. While runner allocation remains blocked, continue the independent non-financial audit of recurring lifecycle transitions/history/reminder clearing and local notification reconciliation against archived WEB v18.20. Add a fix only if a concrete mismatch is evidenced; do not repeat the same pre-runner CI failure.
+3. Keep paidMonths, finite installments, closedAt and refinance obligation formulas blocked pending explicit Build19 calculation-contract approval.
+
+No 100% parity claim. Keep local-only storage, no backend/mandatory account/bank sync/telemetry; available credit is not owned money.
