@@ -4375,3 +4375,15 @@ Checkpoint documentation was committed on preview main in e8323d6cb33f7810c70b9b
 - Feature HEAD `5cf7682f784103c1aaa04248dcd07fe158ce082d`; app/main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; 407 ahead / 0 behind.
 
 **First next action:** add a v2/v3 migration → encrypted PortableBackup seal/open regression for normalized optional metadata, then continue remaining lossless backup field audit. At first usable macOS runner, run XcodeGen, Simulator build and full unit/UI suite; inspect .xcresult and screenshots. Keep formulas unchanged until the explicit v18.20 obligation contract is approved. No 100% parity claim.
+
+
+## 2026-11-20 — completed v2/v3 encrypted metadata round-trip regression
+
+- App feature commit: `91c0b9d288ae192495bc772246991d3e03a8b96e`.
+- Added an XCTest source regression for both WEB v2 and v3 imports, normalized absent optional fields, preserved optional appearance/dashboardLayout/projection/paidMonths, and actual PortableBackup.seal/open encrypted round-trip equality.
+- Only `NativeiOS/Tests/WebBackupV18_20Tests.swift` changed. No app logic/formulas/Models/LedgerStore/backup envelope/app-main change.
+- Executed: isolated `swiftc -parse` of the exact test method snippet PASS. Not executed: Xcode build, XcodeGen, XCTest, CryptoKit encrypted runtime, Simulator, UI or visual comparison.
+- Exact commit CI run `44726401611` failed before any job step; job `136254813953`, empty steps, log endpoint 404 BlobNotFound, no artifacts, no combined status contexts. No compiler diagnostics. Do not retry this same pre-step failure.
+- Feature HEAD `91c0b9d288ae192495bc772246991d3e03a8b96e`; stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; **408 ahead / 0 behind**. App/main untouched.
+
+**FIRST NEXT:** continue the non-financial WEB v18.20 lossless import/export audit across remaining optional top-level/nested fields and older encrypted native snapshot Codable compatibility; create only evidence-backed fixtures. At first actual macOS runner allocation, run XcodeGen, Simulator build, full unit/UI tests and inspect .xcresult/screenshots. Financial formula changes remain gated on explicit approval. Keep local-only/privacy and credit-is-not-owned-money invariants. No 100% parity claim.
