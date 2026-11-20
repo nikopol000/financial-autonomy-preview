@@ -4624,3 +4624,19 @@ No 100% parity claim. Local-only/no-backend/no-bank-sync/no-telemetry and credit
 3. While CI cannot allocate a runner, continue an independent read-only WEB v18.20 parity audit and record concrete non-financial gaps; do not make financial formula changes (`paidMonths`, finite installments, `closedAt`, refinance settlement) without explicit approval of the Build19 calculation contract.
 
 No 100% parity claim. Preserve local-only storage, no backend/mandatory account/bank sync/telemetry, and credit-is-not-owned-money invariant.
+
+## 2026-11-20 22:07 UTC — Native iOS WEB v18.20 year-zero date restore audit (COMPLETED; compatibility gap documented)
+
+- App feature startup HEAD `2766fb956d6d63ef940bfc9988f901a1591eaffb`; final HEAD `dda4976f873d94d155f69a1dbe9dec6d9c45c472` (PARITY_CHECKLIST documentation only); stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; compare **432 ahead / 0 behind**.
+- Evidence: archived WEB v18.20 ECMAScript date round-trip accepts `0000-01-01` and `0000-02-29`; Node 22.16.0 reproduced this and showed `0000-02-30` normalizes to `0000-03-01`. Native Foundation DateFormatter rejects year zero on Swift 6.2.1 Linux. Independently, native `SnapshotValidator` calls `RecurrenceCalendar.validateDay` for imported metadata dates and account opening dates; RecurrenceCalendar's parser explicitly restricts years to 1...9999. Changing importer validation alone would still fail explicit restore confirmation.
+- App doc commit `dda4976` records the end-to-end boundary. No runtime code, date engine, financial formula, Models/LedgerStore, backup envelope, app/main or real data changed. Partial parser acceptance intentionally not implemented.
+- Exact HEAD status for `dda4976`: zero combined status contexts; no workflow runs exposed by the PR-only lookup. Markdown-only commit is outside the push workflow's NativeiOS Swift/xcodegen path filter. Last code commit `2766fb9` exact run `44818062507` failed before runner allocation (runner_id 0, no steps, log 404 BlobNotFound, no artifacts); not retried.
+- Executed: Node date round-trip probe and Swift Foundation DateFormatter probe; source audit of importer, preparation/confirmation, SnapshotValidator and RecurrenceCalendar. No XcodeGen, xcodebuild, app XCTest, iOS Foundation, Simulator, Files provider, UI or screenshots.
+- PROJECT_STATE checkpoint: pending this queue/handoff commit; current preview main before queue update `d44a05fe1a6655a47186d2d85e5ee67ee407a02b`.
+
+**FIRST NEXT**
+1. Trace every WEB v18.20 date-only field through importer, SnapshotValidator, and downstream recurrence/calendar consumers. Define a complete backup-scoped year-zero policy before changing code; do not widen global RecurrenceCalendar or accept dates that later fail restore.
+2. At the first macOS runner that actually executes steps, run XcodeGen, Simulator build, full unit/UI tests and inspect the exact `.xcresult`; then exercise real Files import/export and populated Light/Dark comparison.
+3. Keep `paidMonths`, finite installment, `closedAt` and refinance obligation changes blocked pending explicit Build19 calculation-contract approval.
+
+Status: AUDIT COMPLETE; no product-code change in this run. No 100% parity claim.
