@@ -1,17 +1,17 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T18:08:00Z
-Lease expires UTC: 2026-11-20T18:45:00Z
-Released UTC: none
+Updated UTC: 2026-11-20T18:07:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T18:07:00Z
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
-Verified app feature HEAD: `9ec40a0e66a79dd0348101992f46de9ac71bf0f5`
+Verified app feature HEAD: `0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987`
 Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
-Verified preview main before handoff commit: `b21e581cce467a8fde3dfc5b36fe958bb3d77c73`
-Feature comparison: **422 ahead / 0 behind**; app/main remains unchanged.
-PROJECT_STATE checkpoint commit: `7e10a132dfd1438408eb2faa0eb4708795b6c6af`.
-IMPLEMENTATION_QUEUE checkpoint commit: `7e10a132dfd1438408eb2faa0eb4708795b6c6af`.
+Verified preview main before handoff commit: `a5281c0824bf5ed4153f9f95767c2c7ed2f7929a`
+Feature comparison: **424 ahead / 0 behind**; app/main remains unchanged.
+PROJECT_STATE checkpoint commit: `986f00ed89c69786d78d62d5404fdc3e9c99f282`.
+IMPLEMENTATION_QUEUE checkpoint commit: `a5281c0824bf5ed4153f9f95767c2c7ed2f7929a`.
 
 ## Latest completed run — audit graph and WEB v18.20 obligation reconciliation
 
@@ -585,3 +585,17 @@ IMPLEMENTATION_QUEUE checkpoint commit: `ce5deed3d9a36d77cf2b293b5759716fb628231
 - First unfinished action: audit nested month-plan/catalog/projection arrays. Specifically preserve legacy absence vs empty for `WebImportedMonthPlan.budgets`, reject explicit null/malformed values, and add regression coverage that matches archived WEB v18.20 required arrays (`monthPlans.budgets/expenses/debtPayments`, `projection.exposed/payoffs`, and recurring history). No financial formula changes.
 - Exact current feature combined status has zero contexts; connector workflow-run lookup is PR-only and returns no push run. Last observable exact push run for parent `9ec40a0` is 44780554682, which failed before runner allocation (runner_id 0, steps empty, no artifacts, log 404); do not retry.
 - Lease expires 2026-11-20T18:45:00Z. No app/main modification or merge. Preserve local-only data and credit-is-not-owned-money invariant.
+
+
+## Completed run — nested month-plan/catalog/projection array integrity (2026-11-20 18:07 UTC)
+
+- App commits: `e6cad8c44f140436fe864c8afe99c2f6c8b77eaf` (presence-aware `WebImportedMonthPlan.budgets` decoder) and `0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987` (absent/empty/null and nested required-array regression tests).
+- Final app feature HEAD: `0cc183d18b1dfffaa1e95c6e3ad3bb00f2da4987`; stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; 424 ahead / 0 behind.
+- Archived WEB v18.20 bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` confirms monthPlans budgets/expenses/debtPayments and projection exposed/payoffs are required arrays. Native importer also requires recurring history. New tests lock missing/null/malformed rejection.
+- Swift 6.2.1 focused Codable runtime harness 7/7 PASS; isolated test-source typecheck/parse PASS. These are not app XCTest. Linux host lacks XcodeGen and xcodebuild.
+- Exact HEAD combined status empty; connected workflow-run lookup exposes no PR-triggered runs and no push run ID. Parent run 44780554682 failed before runner allocation and was not retried.
+- No formulas, balances, operations, LedgerStore, backup envelope, privacy architecture or app/main changes.
+- PROJECT_STATE checkpoint: `986f00ed89c69786d78d62d5404fdc3e9c99f282`. IMPLEMENTATION_QUEUE checkpoint: `a5281c0824bf5ed4153f9f95767c2c7ed2f7929a`.
+- Lease released; handoff is READY_FOR_NEXT_RUN.
+
+**Exact next action:** audit remaining optional collection fields in `WebImportMetadata` and `LedgerSnapshot` against historical encoder/introduction commits; distinguish legitimate legacy absence from explicit null, then add only evidence-backed restore regressions. At first macOS runner with steps, run XcodeGen, Simulator build, full unit/UI tests and inspect exact `.xcresult`; continue Files/document-picker and populated Light/Dark comparisons. Financial obligation changes remain approval-gated.
