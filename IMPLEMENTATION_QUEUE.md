@@ -4640,3 +4640,19 @@ No 100% parity claim. Preserve local-only storage, no backend/mandatory account/
 3. Keep `paidMonths`, finite installment, `closedAt` and refinance obligation changes blocked pending explicit Build19 calculation-contract approval.
 
 Status: AUDIT COMPLETE; no product-code change in this run. No 100% parity claim.
+
+## 2026-11-20 22:12 UTC — Native iOS year-zero WEB date consumer map (COMPLETED; no safe partial fix)
+
+- App feature startup HEAD `dda4976f873d94d155f69a1dbe9dec6d9c45c472`; final `e126908cdf63cf11feaec4affdf17c47bffd8185` (PARITY_CHECKLIST documentation only); stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; compare **433 ahead / 0 behind**.
+- Mapped all importer `validDay` call sites and second-stage validators. Imported date-only fields include start/role, account, audit, transaction, goal/plan, debt/schedule, recurring, name-change, balance-check/check-audit and optional-day records. Transactions and balance checks are converted to Foundation `Date` through RecurrenceCalendar. SnapshotValidator and ScheduledDueEngine revalidate multiple imported date fields and recurrence schedule dates using RecurrenceCalendar's 1...9999 range.
+- This confirms that a parser-only year-zero fix would create snapshots that fail at date conversion, snapshot validation or schedule validation. A safe fix needs a complete scoped representation/consumer contract; no global calendar widening or partial acceptance.
+- App documentation commit: `e126908cdf63cf11feaec4affdf17c47bffd8185`. No runtime/formula/model/backup-envelope/app-main changes.
+- Exact app HEAD CI: combined statuses empty; PR-only workflow lookup has no runs; documentation-only commit is outside Native iOS workflow path filter. Last code commit `2766fb9` run `44818062507` failed pre-runner (runner_id 0, no steps, logs 404, no artifacts), not retried.
+- Checks: Node 22.16.0 date round-trip, Swift 6.2.1 Foundation DateFormatter probe, source audit. No Xcode/iOS/XCTest/Simulator/Files/UI.
+
+**FIRST NEXT**
+1. Continue independent non-financial WEB v18.20 backup audit: compare legacy reminder ISO-8601 timestamp acceptance, normalization and timezone semantics between archived JS and native importer; add only a fully evidenced regression/fix.
+2. At the first macOS runner with actual steps, run XcodeGen, Simulator build, full unit/UI tests and inspect the exact `.xcresult`; then real Files import/export and populated Light/Dark comparison.
+3. Keep `paidMonths`, finite installment, `closedAt` and refinance obligation formulas blocked pending explicit Build19 contract approval.
+
+Status: date-only consumer map complete; year-zero implementation deferred because partial acceptance is unsafe. No 100% parity claim.
