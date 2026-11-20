@@ -4417,3 +4417,16 @@ Checkpoint documentation was committed on preview main in e8323d6cb33f7810c70b9b
 4. Continue populated encrypted restore and screen-by-screen Light/Dark parity against archived WEB v18.20. Financial formulas remain gated on explicit approval of the obligation calculation contract.
 
 Privacy: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify/merge app/main without explicit user approval.
+
+
+## 2026-11-20 13:12 UTC — completed goal/plan and debt/schedule persisted-model audit
+
+**Completed on `financial-autonomy-app:feat/sync-preview-v18-20-ios` only.**
+- App feature commit: `3cf96feabf118f4811053ee995af09b743d709cf` — adds `testCustomDebtScheduleRowsSurviveEncryptedBackup` to `NativeiOS/Tests/LoanLedgerTests.swift`.
+- The audit used actual file history, not property-default assumptions: Goals/Plans fields were present at their first introduction; DebtScheduleDefinition's schedule array existed before LoanBook was introduced; later ScheduledItem/Loan observation fields were optional; optional audit containers remain optional. The only later non-optional ScheduleBook/LoanBook field found was build55 `paidMonths`, already fixed with absent-only decoding.
+- No extra decoder was added because that would incorrectly relax required keys which were required from the first persisted version. Explicit null/malformed values remain fail-closed.
+- Verification executed: Swift 6.2.1 isolated Codable harness for populated debt schedule rows PASS; `swiftc -parse` for the exact new XCTest method PASS. Not app XCTest, Xcode build, CryptoKit runtime, Simulator or UI.
+- Exact CI for final HEAD: [run 44741906262](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44741906262), FAILURE before any step; job `136307396835`, steps endpoint empty, logs unavailable, artifacts empty, combined status without contexts. No retry.
+- App feature: 412 ahead / 0 behind stable app/main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; app/main untouched.
+
+**First next action:** audit historical Codable compatibility of remaining `Models.swift` persisted types: `MoneyAccount`, `Operation`, `BudgetSettings`, `WebImportMetadata` and nested imported debt/month-plan/recurring records. Verify which later-added fields are optional or custom-decoded; add a populated encrypted legacy fixture only for a proven missing-key regression. At first real macOS runner, run XcodeGen, Simulator build and all unit/UI tests, inspect `.xcresult`. Keep formulas unchanged pending explicit approval; maintain local-only privacy and exclude available credit from owned money. No 100% parity claim.
