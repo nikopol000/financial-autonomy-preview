@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T14:12:00Z
-Lease expires UTC: 2026-11-20T14:55:00Z
+Updated UTC: 2026-11-20T14:24:37.476Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 882c7a467f9a0dba765bbbbdc786f62a5c2b9c9f
+Verified app feature HEAD: ed929b2610df92cca1f39a547ee5fd64bac17811
 Verified app main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: 4c731d9dd53d9ad946dcf80d40e4113cbedfee0d
-Feature comparison: 406 commits ahead, 0 behind; app/main remains unchanged.
+Verified preview main before handoff commit: a526cc0659cd6a0441a128e4787c77eb93f17eed
+Feature comparison: 417 commits ahead, 0 behind; app/main remains unchanged.
 
 ## Previous run — recurring amount parser parity
 - Re-read `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and this handoff from preview `main`; startup handoff was READY/no lease.
@@ -483,14 +483,28 @@ Preview PROJECT_STATE + IMPLEMENTATION_QUEUE checkpoint commit: `5f849037b9db64e
 **Exact next action:** audit remaining persisted `Models.swift` types — MoneyAccount, Operation, BudgetSettings, WebImportMetadata and nested WEB imported debt/month-plan/recurring records — against their introduction commits. Add a populated legacy/encrypted fixture only if history proves a later non-optional key was absent in an older persisted shape. At the first macOS runner that executes steps, run XcodeGen, Simulator build, all unit/UI tests and inspect the exact .xcresult; continue populated restore and screen-by-screen Light/Dark comparison. Financial formula changes remain gated on explicit approval. No 100% parity claim.
 
 
-## Active run lease — persisted model and encrypted-backup audit
-- Status: IN_PROGRESS
-- Owner: Financial Autonomy iOS automation
-- Updated UTC: 2026-11-20T14:12:00Z
-- Lease expires UTC: 2026-11-20T14:55:00Z
-- Preview main at claim: 28536ac21601a5d4df69164fc91ecb5acb7fc740
-- App feature HEAD verified live: 3cf96feabf118f4811053ee995af09b743d709cf
-- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-- Exact first unfinished action: finish historical Codable audit for MoneyAccount, Operation, BudgetSettings, WebImportMetadata and nested imported debt/month-plan/recurring records; add a focused populated encrypted round-trip regression for optional account/operation metadata only if it is not already covered. No speculative decoder relaxation.
-- CI for exact app HEAD: Native iOS CI run 44741906262 completed FAILURE before any runner step; job 136307396835 has null steps/logs URL and no artifacts; combined status has zero contexts. Do not retry this pre-runner failure.
-- Work only on app feature branch. Do not modify/merge app/main. Preserve local-only privacy and available-credit-is-not-owned-money. No financial formula changes without explicit approval.
+
+## Completed run — persisted Models audit and legacy reconciliation-link migration
+
+Status: READY_FOR_NEXT_RUN
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-20T14:24:37.476Z
+Lease expires UTC: none
+Released UTC: 2026-11-20T14:24:37.476Z
+Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
+Startup app feature HEAD: `3cf96feabf118f4811053ee995af09b743d709cf`
+Final app feature HEAD: `ed929b2610df92cca1f39a547ee5fd64bac17811`
+App stable `main`: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (unchanged)
+Feature comparison: **417 ahead / 0 behind**.
+Preview main before final handoff commit: `a526cc0659cd6a0441a128e4787c77eb93f17eed`.
+PROJECT_STATE checkpoint commit: `ae634ef0be95f5a597e12f191d37cd19d28a67f5`.
+IMPLEMENTATION_QUEUE checkpoint commit: `a526cc0659cd6a0441a128e4787c77eb93f17eed`.
+
+- Completed the MoneyAccount/Operation/BudgetSettings/WebImportMetadata and nested imported-record audit. No speculative missing-key defaults were added.
+- Confirmed the historical `Operation.reconciliationCheckID` → `reconciliationCheckId` key rename caused old snapshots to silently lose the balance-check link. Added a legacy decode alias, canonical re-encoding and conflicting-key rejection.
+- App commits: `4f0135dc`, `6864431a`, `def0d6f4`, `427700df`, `ed929b26`. Added populated account/operation encrypted-backup and legacy linked-operation restore regression sources.
+- Executed: Swift 6.2.1 Operation Codable runtime harness PASS; isolated XCTest source type-check harnesses PASS. Not executed: XcodeGen, xcodebuild, app XCTest, Simulator/UI, .xcresult or screenshots.
+- Exact final-HEAD CI run `44752718302`: FAILURE before runner allocation; job `136344427802`, runner_id 0, steps empty, logs unavailable, no artifacts, no combined contexts. Four immediately preceding push runs in this batch show the same failure. No manual retry.
+- No app/main modification or merge; no financial formula changes. Local-only/privacy and credit-is-not-owned-money invariants preserved.
+
+**Exact next action:** audit key evolution for OperationAuditEntry, BalanceObservation, ReconciliationExplanation, audit containers, LedgerSnapshot and remaining nested loan/goal records; then compare Autonomie/Space/daily-pace formulas read-only against archived WEB v18.20. At the first macOS runner that executes steps, run XcodeGen, Simulator build, full unit/UI tests and inspect exact .xcresult/screenshots. Financial formula changes remain gated on explicit approval. No 100% parity claim.
