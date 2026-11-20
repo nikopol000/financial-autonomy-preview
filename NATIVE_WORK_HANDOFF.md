@@ -1,10 +1,10 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T21:12:00Z
-Lease expires UTC: none
-Released UTC: 2026-11-20T21:12:00Z
+Updated UTC: 2026-11-20T22:04:00Z
+Lease expires UTC: 2026-11-20T22:49:00Z
+Released UTC: none
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
 Verified app feature HEAD: 2766fb956d6d63ef940bfc9988f901a1591eaffb
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -663,3 +663,11 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - Local-only/no-backend/no-mandatory-account/no-bank-sync/no-telemetry and credit-is-not-owned-money invariants preserved. No app/main change or 100% parity claim.
 
 Status: READY_FOR_NEXT_RUN. Lease released.
+
+
+## Active run lease — WEB v18.20 year-zero date import parity
+- Claimed after re-reading all five preview continuity files and verifying live refs; no previous active lease.
+- Preview main at claim: `0550a8e449935b24afe51c69016f3682558155d4`.
+- App feature HEAD at claim: `2766fb956d6d63ef940bfc9988f901a1591eaffb`; app stable main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (431 ahead / 0 behind).
+- Exact task: verify the documented WEB v18.20 year-0000 ISO date acceptance mismatch against the native importer, implement a backup-scoped proleptic-Gregorian validator (without changing CSV/global calendar semantics), add import/restore-focused regression tests, and run available Swift checks.
+- Formula changes (`paidMonths`, finite installments, `closedAt`, refinance) remain out of scope pending explicit Build19 approval. No app/main writes or merge.
