@@ -446,3 +446,15 @@ Preview main before this handoff release commit: `e058816a9f9a01bf6868bab899a93e
 - No Models.swift/LedgerStore.swift wholesale rewrite, no financial formulas/balances/transactions/backup envelope changes, no app/main change. Local-only/privacy and available-credit-is-not-owned-money invariants preserved.
 
 **Exact next action:** audit remaining nested persisted models for defaulted non-optional fields added after older snapshots were written, beginning with goal/plan and debt/schedule types. Confirm historical introduction before adding any decoder. Add populated legacy fixtures, preserve present values, and reject explicit null/malformed values. At the first usable macOS runner, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult/screenshots. Continue populated encrypted restore and screen-by-screen Light/Dark parity against archived WEB v18.20. Financial formulas remain gated on explicit approval. No 100% parity claim.
+
+
+## Active run lease — nested Codable persistence audit
+- Status: IN_PROGRESS
+- Owner: Financial Autonomy iOS automation
+- Updated UTC: 2026-11-20T13:06:00Z
+- Lease expires UTC: 2026-11-20T13:50:00Z
+- Preview main HEAD at claim: f4c4343ffe09be1f449641ac9578fc7e816f920e
+- App feature HEAD verified live: af68a4f86d6a98b893850c0f1ee3c369979230f6
+- App stable main HEAD verified live: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+- First unfinished action: audit historical compatibility of NativeGoal/NativeGoalPlan, DebtScheduleDefinition, ScheduledItem/FixedExpenseMonthPlan and nested loan observation/audit types; add a focused populated encrypted-backup regression only if existing tests do not cover a persisted field.
+- Keep app changes exclusively on feat/sync-preview-v18-20-ios; no app/main writes or merge. Do not alter financial formulas or Models/LedgerStore wholesale. Preserve local-only privacy and credit-is-not-owned-money invariants.
