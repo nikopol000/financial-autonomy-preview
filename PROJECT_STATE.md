@@ -1082,3 +1082,34 @@ The selected-file preparation boundary is now testable and demonstrably separate
 - Executed: Node 22.16.0 date round-trip; Swift 6.2.1 Foundation DateFormatter probe; source-level field/consumer mapping. No XcodeGen, xcodebuild, iOS Foundation, XCTest, Simulator, Files-provider, UI or screenshots.
 
 **Exact next action:** continue the independent non-financial WEB v18.20 backup/import audit, next comparing legacy reminder ISO-8601 timestamp parsing and timezone semantics between the archived JS validator and native importer. Keep the year-zero finding documented; do not widen global calendar behavior without a complete date-only contract. At the first macOS runner with actual steps, run XcodeGen, Simulator build, full unit/UI tests and inspect exact `.xcresult`; then exercise real Files and populated Light/Dark screens. Financial obligation formula changes remain gated on explicit Build19 approval. No 100% parity claim.
+
+
+## Native iOS parity checkpoint — 2026-11-20 23:25 UTC — WEB v18.20 reminder timestamp compatibility (COMPLETED; macOS runner blocked)
+
+- Startup preview main HEAD: a137a9630016b12998a19c53be3c169e48fad260 (handoff lease claim).
+- App feature startup HEAD: e126908cdf63cf11feaec4affdf17c47bffd8185; final feature HEAD: [4a7f99a3ac9622f531a522985e229706ce1033b9](https://github.com/nikopol000/financial-autonomy-app/commit/4a7f99a3ac9622f531a522985e229706ce1033b9). Stable app main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature compare is **435 ahead / 0 behind**.
+- App commits:
+  - [b8cec50ed36cb463d972020267e878077baf494c](https://github.com/nikopol000/financial-autonomy-app/commit/b8cec50ed36cb463d972020267e878077baf494c): added WebReminderTimestamp and routed WEB backup validation plus SubscriptionEngine display/notification parsing through the shared parser; added import and parser regressions.
+  - [4a7f99a3ac9622f531a522985e229706ce1033b9](https://github.com/nikopol000/financial-autonomy-app/commit/4a7f99a3ac9622f531a522985e229706ce1033b9): extended the contract to WEB-accepted YYYY and YYYY-MM forms and arbitrary fractional-second precision; preserved raw source strings in import tests.
+- Archived WEB v18.20 bundle blob be453db2699273a194543de4532db6ea4b2e1cf2, module 204: recurring reminder validation uses Number.isFinite(Date.parse(value)); the WEB editor writes Date.toISOString() and displays new Date(value).toLocaleString("ro-RO").
+- The prior native ISO8601DateFormatter parser required a complete date, time and timezone. It rejected WEB-accepted date-only UTC and local no-zone values, and did not reproduce YYYY / YYYY-MM, fractional precision beyond 9 digits, day 29...31 normalization, year-zero timestamps or ECMAScript DST gap/overlap resolution.
+- WebReminderTimestamp now handles the archived WEB ISO date/time forms exercised by the reference matrix: YYYY, YYYY-MM and date-only as UTC; explicit Z and ±HH:mm / ±HHmm offsets as absolute instants; local no-zone date-times in the device timezone; fractional precision truncated to milliseconds; day 29...31 normalization within a valid month; 24:00; year 0000; and DST overlap/gap semantics. It deliberately rejects surrounding whitespace and non-standard ±HH offsets, both rejected by the Node 22.16.0 reference. The raw reminder string is not rewritten.
+- WebBackupV18_20 validation, SubscriptionEngine validation/display and local notification scheduling now share the parser. The existing UTC UNCalendarNotificationTrigger components remain unchanged. The encrypted recurring lifecycle round-trip fixture uses a non-UTC offset and asserts the original text survives.
+- No financial formulas, Models.swift, LedgerStore.swift, balances, operations, backup envelope, privacy architecture or app/main files were changed.
+
+### Verification actually executed
+
+- Node 22.16.0 Date.parse reference matrix: **29/29 PASS**.
+- Swift 6.2.1 isolated Foundation runtime harness using the committed parser semantics: **29/29 PASS**.
+- swiftc -parse for WebReminderTimestamp and its XCTest source: PASS.
+- swiftc -typecheck for the new parser XCTest source after removing only the app-target @testable import and supplying matching SubscriptionEngine / notification-component API stubs: PASS. This is not app-target XCTest.
+- swiftc -parse for the WEB import regression method snippet: PASS.
+- Not executed: XcodeGen, xcodebuild, app-target XCTest, CryptoKit PortableBackup in the app target, Simulator, actual notification delivery, Files provider, UI tests, xcresult or screenshots.
+
+### Exact-HEAD Native iOS CI
+
+- Exact final HEAD 4a7f99a3ac9622f531a522985e229706ce1033b9 push run [44836430006](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44836430006): completed FAILURE before runner allocation. Job 136633861576, runner_id=0, runner_name empty, steps=[], logs endpoint empty, artifacts=0, combined status contexts=0.
+- Parent code commit b8cec50 run [44836033588](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44836033588) had the same pre-runner failure shape. Neither run was retried; neither provides compiler or XCTest diagnostics.
+- Native iOS workflow is configured for push on this feature branch and NativeiOS Swift / xcodegen paths. The failure is infrastructure-side before any step, not a demonstrated source build failure.
+
+**Exact next action:** at the first macOS run that actually allocates a runner and executes steps, run XcodeGen, Simulator build, the complete unit/UI suite and inspect that exact .xcresult; then exercise real fileImporter/fileExporter and compare populated Light/Dark screens with archived WEB v18.20. While runner allocation remains blocked, continue an independent non-financial audit of recurring lifecycle transition/history/reminder-clearing and local notification reconciliation against archived WEB v18.20; add changes only for an evidenced gap. Keep paidMonths, finite installments, closedAt and refinance formula changes gated on explicit Build19 approval. No 100% parity claim.
