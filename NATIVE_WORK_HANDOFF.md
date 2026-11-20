@@ -173,3 +173,30 @@ Audit WEB v18.20 CSV date validation and amount parsing against native behavior,
 - Previous lease expired at 2026-11-20T04:50:00Z. Re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff before work; current queue's first unfinished action is CSV date validation/amount parsing against archived WEB v18.20, beginning with year 0000.
 - Exact Native iOS CI for current app feature HEAD: run 44651522653, completed FAILURE; job 136007313101, runner_id=0, steps=[], no logs/artifacts; combined status has zero contexts. Do not retry this pre-runner failure. No newer exact-HEAD run is listed.
 - Work only on app feature branch. Do not modify/merge app main. Keep any year-zero compatibility helper CSV-scoped; do not weaken shared RecurrenceCalendar or alter financial semantics.
+
+
+## Completed run — CSV year-zero/date/amount parity and local recurring backup coverage (2026-11-20 05:22 UTC)
+
+Status: READY_FOR_NEXT_RUN
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-20T05:22:00Z
+Lease expires UTC: none
+Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
+Verified app feature HEAD: `26b65fa1cef0489d28c93e730da757112f881ce8`
+Verified app stable main HEAD: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`
+Verified preview main HEAD before handoff release commit: `6740aaf34789ff22315cb076fb04a9dee1ad890b`
+Preview continuity checkpoint commit: `6740aaf34789ff22315cb076fb04a9dee1ad890b` (PROJECT_STATE.md + IMPLEMENTATION_QUEUE.md).
+
+- Previous finite lease (expires 2026-11-20T05:50:00Z) is released. No interactive iOS work was observed during the lease; app feature HEAD remained the expected branch tip before final checkpoint.
+- App stage commits: `145b70b0e1017640a288ba198d23bb5b5a059e68`, `e9711d1fbeaa3f7c59fc66dbdca7a1acbbe976c5`, `5ba466fece3cc32e0d02da59ad1191f5a9dcaf11`, `35f5233e474262740ed3b1bad20255c2ec12a7bc`, `b53dd520c237e445313ac94660b0cbe321f0874a`, `9199d3f2985d9205bec9b606ee00f08899f0cff3`, `26b65fa1cef0489d28c93e730da757112f881ce8`.
+- Swift 6.2.1 isolated harnesses: 14 date checks and 13 amount cases passed. Node v22.16.0 archived WEB reference: 25 cases passed. These are not Xcode build/XCTest.
+- Exact final-HEAD Native iOS CI run [44680247030](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44680247030) failed before runner allocation: job `136101633516`, runner_id 0, zero steps, no logs/artifacts, empty combined status. Do not rerun this or the predecessor pre-runner runs `44679350291` and `44680005592`. `xcodebuild` and `xcodegen` are unavailable in this Linux environment.
+- Feature branch comparison: 399 ahead / 0 behind app/main. App/main untouched. No Models/LedgerStore, formula, balance, transaction or backup-schema change. Native build/full XCTest/UI, Simulator, real document picker and visual parity remain unverified.
+
+## Exact next action
+1. At the next run, re-read all continuity files and verify live HEADs; inspect exact current feature-HEAD Native iOS CI/runner state without retrying recorded zero-runner failures.
+2. If runner allocation remains blocked, continue a read-only archived WEB v18.20 reconciliation of Autonomie/Spațiu and daily safe-budget formulas against native engines, plus the lossless WEB-state/backup adapter audit. Do not change financial semantics without an explicitly approved calculation contract.
+3. At the first usable macOS runner, run XcodeGen, Simulator build and full unit/UI suite; inspect exact .xcresult/artifacts, then exercise the real CSV picker and compare CSV/Subscriptions in Light and Dark.
+4. Continue populated-data backup/restore, accessibility and screen-by-screen visual validation. Do not claim 100% until all functional, financial, lossless-data, build/test and visual gates pass.
+
+Privacy invariants: local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. Never modify or merge app/main without explicit user approval.
