@@ -4447,3 +4447,25 @@ Privacy: local-only; no backend, mandatory account, bank sync or telemetry. Avai
 **Exact CI:** [run 44752718302](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44752718302), for exact HEAD `ed929b26`, FAILURE before runner allocation; job `136344427802`, runner_id 0, empty steps, null logs URL, no artifacts and no combined status contexts. Four preceding push runs in this batch show the same pre-runner failure. Do not manually retry the same infrastructure failure.
 
 **Next queue item — exact action:** inspect historical JSON key evolution and required/optional boundaries for OperationAuditEntry, BalanceObservation, ReconciliationExplanation, observation/explanation audit containers, LedgerSnapshot and remaining nested loan/goal records. Add a compatibility alias only when a previous persisted spelling is proven by commit history. Then compare Autonomie, Space and daily-pace formulas read-only against archived WEB v18.20; do not change financial formulas without explicit approval. At the first macOS runner that executes steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact .xcresult/screenshots. Maintain local-only privacy and credit-is-not-owned-money. Do not claim 100% parity.
+
+
+## Completed run — audit graph and read-only WEB v18.20 obligation reconciliation (2026-11-20 15:22 UTC)
+
+**App feature final HEAD:** \`d382e2e59e68651427e4d1feed5ec4be09866bdc\` — **419 ahead / 0 behind** app stable main \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\`. App/main untouched.
+
+- App commit \`4781cbb28657d95129f3f04d9401e9043c1e2a4e\`: populated encrypted-backup regression source covering operation/account/loan audit containers and goal/plan/step.
+- App commit \`d382e2e59e68651427e4d1feed5ec4be09866bdc\`: legacy snapshot test now actually serializes all three audit arrays as present-empty before removing their keys; asserts absent \`operationAudit\`, \`observationAudit\`, \`explanationAudit\` decode as nil.
+- Historical audit found no further renamed JSON keys or later-required Codable fields in OperationAuditEntry, BalanceObservation, ReconciliationExplanation, their audit entries, LedgerSnapshot, LoanBook, debt schedules or goal/plan/step records. Later fields are optional or explicitly decoded. Existing Operation key alias remains the only proven rename. No speculative decoder was added.
+- Executed: Swift 6.2.1 \`swiftc -parse\` PASS for both new/changed test methods; isolated type-check harness with matching model/API stubs PASS for the populated audit-graph test. Not app XCTest, PortableBackup runtime, Xcode build, Simulator or UI.
+- Exact Native iOS CI run \`44762409132\` for final HEAD \`d382e2e\`: FAILURE before runner allocation; job \`136378075935\`, \`runner_id=0\`, label \`macos-15\`, \`steps=[]\`, log download 404 \`BlobNotFound\`, no artifacts and no combined status contexts. Do not retry this pre-runner failure.
+- Read-only formula comparison against archived bundle blob \`be453db2699273a194543de4532db6ea4b2e1cf2\` confirms paidMonths suppression is absent from both native obligation engines; finite installment suppression is absent from DailyPace/Coverage/Space and partial in Autonomie; WEB also has explicit closedAt and refinance-settlement predicates not yet equivalently represented/imported. Core Space/daily-budget/Coverage/Autonomie expressions are structurally aligned.
+- Formula changes remain blocked pending explicit approval of the Build19 obligation contract in \`NativeiOS/PARITY_CHECKLIST.md\`. No formula, production model, balance or transaction changes.
+
+### Next exact action
+
+1. Continue non-financial WEB v18.20 import/backup audit with populated fixtures, focusing on nested metadata and complete legacy snapshot round-trips. Add only evidence-backed lossless-restore tests; keep unknown/unsupported fields fail-closed.
+2. Recheck live refs and exact-HEAD CI next run; do not retry \`44762409132\` while it has no runner, steps, logs or artifacts.
+3. At the first macOS runner that executes steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact \`.xcresult\`; then exercise Files/document-picker flows and compare populated Light/Dark screens against archived WEB v18.20.
+4. Implement paid-month, finite-installment, closed-debt and refinance obligation semantics only after explicit user approval and with shared WEB/native reference fixtures.
+
+No 100% parity claim.
