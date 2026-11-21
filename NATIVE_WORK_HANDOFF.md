@@ -759,3 +759,14 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - **Next:** first macOS runner with real steps -> XcodeGen, Simulator build, full XCTest/UI and exact .xcresult; then actual Files import/export, notifications and populated Light/Dark comparison. While blocked, audit Files export/document type and WEB v18.20 backup interoperability. Build19 financial formula changes remain approval-gated.
 
 Status: READY_FOR_NEXT_RUN. Lease released.
+
+
+## Active run lease — Files export/document type and WEB v18.20 interoperability
+- Startup preview main HEAD: 5ba3f769ec3bc92be004b737af54a2125f09d308; startup handoff blob: 0aa927228d692ef6e7087f27d4719302195162cd.
+- App feature HEAD verified live: 0235681ec94251ad555de8fd38b443665ce53eb9; stable app main: a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- Previous handoff state: READY_FOR_NEXT_RUN; prior lease expired. This run claims the first unfinished queue item only.
+- Exact task: source-audit the native FileDocument export/import types and compare the native encrypted backup with archived WEB v18.20 backup envelope, size, password normalization, schema and round-trip behavior. Implement only concrete, non-financial, lossless Files/document interoperability improvements; do not silently drop native-only data or invent a WEB exporter.
+- Do not alter Models.swift, LedgerStore.swift, financial formulas, app/main, user data, backend/privacy architecture or merge stable source.
+- Lease expires 2026-11-21T02:45:00Z. Work only on app feature branch; no app/main writes or merge.
+
+Status: IN_PROGRESS. Lease expires UTC: 2026-11-21T02:45:00Z.
