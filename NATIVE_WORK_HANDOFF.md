@@ -2,12 +2,12 @@
 
 Status: IN_PROGRESS
 Owner: native parity automation
-Updated UTC: 2026-11-21T20:33:00Z
-Lease expires UTC: 2026-11-21T21:00:00Z
+Updated UTC: 2026-11-21T21:08:25Z
+Lease expires UTC: 2026-11-21T21:53:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 7e9474bb0a3a200dcc08bdb5173615c886c6f161
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this lease commit: 420e7e2c82134482f7db4e699479974defaf75ce
+Verified preview main HEAD before this lease commit: 0d32d0e90ccab8a97e0c100336b13e1012b7ca90
 
 Exact in-progress action: implement mutable WEB v4 debt-definition projection in WebV18_20StateMapper. Map loan definitions from LoanBook and card/overdraft definitions from their debt pseudo-accounts while preserving WEB-only fields from WebImportedDebt metadata. Never serialize live liability balance as the WEB opening amount. Preserve debt row order, UUID spelling, opaque extensions and nil-vs-empty schedule semantics; fail closed for closedFromDay, audit/observation/explanation fields or other state without a proven WEB v18.20 representation. Keep WEB JSON export disabled.
 
