@@ -9,8 +9,8 @@ Verified app feature HEAD: 808cdc65a2a13febcf0bc2a7e20f18e30f4fb646
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 Verified preview main before handoff release: a692890cb52d79f87748275cd01c69b14d1131f7
 Feature comparison: 466 ahead / 0 behind; app/main remains unchanged.
-PROJECT_STATE.md checkpoint commit: a692890cb52d79f87748275cd01c69b14d1131f7.
-IMPLEMENTATION_QUEUE.md checkpoint commit: a692890cb52d79f87748275cd01c69b14d1131f7.
+PROJECT_STATE.md checkpoint commit: a4297a3e9580b325368e61d9557945de9a812d61.
+IMPLEMENTATION_QUEUE.md checkpoint commit: a4297a3e9580b325368e61d9557945de9a812d61.
 
 ## Completed stage — paid-month native projection/replay audit
 
