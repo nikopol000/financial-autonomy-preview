@@ -1,16 +1,16 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-21T03:09:00Z
-Lease expires UTC: 2026-11-21T03:55:00Z
+Updated UTC: 2026-11-21T03:15:00Z
+Lease expires UTC: none
+Released UTC: 2026-11-21T03:15:00Z
 Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
-Verified app feature HEAD at lease claim: 82dac9d1066c7a93faae7fefad405838e5d8788d
+Verified app feature HEAD: 6c0c9d64f8149b60d2066874e9469a86ec37d6b0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD at lease claim: e42303b393844afd8bfef1bd33003185e3eee2ae
-Feature comparison: 441 ahead / 0 behind.
-
-## Active lease — native-only field inventory for WEB v18.20 export feasibility
+Verified preview main before checkpoint commit: 14a5e49d707195b880ca411a21874b0215272218
+Feature comparison: **442 ahead / 0 behind**; app/main remains unchanged.
+PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md and this handoff are updated atomically in the same preview checkpoint commit.
 - The previous lease is absent/expired; no concurrent session is declared active.
 - Exact next task from the latest checkpoint: inventory native-only fields in the native ledger/backup schema and compare them with archived WEB v18.20 fields. Define fail-closed export rules; do not implement a lossy exporter.
 - Native iOS CI for exact app HEAD 82dac9d1066c7a93faae7fefad405838e5d8788d has run 44854613164 and failed before runner steps/logs; do not retry the same failure. Continue independent source audit.
@@ -799,3 +799,11 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 ### Post-check verification addendum — 2026-11-21
 - Swift 6.2.1 isolated FileDocument/UTType contract harness `swiftc -typecheck`: PASS using matching stubs. It validates the authored contract shape only; not the real SwiftUI/UniformTypeIdentifiers SDK or app target.
 - Handoff remains READY_FOR_NEXT_RUN; no additional repository changes after app HEAD 82dac9d.
+
+
+## Released lease — native-only WEB v18.20 export inventory (2026-11-21 03:15 UTC)
+
+- Completed the source-level field inventory and fail-closed export contract on app feature commit `6c0c9d64f8149b60d2066874e9469a86ec37d6b0`.
+- No concurrent lease remains. The next run must verify live refs again and resume the first unfinished action: macOS runner validation; if still pre-runner blocked, implement the non-mutating WEB export eligibility/mapping preflight and blocker-path tests without enabling JSON export.
+- Exact app docs commit has no CI run because Markdown-only paths do not match Native iOS CI push filters. Last code commit's pre-runner failure remains documented; do not repeat it.
+- Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; no merge or main write.

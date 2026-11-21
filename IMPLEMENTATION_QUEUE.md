@@ -4759,3 +4759,22 @@ No 100% parity claim. Preserve local-only storage, no backend/mandatory account/
 
 ### Post-check verification addendum — 2026-11-21
 - After the main checkpoint, Swift 6.2.1 `swiftc -typecheck` passed for an isolated FileDocument/UTType contract harness with matching stubs, including native-only writable type, WEB JSON read type and the typed oversize error pattern. This is not a type-check of the actual app target and does not replace XcodeGen/xcodebuild/XCTest.
+
+
+## 2026-11-21 03:15 UTC — Native iOS WEB export field inventory (COMPLETED; exporter remains blocked)
+
+- App feature HEAD: `6c0c9d64f8149b60d2066874e9469a86ec37d6b0`; stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; **442 ahead / 0 behind**.
+- Added `NativeiOS/WEB_EXPORT_PARITY.md` and references from BackupFormat/PARITY_CHECKLIST. Source-level inventory separates directly representable WEB fields from native-only account/debt closure, local budget catalog, audit replacement/after-state, explanation and loan audit data, schedule links and timestamp/derived reconciliation precision.
+- Confirmed WEB v18.20 parser is strict and rejects unknown keys; `monthPlans` must be non-empty. Some duplicate projections can be merged only under explicit canonical precedence; mismatches must fail closed.
+- No exporter or code change was made because a generic JSON serializer would lose native-only data. Keep `.fabackup` as the only writable export type. WEB JSON stays import-only.
+- Executed: source/tree/commit inspection and exact-branch compare. No tests/build/UI were executed.
+- Exact docs HEAD has no Native iOS CI run/status; the workflow push path filter excludes Markdown-only changes. Last code HEAD `82dac9d` run `44854613164` failed before exposing steps/logs; no retry.
+- Preview checkpoint is committed atomically with this handoff. No financial formula or app/main change.
+
+**FIRST NEXT**
+1. First macOS runner with actual steps: XcodeGen, generated UTI Info.plist inspection, Simulator build, complete unit/UI suite and exact `.xcresult`.
+2. While runner allocation is unavailable, implement a pure non-mutating WEB export eligibility/mapping preflight and path-specific fail-closed tests. Do not advertise/export WEB JSON until the archived v18.20 validator and lossless cross-platform round-trip pass.
+3. Exercise real Files import/export and compare populated Light/Dark screens against archived WEB v18.20.
+4. Keep `paidMonths`, finite installments, `closedAt` and refinance formula changes blocked pending explicit Build19 calculation-contract approval.
+
+No 100% parity claim. Preserve local-only/no-backend/no-mandatory-account/no-bank-sync/no-telemetry and credit-is-not-owned-money invariants.
