@@ -1,10 +1,10 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-20T23:25:00Z
-Lease expires UTC: none
-Released UTC: 2026-11-20T23:25:00Z
+Updated UTC: 2026-11-21T00:04:00Z
+Lease expires UTC: 2026-11-21T00:45:00Z
+Released UTC: none
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
 Verified app feature HEAD: 4a7f99a3ac9622f531a522985e229706ce1033b9
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -717,3 +717,11 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - Exact final-HEAD Native iOS CI run 44836430006 failed before runner allocation (runner_id=0, steps=[], empty logs, zero artifacts); parent run 44836033588 had the same pre-runner failure. Neither was retried.
 - Stable app main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366. No financial formulas, Models/LedgerStore or privacy architecture changed.
 - Next: macOS runner with real steps -> XcodeGen, Simulator build, full unit/UI tests and exact xcresult; while blocked, audit recurring lifecycle transitions/history/reminder clearing and local notification reconciliation against WEB v18.20. No Build19 formula changes without approval.
+
+
+## Active run lease — recurring lifecycle/history parity
+- Claimed after re-reading all five continuity files and verifying current refs.
+- Preview main at claim: 9c759ece70adf59ba1001d1d769f625949d8a67d.
+- App feature HEAD at claim: 4a7f99a3ac9622f531a522985e229706ce1033b9; stable app main: a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- Exact task: audit archived WEB v18.20 recurring creation/transition/history/reminder clearing and local notification reconciliation. Implement only concrete non-financial parity gaps; preserve delivered notification history and do not change accounting formulas.
+- Lease expires 2026-11-21T00:45:00Z. Work only on app feature branch; no app/main writes or merge.
