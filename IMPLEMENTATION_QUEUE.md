@@ -4869,3 +4869,20 @@ FIRST NEXT
 2. While CI is pre-runner blocked, audit `ScheduleBook.items`, `fixedExpensePlans` and `recurringCommitments` against archived WEB v18.20 `recurring` / `monthPlans` (IDs, kind/frequency/status, history, cancellation/end dates, reminders, fixed-plan rows, canonical precedence). Add only read-only path-specific preflight checks and focused tests; no formulas or JSON export.
 3. Prove the archived WEB validator and lossless native-to-WEB-to-native round-trip before implementing/advertising JSON export; then exercise real Files import/export and populated Light/Dark screens.
 4. Keep Build19-gated paidMonths/finite-installment/closedAt/refinance formula changes untouched; preserve local-only/no-backend/no-account/no-bank-sync/no-telemetry and credit-is-not-owned-money invariants.
+
+## 2026-11-21T09:20:02Z — ScheduleBook / recurring / fixed-expense projection audit (COMPLETED; exporter disabled)
+
+- App feature HEAD: [808cdc65a2a13febcf0bc2a7e20f18e30f4fb646](https://github.com/nikopol000/financial-autonomy-app/commit/808cdc65a2a13febcf0bc2a7e20f18e30f4fb646); previous implementation/test commit [249516ac](https://github.com/nikopol000/financial-autonomy-app/commit/249516ac2e3609d756a9668f87cc6f5ebf9a3e8f); stable app main \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\` unchanged; **465 ahead / 0 behind**.
+- Preflight now checks canonical recurring precedence and every retained field (IDs/order/name/amount/frequency/kind/status/coveredByBudget/nextPayment/history/endDay/reminder), validates the recurring-to-ScheduledItem projection, and compares ScheduleBook items by ID against recurring + fixed catalog. Missing, extra, duplicate, native-only and mismatched items fail closed.
+- Fixed-expense projection mirrors importer semantics: every WEB monthPlan boundary and ordered expense row is compared; repeated IDs across months are allowed; latest row per ID forms the native catalog; empty month boundaries are retained and checked. dayKnown is not represented by ScheduledItem and remains in metadata.
+- Added 3 preflight regression tests for recurring history/reminder/cancellation, fixed-plan history/latest catalog/dayKnown retention, and missing/native-only scheduled items. Added 100,000 limits for recurring/monthPlans/native schedule/fixed-plan collections.
+- Isolated checks: reduced Swift 6.2.1 harness type-check + run PASS; new XCTest snippets parse PASS and type-check with explicit stubs PASS. **No app-target XCTest or iOS build**. xcodebuild/xcodegen unavailable.
+- Native iOS CI exact push runs: [44888612798](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44888612798) for 249516ac and [44888979504](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44888979504) for 808cdc65. Both failed before runner steps (steps null, logs_url null, artifacts 0); no compiler/test output and no retries.
+- WEB JSON remains disabled/import-only; .fabackup is the only writable export. No formulas, Models/LedgerStore wholesale, app/main, real data or privacy architecture changed.
+
+### FIRST NEXT
+
+1. Implement iPhone parity for WEB v18.20 fixed-expense \`dayKnown\`: inspect all timeline/due consumers; preserve the flag backward-compatibly or derive it from retained monthPlans; do not display a concrete due date when WEB marks it unknown. Add importer, backup round-trip and UI/model tests without changing due amounts or recurrence formulas.
+2. Audit recurrence due-date behavior for weekly/monthly/quarterly/yearly schedules and coveredByBudget role-effective dates against the archived v18.20 bundle; compare generated dates and cancellation boundaries.
+3. At the first Native iOS CI run that exposes real macOS runner steps, run XcodeGen, inspect generated UTI, build Simulator, execute full unit/UI tests and inspect the exact .xcresult. Do not rerun the observed pre-runner failures.
+4. Continue only after these checks to archived WEB validator + populated native-to-WEB-to-native round-trip, Files behavior and screen-by-screen Light/Dark comparison. Keep JSON export disabled until lossless mapping is demonstrated.
