@@ -4778,3 +4778,18 @@ No 100% parity claim. Preserve local-only storage, no backend/mandatory account/
 4. Keep `paidMonths`, finite installments, `closedAt` and refinance formula changes blocked pending explicit Build19 calculation-contract approval.
 
 No 100% parity claim. Preserve local-only/no-backend/no-mandatory-account/no-bank-sync/no-telemetry and credit-is-not-owned-money invariants.
+
+## 2026-11-21T04:19:53.103Z — Native iOS WEB export preflight (COMPLETED; exporter still disabled)
+
+- App feature commit: [`abad70cb5644e7f3abb2d64996c7f3eeb02739a8`](https://github.com/nikopol000/financial-autonomy-app/commit/abad70cb5644e7f3abb2d64996c7f3eeb02739a8); app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; feature **443 ahead / 0 behind**.
+- Implemented `WebBackupExportPreflight.inspect`: deterministic, path-specific, read-only blocker report. It checks required WEB v4 metadata/month plans and valid source dates; account/debt closure; native budget catalog; schedule/fixed-month/paid-month projection; scheduled transaction links; correction replacement IDs; derived balance/principal expectations; audit after-state and timestamp precision; reconciliation/loan explanations and audit; and duplicate recurring/dashboard/role/paid-month projections.
+- Four regression tests cover a clean archived-v4-shaped snapshot (eligible for future mapping only, not export-ready), multiple known blockers, conflicting retained/native projections and snapshot non-mutation. `exporterImplemented == false`; `isExportReady == false`.
+- Swift 6.2.1 isolated type-checks with matching stubs PASS; isolated XCTest harness 4/4 PASS. Not app-target tests/build. XcodeGen/xcodebuild are absent.
+- Exact new HEAD has no Actions run or combined status contexts in the immediate post-push query. Last code run 44854613164 (82dac9d) failed before steps/logs/artifacts; no retry. The new commit touches the workflow's Swift path filter, so inspect its exact-SHA run if it appears.
+- No WEB JSON exporter or export UI; native .fabackup remains the only writable format. No Models/LedgerStore, formula, app/main or privacy change.
+
+### FIRST NEXT
+1. Inspect Native iOS CI for exact HEAD `abad70cb5644e7f3abb2d64996c7f3eeb02739a8`; at first real macOS runner execute XcodeGen, generated UTI inspection, Simulator build, all unit/UI tests and exact .xcresult. Do not repeat pre-runner failures.
+2. If CI remains absent/pre-runner blocked, extend the independent preflight tests for missing metadata, empty monthPlans, invalid retained dates/legacy JSON and paidMonths mismatch. Keep JSON export disabled.
+3. Then implement only the field mappings whose no-loss contract is proven, validate with the archived WEB v18.20 validator and cross-platform round-trip, and exercise actual Files plus populated Light/Dark comparisons.
+4. Keep financial obligation changes gated on explicit Build19 calculation-contract approval; preserve local-only/no-backend/no-account/no-bank-sync/no-telemetry and credit-is-not-owned-money invariants.
