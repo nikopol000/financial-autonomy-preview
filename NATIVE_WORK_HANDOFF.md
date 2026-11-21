@@ -1,22 +1,24 @@
 # Native Work Handoff
 
-## Active lease — recurrence audit reconciliation
+## Latest completed stage — recurrence / cancellation / Coverage parity
 
-- The prior lease expired at 2026-11-21T10:55:00Z; no unexpired lease was present when this run claimed work.
-- App feature HEAD at claim: `b9785efb35d8a27364c3482354003146fe714a17`; commits `5c555c9` and `b9785ef` already contain a shared recurrence calendar, inclusive `coveredByBudget` role boundary handling, and fail-closed invalid recurring inputs. This run is validating those changes and exact CI evidence before any additional edit.
-- Exact Native iOS CI run for `b9785ef`: `44894916999`; job `136818399901` reports `steps=[]`, `logs_url=null`, job log download 404 `BlobNotFound`, artifacts 0, combined status contexts 0. This is pre-runner infrastructure failure; do not retry it.
+- App commits: [577bf0bb7b80da54158084ac51cca582ffca24a1](https://github.com/nikopol000/financial-autonomy-app/commit/577bf0bb7b80da54158084ac51cca582ffca24a1), [5fd5eb4e13d2d2dfeb3819b007f8d12bc6bd44b6](https://github.com/nikopol000/financial-autonomy-app/commit/5fd5eb4e13d2d2dfeb3819b007f8d12bc6bd44b6), [b9cbe597cef4d96066e4c2a798a0eaf5289b997d](https://github.com/nikopol000/financial-autonomy-app/commit/b9cbe597cef4d96066e4c2a798a0eaf5289b997d).
+- Verified against archived WEB v18.20 modules 210 (recurring dates), 204 (cancelled/endDate semantics) and 205 (empty month-plan fallback). Corrected exclusive cancellation boundary/status behavior and missing-plan Coverage projection. Added 15 recurrence fixtures including both 2026 DST transition dates, two due-date clamps, local Bucharest round-trip coverage, and source XCTest regressions.
+- Isolated checks: Swift 6.2.1 recurrence/lifecycle harness PASS; Bucharest local date round-trip PASS; optional-plan harness PASS; Node 22 WEB reference recurrence/ended harness PASS. These are not app-target XCTest.
+- Exact Native iOS CI for current HEAD [44898972709](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44898972709), job `136830595347`: pre-runner failure (`steps=[]`, `logs_url=null`, log 404 BlobNotFound, artifacts 0, combined statuses 0). No retry. xcodebuild/xcodegen unavailable; app build and XCTest remain unverified.
+- Preview checkpoint: [f0f34693803bb0360e1d1c424a3ec0e219734eed](https://github.com/nikopol000/financial-autonomy-preview/commit/f0f34693803bb0360e1d1c424a3ec0e219734eed) updates PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md. The prior lease is now released.
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-21T11:10:00Z
-Lease expires UTC: 2026-11-21T11:55:00Z
+Updated UTC: 2026-11-21T11:27:00Z
+Lease expires UTC: 2026-11-21T11:27:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: b9785efb35d8a27364c3482354003146fe714a17
+Verified app feature HEAD: b9cbe597cef4d96066e4c2a798a0eaf5289b997d
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before lease: 6cff9a93d7b20d8386e9569ed8555fceaaf2f116
-Feature comparison: 470 ahead / 0 behind; app/main remains unchanged.
-PROJECT_STATE.md checkpoint commit: f412d67ca4c59740ea1ba8dce3e28e03afed4c4f (current blob at lease claim).
-IMPLEMENTATION_QUEUE.md checkpoint commit: f57892b973e601f7c4c725a1c34ce0c8ab04b5b2 (current blob at lease claim).
+Verified preview main before release: f0f34693803bb0360e1d1c424a3ec0e219734eed
+Feature comparison: 473 ahead / 0 behind; app/main remains unchanged.
+PROJECT_STATE.md checkpoint commit: f0f34693803bb0360e1d1c424a3ec0e219734eed.
+IMPLEMENTATION_QUEUE.md checkpoint commit: f0f34693803bb0360e1d1c424a3ec0e219734eed.
 
 ## Completed stage — paid-month native projection/replay audit
 
@@ -40,5 +42,4 @@ IMPLEMENTATION_QUEUE.md checkpoint commit: f57892b973e601f7c4c725a1c34ce0c8ab04b
 
 ## Exact next action
 
-Implement iPhone parity for WEB v18.20 fixed-expense \`dayKnown\` without changing financial formulas: trace all timeline/due consumers; carry the flag backward-compatibly or derive it from retained monthPlans; do not display a concrete due date when WEB marks it unknown; add importer, native-backup round-trip and UI/model tests. Then audit weekly/monthly/quarterly/yearly recurrence and coveredByBudget role-effective dates against the archived bundle. At the first Native iOS CI run with real macOS runner steps, execute XcodeGen, Simulator build, full unit/UI tests and inspect the exact \`.xcresult\`; do not repeat pre-runner failures.
-Privacy and financial invariants: local-only storage; no backend, mandatory account, bank sync or telemetry; available credit is not owned money. Never modify or merge app/main. No 100% parity claim until functional, financial, data, build/test and visual gates all pass.
+Audit the archived WEB v18.20 validator and prove a populated, lossless native → WEB JSON → native round-trip with synthetic fixtures. Cover IDs/order, null-vs-empty collections, recurring status/endDate/history/reminder, fixed month-plan rows, paid declarations and unknown metadata. Keep WEB JSON export disabled until the archived validator accepts the payload and reverse import preserves every field. Then exercise Files import/export and populated Light/Dark screen comparisons. At the first Native iOS CI run exposing real macOS runner steps, run XcodeGen, inspect generated UTI, build Simulator, run all unit/UI tests and inspect the exact .xcresult. Do not repeat pre-runner failures.
