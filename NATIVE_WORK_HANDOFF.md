@@ -1,10 +1,21 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
+Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-21T00:11:00.112Z
-Lease expires UTC: none
-Released UTC: 2026-11-21T00:11:00.112Z
+Updated UTC: 2026-11-21T03:09:00Z
+Lease expires UTC: 2026-11-21T03:55:00Z
+Working branch: `financial-autonomy-app:feat/sync-preview-v18-20-ios`
+Verified app feature HEAD at lease claim: 82dac9d1066c7a93faae7fefad405838e5d8788d
+Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
+Verified preview main HEAD at lease claim: e42303b393844afd8bfef1bd33003185e3eee2ae
+Feature comparison: 441 ahead / 0 behind.
+
+## Active lease — native-only field inventory for WEB v18.20 export feasibility
+- The previous lease is absent/expired; no concurrent session is declared active.
+- Exact next task from the latest checkpoint: inventory native-only fields in the native ledger/backup schema and compare them with archived WEB v18.20 fields. Define fail-closed export rules; do not implement a lossy exporter.
+- Native iOS CI for exact app HEAD 82dac9d1066c7a93faae7fefad405838e5d8788d has run 44854613164 and failed before runner steps/logs; do not retry the same failure. Continue independent source audit.
+- No financial formula changes; no Models/LedgerStore wholesale rewrite; no app/main writes or merge.
+
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
 Verified app feature HEAD: 965983df405ea7ae0a2a40fb68b8d46901724ab6
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
