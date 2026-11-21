@@ -15,14 +15,15 @@
 - Preview checkpoint: [f0f34693803bb0360e1d1c424a3ec0e219734eed](https://github.com/nikopol000/financial-autonomy-preview/commit/f0f34693803bb0360e1d1c424a3ec0e219734eed) updates PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md. The prior lease is now released.
 
 
+
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-21T13:08:00Z
-Lease expires UTC: 2026-11-21T14:08:00Z
+Updated UTC: 2026-11-21T15:04:38Z
+Lease expires UTC: 2026-11-21T16:04:38Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: c7b5ef55798bf80f9d1d039bbd0c556b844767d3
+Verified app feature HEAD: 1f530f16ea60cf881cd891dc7d16a65fda071929
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before lease: 1f58c621c2c0f2f649d0ce76205e6729d400bc04
-Feature comparison: 474 ahead / 0 behind; app/main remains unchanged.
-PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md were read from preview main at 1f58c621c2c0f2f649d0ce76205e6729d400bc04.
-Exact active task: archived WEB v18.20 validator audit and synthetic native → WEB JSON → native lossless round-trip proof. Keep WEB JSON export disabled.
+Verified preview main HEAD before lease: d8fdac27f7d1fecf9db49fb84f53f81540c2abdb
+Feature comparison: 486 ahead / 0 behind; app/main remains unchanged.
+PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md were read from preview main at d8fdac27f7d1fecf9db49fb84f53f81540c2abdb.
+Exact active task: audit archived WEB v18.20 validator module 205 and prove populated native → WEB JSON → native lossless round-trip using synthetic fixtures. Preserve unknown top-level/nested extensions opaquely or keep export/import blocked; keep WEB JSON export disabled.
