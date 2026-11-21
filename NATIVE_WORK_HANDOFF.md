@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native parity automation
-Updated UTC: 2026-11-21T23:10:00Z
-Lease expires UTC: 2026-11-21T23:55:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-21T23:22:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: a59c87852f8a8c78918346ab368012cdc5fd60c5
-Latest implementation commit: fe9d085ceafc0abfc5660081495bf77cc2859275
-Latest app branch commit: a59c87852f8a8c78918346ab368012cdc5fd60c5
+Verified app feature HEAD: df9aaede64cb8bc489f50bc03f6a74a25b3d1e25
+Latest implementation commit: 8da5d268e22593433d87ca95cd367689155a1cbe
+Latest app branch commit: df9aaede64cb8bc489f50bc03f6a74a25b3d1e25
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: ffb26f016e50ead362dbad3d936cb31b3899ff3f
+Verified preview main HEAD before this handoff commit: a1d63ba191bd6b09820a5b74593883a5303635a1
 
 ## Completed this run
 
@@ -31,9 +31,19 @@ Verified preview main HEAD before this handoff commit: ffb26f016e50ead362dbad3d9
 - Exact HEAD combined status contexts=0 and connected workflow lookup=0 runs. Previous run 44946554197 for parent 7e9474 had one failed job, zero steps, zero artifacts and 404 BlobNotFound logs; no retry. No xcodebuild/xcodegen; no Apple build/XCTest/Simulator/UI or visual verification.
 - Active WEB preview is 18.74.1; target remains archived v18.20. No JS module-205 execution or visual comparison. WEB JSON export remains disabled; .fabackup only.
 
+## Completed this run — WEB v4 paidMonths projection
+
+- App implementation/importer commit: 8da5d268e22593433d87ca95cd367689155a1cbe; latest test/guard commit and exact app feature HEAD: df9aaede64cb8bc489f50bc03f6a74a25b3d1e25.
+- Mutable paidMonths projection reconciles WebImportMetadata.paidMonths, ScheduleBook.paidMonths and LoanBook.paidMonths. Recurring schedule IDs and loan IDs are updated from native books; top-level expense-template and card/overdraft IDs remain source-only. Original UUID spelling/order is retained, new recurring declarations append, and duplicate/unknown/reordered/invalid memberships fail closed.
+- WEB empty month arrays now populate empty native book month keys where the book exists. Mutable fingerprint normalization handles per-book empty keys that have no distinct representation in WEB's single map.
+- Four XCTest source cases added but not run in the app target. Isolated Swift 6.2.1 stub-model harness compiled and passed order/spelling, source-only IDs, schedule/loan edits, empty months, simulated re-import, append-only recurring, nil-vs-empty and fail-closed cases.
+- Static comparison of archived v18.20 module 205 blob be453db2699273a194543de4532db6ea4b2e1cf2 and active v18.74.1 module 205 blob 60c8e9ba93127514299be6be14b1edd932150b54: both use optional YYYY-MM arrays of unique IDs from expenses/debts/recurring. No JavaScript validator execution or visual comparison.
+- Exact CI 44961190775, HEAD df9aaede: FAILURE before runner, zero steps, 404 BlobNotFound logs, zero artifacts and zero status contexts. No retry. No xcodebuild/xcodegen, Apple build or app XCTest.
+- Export remains disabled; .fabackup only. Local-only and no-credit-as-owned-money invariants unchanged.
+
 ## Exact next action
 
-Implement mutable WEB `paidMonths` projection by reconciling `WebImportMetadata.paidMonths` with `ScheduleBook.paidMonths` and `LoanBook.paidMonths`. Preserve optional map presence, month keys, original UUID spelling/order and explicit empty arrays. Update only IDs represented by native schedule/loan books; retain source-only WEB declarations such as revolving-debt IDs. Fail closed on duplicates, unknown membership, reordering or inconsistent books. Then continue monthPlans and fixed-expense budgets/windows/contributions.
+Implement mutable WEB v4 monthPlans projection: reconcile WebImportedMonthPlan with ScheduleBook.fixedExpensePlans and the fixed-expense catalog; preserve month keys/order, optional budgets/window metadata, expense IDs/names/amounts/due-day/dayKnown, debt-payment IDs/amounts and contributionMinor. Add populated round-trip and fail-closed tests, update mappedFingerprint and verify the archived v18.20 contract. Then continue remaining budget-window/contribution fields and goals/plans. Keep WEB JSON export disabled.
 
 ## Invariants
 
