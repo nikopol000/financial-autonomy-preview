@@ -11,10 +11,12 @@ Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 Verified preview main before checkpoint commit: 14a5e49d707195b880ca411a21874b0215272218
 Feature comparison: **442 ahead / 0 behind**; app/main remains unchanged.
 PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md and this handoff are updated atomically in the same preview checkpoint commit.
-- The previous lease is absent/expired; no concurrent session is declared active.
-- Exact next task from the latest checkpoint: inventory native-only fields in the native ledger/backup schema and compare them with archived WEB v18.20 fields. Define fail-closed export rules; do not implement a lossy exporter.
-- Native iOS CI for exact app HEAD 82dac9d1066c7a93faae7fefad405838e5d8788d has run 44854613164 and failed before runner steps/logs; do not retry the same failure. Continue independent source audit.
-- No financial formula changes; no Models/LedgerStore wholesale rewrite; no app/main writes or merge.
+## Exact next action
+1. At the first Native iOS CI run with a real macOS runner and executed steps, run XcodeGen, inspect generated UTI Info.plist, build the Simulator target, run the full unit/UI suite and inspect the exact `.xcresult`.
+2. While runner allocation remains blocked, implement a pure non-mutating WEB export eligibility/mapping preflight plus blocker-path regression tests; do not enable WEB JSON export until archived v18.20 validation and lossless cross-platform round-trip pass.
+3. Exercise actual Files import/export and populated Light/Dark screen comparison against archived WEB v18.20.
+4. Keep `paidMonths`, finite installments, `closedAt` and refinance formula changes approval-gated on explicit Build19 calculation-contract approval.
+PROJECT_STATE / IMPLEMENTATION_QUEUE checkpoint: `25f15463594f909fc67dccc17a5370cda5a399d0`.
 
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
 Verified app feature HEAD: 965983df405ea7ae0a2a40fb68b8d46901724ab6
