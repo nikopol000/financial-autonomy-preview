@@ -4882,7 +4882,7 @@ FIRST NEXT
 
 ### FIRST NEXT
 
-1. Implement iPhone parity for WEB v18.20 fixed-expense \`dayKnown\`: inspect all timeline/due consumers; preserve the flag backward-compatibly or derive it from retained monthPlans; do not display a concrete due date when WEB marks it unknown. Add importer, backup round-trip and UI/model tests without changing due amounts or recurrence formulas.
-2. Audit recurrence due-date behavior for weekly/monthly/quarterly/yearly schedules and coveredByBudget role-effective dates against the archived v18.20 bundle; compare generated dates and cancellation boundaries.
-3. At the first Native iOS CI run that exposes real macOS runner steps, run XcodeGen, inspect generated UTI, build Simulator, execute full unit/UI tests and inspect the exact .xcresult. Do not rerun the observed pre-runner failures.
-4. Continue only after these checks to archived WEB validator + populated native-to-WEB-to-native round-trip, Files behavior and screen-by-screen Light/Dark comparison. Keep JSON export disabled until lossless mapping is demonstrated.
+1. Audit weekly/monthly/quarterly/yearly recurrence dates and `coveredByBudget` role-effective boundaries against archived WEB v18.20 module 210. Compare `recurringDates`, `dueDate` and `obligationsFor` with `RecurrenceCalendar`, `ScheduledDueEngine` and `WebDailyPaceEngine`. Cover leap days, original month-end anchors, DST-season dates, future first dates, cancellation boundaries and the exact role-effective date. Add reference-based source tests for concrete mismatches; do not change formulas speculatively.
+2. Inspect Native iOS CI for the current exact feature HEAD. Do not retry pre-runner failures; at the first run exposing real macOS runner steps, run XcodeGen, generated UTI inspection, Simulator build, full unit/UI tests and exact .xcresult review.
+3. Prove archived WEB validator compatibility and lossless native-to-WEB-to-native round-trip before enabling/advertising JSON export; then exercise Files import/export and populated Light/Dark screens.
+4. Preserve local-only/no-backend/no-account/no-bank-sync/no-telemetry, and keep available credit excluded from owned money. Never modify or merge app/main without explicit approval. No 100% parity claim until financial, data, build/test and visual gates all pass.
