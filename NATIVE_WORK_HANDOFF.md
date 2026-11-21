@@ -2,32 +2,34 @@
 
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-21T07:03:30Z
-Lease expires UTC: 2026-11-21T08:03:30Z
+Updated UTC: 2026-11-21T08:10:04Z
+Lease expires UTC: 2026-11-21T08:55:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 0ee99fe7c6548bcebbee8a46b48c7de61b0ca052
+Verified app feature HEAD: 9403c23fb8a54446215bd7f4c301e6c7135bc90b
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before release: 733fdbcbb0e9bf028cf2dc057665c0895d641776
-Feature comparison: 461 ahead / 0 behind; app/main remains unchanged.
+Verified preview main: c29db81e9ed5d76df9da6546b5590ba2bd87330c
+Feature comparison: 463 ahead / 0 behind; app/main remains unchanged.
 PROJECT_STATE.md checkpoint commit: 043f30f3140bbea82330f67753f628e86efa5461.
 IMPLEMENTATION_QUEUE.md checkpoint commit: ed3cf57370a004339d0cca47e085e6620c177e75.
 
 ## Active stage — paid-month native projection audit
 
-The first unfinished queue item is to audit ScheduleBook.paidMonths and LoanBook.paidMonths against retained WEB metadata paidMonths and the archived v18.20 import split. Scope is read-only preflight validation and focused regression tests only; do not alter financial formulas, event replay, import splitting, or enable WEB JSON export.
+The first unfinished queue item remains the ScheduleBook.paidMonths + LoanBook.paidMonths projection/replay audit. The previous handoff description of an early return on an empty native union is stale: current HEAD 9403c23 contains the full retained-WEB destination loop introduced by eca00d7, and the regression test testPaidMonthProjectionRequiresNativeDestinationsForEveryRetainedWEBID exercises a missing native projection. Do not reimplement that fix.
 
-Verified starting evidence:
-- The archived v18.20 importer validates paidMonths against expense, debt and recurring IDs, then splits declarations into ScheduleBook only for non-income scheduled recurring/fixed-catalog IDs and LoanBook only for loan-kind debt IDs. Card/overdraft debt IDs and expense IDs absent from monthPlans have no native paid-month destination.
-- The importer retains the original WEB dictionary separately in webImportMetadata.paidMonths.
-- Native scheduled and debt due engines use paid-month declarations only for obligation projection. ScheduleBook.paidMonths and LoanBook.paidMonths do not post operations or alter owned cash/principal replay; LoanEventOrder orders operations and observations, not paid declarations.
-- Existing preflight merges native declarations as sets, but returns early when the native union is empty. This can fail open when WEB metadata contains paid IDs that were not projected natively. It also hides duplicate IDs and does not validate each native collection against its own catalog.
-- Exact app feature HEAD is 0ee99fe7c6548bcebbee8a46b48c7de61b0ca052; app/main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366. Exact HEAD has zero combined status contexts and zero Actions workflow runs. Do not retry old pre-runner failures.
+Verified current behavior:
+- Archived v18.20 parsePaidMonths validates exact WEB month keys, duplicate raw strings, payable catalog membership and 100,000 ID bound. The importer splits markers into ScheduleBook only for non-income recurring/fixed month-plan items and LoanBook only for loan-kind debts, while retaining the original WEB dictionary in webImportMetadata.paidMonths.
+- Card/overdraft debts and expense templates absent from monthPlans are accepted by the WEB parser but have no native paid-month destination; the current preflight blocks them.
+- Current preflight checks both native collections independently, duplicates, wrong catalog membership, cross-domain collisions, raw counts, missing retained/native membership, and preserves retained WEB order/empty buckets. Comparison is set-based because both due engines use membership checks.
+- Existing LoanEventOrderTests prove a loan paid marker changes debt due projection but does not post an operation, alter principal replay, or advance event order. A matching ScheduleBook/LedgerStore invariant test is still missing.
+- Importer round-trip coverage exists in testPaidMonthsAndDashboardOrderRetainDeclarationsAndNativeFlags; inspect whether its fixture covers recurring, fixed month-plan expense, loan, card and retained raw ordering before treating import splitting as fully covered.
+- Exact current app feature HEAD: 9403c23fb8a54446215bd7f4c301e6c7135bc90b; stable app main: a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature comparison: 463 ahead / 0 behind.
+- Exact HEAD Native iOS CI run 44879967769 failed in 2 seconds before runner allocation: job 136772879949, steps null/empty, logs_url null, log fetch 404 BlobNotFound, artifacts 0, combined status contexts 0. This is infrastructure failure, not compiler/test evidence. Do not retry it.
 
 Next steps:
-1. Re-read exact branch HEAD and relevant files before writes; inspect native validators and archived importer details.
-2. Extend only WebBackupExportPreflight with path-specific checks for native month keys, duplicate IDs, collection/catalog membership, cross-domain ID collisions, raw count limits, missing native projection, and WEB IDs that have no native destination. Preserve set-membership semantics; do not sort/rewrite retained WEB arrays.
-3. Add XCTest source cases for the above and for the invariant that paid-month declarations affect due projections only, not operation/principal event replay. Do not claim XCTest executed without a macOS runner.
-4. Run Swift parser/type-check and a focused isolated harness if available; report stubs distinctly from app-target verification.
-5. Commit implementation/tests on the feature branch only. Update preview PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with exact commits, actual checks, blockers and the next action. Release this handoff to READY_FOR_NEXT_RUN using expected-SHA, non-force ref update.
+1. Inspect the existing importer split fixture and current schedule due/store APIs.
+2. Add a focused XCTest proving setScheduledPaid changes only current-month due projection, does not post or mutate operations/account cash, and does not affect LoanEventOrder.next; add a cross-domain catalog-collision regression only if current tests do not already assert it.
+3. Resolve the empty native year-zero bucket edge consistently with the documented rule that empty month buckets have no due-state semantics; preserve non-empty year-zero blockers.
+4. Run swiftc parse/type-check and an isolated harness where possible; label stubs distinctly. Do not claim app-target XCTest without macOS.
+5. Commit code/tests only on feat/sync-preview-v18-20-ios. Update preview PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with exact commit, real checks, CI evidence, blockers and exact next action. Release this handoff to READY_FOR_NEXT_RUN using current blob SHA and non-force expected-SHA ref update.
 
 Privacy and financial invariants: local-only storage; no backend, mandatory account, bank sync or telemetry; available credit is not owned money. Never modify or merge app/main. No 100% parity claim until all functional, financial, data, build/test and visual gates pass.
