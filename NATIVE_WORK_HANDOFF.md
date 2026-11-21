@@ -748,4 +748,14 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - If no safe evidence-backed code change is found, document the audit and proceed to the next independent parity item.
 - Lease expires 2026-11-21T02:00:00Z. Work only on app feature branch; no app/main writes or merge.
 
-Status: IN_PROGRESS. Lease expires UTC: 2026-11-21T02:00:00Z.
+
+## Completed run — native backup decoder dispatch and authentication errors
+- App feature final HEAD: `0235681ec94251ad555de8fd38b443665ce53eb9`; app stable `main`: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged.
+- App commits: `c488a10899be4bd9d5ad1e1f71634b8c8d89a21c`, `0235681ec94251ad555de8fd38b443665ce53eb9`.
+- Files read audit found no evidence-backed need to replace the bounded regular-file read; Apple documents read(upToCount:) as returning the requested bytes or EOF. Actual provider runtime remains untested.
+- Native magic now selects the native decoder; authentication, malformed format and invalid-ledger errors remain distinct; WEB JSON fallback remains covered.
+- Swift 6.2.1 isolated dispatch harness PASS; parser snippet PASS. No app-target tests/build.
+- Exact final-HEAD CI run 44848634977 failed before steps/logs/artifacts; job 136674444963, log 404 BlobNotFound, artifacts 0, combined statuses 0. Not retried.
+- **Next:** first macOS runner with real steps -> XcodeGen, Simulator build, full XCTest/UI and exact .xcresult; then actual Files import/export, notifications and populated Light/Dark comparison. While blocked, audit Files export/document type and WEB v18.20 backup interoperability. Build19 financial formula changes remain approval-gated.
+
+Status: READY_FOR_NEXT_RUN. Lease released.

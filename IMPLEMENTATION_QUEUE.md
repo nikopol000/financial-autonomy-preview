@@ -4710,3 +4710,21 @@ No 100% parity claim. Keep local-only storage, no backend/mandatory account/bank
 4. Keep `paidMonths`, finite installment, `closedAt` and refinance formula changes blocked pending explicit Build19 calculation-contract approval.
 
 Status: recurring creation/history and pure notification reconciliation implemented; Apple runtime and 1:1 visual/financial parity remain unverified. No 100% parity claim.
+
+## 2026-11-21 01:12 UTC — Native backup decoder dispatch and authentication error parity (COMPLETED; Native CI pre-runner blocked)
+
+- App feature HEAD: `0235681ec94251ad555de8fd38b443665ce53eb9`; stable app `main`: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; **440 ahead / 0 behind**.
+- Commits: `c488a10899be4bd9d5ad1e1f71634b8c8d89a21c` (native magic dispatch and precise failures/tests/docs), `0235681ec94251ad555de8fd38b443665ce53eb9` (preserve key-derivation errors outside authentication catch).
+- Native `FAiOSBK1` files now stay on the native decoder path. Wrong password/authentication no longer falls through to WEB JSON and appears as an incompatible WEB file. WEB v18.20 JSON still uses the WEB decoder when the native header is absent. No backup-v1 format semantics changed; restore still requires explicit user confirmation.
+- Files read audit: the current bounded `FileHandle.read(upToCount: maximumBytes + 1)` is consistent with Apple's documented regular-file behavior (requested bytes or EOF); no speculative read loop was added. Actual Files-provider behavior remains unverified.
+- Swift 6.2.1 isolated dispatch harness PASS for native error propagation, WEB fallback and denied-scope no-read; `swiftc -parse` changed PortableBackup snippet PASS. Stubs used; **not** app-target XCTest.
+- Exact final-HEAD CI [44848634977](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44848634977), job `136674444963`, failed before steps/logs; log endpoint 404 `BlobNotFound`, artifacts 0, combined contexts 0. Intermediate [44848538308](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44848538308) had the same failure. No retry; no compiler output.
+- No XcodeGen/build/full XCTest/UI/Simulator/Files/notifications/screenshots. No formula, Models/LedgerStore, app/main, privacy or real data changes.
+
+**FIRST NEXT**
+1. At the first macOS CI run with real steps: XcodeGen, Simulator build, all unit/UI tests, inspect exact `.xcresult`.
+2. Then test actual Files import/export and UserNotifications permission/add/replacement/cleanup behavior; capture populated Light/Dark screens and compare with archived WEB v18.20.
+3. While CI remains pre-runner blocked, source-audit Files export/document type and WEB v18.20 backup interoperability; add only concrete, non-financial, lossless fixes. Do not repeat the same pre-runner failure.
+4. Keep `paidMonths`, finite installments, `closedAt` and refinance calculation changes blocked pending explicit Build19 approval.
+
+No 100% parity claim. Preserve local-only storage, no backend/mandatory account/bank sync/telemetry, and credit-is-not-owned-money invariant.
