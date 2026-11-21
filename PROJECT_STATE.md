@@ -1113,3 +1113,36 @@ The selected-file preparation boundary is now testable and demonstrably separate
 - Native iOS workflow is configured for push on this feature branch and NativeiOS Swift / xcodegen paths. The failure is infrastructure-side before any step, not a demonstrated source build failure.
 
 **Exact next action:** at the first macOS run that actually allocates a runner and executes steps, run XcodeGen, Simulator build, the complete unit/UI suite and inspect that exact .xcresult; then exercise real fileImporter/fileExporter and compare populated Light/Dark screens with archived WEB v18.20. While runner allocation remains blocked, continue an independent non-financial audit of recurring lifecycle transition/history/reminder-clearing and local notification reconciliation against archived WEB v18.20; add changes only for an evidenced gap. Keep paidMonths, finite installments, closedAt and refinance formula changes gated on explicit Build19 approval. No 100% parity claim.
+
+
+## Native iOS parity checkpoint — 2026-11-21T00:10:41.502Z — recurring creation/history and local notification reconciliation
+
+**Working source:** `nikopol000/financial-autonomy-app:feat/sync-preview-v18-20-ios` only.
+
+- Startup app feature HEAD: `4a7f99a3ac9622f531a522985e229706ce1033b9`; final app feature HEAD: [`965983df405ea7ae0a2a40fb68b8d46901724ab6`](https://github.com/nikopol000/financial-autonomy-app/commit/965983df405ea7ae0a2a40fb68b8d46901724ab6). Stable app `main` remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged; feature comparison **438 ahead / 0 behind**.
+- Archived WEB v18.20 bundle `be453db2699273a194543de4532db6ea4b2e1cf2`, module 204 and Subscriptions UI module 327 were inspected. WEB manual recurring creation appends history `{date: today(), action: "Adăugat manual"}`; native editor previously created an empty history array. WEB and native status transitions otherwise match: status update, cancellation end date, reminder clearing, and history append; a cancelled item is ended only when its effective end date is reached.
+
+### Implemented app commits
+- [`7678cef6a550faf406fcfb1e2a6103faa20c732e`](https://github.com/nikopol000/financial-autonomy-app/commit/7678cef6a550faf406fcfb1e2a6103faa20c732e): added validated `SubscriptionEngine.creationHistory(recordedDay:)` and wired the native editor to persist the WEB v18.20 “Adăugat manual” event using the local current day.
+- [`888e96779635a449e7e1520ce1fc65d85a89cd2d`](https://github.com/nikopol000/financial-autonomy-app/commit/888e96779635a449e7e1520ce1fc65d85a89cd2d): introduced a testable reminder reconciliation plan; notification requests are attempted before stale pending requests are removed, same-ID existing requests survive a failed replacement, delivered notifications are not touched, and sync returns IDs accepted by UserNotifications.
+- [`965983df405ea7ae0a2a40fb68b8d46901724ab6`](https://github.com/nikopol000/financial-autonomy-app/commit/965983df405ea7ae0a2a40fb68b8d46901724ab6): corrected key-path/string interpolation in the new reconciliation tests.
+- The reminder editor now reports success only when UserNotifications accepted the current reminder; if scheduling fails, it says the reminder is saved but the local notification could not be scheduled. No `Models.swift`, `LedgerStore.swift`, balance, operation or financial formula changes.
+
+### Verification actually executed
+- Swift 6.2.1 runtime harness: **PASS** for creation history, future-only reminder candidates, stale feature-request cleanup, unrelated notification preservation and same-ID replacement fallback. The harness uses isolated Foundation/API stubs, not the app target.
+- Swift 6.2.1 focused XCTest-source type-check with matching model/API stubs: **PASS** for the new creation-history and reconciliation-plan test methods; not app-target XCTest.
+- Swift 6.2.1 async scheduler type-check against isolated UserNotifications API stubs: **PASS**; not Apple SDK or simulator validation.
+- Swift parser check for the edited editor save-path snippet: **PASS**.
+- Not executed: XcodeGen, `xcodebuild`, app-target XCTest, real UserNotifications delivery/permission flows, Simulator, Files picker, UI screenshots or visual comparison.
+
+### Exact-HEAD Native iOS CI
+- Exact final HEAD `965983df405ea7ae0a2a40fb68b8d46901724ab6`: push run [44841843243](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44841843243), completed FAILURE before runner steps were exposed. Job `136651897831` has `steps=null` and no logs URL; log download returned 404 `BlobNotFound`; artifacts **0**; combined status contexts **0**. No compiler or XCTest diagnostic is available. This run was not retried.
+- Earlier exact code run [44841574244](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44841574244) for `7678cef` had the same pre-step failure shape and was not retried.
+
+### Remaining gaps and next action
+1. At the first macOS runner that executes real steps, run XcodeGen, Simulator build, full unit/UI tests and inspect the exact `.xcresult`; do not repeat the same pre-runner failure.
+2. Verify real UserNotifications permission, add failure, replacement, stale cleanup and delivered-notification behavior on Simulator/device; the current tests cover the pure reconciliation plan, not the OS service.
+3. Then exercise real Files import/export and compare populated Light/Dark screens against archived WEB v18.20.
+4. Keep `paidMonths`, finite installments, `closedAt` and refinance formula changes approval-gated on the explicit Build19 calculation contract.
+
+Local-only storage remains mandatory; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money. No 100% parity claim.

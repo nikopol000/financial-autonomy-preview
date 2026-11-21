@@ -4690,3 +4690,23 @@ Status: date-only consumer map complete; year-zero implementation deferred becau
 3. Keep paidMonths, finite installments, closedAt and refinance obligation formulas blocked pending explicit Build19 calculation-contract approval.
 
 No 100% parity claim. Keep local-only storage, no backend/mandatory account/bank sync/telemetry; available credit is not owned money.
+
+
+## 2026-11-21T00:10:41.502Z — recurring creation/history and local notification reconciliation (COMPLETED; Native CI pre-runner blocked)
+
+**App feature HEAD:** `965983df405ea7ae0a2a40fb68b8d46901724ab6`; **438 ahead / 0 behind** stable app `main` `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (unchanged).
+
+- WEB v18.20 manually created recurring items start with history `today() · Adăugat manual`. Native previously started with an empty history; commit `7678cef6a550faf406fcfb1e2a6103faa20c732e` now creates and persists the same validated event.
+- Archived WEB transition/history behavior was compared with native. Status, cancellation effective date, reminder clearing, history action text, irreversible cancelled state and effective-day end semantics already matched; no transition formula change was needed.
+- Commits `888e96779635a449e7e1520ce1fc65d85a89cd2d` and `965983df405ea7ae0a2a40fb68b8d46901724ab6` add testable reminder reconciliation and correct its regression assertions. Native now attempts desired requests before stale cleanup, preserves a same-ID pending request if replacement fails, leaves delivered notifications untouched, returns accepted reminder IDs, and avoids a false “programat” success message when UserNotifications rejects the request.
+- Executed: Swift 6.2.1 isolated runtime harness PASS; focused XCTest source type-check with model/API stubs PASS; async scheduler type-check with UserNotifications stubs PASS; edited save-path parser check PASS. These are not app XCTest/build or Apple SDK tests.
+- Exact HEAD CI run `44841843243` failed before steps/logs/artifacts were exposed (job `136651897831`, `steps=null`, logs URL absent, log 404 `BlobNotFound`, artifacts 0, combined contexts 0). Not retried; no source diagnostic.
+- No formula, `Models.swift`, `LedgerStore.swift`, balance, operation, backup schema, privacy architecture or app/main changes.
+
+### FIRST NEXT
+1. At the first macOS runner with actual steps: XcodeGen, Simulator build, full unit/UI suite and inspect exact `.xcresult`.
+2. Verify real UserNotifications permission/add-failure/replacement/stale-cleanup/delivered behavior on Simulator/device; current coverage tests the reconciliation plan only.
+3. Exercise Files import/export and compare populated Light/Dark screens against archived WEB v18.20.
+4. Keep `paidMonths`, finite installment, `closedAt` and refinance formula changes blocked pending explicit Build19 calculation-contract approval.
+
+Status: recurring creation/history and pure notification reconciliation implemented; Apple runtime and 1:1 visual/financial parity remain unverified. No 100% parity claim.
