@@ -4913,3 +4913,19 @@ FIRST NEXT
 - No formulas, ledger/model rewrite, backup envelope, app/main or user data changed. WEB JSON remains import-only; \`.fabackup\` remains the only writable export.
 
 **FIRST NEXT:** implement the pure \`LedgerSnapshot → WEB v4 state\` serializer, including exact mapping of metadata/native canonical fields, then call opaque reattachment, run the archived module-205 validator, re-import and compare every representable field and derived financial value. Keep native-only fields and unresolved projections fail-closed. Do not enable JSON export until full round-trip and Apple build/test gates pass.
+
+
+## 2026-11-21T17:17Z — exact WEB v4 source baseline added; mutable serializer remains gated
+
+- App commits: [91ccac8](https://github.com/nikopol000/financial-autonomy-app/commit/91ccac86804b85ae69fc8fed15210655f133314d) (source capture + no-op mapper) and [c510866](https://github.com/nikopol000/financial-autonomy-app/commit/c51086648d68c93b68eff147690b638660e3b6b8) (encrypted native-backup round-trip test source).
+- Exact v4 input bytes are now retained in encrypted WebImportMetadata with an independent SHA-256 and complete native snapshot fingerprint. A no-op mapper rejects missing/corrupt source bytes and any changed native snapshot; source v2/v3 migrations remain unsupported for this path.
+- Isolated Swift 6.2.1 mapper harness with a deterministic CryptoKit API stub: exact bytes PASS; mutation rejection PASS; corrupt source rejection PASS. Not a real CryptoKit/app build or XCTest. Three XCTest source cases were added, including PortableBackup seal/open, but were not executed.
+- Exact CI [44929097185](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44929097185), commit c510866, failed before runner: empty steps, null logs URL, log fetch 404 BlobNotFound, zero artifacts, zero combined contexts. No retry; xcodebuild/xcodegen unavailable.
+- WEB JSON remains disabled/import-only. The mutable full-snapshot mapper, archived module-205 validation, reverse re-import comparison, Files and visual parity remain open.
+
+### FIRST NEXT
+1. Implement mutable canonical account + transaction projection from LedgerSnapshot into the retained WEB v4 source template. Cover income, expense, transfer and debtPayment legs, IDs/order/date/name/details/voided/category/financialRole/reconciliationCheckId/template links; refuse any field combination that cannot be mapped exactly.
+2. Reattach opaque extension fields by stable identity after array reconstruction. Preserve original WEB ordering and optional/null/empty distinctions; do not let the source template silently override changed canonical values.
+3. Add populated fixtures for add/edit/void/transfer/debt-payment and compare native derived balances/obligations after WEB re-import. Execute archived module 205 against emitted JSON. Keep exporterImplemented false and JSON export disabled until the entire snapshot mapper and reverse round-trip pass.
+4. Continue debt/loan, recurring/history, fixed monthPlans/budgets/windows/contribution, paidMonths, goals/plans, names/audit/checks, appearance/dashboard/projection and legacy mappings. Keep native-only observation/audit/explanation fields fail-closed until exact WEB semantics are proven.
+5. At the first Native iOS CI run with actual macOS runner steps, run XcodeGen, simulator build, all unit/UI tests and inspect the exact .xcresult. Do not retry another pre-runner failure. Then exercise Files and populated Light/Dark/accessibility comparisons against archived v18.20; active WEB preview is currently 18.74.
