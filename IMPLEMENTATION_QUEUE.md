@@ -4940,3 +4940,22 @@ FIRST NEXT
 3. After debt projection, implement recurring/history and monthPlans/budgets/windows/contributions/paidMonths, then goals/plans, names/audit/checks, appearance/dashboard/projection and legacy mappings. Preserve original IDs/order and fail closed for any unmappable state.
 4. Execute archived WEB v18.20 module 205 against populated emitted fixtures, re-import into iOS and compare every field plus derived balances/obligations. Keep exporterImplemented false until the complete two-way snapshot round-trip is proven.
 5. Then validate Files restore and compare all screens/flows/calculations to archived v18.20 with screenshots in Light/Dark and accessibility review. Active preview remains WEB 18.74; target remains archived v18.20.
+
+
+## 2026-11-21T21:18Z — mutable debt-definition projection completed
+
+- App mapper commit: [5665dd749ece73cd6655b9c3b047b8c0e5dcd9da](https://github.com/nikopol000/financial-autonomy-app/commit/5665dd749ece73cd6655b9c3b047b8c0e5dcd9da).
+- XCTest source commit/current feature HEAD: [1fe8494e8f8b23588bf89ab4c43d04372d2cf53d](https://github.com/nikopol000/financial-autonomy-app/commit/1fe8494e8f8b23588bf89ab4c43d04372d2cf53d), 502 ahead / 0 behind stable main. App main a9b30be147abecea45a63bf7dd8d0a3eb3370366 remains untouched.
+- Loans now project from LoanBook canonical opening principal and schedule fields. Cards/overdrafts project from pseudo-account name, limit, opened day and `webOpeningMinor`; never use `balanceMinor` as the WEB opening amount. WEB-only debt fields remain in metadata.
+- Debt order, UUID spelling, stable opaque extensions and schedule nil-vs-empty semantics are preserved. Unsupported closure/provenance/order/identity states fail closed. The existing source fingerprint algorithm was not changed; a separate mapped fingerprint normalizes the debt metadata cache for mutable round-trip comparison, preserving compatibility with previously imported snapshots.
+- Three XCTest source cases added but not run in the iOS target. Isolated Swift 6.2.1 stub-model harness compiled and ran: projection, serialization, opening-vs-live balance, nil-vs-empty, order and closure checks PASS. No app build or XCTest claim.
+- Static inspection of archived v18.20 module 205 and active 18.74 module 205 confirms the mapped debt schema. Active index currently points to WEB 18.74.1. No JavaScript validator execution or visual comparison.
+- Exact feature HEAD 1fe8494 combined status contexts: 0; connected PR workflow lookup: 0 runs. Previous parent run 44946554197 failed before runner; no retry. xcodebuild/xcodegen unavailable.
+- Export remains disabled (`exporterImplemented=false`); `.fabackup` only. No formulas, balance replay, privacy rules or app/main changes.
+
+### FIRST NEXT
+1. Implement recurring/history projection from `WebImportedRecurring` plus the recurring subset of `ScheduleBook.items`; preserve source IDs/order, frequency, kind, coveredByBudget, nextPaymentDay, status, endDay, history and reminder. Keep fixed-expense rows separate and fail closed on unmapped native lifecycle state.
+2. Map schedule paidMonths without collapsing nil/empty or changing monthly declaration semantics; then implement monthPlans, fixed expense budgets/windows/contributions and paid declarations.
+3. Keep WEB JSON disabled until archived module-205 validation and full populated native → WEB → native fingerprint/financial comparisons pass. At the first real macOS runner, run XcodeGen, simulator build, full XCTest/UI suite and inspect the exact `.xcresult`; do not retry another pre-runner failure.
+4. Complete Files restore and screen/flow/calculation comparison against archived WEB v18.20 in Light/Dark, plus accessibility review. Active preview is WEB 18.74.1; target remains archived v18.20.
+5. Preserve local-only/no backend/no mandatory account/no bank sync/no telemetry. Available credit is not owned money. Never modify or merge app/main without explicit approval.
