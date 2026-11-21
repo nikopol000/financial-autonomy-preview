@@ -10,7 +10,7 @@ Verified app feature HEAD: 6c0c9d64f8149b60d2066874e9469a86ec37d6b0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 Verified preview main before checkpoint commit: 14a5e49d707195b880ca411a21874b0215272218
 Feature comparison: **442 ahead / 0 behind**; app/main remains unchanged.
-PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md and this handoff are updated atomically in the same preview checkpoint commit.
+PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md checkpoint commit: `25f15463594f909fc67dccc17a5370cda5a399d0`; this READY_FOR_NEXT_RUN handoff was finalized afterward.
 ## Exact next action
 1. At the first Native iOS CI run with a real macOS runner and executed steps, run XcodeGen, inspect generated UTI Info.plist, build the Simulator target, run the full unit/UI suite and inspect the exact `.xcresult`.
 2. While runner allocation remains blocked, implement a pure non-mutating WEB export eligibility/mapping preflight plus blocker-path regression tests; do not enable WEB JSON export until archived v18.20 validation and lossless cross-platform round-trip pass.
