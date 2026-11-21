@@ -16,14 +16,17 @@
 
 
 
-Status: IN_PROGRESS
-Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-21T15:04:38Z
-Lease expires UTC: 2026-11-21T16:04:38Z
+
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-21T15:16:17Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 1f530f16ea60cf881cd891dc7d16a65fda071929
+Verified app feature HEAD: cd951ebaa204e1de6a7beab6f058a3c60a6d37a1
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before lease: d8fdac27f7d1fecf9db49fb84f53f81540c2abdb
-Feature comparison: 486 ahead / 0 behind; app/main remains unchanged.
-PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md were read from preview main at d8fdac27f7d1fecf9db49fb84f53f81540c2abdb.
-Exact active task: audit archived WEB v18.20 validator module 205 and prove populated native → WEB JSON → native lossless round-trip using synthetic fixtures. Preserve unknown top-level/nested extensions opaquely or keep export/import blocked; keep WEB JSON export disabled.
+Verified preview main HEAD before checkpoint: fd7cfb0d205751a47efc0b56c3632deec7bf14f8
+Feature comparison: 487 ahead / 0 behind; app/main remains unchanged.
+Completed stage: unknown WEB v18.20 v4 extension properties are archived in WebImportMetadata.opaqueExtensionsJSON and preserved by encrypted .fabackup; export preflight blocks them until stable-identity reattachment is implemented.
+Exact Native iOS CI: push run 44918164654 for cd951ebaa204e1de6a7beab6f058a3c60a6d37a1; job 136888165739 failed before runner steps, no artifacts, log fetch 404 BlobNotFound, combined status contexts 0. No retry.
+Next action: implement the WEB v4 serializer, merge opaque extension fields by stable identity, validate emitted JSON with archived module 205, re-import it and compare every field. Keep WEB JSON export disabled until the full round-trip is proven.
+Lease released; next execution may claim the task.
