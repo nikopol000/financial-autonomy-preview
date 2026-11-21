@@ -1203,3 +1203,7 @@ Local-only storage remains mandatory; no backend, mandatory account, bank sync o
 4. Keep `paidMonths`, finite installments, `closedAt` and refinance formula changes blocked pending explicit Build19 calculation-contract approval.
 
 Local-only storage, no backend/mandatory account/bank sync/telemetry, and credit-is-not-owned-money remain mandatory. No 100% parity claim.
+
+
+### Post-check verification addendum — 2026-11-21
+- After the main checkpoint, Swift 6.2.1 `swiftc -typecheck` passed for an isolated FileDocument/UTType contract harness with matching stubs, including native-only writable type, WEB JSON read type and the typed oversize error pattern. This is not a type-check of the actual app target and does not replace XcodeGen/xcodebuild/XCTest.

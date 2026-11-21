@@ -4755,3 +4755,7 @@ No 100% parity claim. Preserve local-only storage, no backend/mandatory account/
 4. Keep Build19 financial formula work approval-gated.
 
 No 100% parity claim. Preserve local-only storage, no backend/mandatory account/bank sync/telemetry, and credit-is-not-owned-money.
+
+
+### Post-check verification addendum — 2026-11-21
+- After the main checkpoint, Swift 6.2.1 `swiftc -typecheck` passed for an isolated FileDocument/UTType contract harness with matching stubs, including native-only writable type, WEB JSON read type and the typed oversize error pattern. This is not a type-check of the actual app target and does not replace XcodeGen/xcodebuild/XCTest.

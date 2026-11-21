@@ -783,3 +783,8 @@ Status: IN_PROGRESS. Lease expires UTC: 2026-11-21T02:45:00Z.
 **Exact next action:** first macOS runner with real steps -> XcodeGen and generated UTI Info.plist inspection, iOS Simulator build, full unit/UI suite and exact .xcresult; then actual Files provider tests. While CI remains pre-step blocked, inventory native-only fields for a fail-closed WEB export feasibility contract. Build19 formula changes remain approval-gated. No 100% parity claim.
 
 Status: READY_FOR_NEXT_RUN. Lease released.
+
+
+### Post-check verification addendum — 2026-11-21
+- Swift 6.2.1 isolated FileDocument/UTType contract harness `swiftc -typecheck`: PASS using matching stubs. It validates the authored contract shape only; not the real SwiftUI/UniformTypeIdentifiers SDK or app target.
+- Handoff remains READY_FOR_NEXT_RUN; no additional repository changes after app HEAD 82dac9d.
