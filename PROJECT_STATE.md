@@ -1361,3 +1361,35 @@ Exact next action: audit the native monthlyReviewProgress ↔ retained WEB revie
 - No financial formulas, transaction replay, available-credit/owned-money semantics, backend, required account, bank synchronization, telemetry, or app `main` were changed. No wholesale Models/LedgerStore rewrite. App stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
 
 **Still incomplete:** the actual native-to-WEB JSON serializer and reverse import round-trip have not been implemented or demonstrated. Opaque extensions are preserved in `.fabackup`, but no WEB JSON is emitted. Real Files testing, app-target XCTest/build, Simulator and Light/Dark visual comparison remain open.
+
+
+## Native iOS parity checkpoint — 2026-11-21 — WEB v4 opaque-extension reattachment foundation
+
+- Startup preview main / lease claim: \`13fef4ac953f65c4715ae80bc0b7aecd03d40141\`.
+- App feature startup HEAD: \`cd951ebaa204e1de6a7beab6f058a3c60a6d37a1\`; final app feature HEAD: [\`ba22f4e47cc4645ca8ce14cec005b7d42403f299\`](https://github.com/nikopol000/financial-autonomy-app/commit/ba22f4e47cc4645ca8ce14cec005b7d42403f299).
+- App stable \`main\` remains \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\`, unchanged. Feature comparison: **491 ahead / 0 behind**.
+
+### Implemented app commits
+
+- [\`c32ee9007f7cfd8a608fa63076f2202033a097e4\`](https://github.com/nikopol000/financial-autonomy-app/commit/c32ee9007f7cfd8a608fa63076f2202033a097e4): opaque extension archive v2 and \`WebOpaqueExtensions.reattach(_:to:)\`. Every array ancestor is recorded with a stable identity; ID-less records use a canonical projection of known fields. Reattachment locates records by identity, not by old array index.
+- [\`7d47207dbb15d9f81b2172036275e7bdd4478ad5\`](https://github.com/nikopol000/financial-autonomy-app/commit/7d47207dbb15d9f81b2172036275e7bdd4478ad5): four source XCTest cases for array reordering, ID-less ambiguity, schema-key collision and conservative v1 archive compatibility.
+- [\`2f1bd3e0d8df57ca4c15a4d91c753d913797011d\`](https://github.com/nikopol000/financial-autonomy-app/commit/2f1bd3e0d8df57ca4c15a4d91c753d913797011d): build each target-array identity index once per array path rather than rescanning the full array for every extension entry.
+- [\`ba22f4e47cc4645ca8ce14cec005b7d42403f299\`](https://github.com/nikopol000/financial-autonomy-app/commit/ba22f4e47cc4645ca8ce14cec005b7d42403f299): documents the reattachment contract and verification boundaries in \`NativeiOS/WEB_EXPORT_PARITY.md\`.
+
+### Verification actually executed
+
+- Swift 6.2.1 isolated type-check of the helper and the four added XCTest method bodies against a matching \`WebBackupV18_20.Failure\` stub: **PASS**. This is not the FinancialAutonomy app target.
+- Isolated Swift runtime harness: **PASS** for v2 archive validation, account reorder by UUID, transaction/detail reordering, ID-less detail fingerprint matching, top-level extension restore, ambiguous duplicate rejection, and v1 root compatibility.
+- 10,000-account runtime harness: **PASS**, all 10,000 opaque fields reattached; archive size 2,226,701 bytes; elapsed 3.48 seconds on this Linux host.
+- Native iOS CI for exact Swift commits \`2f1bd3e\` and \`7d47207\`: combined status contexts **0**; the connected workflow-run wrapper returned no PR-triggered runs. The workflow is push-triggered for \`NativeiOS/**/*.swift\`; this integration does not expose the exact push-run ID/state for these SHAs. No CI pass or failure is inferred.
+- \`xcodebuild\` and \`xcodegen\` are unavailable on this Linux host. Not executed: XcodeGen generation, Apple SDK build, app-target XCTest, Simulator/UI, CryptoKit backup round-trip, Files provider, \`.xcresult\` or screenshots.
+- Earlier exact run [44918164654](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44918164654) for the previous code HEAD \`cd951eb\` failed before runner steps (steps null, logs URL null, artifacts 0, log fetch 404 BlobNotFound, combined contexts 0); it was not retried.
+
+### Scope and remaining work
+
+- No financial formula, balance, transaction, \`Models.swift\`, \`LedgerStore.swift\`, native backup envelope, real user data, app/main or privacy architecture changed.
+- The full \`LedgerSnapshot → WEB v4 state\` serializer is **not yet implemented**. \`WebBackupExportPreflight.exporterImplemented\` and \`isExportReady\` remain false. WEB JSON remains import-only; native \`.fabackup\` remains the only writable export.
+- Format v1 root/singleton-object extensions remain reattachable. v1 array paths are refused because the old archive lacks parent identities. New imports create format v2 anchors.
+- **Exact next action:** implement the pure full-snapshot WEB v4 field mapper using retained metadata plus native canonical fields, run opaque reattachment on the resulting state, validate emitted JSON with archived module 205, re-import it and compare every representable field/derived balance. Preserve fail-closed blockers for native-only state and keep WEB JSON export disabled until both directions pass.
+
+Local-only data, no backend/mandatory account/bank sync/telemetry, and credit-is-not-owned-money remain mandatory. No 100% parity claim.
