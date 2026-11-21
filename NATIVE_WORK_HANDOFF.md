@@ -1,17 +1,17 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-21T00:04:00Z
-Lease expires UTC: 2026-11-21T00:45:00Z
-Released UTC: none
+Updated UTC: 2026-11-21T00:11:00.112Z
+Lease expires UTC: none
+Released UTC: 2026-11-21T00:11:00.112Z
 Working branch: \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`
-Verified app feature HEAD: 4a7f99a3ac9622f531a522985e229706ce1033b9
+Verified app feature HEAD: 965983df405ea7ae0a2a40fb68b8d46901724ab6
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before handoff commit: 35f9b043bc0dad3d9de3588bad284abbc27959e1
-Feature comparison: **435 ahead / 0 behind**; app/main remains unchanged.
-PROJECT_STATE checkpoint commit: d6494e2fcf114ceb50dccb082c767980d6ed9285
-IMPLEMENTATION_QUEUE checkpoint commit: 35f9b043bc0dad3d9de3588bad284abbc27959e1
+Verified preview main before handoff commit: d276393058c62988b75e36fc5379d7b9274aef89
+Feature comparison: **438 ahead / 0 behind**; app/main remains unchanged.
+PROJECT_STATE checkpoint commit: d276393058c62988b75e36fc5379d7b9274aef89
+IMPLEMENTATION_QUEUE checkpoint commit: d276393058c62988b75e36fc5379d7b9274aef89
 
 ## Latest completed run — audit graph and WEB v18.20 obligation reconciliation
 
@@ -725,3 +725,16 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - App feature HEAD at claim: 4a7f99a3ac9622f531a522985e229706ce1033b9; stable app main: a9b30be147abecea45a63bf7dd8d0a3eb3370366.
 - Exact task: audit archived WEB v18.20 recurring creation/transition/history/reminder clearing and local notification reconciliation. Implement only concrete non-financial parity gaps; preserve delivered notification history and do not change accounting formulas.
 - Lease expires 2026-11-21T00:45:00Z. Work only on app feature branch; no app/main writes or merge.
+
+
+## Completed run — recurring creation/history and notification reconciliation
+- App commits: `7678cef6a550faf406fcfb1e2a6103faa20c732e` (WEB v18.20 manual creation history), `888e96779635a449e7e1520ce1fc65d85a89cd2d` (reminder reconciliation planner and failure-safe ordering), and `965983df405ea7ae0a2a40fb68b8d46901724ab6` (corrected regression assertions).
+- Archived WEB v18.20 creation history was `today() · Adăugat manual`; native manual recurring creation now records the same validated event. Existing status/cancellation/history/reminder-clearing transitions were source-audited and matched.
+- Reminder sync now adds/replaces desired requests before stale cleanup, preserves existing same-ID pending requests when replacement fails, leaves delivered notifications untouched, returns accepted IDs, and reports scheduling failure accurately in the detail UI.
+- Swift 6.2.1 isolated runtime harness PASS; focused XCTest type-check with matching stubs PASS; async scheduler type-check with UserNotifications stubs PASS; save-path syntax parse PASS. No XcodeGen/xcodebuild/app XCTest/Apple SDK/Simulator/Files/UI/screenshot verification.
+- Exact HEAD CI run [44841843243](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44841843243) failed before steps/logs/artifacts were exposed; job `136651897831`, `steps=null`, logs URL absent, log 404 `BlobNotFound`, artifacts 0, combined contexts 0. Not retried.
+- Preview checkpoint: PROJECT_STATE and IMPLEMENTATION_QUEUE both committed in `d276393058c62988b75e36fc5379d7b9274aef89`. App stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged.
+
+**Exact next action:** first macOS runner with real steps -> XcodeGen, Simulator build, full unit/UI suite and exact `.xcresult`; then verify real UserNotifications failure/replacement/permission behavior, Files import/export and populated Light/Dark screens. Keep Build19 formula changes approval-gated. No 100% parity claim.
+
+Status: READY_FOR_NEXT_RUN. Lease released.
