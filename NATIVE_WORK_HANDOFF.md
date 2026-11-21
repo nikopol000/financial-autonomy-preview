@@ -1,27 +1,33 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-21T05:08:00Z
-Lease expires UTC: 2026-11-21T05:38:00Z
+Updated UTC: 2026-11-21T05:19:40Z
+Lease expires UTC: none
+Released UTC: 2026-11-21T05:19:40Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: d02b699ffe293b1309dc9fac3edb4dc223262acf
+Verified app feature HEAD: e10f224d13ca9bf0daf3bd28339b5904cf4dfa4f
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before lease: 65724efbd42a0ad1bd05e320dd34524b9a3f996b
-Feature comparison: 444 ahead / 0 behind; app/main remains unchanged.
+Verified preview main before release: 670d982674a448a0b62a71699e7650c9ada7fdd3
+Feature comparison: 454 ahead / 0 behind; app/main remains unchanged.
+PROJECT_STATE.md checkpoint commit: f1e172ba7bae6fcb1968eb2d335fb07c6ed16cc9.
+IMPLEMENTATION_QUEUE.md checkpoint commit: 670d982674a448a0b62a71699e7650c9ada7fdd3.
 
-## Active stage — WEB transaction template-reference integrity
+## Latest completed stage — WEB transaction template and paid-month reference integrity
 
-- The previous completed checkpoint is app HEAD d02b699ffe293b1309dc9fac3edb4dc223262acf. A fresh compare against the live feature branch reports identical (0 ahead / 0 behind); stable app main is a9b30be147abecea45a63bf7dd8d0a3eb3370366.
-- Native iOS CI run 44865773341 for that exact HEAD completed FAILURE before runner/step allocation: job 136728970344, steps empty, logs_url null, log download 404 BlobNotFound, artifacts 0 and combined status contexts 0. Do not retry the same pre-runner failure.
-- The first independent audit found that WebBackupExportPreflight validates a native scheduledItemID only when present, but does not validate a retained WEB webTemplateID by itself or enforce the archived WEB v18.20 rule that income transactions reference income templates and expense transactions reference expense templates/recurring entries. The archived importer does enforce that rule in parseOperation.
-- Planned bounded change: make preflight validate both native schedule links and retained WEB template links for live operations and immutable operation-audit before-images, with exact catalog cardinality and operation-kind compatibility. Keep export disabled.
+- App commits: ee73148ede65da604e1d9014cab5c315725581a4 (template-reference validation), 5cedc741a13f8e1765d2aa728bbbec53f24ef083 (template-reference regression tests), c70e8903cf9d70314365803e7cfca02081d05b8b (paid-month catalog validation), 2ae11e973ab088f5b85efcd6d3cc7afa1061d2bd (paid-month regression test), plus documentation commits 25890528590666130877db35f371338c098e81a4, ac3c3f393af8f6c24d033934666bf8df30ac39b6, c5bba4d6d78c11b9d46ca8af4b73f310f316d9c5, 17eaa283094d84bb90307ef69e1fc6162fb15fad, 9fe6b3b13f500a8cecb3a1ec8393dca3653c186d and e10f224d13ca9bf0daf3bd28339b5904cf4dfa4f.
+- Preflight now validates every retained WEB webTemplateID, even without native scheduledItemID; requires exactly one catalog match and archived v18.20 operation-kind rules; scheduledItemID must equal webTemplateID; same rule covers operationAudit.before.
+- Preflight validates retained WEB paidMonths keys, UUID uniqueness, payable catalog membership (expense/debt/recurring) and 100,000-ID bound. It intentionally mirrors the archived WEB regex including 0000-MM rather than substituting native RecurrenceCalendar.
+- Swift 6.2.1 isolated template and paid-month harnesses type-check and compile/run PASS. The new source-test snippets type-check against matching model/preflight stubs. These are not app-target XCTest or Apple SDK results.
+- xcodegen/xcodebuild unavailable. No app build, XCTest target, Simulator, Files provider, .xcresult or UI/visual comparison.
+- Combined statuses for exact code commits c70e890 and 2ae11e9 returned zero contexts; the exposed workflow-run lookup returned no PR-triggered runs. No new push-run details were surfaced. The last observable exact-head run 44865773341 for d02b699 failed before runner allocation (job 136728970344, empty steps, logs_url null, 404 BlobNotFound, zero artifacts/status contexts); not retried.
+- WEB JSON remains import-only; native .fabackup remains the sole writable export. No Models.swift, LedgerStore.swift, financial formula, app/main, real user-data or privacy architecture change.
 
 ## Exact next action
 
-1. Implement the read-only template-reference validator and path-specific regression tests on the feature branch only.
-2. Run Swift parser and an isolated Linux harness with explicit stubs; report it as isolated, not app-target XCTest.
-3. Recheck exact feature HEAD and Native iOS CI; do not repeat the prior pre-runner failure.
-4. Update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with the exact commit, actual checks and remaining limitations, then release this handoff to READY_FOR_NEXT_RUN.
+1. Audit native monthlyReviewProgress ↔ retained WEB reviews against MonthlyReviewEngine, LedgerStore.updateMonthlyReviewProgress and archived v18.20 parseReviews; add path-specific fail-closed tests without changing the review calculation.
+2. Continue paidMonths native-union/replay equivalence; verify native schedule/loan projections can merge with retained WEB metadata without losing catalog IDs or changing order semantics.
+3. Inspect future Native iOS CI only when a run exposes real macOS runner steps; do not repeat the previous pre-runner failure. At a real runner, execute XcodeGen, inspect generated UTI, build Simulator, run all unit/UI tests and inspect exact .xcresult.
+4. Prove archived WEB validator and native-to-WEB-to-native lossless round-trip before implementing/advertising JSON export; then exercise Files and populated Light/Dark screens. Keep Build19-gated financial changes untouched.
 
-Privacy and financial invariants: local-only storage, no backend, mandatory account, bank sync or telemetry; available credit is not owned money. Do not change financial formulas, Models.swift, LedgerStore.swift or app/main. No 100% parity claim.
+Privacy and financial invariants: local-only storage, no backend, mandatory account, bank sync or telemetry; available credit is not owned money. Never modify or merge app/main. No 100% parity claim until all functional, financial, data, build/test and visual gates pass.
