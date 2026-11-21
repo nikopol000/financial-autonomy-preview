@@ -737,4 +737,15 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 
 **Exact next action:** first macOS runner with real steps -> XcodeGen, Simulator build, full unit/UI suite and exact `.xcresult`; then verify real UserNotifications failure/replacement/permission behavior, Files import/export and populated Light/Dark screens. Keep Build19 formula changes approval-gated. No 100% parity claim.
 
-Status: READY_FOR_NEXT_RUN. Lease released.
+
+
+## Active run lease — bounded iOS backup document reads
+- Claimed after re-reading all five preview continuity files and verifying current repository refs.
+- Preview main at claim: 0d700c4690c55e42f654480daf58e838f59be05a.
+- App feature HEAD at claim: 965983df405ea7ae0a2a40fb68b8d46901724ab6; app stable main: a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- Previous handoff was READY_FOR_NEXT_RUN with no active lease.
+- Exact task: audit the iOS Files-provider backup read path. The current implementation performs one FileHandle.read(upToCount:) call; verify the short-read contract and, if supported by Foundation's API semantics, add a bounded chunked-read helper with regression coverage. Preserve the 32 MB + 1 sentinel, security-scope lifetime, and no live-ledger mutation until explicit restore confirmation. Do not alter backup formats or financial formulas.
+- If no safe evidence-backed code change is found, document the audit and proceed to the next independent parity item.
+- Lease expires 2026-11-21T02:00:00Z. Work only on app feature branch; no app/main writes or merge.
+
+Status: IN_PROGRESS. Lease expires UTC: 2026-11-21T02:00:00Z.
