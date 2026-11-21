@@ -1,16 +1,22 @@
 # Native Work Handoff
 
+## Active lease — recurrence audit reconciliation
+
+- The prior lease expired at 2026-11-21T10:55:00Z; no unexpired lease was present when this run claimed work.
+- App feature HEAD at claim: `b9785efb35d8a27364c3482354003146fe714a17`; commits `5c555c9` and `b9785ef` already contain a shared recurrence calendar, inclusive `coveredByBudget` role boundary handling, and fail-closed invalid recurring inputs. This run is validating those changes and exact CI evidence before any additional edit.
+- Exact Native iOS CI run for `b9785ef`: `44894916999`; job `136818399901` reports `steps=[]`, `logs_url=null`, job log download 404 `BlobNotFound`, artifacts 0, combined status contexts 0. This is pre-runner infrastructure failure; do not retry it.
+
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-21T10:09:00Z
-Lease expires UTC: 2026-11-21T10:55:00Z
+Updated UTC: 2026-11-21T11:10:00Z
+Lease expires UTC: 2026-11-21T11:55:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 808cdc65a2a13febcf0bc2a7e20f18e30f4fb646
+Verified app feature HEAD: b9785efb35d8a27364c3482354003146fe714a17
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before lease: 065e516008e55e82fad29317032d6e8c7091d164
-Feature comparison: 466 ahead / 0 behind; app/main remains unchanged.
-PROJECT_STATE.md checkpoint commit: a4297a3e9580b325368e61d9557945de9a812d61.
-IMPLEMENTATION_QUEUE.md checkpoint commit: a4297a3e9580b325368e61d9557945de9a812d61.
+Verified preview main before lease: 6cff9a93d7b20d8386e9569ed8555fceaaf2f116
+Feature comparison: 470 ahead / 0 behind; app/main remains unchanged.
+PROJECT_STATE.md checkpoint commit: f412d67ca4c59740ea1ba8dce3e28e03afed4c4f (current blob at lease claim).
+IMPLEMENTATION_QUEUE.md checkpoint commit: f57892b973e601f7c4c725a1c34ce0c8ab04b5b2 (current blob at lease claim).
 
 ## Completed stage — paid-month native projection/replay audit
 
