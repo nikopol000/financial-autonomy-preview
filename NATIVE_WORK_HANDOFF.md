@@ -1,26 +1,33 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-21T06:03:41Z
-Lease expires UTC: 2026-11-21T06:35:00Z
+Updated UTC: 2026-11-21T06:20:30Z
+Lease expires UTC: none
+Released UTC: 2026-11-21T06:20:30Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: e10f224d13ca9bf0daf3bd28339b5904cf4dfa4f
+Verified app feature HEAD: 0ee99fe7c6548bcebbee8a46b48c7de61b0ca052
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before lease: 04ace193b9de938b992750d90e49b03a6d91cb3c
-Feature comparison: 454 ahead / 0 behind; app/main remains unchanged.
-PROJECT_STATE.md checkpoint commit: f1e172ba7bae6fcb1968eb2d335fb07c6ed16cc9.
-IMPLEMENTATION_QUEUE.md checkpoint commit: 670d982674a448a0b62a71699e7650c9ada7fdd3.
+Verified preview main before release: ed3cf57370a004339d0cca47e085e6620c177e75
+Feature comparison: 461 ahead / 0 behind; app/main remains unchanged.
+PROJECT_STATE.md checkpoint commit: 043f30f3140bbea82330f67753f628e86efa5461.
+IMPLEMENTATION_QUEUE.md checkpoint commit: ed3cf57370a004339d0cca47e085e6620c177e75.
 
-## Active stage — monthly review projection parity
+## Latest completed stage — monthly review projection integrity
 
-- Reconciled the queue's first unfinished action against the current feature branch: audit monthlyReviewProgress ↔ retained WEB reviews using MonthlyReviewEngine, LedgerStore.updateMonthlyReviewProgress, and archived v18.20 parseReviews.
-- Current runtime precedence is retained WEB reviews first, then native monthlyReviewProgress overrides the same month. LedgerStore.updateMonthlyReviewProgress currently repeats that merge inline and writes the merged dictionary back to both persisted copies when metadata exists.
-- Archived WEB parseReviews accepts only a four-digit-year/month key (YYYY-MM, month 01...12), integer stage 0...4, and at most 100,000 entries. The current export preflight does not validate the native monthly-review dictionary or the effective merged dictionary.
-- Planned bounded change: centralize the exact existing merge precedence in MonthlyReviewEngine, reuse it in pending-month selection and the store write path, and make the read-only export preflight reject invalid review keys/stages and >100,000 effective entries with exact field paths. Add regression tests proving native-over-WEB precedence and fail-closed validation. Do not alter review unlock/stage semantics or financial calculations.
-- Native iOS CI for current docs HEAD e10f224d13ca9bf0daf3bd28339b5904cf4dfa4f has zero combined status contexts and no commit-associated PR workflow runs. Last code HEAD 2ae11e973ab088f5b85efcd6d3cc7afa1061d2bd also has zero combined contexts and no PR workflow runs. Workflow is push-path-filtered to NativeiOS Swift/XcodeGen/workflow files. Previous exact run 44865773341 failed before runner allocation; do not retry the same failure.
-- Keep WEB JSON export disabled; .fabackup remains the only writable export. No formula, Models.swift, wholesale LedgerStore.swift, app/main, or user data changes.
+- App feature final commit: 0ee99fe7c6548bcebbee8a46b48c7de61b0ca052; seven commits advanced the branch from the previous checkpoint e10f224. Regression-test commits include 1060e72800fd24b2e2f1f9646be5b45d164005a6, 8ec6591b012a3fad6e07eb0569f695bf7ce29d9d and e92461edaef1f00e78ff1a3c83f3b3804dd60129.
+- MonthlyReviewEngine.effectiveProgress centralizes the unchanged precedence: retained WEB reviews first, native monthlyReviewProgress overrides the same month. pendingMonths and LedgerStore.updateMonthlyReviewProgress share this helper.
+- WebBackupExportPreflight validates both persisted review maps and the merged projection against archived v18.20 parseReviews: exact YYYY-MM regex including 0000-MM, stages 0...4 and a 100,000-entry limit. Invalid entries and oversized merged union fail closed with exact paths. Native override is canonical, not a conflict.
+- Added five source XCTest cases across MonthlyReviewEngineTests, LedgerStoreTests and WebBackupExportPreflightTests: merge precedence, dual-copy store persistence, invalid month/stage paths, year-zero compatibility and exact/over-limit merged count.
+- Swift 6.2.1 Linux isolated harness type-check + run PASS for merge, pending-month behavior, invalid paths, 0000-MM, 100,000/100,001 limits and dual-copy persistence. Harness uses explicit model/calendar/preflight stubs; source XCTest cases were not executed.
+- xcodegen/xcodebuild unavailable. No app-target build/XCTest/UI, Simulator, Files, .xcresult or screenshot comparison.
+- CI status queries for exact code/test commit e92461edaef1f00e78ff1a3c83f3b3804dd60129 and final HEAD 0ee99fe7c6548bcebbee8a46b48c7de61b0ca052 returned zero combined contexts; exposed commit-workflow lookup returned no PR-triggered runs. Push-run details were not surfaced. Previous exact run 44865773341 for d02b699 failed before runner allocation (job 136728970344, empty steps, logs_url null, 404 BlobNotFound, zero artifacts/status contexts); not retried.
+- WEB JSON remains import-only; native .fabackup is the sole writable export. No financial formulas, Models.swift, live user data, app/main or privacy architecture changed. No 100% parity claim.
 
 ## Exact next action
 
-Implement the monthly-review merge helper and export-preflight validation/tests on the feature branch only; run the available isolated Swift verification, then update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with the exact resulting commit and limitations. Release this handoff to READY_FOR_NEXT_RUN with the next paid-month native-union/replay action.
+1. Audit ScheduleBook.paidMonths and LoanBook.paidMonths against retained WEB metadata paidMonths and the archived v18.20 import split. Verify exact catalog IDs, duplicates, month keys and replay/order semantics; add read-only blockers and tests only until a lossless union is proven.
+2. Inspect Native iOS CI for exact app HEAD 0ee99fe7c6548bcebbee8a46b48c7de61b0ca052. Do not repeat pre-runner failures; at the first run with real macOS steps, execute XcodeGen, generated UTI inspection, Simulator build, full unit/UI tests and exact .xcresult.
+3. Prove archived WEB validator and native-to-WEB-to-native lossless round-trip before enabling JSON export; then exercise Files and populated Light/Dark screens. Keep Build19-gated financial changes untouched.
+
+Privacy and financial invariants: local-only storage; no backend, mandatory account, bank sync or telemetry; available credit is not owned money. Never modify or merge app/main. No 100% parity claim until all functional, financial, data, build/test and visual gates pass.
