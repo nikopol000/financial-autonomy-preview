@@ -1,35 +1,34 @@
 # Native Work Handoff
 
-## Completed this run — WEB v4 opaque extension reattachment foundation
-
-- App feature HEAD: [ba22f4e47cc4645ca8ce14cec005b7d42403f299](https://github.com/nikopol000/financial-autonomy-app/commit/ba22f4e47cc4645ca8ce14cec005b7d42403f299).
-- Implementation: [c32ee900](https://github.com/nikopol000/financial-autonomy-app/commit/c32ee9007f7cfd8a608fa63076f2202033a097e4), [7d47207d](https://github.com/nikopol000/financial-autonomy-app/commit/7d47207dbb15d9f81b2172036275e7bdd4478ad5), [2f1bd3e0](https://github.com/nikopol000/financial-autonomy-app/commit/2f1bd3e0d8df57ca4c15a4d91c753d913797011d), [ba22f4e4](https://github.com/nikopol000/financial-autonomy-app/commit/ba22f4e47cc4645ca8ce14cec005b7d42403f299).
-- Archive format v2 records stable identities for all array ancestors. Reattachment resolves IDs/fingerprints rather than indexes, rejects ambiguous or changed ID-less targets and schema-key collisions, and keeps safe v1 root/singleton compatibility.
-- Four XCTest source cases added. Isolated Swift 6.2.1 helper/test-source type-check PASS; runtime identity/reorder/ambiguity/v1-root harness PASS; 10,000-record harness PASS (2,226,701 bytes, 3.48s). Not app-target XCTest.
-- CI combined contexts for code/test SHAs 2f1bd3e and 7d47207 are empty; connected PR-run lookup returns no runs. No exact push-run result is exposed. XcodeGen, Apple build, app-target XCTest, Simulator, Files and visual tests remain unverified.
-- App main remains [a9b30be147abecea45a63bf7dd8d0a3eb3370366](https://github.com/nikopol000/financial-autonomy-app/commit/a9b30be147abecea45a63bf7dd8d0a3eb3370366), untouched.
-- Preview checkpoint commits: PROJECT_STATE [a9e6705d](https://github.com/nikopol000/financial-autonomy-preview/commit/a9e6705d0cd484b8d0628720876d81c3fb4167b0); IMPLEMENTATION_QUEUE [2ffff1d3](https://github.com/nikopol000/financial-autonomy-preview/commit/2ffff1d38794454005dc781a9b7487bfb53e8e25).
-
-## Exact next action
-
-Implement the pure full-snapshot `LedgerSnapshot → WEB v4 state` mapper using retained WEB metadata and native canonical values. Run `WebOpaqueExtensions.reattach` on its output, validate against archived module 205, re-import, and compare every representable field plus derived balances/obligations. Keep native-only fields fail-closed and keep WEB JSON import-only until full round-trip and Apple build/test gates pass.
-
-
-## Completed this run — exact WEB v4 source-state baseline
-
-- App implementation: [91ccac86804b85ae69fc8fed15210655f133314d](https://github.com/nikopol000/financial-autonomy-app/commit/91ccac86804b85ae69fc8fed15210655f133314d); encrypted-backup test follow-up: [c51086648d68c93b68eff147690b638660e3b6b8](https://github.com/nikopol000/financial-autonomy-app/commit/c51086648d68c93b68eff147690b638660e3b6b8).
-- Exact v4 source bytes are retained with SHA-256 and an import-time native snapshot fingerprint. The no-op mapper rejects mutation, corruption and missing source state. A source XCTest also covers native PortableBackup seal/open; tests were not executed in the iOS target.
-- Isolated Swift 6.2.1 harness with a deterministic CryptoKit API stub passed exact-byte, mutation and corruption checks. This is not app-target build/XCTest or real cryptographic verification.
-- Exact CI run [44929097185](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44929097185) for c510866 failed before runner steps: empty steps, null logs URL, 404 BlobNotFound, zero artifacts and zero combined contexts. No retry.
-- Mutable native-to-WEB mapping, module-205 validation, reverse re-import, Files and visual parity remain incomplete. WEB JSON stays import-only; .fabackup is the only writable export.
+## Current run — mutable WEB v4 account + transaction projection
 
 Status: IN_PROGRESS
 Owner: native parity automation
-Updated UTC: 2026-11-21T18:07:00Z
-Lease expires UTC: 2026-11-21T19:06:00Z
+Updated UTC: 2026-11-21T20:09:09Z
+Lease expires UTC: 2026-11-21T20:55:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: c51086648d68c93b68eff147690b638660e3b6b8
+Verified app feature HEAD before work: c51086648d68c93b68eff147690b638660e3b6b8
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this lease commit: f2672b48d0d90eb3e0cfcd991a1c8b5164c27bc4
-Feature comparison: 493 ahead / 0 behind; app/main remains unchanged.
-Exact in-progress action: implement the first mutable WEB v4 account + transaction projection from LedgerSnapshot into the retained source template. Preserve source UUID spelling and array order; map income, expense, transfer and debtPayment fields; keep all unmapped native-only state fail-closed; reattach opaque extensions by stable identity; add populated round-trip tests. Keep WEB JSON export disabled.
+Verified preview main HEAD before this lease commit: ede5962295adb16a257e39439f744139adc5e32e
+Exact in-progress action: implement the first mutable WEB v4 projection slice in NativeiOS/WebV18_20StateMapper.swift for canonical native accounts and transactions. Preserve original WEB account/transaction UUID spelling and source array order; map account opening/date/kind/liquidity and transaction income/expense/transfer/debtPayment fields, IDs, details, financial role, template/category/reconciliation links, and voided state. Keep unmappable or ambiguous native-only state fail-closed. Validate source SHA and import-time fingerprint before mapping; reattach opaque extensions by stable identity; add populated mapper round-trip tests. Keep WEB JSON export disabled and do not modify app/main.
+
+## Previous completed foundation
+
+- App feature HEAD at start: c51086648d68c93b68eff147690b638660e3b6b8.
+- Exact WEB v4 source bytes, SHA-256 and import-time LedgerSnapshot fingerprint are retained in encrypted native metadata.
+- Opaque extension archive v2 uses stable identities for array ancestors and rejects ambiguous/missing/colliding targets.
+- Previous isolated Swift 6.2.1 helper checks passed, but app-target XCTest, Apple build, Simulator, Files and visual parity remain unverified.
+- Exact CI for c510866 (run 44929097185) failed before runner steps: empty steps, null logs URL, 404 BlobNotFound, zero artifacts and zero combined status contexts. Do not repeat the same pre-runner failure.
+
+## Required invariants
+
+- Only modify financial-autonomy-app:feat/sync-preview-v18-20-ios for app code.
+- Never modify or merge financial-autonomy-app/main.
+- Keep local-only data; no backend, mandatory account, bank sync or telemetry.
+- Available credit is not owned money.
+- Do not rewrite Models.swift or LedgerStore.swift wholesale.
+- Keep WEB JSON export disabled until full native→WEB→native round-trip and Apple build/test gates pass.
+
+## At completion
+
+Update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with exact app commits, executed checks, blockers and the next action. Set this file to READY_FOR_NEXT_RUN with the exact app HEAD and no active lease.
