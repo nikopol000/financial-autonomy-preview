@@ -14,10 +14,10 @@
 
 Implement the pure full-snapshot `LedgerSnapshot → WEB v4 state` mapper using retained WEB metadata and native canonical values. Run `WebOpaqueExtensions.reattach` on its output, validate against archived module 205, re-import, and compare every representable field plus derived balances/obligations. Keep native-only fields fail-closed and keep WEB JSON import-only until full round-trip and Apple build/test gates pass.
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-21T16:28:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: ChatGPT automation
+Updated UTC: 2026-11-21T17:05:30Z
+Lease expires UTC: 2026-11-21T18:05:30Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: ba22f4e47cc4645ca8ce14cec005b7d42403f299
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
