@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-21T21:20:09Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native parity automation
+Updated UTC: 2026-11-21T22:09:00Z
+Lease expires UTC: 2026-11-22T00:35:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 1fe8494e8f8b23588bf89ab4c43d04372d2cf53d
 Latest implementation commit: 1fe8494e8f8b23588bf89ab4c43d04372d2cf53d
