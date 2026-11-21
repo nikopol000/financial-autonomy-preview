@@ -4809,3 +4809,9 @@ FIRST NEXT
 2. If CI remains absent/pre-runner blocked, do not retry; continue independent WEB mapper/replay contract tests and keep export disabled.
 3. Prove archived WEB validator and native-to-WEB-to-native lossless round-trip before adding JSON export; then exercise Files and populated Light/Dark screens.
 4. Keep Build19-gated financial changes untouched and preserve local-only/no-backend/no-account/no-bank-sync/no-telemetry plus credit-is-not-owned-money.
+
+### CI evidence update — exact HEAD d02b699ffe293b1309dc9fac3edb4dc223262acf
+
+- Native iOS CI run [44865773341](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44865773341) for exact HEAD d02b699ffe293b1309dc9fac3edb4dc223262acf: FAILURE before runner steps; job 136728970344; steps query []; logs URL null; log download 404 BlobNotFound; artifacts 0; combined contexts 0.
+- This is an infrastructure allocation failure, not compiler/test evidence. No retry was made.
+- Do not repeat the same pre-runner failure. Continue independent WEB mapping/replay tests while waiting for a run that exposes real steps; WEB JSON remains disabled.
