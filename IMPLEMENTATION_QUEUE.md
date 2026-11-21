@@ -4902,3 +4902,14 @@ FIRST NEXT
 2. Implement the WEB v4 serializer and prove the full populated `native → WEB JSON → native` round-trip. Rebuild known fields from native models and merge opaque extension entries by stable identity (use source path only as a guarded fallback); preserve original array order, UUID spelling/order, null versus empty, recurring status/endDate/history/reminder, fixed month-plan rows, paid declarations, legacy archive and every unknown extension. Run the emitted JSON through archived module 205, re-import it, and compare every mapped field plus opaque archive. Keep JSON export disabled until all comparisons pass.
 3. Exercise real Files import/backup/restore and compare populated iPhone screens with the active WEB v18.20 bundle in Light and Dark; record and resolve every visual difference.
 4. Preserve local-only/no-backend/no-required-account/no-bank-sync/no-telemetry. Available credit is not owned money. Never modify or merge app/main without explicit approval; do not claim 100% until functional, financial, data, build/test and visual gates all pass.
+
+
+## Native iOS — WEB v4 opaque extension reattachment (COMPLETED; full serializer still pending)
+
+- App commits: \`c32ee9007f7cfd8a608fa63076f2202033a097e4\` (format-v2 stable-identity reattachment), \`7d47207dbb15d9f81b2172036275e7bdd4478ad5\` (four XCTest source regressions), \`2f1bd3e0d8df57ca4c15a4d91c753d913797011d\` (one identity index per target array), \`ba22f4e47cc4645ca8ce14cec005b7d42403f299\` (parity documentation).
+- Reattachment uses explicit IDs/month keys where available and a canonical known-field fingerprint for ID-less records. It resolves every array ancestor by identity, fails on missing/ambiguous identities and schema-key collisions, and refuses unsafe nested-array paths from legacy v1 archives. New imports use archive format v2; v1 root/singleton-object compatibility is retained.
+- Verification: isolated Swift 6.2.1 helper/test-source type-check PASS; runtime reorder/ambiguity/v1-root harness PASS; 10,000-record harness PASS (2,226,701-byte archive, 3.48 seconds). These are not app-target XCTest.
+- Exact Native iOS combined statuses for code/test commits: zero contexts; PR-only workflow lookup exposes no runs. Push-run details are not available through the connected wrapper. No Apple build or app XCTest claim.
+- No formulas, ledger/model rewrite, backup envelope, app/main or user data changed. WEB JSON remains import-only; \`.fabackup\` remains the only writable export.
+
+**FIRST NEXT:** implement the pure \`LedgerSnapshot → WEB v4 state\` serializer, including exact mapping of metadata/native canonical fields, then call opaque reattachment, run the archived module-205 validator, re-import and compare every representable field and derived financial value. Keep native-only fields and unresolved projections fail-closed. Do not enable JSON export until full round-trip and Apple build/test gates pass.
