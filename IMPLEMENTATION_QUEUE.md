@@ -4793,3 +4793,19 @@ No 100% parity claim. Preserve local-only/no-backend/no-mandatory-account/no-ban
 2. If CI remains absent/pre-runner blocked, extend the independent preflight tests for missing metadata, empty monthPlans, invalid retained dates/legacy JSON and paidMonths mismatch. Keep JSON export disabled.
 3. Then implement only the field mappings whose no-loss contract is proven, validate with the archived WEB v18.20 validator and cross-platform round-trip, and exercise actual Files plus populated Light/Dark comparisons.
 4. Keep financial obligation changes gated on explicit Build19 calculation-contract approval; preserve local-only/no-backend/no-account/no-bank-sync/no-telemetry and credit-is-not-owned-money invariants.
+
+## 2026-11-21T04:23:04.029Z — WEB export preflight regression hardening (COMPLETED; CI runner still unavailable)
+
+- App commit: [d02b699ffe293b1309dc9fac3edb4dc223262acf](https://github.com/nikopol000/financial-autonomy-app/commit/d02b699ffe293b1309dc9fac3edb4dc223262acf); app main a9b30be147abecea45a63bf7dd8d0a3eb3370366 unchanged; 444 ahead / 0 behind.
+- Expanded tests to 8: clean v4-shaped snapshot (mapping-only, not export-ready); full blocker-path matrix; conflicting recurring/dashboard/role projections; snapshot non-mutation; missing metadata and invalid version/monthPlans/dates/legacy JSON; paidMonths mismatch; exact scheduled-template link; explicit-empty budget/fixed-plan collections.
+- Explicit empty budgets and fixedExpensePlans now fail closed to preserve nil-vs-empty semantics. Exporter remains unimplemented and disabled.
+- Swift 6.2.1 stubbed isolated helper/test type-check PASS; isolated XCTest 8/8 PASS. Not app-target tests/build. xcodegen/xcodebuild unavailable.
+- Exact previous code commit abad70cb CI run 44865474652: failure before runner steps, job 136728051026, empty steps, no logs URL, log fetch 404 BlobNotFound, zero artifacts/status contexts. Not retried.
+- Exact new HEAD d02b699ffe293b1309dc9fac3edb4dc223262acf had no Actions run/status at immediate post-push query. Recheck later; do not repeat the same pre-runner failure.
+- No WEB JSON export or UI; .fabackup remains sole writable export; no app/main, financial formula, Models/LedgerStore or privacy change.
+
+FIRST NEXT
+1. Inspect Native iOS CI for exact HEAD d02b699ffe293b1309dc9fac3edb4dc223262acf; at first real macOS runner run XcodeGen, generated UTI inspection, Simulator build, full unit/UI suite and exact .xcresult.
+2. If CI remains absent/pre-runner blocked, do not retry; continue independent WEB mapper/replay contract tests and keep export disabled.
+3. Prove archived WEB validator and native-to-WEB-to-native lossless round-trip before adding JSON export; then exercise Files and populated Light/Dark screens.
+4. Keep Build19-gated financial changes untouched and preserve local-only/no-backend/no-account/no-bank-sync/no-telemetry plus credit-is-not-owned-money.
