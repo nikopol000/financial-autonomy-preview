@@ -23,13 +23,13 @@ Implement the pure full-snapshot `LedgerSnapshot → WEB v4 state` mapper using 
 - Exact CI run [44929097185](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44929097185) for c510866 failed before runner steps: empty steps, null logs URL, 404 BlobNotFound, zero artifacts and zero combined contexts. No retry.
 - Mutable native-to-WEB mapping, module-205 validation, reverse re-import, Files and visual parity remain incomplete. WEB JSON stays import-only; .fabackup is the only writable export.
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-21T17:17:30Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native parity automation
+Updated UTC: 2026-11-21T18:07:00Z
+Lease expires UTC: 2026-11-21T19:06:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: c51086648d68c93b68eff147690b638660e3b6b8
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: 0fef839ce937f1971ef7e9f198225d9cb7ff4206
+Verified preview main HEAD before this lease commit: f2672b48d0d90eb3e0cfcd991a1c8b5164c27bc4
 Feature comparison: 493 ahead / 0 behind; app/main remains unchanged.
-Exact next action: implement mutable WEB v4 account + transaction projection, then opaque reattachment, archived module-205 validation and reverse re-import comparison; keep JSON export disabled.
+Exact in-progress action: implement the first mutable WEB v4 account + transaction projection from LedgerSnapshot into the retained source template. Preserve source UUID spelling and array order; map income, expense, transfer and debtPayment fields; keep all unmapped native-only state fail-closed; reattach opaque extensions by stable identity; add populated round-trip tests. Keep WEB JSON export disabled.
