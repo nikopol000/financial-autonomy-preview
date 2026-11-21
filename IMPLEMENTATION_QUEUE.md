@@ -4815,3 +4815,20 @@ FIRST NEXT
 - Native iOS CI run [44865773341](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44865773341) for exact HEAD d02b699ffe293b1309dc9fac3edb4dc223262acf: FAILURE before runner steps; job 136728970344; steps query []; logs URL null; log download 404 BlobNotFound; artifacts 0; combined contexts 0.
 - This is an infrastructure allocation failure, not compiler/test evidence. No retry was made.
 - Do not repeat the same pre-runner failure. Continue independent WEB mapping/replay tests while waiting for a run that exposes real steps; WEB JSON remains disabled.
+
+
+### WEB template and paid-month reference integrity — 2026-11-21T05:19:40Z
+
+- App feature HEAD: [e10f224d13ca9bf0daf3bd28339b5904cf4dfa4f](https://github.com/nikopol000/financial-autonomy-app/commit/e10f224d13ca9bf0daf3bd28339b5904cf4dfa4f); exact compare to live feature branch: identical. Stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366 unchanged; feature 454 ahead / 0 behind.
+- Implementation commits: ee73148 (validate every retained webTemplateID and exact operation-kind/catalog cardinality; scheduledItemID must equal webTemplateID; apply to operationAudit.before) and c70e890 (validate paidMonths month regex, unique UUIDs, expense/debt/recurring catalog membership and 100,000-ID bound).
+- Test commits: 5cedc741 (valid/wrong-kind/dangling/ambiguous/mismatched transaction references and audit before-image) and 2ae11e9 (payable catalog, income-ID rejection, malformed/unknown/duplicate IDs, invalid month, WEB year-zero month).
+- Documentation commits: 2589052, ac3c3f3, c5bba4d, 17eaa28, 9fe6b3b, e10f224.
+- Swift 6.2.1 Linux isolated template harness: type-check and compile/run PASS; 8 invalid links rejected and valid income/expense/recurring references accepted. Paid-month harness: type-check and compile/run PASS; valid expense/debt/recurring IDs accepted; invalid month, non-payable income ID, unknown/malformed/duplicate IDs rejected; 0000-MM accepted exactly as the archived WEB regex. New source-test snippets type-check against matching model/preflight stubs.
+- Not app-target XCTest or Apple SDK evidence. xcodegen/xcodebuild unavailable; no Simulator, Files, .xcresult or visual comparison. Native iOS CI status queries for exact code commits c70e890 and 2ae11e9 returned zero combined contexts; exposed commit-workflow lookup returned no PR runs. No new push-run details surfaced. Last observable run 44865773341 for previous d02b699 failed before runner allocation and was not retried.
+- WEB exporter remains unimplemented/disabled; .fabackup remains sole writable format. No Models/LedgerStore, financial formula, live data, app/main or privacy change.
+
+FIRST NEXT
+1. Audit native monthlyReviewProgress ↔ retained WEB reviews against MonthlyReviewEngine, LedgerStore.updateMonthlyReviewProgress and archived v18.20 parseReviews; add fail-closed path tests without changing the review calculation.
+2. Continue paidMonths native-union/replay equivalence; verify whether native schedule/loan projections can be merged with retained WEB metadata without losing catalog IDs or changing order semantics.
+3. Inspect future Native iOS CI only when a run exposes real macOS runner steps; do not repeat the prior pre-runner failure. At a real runner, run XcodeGen, inspect generated UTI, build Simulator, execute full unit/UI tests and inspect exact .xcresult.
+4. Prove archived WEB validator and native-to-WEB-to-native lossless round-trip before implementing/advertising JSON export; then exercise Files and populated Light/Dark screens. Keep Build19-gated financial changes untouched.
