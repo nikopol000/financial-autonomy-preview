@@ -770,3 +770,16 @@ Status: READY_FOR_NEXT_RUN. Lease released.
 - Lease expires 2026-11-21T02:45:00Z. Work only on app feature branch; no app/main writes or merge.
 
 Status: IN_PROGRESS. Lease expires UTC: 2026-11-21T02:45:00Z.
+
+
+## Completed run — Files export/document type and WEB v18.20 interoperability
+- App feature final HEAD: `82dac9d1066c7a93faae7fefad405838e5d8788d`; stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged; feature compare 441 ahead / 0 behind.
+- App commit: `82dac9d1066c7a93faae7fefad405838e5d8788d` — registered native `.fabackup` UTI, separated FileDocument read/write types, clarified WEB import-only behavior, matched WEB 8,000,000-byte size limit and added source regressions/docs.
+- Archived bundle source checks 9/9 PASS; PyYAML 6.0.3 XcodeGen YAML/UTI structure PASS; Swift 6.2.1 focused syntax parse PASS. No XcodeGen, xcodebuild, app-target XCTest, Simulator, Files-provider or UI verification.
+- Exact HEAD Native iOS CI run `44854613164`, job `136693763568`: failure before steps; steps/log URL unavailable, job logs 404 BlobNotFound, artifacts 0, combined status contexts 0. Not retried.
+- WEB v18.20 JSON import is supported for mapped fields; native-to-WEB export is not implemented. Do not silently discard native-only fields. No formula, Models/LedgerStore, backup-v1 crypto, stable app main, backend or real user data changes.
+- Preview PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md are checkpointed in the same preview commit as this handoff.
+
+**Exact next action:** first macOS runner with real steps -> XcodeGen and generated UTI Info.plist inspection, iOS Simulator build, full unit/UI suite and exact .xcresult; then actual Files provider tests. While CI remains pre-step blocked, inventory native-only fields for a fail-closed WEB export feasibility contract. Build19 formula changes remain approval-gated. No 100% parity claim.
+
+Status: READY_FOR_NEXT_RUN. Lease released.

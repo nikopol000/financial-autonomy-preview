@@ -4728,3 +4728,30 @@ Status: recurring creation/history and pure notification reconciliation implemen
 4. Keep `paidMonths`, finite installments, `closedAt` and refinance calculation changes blocked pending explicit Build19 approval.
 
 No 100% parity claim. Preserve local-only storage, no backend/mandatory account/bank sync/telemetry, and credit-is-not-owned-money invariant.
+
+
+## 2026-11-21 02:16 UTC — Files export/document type and WEB v18.20 interoperability (COMPLETED; Native CI pre-runner blocked)
+
+**App feature HEAD:** `82dac9d1066c7a93faae7fefad405838e5d8788d`; **441 ahead / 0 behind** stable app `main` `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (unchanged).
+
+- Archived WEB v18.20 module 309 exports `financial-autonomy.backup.json` with MIME `application/json`; module 311 uses PBKDF2-SHA256/600,000, NFKC password normalization, 16-byte salt, 12-byte nonce, hex data and AAD `FinancialAutonomy/backup/1`. Its exact maximum is 8,000,000 characters/bytes because the envelope is ASCII.
+- Commit `82dac9d1066c7a93faae7fefad405838e5d8788d` registers the native `.fabackup` UTI, limits native FileDocument writes to that type while retaining native/data/WEB JSON reads, and matches the WEB import size limit with a distinct oversize error. Backup UI now states WEB export is not available. Seven app files changed; no Models/LedgerStore/formula/native-v1 crypto changes.
+- WEB-to-native import remains available for mapped fields. Native-to-WEB export remains **not implemented**; do not silently drop native-only state. A complete mapping/rejection contract is required.
+- Added XCTest source coverage for custom UTI/read-vs-write types and exact WEB size rejection. Tests are **not executed**.
+
+### Checks actually run
+- Archived WEB source assertions: **9/9 PASS**.
+- PyYAML 6.0.3 XcodeGen YAML/UTI structure parse: **PASS**; XcodeGen binary unavailable.
+- Swift 6.2.1 `swiftc -parse` focused snippets: **PASS**; not full target compile.
+- Not run: XcodeGen generation, xcodebuild, app XCTest/UI, generated Info.plist verification, Files provider, CryptoKit cross-platform fixture, Simulator or screenshots.
+
+### Exact-HEAD CI
+- [Run 44854613164](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44854613164), exact HEAD `82dac9d`, job `136693763568`: completed failure before steps; `steps=null`, `logs_url=null`, job logs 404 `BlobNotFound`, artifacts 0, combined contexts 0. Not retried; no source compiler diagnostic.
+
+**FIRST NEXT**
+1. First usable macOS runner: XcodeGen, inspect generated UTI Info.plist, Simulator build, full unit/UI suite, exact `.xcresult`.
+2. Real Files provider tests for native, WEB JSON and legacy generic files, including failure/oversize/cancel/restore atomicity.
+3. Inventory native-only fields and design a fail-closed native-to-WEB export mapping; do not implement until every field is preserved or explicitly rejected.
+4. Keep Build19 financial formula work approval-gated.
+
+No 100% parity claim. Preserve local-only storage, no backend/mandatory account/bank sync/telemetry, and credit-is-not-owned-money.

@@ -1163,3 +1163,43 @@ Local-only storage remains mandatory; no backend, mandatory account, bank sync o
 - No `Models.swift`, `LedgerStore.swift`, financial formula, account balance, backup-v1 derivation/header, privacy architecture, app/main or real user data changes. Local-only/no-backend/no-mandatory-account/no-bank-sync/no-telemetry and credit-is-not-owned-money invariants remain intact.
 
 **Exact next action:** at the first macOS Native iOS CI run that allocates a runner and executes real steps, run XcodeGen, Simulator build, the complete unit/UI suite and inspect that exact `.xcresult`; then exercise real Files import/export, UserNotifications and populated Light/Dark screens. While runner allocation remains blocked, continue an independent source-level audit of Files export/document-type and WEB v18.20 import/export semantics; do not repeat the same pre-runner failure. Keep `paidMonths`, finite-installment, `closedAt` and refinance formula changes approval-gated on the explicit Build19 calculation contract. No 100% parity claim.
+
+
+## Native iOS parity checkpoint — 2026-11-21 02:16 UTC — Files export type and WEB v18.20 size contract (COMPLETED; Native CI pre-runner blocked)
+
+- Startup preview main HEAD: `e86f1a31d747369a0abb8e327728be3310667b65` (finite lease claim); final preview checkpoint is committed after this section.
+- App feature branch: `nikopol000/financial-autonomy-app:feat/sync-preview-v18-20-ios`; startup HEAD `0235681ec94251ad555de8fd38b443665ce53eb9`; final HEAD [`82dac9d1066c7a93faae7fefad405838e5d8788d`](https://github.com/nikopol000/financial-autonomy-app/commit/82dac9d1066c7a93faae7fefad405838e5d8788d). Stable app `main` remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, unchanged; feature compare **441 ahead / 0 behind**.
+
+### Archived WEB v18.20 contract inspected
+- Exact archived Metro bundle blob: `be453db2699273a194543de4532db6ea4b2e1cf2` (not the active WEB 18.74 bundle).
+- Module 309 exports `financial-autonomy.backup.json` as `application/json`.
+- Module 311 creates a JSON `FinancialAutonomy` v1 envelope: PBKDF2-HMAC-SHA256 / 600,000 iterations, NFKC-normalized password, 16-byte salt, 12-byte nonce, hex ciphertext and AAD `FinancialAutonomy/backup/1`. WEB restore rejects strings longer than exactly 8,000,000 characters; the envelope is ASCII, so its byte limit is 8,000,000.
+
+### App changes
+- Commit [`82dac9d1066c7a93faae7fefad405838e5d8788d`](https://github.com/nikopol000/financial-autonomy-app/commit/82dac9d1066c7a93faae7fefad405838e5d8788d) updates seven files on the feature branch only:
+  - Registers `ro.financialautonomy.app.backup` as an exported UTI conforming to `public.data`, tagged with `.fabackup`, through XcodeGen's generated Info.plist.
+  - `EncryptedBackupDocument.readableContentTypes` keeps the native type, generic `.data` legacy fallback and WEB `.json`; `writableContentTypes` now advertises only the native backup type. `fileExporter` uses that custom type; importer still accepts all three formats.
+  - Backup UI now states explicitly that native v1 export is available, WEB v18.20 JSON is import-only, and a WEB-compatible export is not implemented.
+  - Native WEB importer limit changed from 8 MiB (8,388,608 bytes) to the archived WEB contract's exact 8,000,000 bytes; oversized input now produces a dedicated `tooLarge` error instead of a misleading incompatible-format error.
+  - Added source regressions for document type separation and the WEB size boundary; updated BackupFormat and PARITY_CHECKLIST.
+- Native `FAiOSBK1` v1 binary envelope, 32 MiB limit, PBKDF2 inputs, password handling, restore confirmation, Models.swift, LedgerStore.swift and all financial formulas are unchanged.
+- **Remaining confirmed gap:** the native app still has no native-to-WEB v18.20 exporter. It is intentionally not synthesized by dropping native-only fields; a complete lossless field mapping/rejection contract is still required.
+
+### Verification actually executed
+- Archived bundle source assertions in the tool runtime: **9/9 PASS** (WEB JSON filename/MIME, 8,000,000 limit, PBKDF2/NFKC/AAD, native exact limit/error, custom exporter, JSON read support and XcodeGen UTI keys).
+- PyYAML 6.0.3: XcodeGen YAML syntax and nested UTI declaration structure **PASS** (manual exact-spec fixture; not XcodeGen generation).
+- Swift 6.2.1 `swiftc -parse`: focused custom-UTI/FileDocument and typed size-failure/test snippets **PASS**. This is syntax-only, not app-target type checking.
+- Environment check: Swift 6.2.1 and Node 22.16.0 present; `xcodegen` and `xcodebuild` are not installed.
+- Not executed: generated Info.plist inspection, XcodeGen, xcodebuild, app-target XCTest, CryptoKit cross-platform round-trip, actual Files-provider export/import, iPhone/Simulator, UI screenshots or visual comparison.
+
+### Exact-HEAD Native iOS CI
+- Exact HEAD push run [44854613164](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44854613164), job `136693763568`, completed FAILURE. Job returned `steps=null`, `logs_url=null`; job-log download returned 404 `BlobNotFound`; artifacts **0**; combined status contexts **0**. No compiler or XCTest output was produced. The run was not retried.
+- This is consistent with the repeated pre-step infrastructure failure, but no unobserved runner identifier is asserted for this run.
+
+### Exact next action
+1. At the first macOS Native iOS CI execution that actually exposes build/test steps, run XcodeGen, inspect the generated Info.plist/UTI mapping, build the iOS Simulator target, run the complete unit/UI suite and inspect the exact `.xcresult`.
+2. Exercise real Files-provider export/import for native `.fabackup`, archived WEB `.json` and earlier generic-data files; verify cancellation, oversize rejection, restore confirmation and unchanged live ledger on every failure.
+3. Continue the independent native-to-WEB export feasibility audit by inventorying every native-only field and defining explicit fail-closed rejection behavior. Do not create an exporter that silently drops fields.
+4. Keep `paidMonths`, finite installments, `closedAt` and refinance formula changes blocked pending explicit Build19 calculation-contract approval.
+
+Local-only storage, no backend/mandatory account/bank sync/telemetry, and credit-is-not-owned-money remain mandatory. No 100% parity claim.
