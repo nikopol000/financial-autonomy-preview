@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-21T23:22:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native parity automation
+Updated UTC: 2026-11-22T00:05:10Z
+Lease expires UTC: 2026-11-22T01:05:10Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: df9aaede64cb8bc489f50bc03f6a74a25b3d1e25
 Latest implementation commit: 8da5d268e22593433d87ca95cd367689155a1cbe
@@ -52,3 +52,11 @@ Implement mutable WEB v4 monthPlans projection: reconcile WebImportedMonthPlan w
 - Available credit is not owned money.
 - No wholesale Models.swift or LedgerStore.swift rewrite.
 - Keep exporterImplemented false and WEB JSON export disabled until full populated two-way round-trip, archived validator, Apple build/test and visual gates pass.
+
+
+## Active lease — 2026-11-22T00:05:10Z
+
+- Owner: native parity automation.
+- Lease expires UTC: 2026-11-22T01:05:10Z.
+- Startup revalidated preview main continuity documents and confirmed app feature branch is still exactly df9aaede64cb8bc489f50bc03f6a74a25b3d1e25 (compare against the live branch ref: identical; 508 ahead / 0 behind stable app main).
+- Current work item: mutable WEB v4 monthPlans projection. Do not duplicate this task while the lease is active.
