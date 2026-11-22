@@ -1,16 +1,16 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-22T16:28:13.959Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native parity automation
+Updated UTC: 2026-11-22T16:37:29.117Z
+Lease expires UTC: 2026-11-22T17:07:29.117Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 38d19bb38c7a0fa6002fc2d663bfac537f003199
 Latest implementation commit: 38d19bb38c7a0fa6002fc2d663bfac537f003199
 Latest app branch commit: 38d19bb38c7a0fa6002fc2d663bfac537f003199
 App feature ahead/behind stable main: 604/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff release: cc5b4eec8d97404e98f91a99875ac28de91f7ed5
+Verified preview main HEAD before this handoff release: 871a32c271d80841497fa0ca9b0b9b101361c2c4
 
 ## Completed this run — Financial calendar and report date grouping
 
