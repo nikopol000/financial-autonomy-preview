@@ -288,3 +288,17 @@ Enumerate WEB v18.20 date-only fields and execute archived module 205 on control
 - Lease expires UTC: 2026-11-22T12:55:00Z.
 - Preview main verified at `fb2b09c4a339ae5fc2153ffc14952d65c49d68e4`; app feature verified at `cc4c761edf459f6caba913be9bac8b74c77e14be`; app stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
 - Previous lease expired at 2026-11-22T12:20:00Z. First unfinished item remains the isolated contract harness for a backup-scoped proleptic-Gregorian date-only representation. This lease is finite; do not modify app/main.
+
+
+## Completed run — isolated year-zero date-only contract prototype (2026-11-22T12:25:30Z)
+
+- App feature HEAD: 0e8ab8a79e27890ea1bc335ee56797ad843bb374; app stable main: a9b30be147abecea45a63bf7dd8d0a3eb3370366 (untouched). Preview main before this documentation update: ef894bdafb1e1611e73b7ad7deda666cbc31bf37.
+- Implemented and committed the isolated date-only/MonthKey prototype, executable Swift harness, XCTest source and NativeiOS/WEB_EXPORT_PARITY.md update. Harness PASS under Swift 6.2.1 warnings-as-errors; exact XCTest source parser PASS. No importer, validator, model, ledger or backup implementation is connected yet.
+- Exact CI run 45022147374 for app commit 0e8ab8a79e27890ea1bc335ee56797ad843bb374 failed before runner steps (job 137207213451, empty steps, logs 404 BlobNotFound, artifacts 0). Not retried.
+- Status: READY_FOR_NEXT_RUN
+- Owner: none
+- Lease expires UTC: none
+
+### FIRST NEXT
+
+Design the full consumer-by-consumer date adapter graph before implementation. Start with WebBackupV18_20.validDay and parseOperation/parseBalanceChecks, then SnapshotValidator, operation/check Date conversion, LoanLedgerEngine/LoanEventOrder, ScheduleBook/DebtScheduleEngine, FinancialCalendarEngine, mapper/fingerprint and backup restore. Keep the global non-WEB RecurrenceCalendar contract unchanged. Do not claim year-zero support until encrypted .fabackup import/restore/re-export preserves every affected date and the Apple build/tests pass.
