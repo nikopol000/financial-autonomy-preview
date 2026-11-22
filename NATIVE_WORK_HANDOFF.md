@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native parity automation
-Updated UTC: 2026-11-22T04:31:00Z
-Lease expires UTC: 2026-11-22T05:31:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T04:41:39Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
-Latest implementation commit: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
-Latest app branch commit: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
+Verified app feature HEAD: d4459b5d2141a9e8f0062bab0bc86396655e3e2a
+Latest implementation commit: d4459b5d2141a9e8f0062bab0bc86396655e3e2a
+Latest app branch commit: d4459b5d2141a9e8f0062bab0bc86396655e3e2a
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: 319e66b99f5d5cb27c0d36f9c9391f52f59f3cf1
+Verified preview main HEAD before this handoff commit: 6ae6ae17dd7d40ac00a25dd8c806af9be2e61073
 
 ## Completed this run
 
@@ -153,3 +153,16 @@ Inspect and reconcile native operation-audit, balance-check and balance-check-au
 - Inspect operation-audit, balance-check and balance-check-audit mapping against the exact WEB v18.20 importer and native audit models. Do not serialize any native audit state unless IDs, actions, timestamps, before/after snapshots, account identity, observed amounts, ordering and voided state survive re-import without loss.
 - If the WEB contract cannot represent a native audit field, retain the source-only archive and add explicit fail-closed coverage; continue to the next independently representable item (appearance/dashboardLayout) rather than inventing mappings.
 - App branch verified at `29ee143fb41747c0cbc8572f8e232c17e7066ab8`; app `main` untouched. Lease expires 2026-11-22T05:31:00Z.
+
+
+## Completed this run — audit/check gate and appearance/dashboardLayout (2026-11-22T04:41:39Z)
+
+- App feature HEAD: `d4459b5d2141a9e8f0062bab0bc86396655e3e2a`; implementation `9fabc77f1c59b3e4cc99ba0e6e7309f716fe595a`; tests `4698dc9dfed00f3de99ae98b8a07d8f9d46cbbf8`; syntax correction `d4459b5d2141a9e8f0062bab0bc86396655e3e2a`. App stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Appearance and dashboard layout are now mutable through the v4 mapper with strict validation, mirror consistency, hidden-module ordering, and absent/empty preservation.
+- Audit/check history remains source-only and immutable during supported edits; native audit/check/observation mutations fail closed because the WEB wire shape lacks native IDs and after/replacement snapshots.
+- Swift 6.2.1 isolated helper harness and XCTest syntax parser passed. Full app build, XCTest target, Simulator, Files restore and visual review remain unverified.
+- Exact CI status contexts for this HEAD are empty; no PR-triggered run was returned. Previous exact run `44980579668` failed before runner with zero steps/artifacts; no retry. No XcodeGen/xcodebuild in this environment.
+
+### Next exact action — monthly reviews projection
+
+Implement the mutable `reviews` map from `monthlyReviewProgress` and `WebImportMetadata.reviews`, preserving absent/empty semantics and archived month/stage validation; add populated round-trip/fail-closed tests. Then inspect income/expense templates, names and remaining metadata. At the first macOS runner, build/test, inspect `.xcresult`, verify Files restore and perform screen-by-screen Light/Dark comparison with archived WEB v18.20. Keep export disabled.
