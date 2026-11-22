@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-22T18:31:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: ChatGPT
+Updated UTC: 2026-11-22T19:17:00Z
+Lease expires UTC: 2026-11-22T19:40:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: e4e2861e57634f103aaa7aafa590055586b4d8e8
 Latest implementation commit: e4e2861e57634f103aaa7aafa590055586b4d8e8
@@ -11,6 +11,10 @@ Latest app branch commit: e4e2861e57634f103aaa7aafa590055586b4d8e8
 App feature ahead/behind stable main: 621/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 Verified preview main before this checkpoint commit: 0b99cf16a1b343b04cb02a542436476dd1c9db7a
+
+## Active work
+
+- Auditing `WebOpaqueExtensions` nested month-plan, goal/plan-step, recurring-history, projection/payoff and dashboard-layout identities, with explicit duplicate/ambiguous-identity and safe-pruning tests. Source writes remain limited to the current feature branch.
 
 ## Completed this run
 
