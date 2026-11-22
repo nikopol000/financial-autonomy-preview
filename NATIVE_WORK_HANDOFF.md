@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-22T04:46:19Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native parity automation
+Updated UTC: 2026-11-22T05:05:00Z
+Lease expires UTC: 2026-11-22T06:05:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
 Latest implementation commit: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
 Latest app branch commit: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: 9e033d223f0f463741f9caa4317a49b6c2a13092
+Verified preview main HEAD before this handoff commit: 0b4f12b6be312bb451637a1ed2b80070494fde32
 
 ## Completed this run
 
@@ -184,3 +184,12 @@ Implement the mutable `reviews` map from `monthlyReviewProgress` and `WebImportM
 ### Next exact action — income/expense templates
 
 Inspect WEB v4 `incomeTemplates` and `expenseTemplates` against native `ScheduleBook.items` and fixed month-plan catalog. Map only fields with exact native semantics; preserve ID/order/extensions and fail closed for unsupported recurrence/category fields. Then inspect names/nameChanges. At the first macOS runner, build/test, inspect `.xcresult`, verify Files restore and compare Light/Dark screens with archived WEB v18.20. Keep export disabled.
+
+
+## Active lease — 2026-11-22T05:05:00Z
+
+- Owner: native parity automation.
+- Lease expires UTC: 2026-11-22T06:05:00Z.
+- Startup revalidated live preview main, app feature and stable app main refs; app feature is unchanged at f65e3ff93c69b22ffa34bbbb573884e5f36d84ee.
+- Current work item: WEB v4 income/expense template projection against ScheduleBook.items and fixed month-plan catalog. Read PROJECT_STATE.md and DEVELOPMENT_WORKFLOW.md. IMPLEMENTATION_QUEUE.md is larger than the GitHub file reader limit; full and ranged reads returned empty content, so it cannot safely be appended with the available API in this run.
+- No app repository changes have been made yet. App stable main remains untouched.
