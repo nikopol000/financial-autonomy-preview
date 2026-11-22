@@ -1704,3 +1704,11 @@ Perform the consumer-by-consumer adapter design before integrating this prototyp
 3. Then wire SnapshotValidator/PortableBackup and propagate the same explicit context through schedules, loans, calendar, reports, WEB calculation engines, mapper/fingerprint and UI. Keep RecurrenceCalendar native behavior unchanged.
 4. Add full WEB import → encrypted .fabackup → restore → mapper/re-export tests. Enable year-zero only after every consumer is covered and Apple validation succeeds.
 5. Inspect only CI runs with actual macOS runner steps. Do not retry the prior pre-runner failure. Keep WEB JSON export disabled.
+
+
+## Native iOS CI follow-up — LedgerDateContract adapter (2026-11-22T14:20Z)
+
+- Run [45031819777](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45031819777) for adapter commit 754a914a8033fc71b194ef2b08ac8de2accea715 was cancelled by the subsequent push; it is not a build/test result.
+- Run [45031822759](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45031822759) for XCTest source commit 7e910ef593fb9f04430ac99c0f02da2146a4b310 completed FAILURE. Job 137236868674 returned no steps; log retrieval returned 404 BlobNotFound; artifacts=0. This is another failure before runner execution, not a Swift compiler diagnostic. No retry was made.
+- Exact current feature HEAD 473b729c4b638fb52252309184d9083ca157126c has no associated workflow run surfaced at final check; combined status has zero contexts and check-runs is empty. Script-only final commit may not be covered by workflow path filters; this is not a CI pass.
+- Keep the infrastructure blocker recorded and continue only with local isolated checks until a real macOS runner appears. Do not repeatedly retry the same pre-runner failure.
