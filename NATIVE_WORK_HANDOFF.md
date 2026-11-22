@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native parity automation
-Updated UTC: 2026-11-22T00:05:10Z
-Lease expires UTC: 2026-11-22T01:05:10Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T00:16:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: df9aaede64cb8bc489f50bc03f6a74a25b3d1e25
-Latest implementation commit: 8da5d268e22593433d87ca95cd367689155a1cbe
-Latest app branch commit: df9aaede64cb8bc489f50bc03f6a74a25b3d1e25
+Verified app feature HEAD: 2676978896d1df3055483ce38234e17d3619bbf2
+Latest implementation commit: fa4b69071107b69948ac5a4c0da43ebc0f4a427c
+Latest app branch commit: 2676978896d1df3055483ce38234e17d3619bbf2
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: a1d63ba191bd6b09820a5b74593883a5303635a1
+Verified preview main HEAD before this handoff commit: ffe2ce81638071785413699170089c960271d161
 
 ## Completed this run
 
@@ -60,3 +60,17 @@ Implement mutable WEB v4 monthPlans projection: reconcile WebImportedMonthPlan w
 - Lease expires UTC: 2026-11-22T01:05:10Z.
 - Startup revalidated preview main continuity documents and confirmed app feature branch is still exactly df9aaede64cb8bc489f50bc03f6a74a25b3d1e25 (compare against the live branch ref: identical; 508 ahead / 0 behind stable app main).
 - Current work item: mutable WEB v4 monthPlans projection. Do not duplicate this task while the lease is active.
+
+## Completed this run — WEB v4 monthPlans fixed-expense projection (partial monthPlans parity)
+
+- App feature HEAD: 2676978896d1df3055483ce38234e17d3619bbf2; Swift code/test HEAD: 51dc70aa624ba58e1d163249c025cecf35ad644f; stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366 unchanged.
+- Mapper commits: 89fb7eac8b9113e179bf1749856c44a5673991d4, 7ccc1c4af77b5f82ccab9133733c332118ce0c1d and fa4b69071107b69948ac5a4c0da43ebc0f4a427c. Test commits: 9f12e09c555706f1ccab7911a43914b53a74581b, 812e87c63ac8cc63883fd7488843351111d70f96 and 51dc70aa624ba58e1d163249c025cecf35ad644f. App parity docs updated through 2676978896d1df3055483ce38234e17d3619bbf2.
+- Fixed-expense month plan rows now map from ScheduleBook.fixedExpensePlans/catalog with stable month/expense ordering and UUID spelling; name, amount, due day and dayKnown are mutable; new expenses/months append. Duplicate/reordered/missing IDs, invalid catalog/due-day/frequency/lifecycle states fail closed. Opaque extensions remain reattached by stable identity.
+- Existing budgets/windows, debtPayments and contribution remain source-only metadata and are preserved unchanged; metadata-only edits fail closed. New native plans emit empty budgets/debtPayments and contribution 0. The native model/editor does not yet expose these WEB month-plan fields, so full monthPlans parity is not complete.
+- Three XCTest source cases added; not run in the iOS app target. Swift 6.2.1 isolated stub-model harness compiled with warnings-as-errors and passed edit/append/reorder/duplicate/metadata-mutation cases. Archived v18.20 module 205 validateState and module 210 obligationsFor executed and passed populated month-plan/window and carry-forward/empty-plan fixtures.
+- Exact Swift code/test HEAD 51dc70aa CI run 44965741340 failed before any step (job 137034235568, zero steps, logs URL null, 404 BlobNotFound, zero artifacts, zero status contexts). No retry. xcodebuild/xcodegen unavailable; no Apple build, app XCTest, Simulator, Files restore or visual comparison.
+- WEB JSON export remains disabled; native .fabackup remains the only writable export. Local-only, no backend/mandatory account/bank sync/telemetry. Available credit is not owned money.
+
+## Next exact action
+
+Extend FixedExpenseMonthPlan with typed, backward-compatible optional month-plan budgets/windows, debtPayments and contributionMinor, then add native editors for those fields. Preserve missing-vs-empty additionalWindows, IDs/order, primary/additional window semantics, income links, ranges, dashboard/daily-pace flags, debt-payment IDs/amounts and contribution. Do not map these to global BudgetSettings. Update importer, mapper, mappedFingerprint and populated tests; keep export disabled until full round-trip, Apple build/tests and visual gates pass.
