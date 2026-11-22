@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native parity automation
-Updated UTC: 2026-11-22T02:05:30Z
-Lease expires UTC: 2026-11-22T02:50:30Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T02:24:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 18ebd2eac6cf3ca01095bd683e28ecf6ae774c03
-Latest implementation commit: f216ff420e9214226fdfe48ed819290c318a25f8
-Latest app branch commit: 18ebd2eac6cf3ca01095bd683e28ecf6ae774c03
+Verified app feature HEAD: 935f84440878bad5d6739a9398c55ce69b7893da
+Latest implementation commit: 6d7de323a2b142b57d421c511c543d1bc8d86dda
+Latest app branch commit: 935f84440878bad5d6739a9398c55ce69b7893da
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: 61ddc3aaf983511331dad383c7e1c5e724d88c89
+Verified preview main HEAD before this handoff commit: df2032a5ed406a60f86eee329bd9ba0cf656e5ec
 
 ## Completed this run
 
@@ -87,3 +87,18 @@ Extend FixedExpenseMonthPlan with typed, backward-compatible optional month-plan
 ## Next exact action
 
 Implement a focused LedgerStore update method and native month-plan editing surfaces reachable from BudgetView. Add/edit/delete budgets; primary/additional windows with all optional fields and income links; debt-payment IDs/amounts; contribution. Preserve nil-vs-empty additionalWindows, IDs/order and source baseline integrity. Update WebBudgetWindowsView to display native projected values after edits, add persistence/failure/UI tests, then run archived v18.20 modules 205 and 210 against a populated edited fixture. Keep export disabled.
+
+
+## Completed this run — editable WEB v4 monthPlans (2026-11-22T02:24Z)
+
+- App feature HEAD: `935f84440878bad5d6739a9398c55ce69b7893da`; exact Swift code/test HEAD: `6d7de323a2b142b57d421c511c543d1bc8d86dda`; stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; feature 536 ahead / 0 behind.
+- Added atomic LedgerStore month-plan update, BudgetView editor entry, MonthPlanEditorView, read-only native presentation projection and store/UI/calculation test sources. See PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md at preview main `df2032a5ed406a60f86eee329bd9ba0cf656e5ec`.
+- Raw money text is retained until Save; missing versus explicit empty arrays and zero remain distinct. Import-time WEB metadata/fingerprint is not mutated.
+- Archived v18.20 modules 205/210 and active v18.74 bundle modules 205/210 executed on the same populated edited fixture; both produced budget 35,000, contribution 3,500, cash/available 100,000 and obligations 48,000 (40,000 fixed + 8,000 debt). Explicit empty-plan replacement passed.
+- Swift 6.2.1 parser PASS for MonthPlanEditorView source only. No app build, app XCTest, Simulator, Files restore or visual screenshot comparison.
+- Native iOS CI exact code/test HEAD `6d7de323`: run 44975718390, job 137065050931, failed before runner/steps; steps=[], logs 404 BlobNotFound, artifacts=0, combined contexts=0. No retry; xcodebuild/xcodegen unavailable.
+- Export remains disabled; .fabackup only. Local-only, no backend/mandatory account/bank sync/telemetry; available credit is not owned money.
+
+## Lease release and next exact action
+
+Status is READY_FOR_NEXT_RUN; no active lease. The next execution must re-read all continuity files and live HEADs, then start WEB v4 goals/plans projection. Inspect native goal/plan books and WebV18_20StateMapper; implement goal ID/name/metric/target/notes/deadline/done and plan goalId/start/ideas/questions/decision/ordered steps (ID/name/notes/status/due). Preserve UUID spelling/order/extensions, reject duplicate/orphan references, and add populated round-trip/fail-closed tests. Keep WEB JSON export disabled. At the first actual macOS runner, run XcodeGen, simulator build, all unit/UI tests and inspect the exact .xcresult; do not retry the pre-runner failure.
