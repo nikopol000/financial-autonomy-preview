@@ -2,14 +2,14 @@
 
 Status: IN_PROGRESS
 Owner: native parity automation
-Updated UTC: 2026-11-22T05:05:00Z
-Lease expires UTC: 2026-11-22T06:05:00Z
+Updated UTC: 2026-11-22T06:09:00Z
+Lease expires UTC: 2026-11-22T07:09:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
 Latest implementation commit: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
 Latest app branch commit: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: 0b4f12b6be312bb451637a1ed2b80070494fde32
+Verified preview main HEAD before this handoff commit: 449b842dd5a189068bd90c88c84de2eda83f1b48
 
 ## Completed this run
 
@@ -193,3 +193,11 @@ Inspect WEB v4 `incomeTemplates` and `expenseTemplates` against native `Schedule
 - Startup revalidated live preview main, app feature and stable app main refs; app feature is unchanged at f65e3ff93c69b22ffa34bbbb573884e5f36d84ee.
 - Current work item: WEB v4 income/expense template projection against ScheduleBook.items and fixed month-plan catalog. Read PROJECT_STATE.md and DEVELOPMENT_WORKFLOW.md. IMPLEMENTATION_QUEUE.md is larger than the GitHub file reader limit; full and ranged reads returned empty content, so it cannot safely be appended with the available API in this run.
 - No app repository changes have been made yet. App stable main remains untouched.
+
+
+## Lease renewal — 2026-11-22T06:09:00Z
+
+- Previous lease expired at 2026-11-22T06:05:00Z; live preview main and both app branch refs were re-read before continuing.
+- Owner: native parity automation. Lease expires UTC: 2026-11-22T07:09:00Z.
+- Current exact app feature HEAD: `f65e3ff93c69b22ffa34bbbb573884e5f36d84ee`; app stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Current work item: mutable WEB v4 `incomes`/`expenses` template projection. Treat templates as transaction presets, not recurring schedules. Reconcile their IDs against `ScheduleBook.items` and fixed month-plan catalog without inventing recurrence or category semantics. Preserve template arrays, order, UUID spelling, optional `dayKnown`, and opaque extensions; only allow safe append/edit/removal and reject referenced deletions or invalid collisions.
