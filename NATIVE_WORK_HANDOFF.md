@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-22T20:17:30Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: ChatGPT automation
+Updated UTC: 2026-11-22T21:07:00Z
+Lease expires UTC: 2026-11-22T21:37:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: edcd38076bbc9c0f44cd648733022caf92b5f1b8
 Latest implementation commit: edcd38076bbc9c0f44cd648733022caf92b5f1b8
@@ -22,11 +22,19 @@ Verified preview main before this checkpoint commit: 8bc37f595ea694af89c41626249
 - Exact Native iOS CI run 45065385993 / job 137340254653 failed before runner steps: empty step list, no artifacts, log retrieval 404 BlobNotFound and no combined status contexts. No retry; no compiler diagnostic.
 - Full iOS build, XCTest, Simulator, .xcresult, encrypted Files restore/re-export and visual comparison remain unverified.
 
+## CURRENT RUN — legacy encrypted restore compatibility review
+
+- Current app feature HEAD at lease claim: edcd38076bbc9c0f44cd648733022caf92b5f1b8; app stable main: a9b30be147abecea45a63bf7dd8d0a3eb3370366; preview main: 84c205ad8bba00e5d6192a8b5034ca9c3f2cd398.
+- Exact Native iOS CI for app HEAD: run 45065385993 / job 137340254653, completed FAILURE with job steps null, no artifacts, and combined status contexts empty. This is the same pre-runner infrastructure failure class; do not retry it.
+- Current work: independently review WEB v1/v2 legacy encrypted fixtures and the complete WEB import → native .fabackup → restore/reload → mapper/opaque reattachment path. No app source changes have been made yet.
+- Lease expires at 2026-11-22T21:37:00Z.
+
 ## FIRST NEXT
 
-1. At the first functioning macOS runner, run XcodeGen, the full Simulator build, all unit/UI tests and inspect the exact .xcresult/screenshots.
-2. If CI again fails before runner allocation, do not retry that same failure. Continue independent legacy v1/v2 encrypted backup fixture and full WEB import → native .fabackup → restore/reload → mapper/opaque reattachment → re-export review.
-3. Keep year-zero import and WEB JSON export disabled until full restore/re-export and Apple validation pass.
+1. Finish the source-level and focused-test review of legacy v1/v2 envelopes and restore/reload invariants; make only a narrow evidence-backed feature-branch change if a concrete gap is found.
+2. Run only available local Swift parsing/isolated harness checks; do not claim app build or XCTest without Xcode/macOS.
+3. Update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with exact findings and app commit(s), then release this handoff to READY_FOR_NEXT_RUN.
+4. Keep year-zero import and WEB JSON export disabled until full restore/re-export and Apple validation pass.
 
 ## Invariants
 
