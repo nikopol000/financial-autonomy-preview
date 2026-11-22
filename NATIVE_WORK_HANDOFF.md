@@ -1,11 +1,11 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native parity automation
-Updated UTC: 2026-11-22T11:08:26Z
-Lease expires UTC: 2026-11-22T11:45:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T11:21:30Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 090c357805aa321c8f62f312c51ae66acf7d0079
+Verified app feature HEAD: 665c9c007e772a94f28e8511fb9a83e27d06cbe4
 Latest implementation commit: 5707c40eac1fd2130dc5e997de2881a0a22ea7af
 Latest app branch commit: 090c357805aa321c8f62f312c51ae66acf7d0079
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
@@ -250,3 +250,15 @@ Build one combined populated WEB v4 round-trip acceptance fixture for all suppor
 - Owner: native parity automation. Lease expires UTC `2026-11-22T11:45:00Z`.
 - First unfinished item: one populated combined WEB v4 mapper → archived importer round-trip covering all mutable slices already implemented, with source-only `nameChanges`/audit/check rows and opaque extensions retained.
 - Do not enable WEB JSON export. Keep year-zero compatibility as a separate follow-up; do not alter `RecurrenceCalendar` or coerce year-zero dates.
+
+## Completed — combined WEB v4 round-trip acceptance checkpoint (2026-11-22T11:21:30Z)
+
+- App feature HEAD: `665c9c007e772a94f28e8511fb9a83e27d06cbe4`; combined test source commit `93e7f56a3eab91712ee9026a9c7d7366143a1534`; parity documentation commit `665c9c007e772a94f28e8511fb9a83e27d06cbe4`. Stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` untouched.
+- Combined populated WEB v4 XCTest source is committed. It covers all currently supported mutable projections together and asserts source-only `nameChanges`, operation audit, balance checks/check audit, and opaque extension retention. The XCTest was not executed in the iOS target.
+- Archived WEB v18.20 and active WEB 18.74.1 module 205 validators and module 210 obligation engines were executed in isolated V8 against the expected mapped state; both bundle pairs passed and matched: cash/available 107,500; obligations 50,500 (45,000 fixed + 5,500 debt); contribution 3,000; space 22,000; debt total 60,000. A separate card-credit case (20,000 balance, 100,000 limit) kept available money at 107,500; credit was not counted as cash.
+- Native iOS CI for exact test commit `93e7f56a3eab91712ee9026a9c7d7366143a1534`: run `45016767957` failed before runner/steps; logs 404 BlobNotFound; artifacts 0. No retry. Linux Swift 6.2.1/Node 22.16.0 available; XcodeGen/xcodebuild unavailable. No Apple build, XCTest, Simulator, Files restore or visual screenshot comparison.
+- Preview main checkpoint commit: `3bceb14b057976286fa4359a2f0d1d003c9df796` updated `PROJECT_STATE.md` and `IMPLEMENTATION_QUEUE.md` with this result and next action. Handoff released; no active lease.
+
+### FIRST NEXT — year-zero date-only compatibility audit
+
+Enumerate WEB v18.20 date-only fields and execute archived module 205 on controlled `0000-MM-DD` cases per field. Separate date-only values from timestamps/reminders. Inspect `RecurrenceCalendar` and Foundation conversion paths; do not broaden global calendar semantics or coerce unsupported year-zero values into `Date`. Add a narrowly scoped date-only representation only for fields proven to require it, with exact string round-trip tests. Then proceed to the macOS build/XCTest/Simulator/Files restore/Light-Dark screenshot gates. Keep WEB JSON export disabled.
