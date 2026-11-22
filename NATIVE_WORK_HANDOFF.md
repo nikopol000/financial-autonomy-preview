@@ -2,28 +2,28 @@
 
 Status: READY_FOR_NEXT_RUN
 Owner: none
-Updated UTC: 2026-11-22T18:25:00Z
+Updated UTC: 2026-11-22T18:31:00Z
 Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 18245da0d3307e826d17a6720dd20dd7c82b1e57
-Latest implementation commit: 18245da0d3307e826d17a6720dd20dd7c82b1e57
-Latest app branch commit: 18245da0d3307e826d17a6720dd20dd7c82b1e57
-App feature ahead/behind stable main: 620/0
+Verified app feature HEAD: e4e2861e57634f103aaa7aafa590055586b4d8e8
+Latest implementation commit: e4e2861e57634f103aaa7aafa590055586b4d8e8
+Latest app branch commit: e4e2861e57634f103aaa7aafa590055586b4d8e8
+App feature ahead/behind stable main: 621/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: 2865e6876586ac0b30ea334a0e3d5dc4f95b5a5f
+Verified preview main before this checkpoint commit: 0b99cf16a1b343b04cb02a542436476dd1c9db7a
 
-## Completed this run — legacy WEB v4 encrypted restore/reload test sources
+## Completed this run
 
-- App commit: 18245da0d3307e826d17a6720dd20dd7c82b1e57.
-- Added two XCTest methods to NativeiOS/Tests/PortableBackupTests.swift. They cover old Codable payloads with absent webSourceDay markers, encrypted .fabackup seal/open, LedgerStore.restoreBackup, JSON persistence reload, source-only operation/balance-check audit, opaque JSON extension retention, unchanged-source fingerprint, mapper mutation/reattachment/re-import, and mixed edited/native versus historical WEB before/after days under UTC+14.
-- Swift 6.2.1 swiftc -frontend -parse passed on the new XCTest class source snippet. This is syntax only; app-target XCTest and full build were not run.
-- Exact CI run 45054830804 for the app HEAD failed with an empty job-step list, no artifacts and no combined status contexts. No compiler diagnostics and no retry. Linux has Swift 6.2.1 but no Xcode/XcodeGen/macOS runner.
-- Targeted audit of ScheduledItemsView, LoansView, LoanPrincipalReconciliationView, GoalsPlans and MonthPlanEditorView found no additional direct Date-to-day presentation defect. Day-only values remain strings; DatePicker conversions are local; event timestamps remain instants.
+- App commit e4e2861e57634f103aaa7aafa590055586b4d8e8 corrects the end-to-end restore fixture to use a valid voided original plus a new native replacement/check ID. The current validator does not permit a correction audit to change an observation timestamp.
+- Two new XCTest methods in NativeiOS/Tests/PortableBackupTests.swift cover old WEB v4 payloads with missing source-day markers, encrypted .fabackup restore through LedgerStore.restoreBackup, Codable persistence reload, source-only operation/check audit history, opaque extension retention, fingerprint/raw source bytes, mapper projection/reattachment/re-import and UTC+14 before/current days.
+- Swift 6.2.1 swiftc -frontend -parse passed on the corrected test-class/method source snippet. No app-target XCTest/typecheck/build was executed.
+- Native iOS CI exact HEAD run 45055383928 / job 137309359089 failed with no steps, no artifacts and no combined status contexts; prior source-test run 45054830804 failed the same way. No compiler diagnostics; no retry. Linux has Swift 6.2.1 but no XcodeGen/xcodebuild/macOS runner.
+- Targeted date-only UI audit found no remaining direct Date-to-day conversion defect in schedule/loan/goal/plan/month-plan screens; date-only values remain strings and timestamps remain instants.
 
 ## FIRST NEXT
 
-1. At the first functioning macOS runner, run XcodeGen, full Simulator build, both new restore tests, all unit/UI tests and inspect .xcresult.
-2. If CI remains blocked before runner steps, do not retry the same failure. Continue the independent WebOpaqueExtensions mapper audit for nested month-plan, goal/plan-step, recurring-history, projection/payoff and dashboard-layout identities, including ambiguous/duplicate identity and pruning tests.
+1. At the first functioning macOS runner, run XcodeGen, full Simulator build, both restore tests, all unit/UI tests and inspect .xcresult.
+2. If CI fails before runner steps, do not rerun. Continue the independent WebOpaqueExtensions audit for nested month-plan, goal/plan-step, recurring-history, projection/payoff and dashboard-layout identities, including duplicate/ambiguous identity and pruning tests.
 3. Keep year-zero import and WEB JSON export disabled until encrypted restore/re-export and Apple validation pass.
 
 ## Invariants

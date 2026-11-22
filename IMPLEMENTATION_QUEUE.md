@@ -5404,3 +5404,20 @@ Verification/blockers:
 1. At the first functioning macOS runner, run XcodeGen, full Simulator build, the two new restore tests, all unit/UI tests and inspect .xcresult.
 2. If the runner blocker persists before steps, do not rerun the same failure. Continue auditing WEB v4 opaque extension preservation for nested month-plan, goal/plan-step, recurring-history, projection/payoff and dashboard-layout identities; add tests for ambiguous/duplicate identities and safe pruning.
 3. Keep year-zero and WEB JSON export disabled until encrypted restore/re-export and Apple validation pass.
+
+
+## Native iOS checkpoint update — validator-safe legacy restore audit fixture (2026-11-22T18:31Z)
+
+Final app feature HEAD: \`e4e2861e57634f103aaa7aafa590055586b4d8e8\`; \`feat/sync-preview-v18-20-ios\` is 621 ahead / 0 behind stable app main \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\` (untouched).
+
+- Corrected the second end-to-end fixture to follow existing validators: original WEB operation/check is voided and retained in source audit; native replacement operation and new current check/observation use new IDs and their own days. It does not create a correction audit whose before/after observation timestamps differ, because the existing reconciliation validator explicitly requires those timestamps to match.
+- The encrypted legacy backup test still covers missing optional source-day markers, \`LedgerStore.restoreBackup\`, JSON persistence reload, source-only operation/balance-check audit, source fingerprint/raw bytes, opaque extension archive, mapper mutation/re-attachment and re-import. The second test covers distinct historical/current days for source and native replacement rows under UTC+14.
+- Swift 6.2.1 parser check on the corrected test snippet passed; app-target XCTest/typecheck/build not executed.
+- Exact final HEAD CI: [run 45055383928](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45055383928), job \`137309359089\`, failure with no steps, no artifacts and no combined status contexts. Previous test-source commit run 45054830804 failed the same way. No compiler diagnostics; no retries.
+- XcodeGen/xcodebuild/macOS runner unavailable. Full build, XCTest, Simulator, .xcresult, Files restore and visual parity remain unverified. Year-zero and WEB JSON export remain disabled; no stable-main change; local-only and no backend/account/bank-sync/telemetry; credit is not owned money; .fabackup only writable export.
+
+### FIRST NEXT
+
+1. At the first functioning macOS runner, execute XcodeGen, full Simulator build, both legacy restore tests, all unit/UI tests and inspect .xcresult.
+2. If pre-runner failure persists, do not retry; continue the independent WebOpaqueExtensions audit for nested month-plan, goal/plan-step, recurring-history, projection/payoff and dashboard-layout identities, including duplicate/ambiguous identity and pruning tests.
+3. Keep year-zero and WEB JSON export disabled until the complete restore/re-export graph and Apple validation pass.
