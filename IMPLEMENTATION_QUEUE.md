@@ -5029,3 +5029,26 @@ FIRST NEXT
 3. Update WebBudgetWindowsView (or its data adapter) to render the derived native plan values after edits, without mutating the import-time source baseline used by source hash/fingerprint verification.
 4. Add store persistence/failure and editor interaction XCTest coverage. Keep WEB JSON export disabled.
 5. Execute archived WEB v18.20 module 205 validateState and module 210 obligationsFor using a populated edited month-plan fixture, compare exact reimported values and derived obligations, then continue goals/plans. At the first actual macOS runner, run XcodeGen, simulator build, all unit/UI tests and inspect the exact xcresult. Do not retry the known pre-runner infrastructure failure.
+
+
+## Native iOS checkpoint — 2026-11-22T02:23Z — month-plan editor implemented
+
+**Completed**
+- Added an atomic LedgerStore month-plan update operation and native editor reachable from BudgetView.
+- Editor covers budget CRUD; primary/additional windows; income links; date ranges; dashboard/daily-pace flags; debt-payment IDs/amounts; contribution. It preserves missing-vs-empty collections and parses money only on save.
+- WebBudgetWindowsView now consumes a read-only derived snapshot built from native month-plan values; imported source JSON/fingerprint remain unchanged.
+- Added populated store persistence/failure tests, a Light/Dark editor interaction UI test, and a native calculation-projection XCTest. Test sources are committed but not executed in the app target.
+- Executed archived WEB v18.20 modules 205/210 and active preview modules 205/210 on the same populated edited fixture. Both returned budget=35,000, contribution=3,500, cash=100,000, available=100,000 and obligations=48,000 (40,000 fixed + 8,000 debt). Explicit empty plan replacement passed.
+- Swift 6.2.1 parser passed for MonthPlanEditorView source. No SwiftUI type-check or app build.
+- Exact code/test HEAD `6d7de323a2b142b57d421c511c543d1bc8d86dda`: CI run 44975718390, job 137065050931, failed before runner/steps; steps=[], logs 404 BlobNotFound, artifacts=0, combined statuses=0. No retry. xcodebuild/xcodegen unavailable.
+- App feature branch docs HEAD after this stage: `935f84440878bad5d6739a9398c55ce69b7893da`; stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains untouched. App feature is 536 ahead / 0 behind.
+- WEB JSON export remains disabled; .fabackup only. No backend, mandatory account, bank sync or telemetry. Credit limit is not owned cash.
+
+### FIRST NEXT — WEB v4 goals/plans projection
+
+1. Inspect existing native goal/plan models and WebV18_20StateMapper paths.
+2. Implement goal ID/name/metric/target/notes/deadline/done projection and plan goalId/start/ideas/questions/decision/ordered steps (ID/name/notes/status/due).
+3. Preserve UUID spelling/order and opaque extensions; reject duplicate IDs, orphan goal references and unsupported native-only fields.
+4. Add populated round-trip, edit, append and fail-closed tests. Compare with archived v18.20 module 205; use module 210 only where goals/plans affect summary/obligations.
+5. Keep WEB JSON export disabled until the complete snapshot round-trip, archived validator, Apple build/tests, Files restore and visual gates all pass.
+6. CI recovery remains an infrastructure task: only proceed when a macOS runner actually starts; then run XcodeGen, simulator build, unit/UI tests and inspect the exact .xcresult. Do not repeatedly trigger the same pre-runner failure.
