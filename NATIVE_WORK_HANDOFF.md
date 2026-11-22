@@ -2,14 +2,14 @@
 
 Status: IN_PROGRESS
 Owner: native parity automation
-Updated UTC: 2026-11-22T03:10:37Z
+Updated UTC: 2026-11-22T03:20:00Z
 Lease expires UTC: 2026-11-22T04:10:37Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 935f84440878bad5d6739a9398c55ce69b7893da
-Latest implementation commit: 6d7de323a2b142b57d421c511c543d1bc8d86dda
-Latest app branch commit: 935f84440878bad5d6739a9398c55ce69b7893da
+Verified app feature HEAD: 233ac8c9467a54566b232aed077532f31c071792
+Latest implementation commit: 44ad4ed0c4f50bae3f7cdcc2dccca80248fd199b
+Latest app branch commit: 233ac8c9467a54566b232aed077532f31c071792
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: df2032a5ed406a60f86eee329bd9ba0cf656e5ec
+Verified preview main HEAD before this handoff commit: 84109a708b0b681b62dd26ec8436b028373ee42b
 
 ## Completed this run
 
@@ -110,3 +110,18 @@ Status is READY_FOR_NEXT_RUN; no active lease. The next execution must re-read a
 - Lease expires UTC: 2026-11-22T04:10:37Z.
 - Startup verified live preview main HEAD `465ade26a02b6e59e73097ab0e10f3673a220169`, app feature HEAD `935f84440878bad5d6739a9398c55ce69b7893da`, and app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
 - Current work item: mutable WEB v4 goals/plans projection in `WebV18_20StateMapper`; do not duplicate while lease is active.
+
+
+## Native iOS checkpoint — WEB v4 goals/plans mutable projection (2026-11-22T03:20Z)
+
+- App feature code/test HEAD: 233ac8c9467a54566b232aed077532f31c071792. Implementation commit: 44ad4ed0c4f50bae3f7cdcc2dccca80248fd199b; test-fixture safety follow-up: 233ac8c9467a54566b232aed077532f31c071792. App stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366 remains untouched.
+- WebV18_20StateMapper now projects NativeGoal and NativeGoalPlan into WEB v4: goal ID/name/metric/target/notes/deadline/done; plan ID/goalId/start/ideas/questions/decision and ordered steps (ID/name/notes/status/due). Existing goal/plan identity and order are fixed; additions append. Existing steps retain IDs and can be reordered; new steps append. Deleting existing goals/plans/steps or reordering goals/plans fails closed.
+- Unknown extensions on goals/plans/steps are reattached by stable identity. Empty optional deadline/due strings are preserved when their native value remains nil. Mutable fingerprint canonicalizes only opaque v2 array index/path hints; import-time source hash/fingerprint algorithm and original source bytes are unchanged.
+- Four populated XCTest sources added: edits + step reorder + opaque extensions, append goal/plan, reorder/orphan/duplicate/deletion rejection, and empty optional date preservation. XCTest source has not run in the iOS target.
+- Local Swift 6.2.1 isolated harness compiled with -warnings-as-errors and executed the copied projection/opaque-normalization logic; output GOAL_PLAN_HARNESS_PASS. This is a stubbed harness, not a full app compile or actual WebBackupV18_20 XCTest run.
+- Exact Native iOS CI for code/test HEAD 233ac8c9467a54566b232aed077532f31c071792: [run 44980081778](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44980081778), job 137078461307, FAILURE before runner/steps; steps=null, job logs URL=null, artifacts=0, combined status contexts=0. No retry. xcodebuild/xcodegen unavailable; no Apple build, app XCTest, Simulator, Files restore or screenshot comparison.
+- Export remains disabled; native .fabackup remains the only writable export. Local-only, no backend/mandatory account/bank sync/telemetry; available credit is not owned cash.
+
+### Next exact action — WEB v4 projection metadata mapping
+
+Map WebImportedProjection from WebImportMetadata.projection back to the optional WEB projection object, preserving annualInflation, exposed ID spelling/order, payoff ID spelling/order/amount and opaque extensions. Preserve absent versus present projection, validate references/duplicates through the archived importer, and add populated edit/append/remove/fail-closed tests. Then continue audit/checks and appearance/dashboard mapping. Keep WEB JSON export disabled.
