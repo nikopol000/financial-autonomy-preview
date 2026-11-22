@@ -1586,3 +1586,14 @@ Implement mutable WEB v4 monthly reviews projection: reconcile `LedgerSnapshot.m
 ### Exact next action
 
 Inspect WEB v4 `incomeTemplates` and `expenseTemplates` against native `ScheduleBook.items`, month-plan fixed catalog and existing template IDs. Determine which ID/name/amount/day and due-day-known semantics can be represented exactly; preserve order and opaque extensions, reject recurrence or category fields without an exact native equivalent. Then inspect `names`, `nameChanges` and remaining metadata for source-only/audit constraints. Keep export disabled. At the first macOS runner, execute XcodeGen, simulator build, all unit/UI tests and inspect `.xcresult`; then Files restore and screen-by-screen Light/Dark comparison against archived WEB v18.20.
+
+
+## 2026-11-22 — Native WEB v4 name catalog UI regression
+
+- Revalidated preview main and app feature/stable refs before writing. App feature HEAD is `01b6e8171b1ccf5ef68d3921db2b9be8b2679960`; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains untouched. Preview main checkpoint base `70ccc7df9fd149a289ff3052d56fd669be21b1ae`.
+- Reconciled the expired handoff: WEB v4 income/expense templates and transaction-name catalog mapping already exist on the app feature branch. Existing `nameChanges` history remains immutable/source-only; native rename/merge is not implemented because WEB rewrites transaction and audit before-images.
+- Added a synthetic WEB v4 name-catalog fixture using process-local in-memory persistence, a Light/Dark UI test for normalized substring suggestions and canonical selection, and two unit tests proving name attachment does not change financial role, budgeted state or budget ID.
+- App commits: UI regression `2e3d2d4de8efe92e43c66ccf4aa223c81703eac4`; unit coverage `4ea47b0d1f58961481cb282924e8067fe096effb`; documentation/HEAD `01b6e8171b1ccf5ef68d3921db2b9be8b2679960`.
+- Executed: Swift 6.2.1 isolated name-catalog harness PASS; `swiftc -frontend -parse` on new unit/UI test snippets PASS. These do not constitute full app build or XCTest execution.
+- Native iOS CI exact current HEAD has no combined status contexts and no PR-triggered workflow run surfaced. Last concrete run for parent HEAD `ee5221c50fe1986fa2461376103f6c51face7bd9` was `45003113113`, failed before runner (runner ID 0, no steps, 404 BlobNotFound logs, zero artifacts); no retry. `xcodebuild`/`xcodegen` unavailable; no Apple build, app XCTest, Simulator, Files restore or visual comparison.
+- Next: add one combined populated WEB v4 projection round-trip fixture and compare its output with archived v18.20 module 205/210; keep source-only `nameChanges`/audit history and opaque extensions intact. Then scope year-zero date-only compatibility without changing global calendar semantics. WEB JSON export remains disabled; `.fabackup` only; local-only/no backend/account/bank sync/telemetry; credit is not owned money.
