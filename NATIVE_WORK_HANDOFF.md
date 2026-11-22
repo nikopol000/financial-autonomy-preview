@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native parity automation
-Updated UTC: 2026-11-22T01:08:00Z
-Lease expires UTC: 2026-11-22T02:08:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T01:21:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 2676978896d1df3055483ce38234e17d3619bbf2
-Latest implementation commit: fa4b69071107b69948ac5a4c0da43ebc0f4a427c
-Latest app branch commit: 2676978896d1df3055483ce38234e17d3619bbf2
+Verified app feature HEAD: 18ebd2eac6cf3ca01095bd683e28ecf6ae774c03
+Latest implementation commit: f216ff420e9214226fdfe48ed819290c318a25f8
+Latest app branch commit: 18ebd2eac6cf3ca01095bd683e28ecf6ae774c03
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: ffe2ce81638071785413699170089c960271d161
+Verified preview main HEAD before this handoff commit: 61ddc3aaf983511331dad383c7e1c5e724d88c89
 
 ## Completed this run
 
@@ -74,3 +74,16 @@ Implement mutable WEB v4 monthPlans projection: reconcile WebImportedMonthPlan w
 ## Next exact action
 
 Extend FixedExpenseMonthPlan with typed, backward-compatible optional month-plan budgets/windows, debtPayments and contributionMinor, then add native editors for those fields. Preserve missing-vs-empty additionalWindows, IDs/order, primary/additional window semantics, income links, ranges, dashboard/daily-pace flags, debt-payment IDs/amounts and contribution. Do not map these to global BudgetSettings. Update importer, mapper, mappedFingerprint and populated tests; keep export disabled until full round-trip, Apple build/tests and visual gates pass.
+
+## Completed this run — typed month-plan budget/window/debt-payment/contribution projection
+
+- App implementation/importer/mapper commit: f216ff420e9214226fdfe48ed819290c318a25f8; follow-up test/validation commit and exact feature HEAD: 18ebd2eac6cf3ca01095bd683e28ecf6ae774c03.
+- FixedExpenseMonthPlan now carries optional typed budgets, debtPayments and contributionMinor. Importer populates these fields; existing month edits preserve them; new month plans retain explicit []/[]/0 defaults. Legacy native backups with absent keys remain readable.
+- Mapper projects budget IDs/names/amounts, primary/additional window settings, income UUID links, ranges, includeInDailyPace/showOnDashboard, debt-payment IDs/amounts and contribution. It preserves UUID spelling/order and optional additionalWindows nil-vs-empty; opaque extensions are reattached by stable identity. Structural validation enforces WEB v18.20 bounds, window modes/kinds, ranges, unique IDs and available income/debt references.
+- Updated populated source XCTest coverage. Executed Swift 6.2.1 warnings-as-errors API-compatible harness: PASS for validation, legacy decode, recording preservation, income UUID spelling, serialization, nil-vs-empty and duplicate rejection. Not app-target XCTest.
+- Exact CI run 44970734253 for 18ebd2eac6cf3ca01095bd683e28ecf6ae774c03: FAILURE before runner/steps; job 137049717036, empty step list, 404 BlobNotFound job logs, zero artifacts and zero status contexts. No retry. xcodebuild/xcodegen unavailable; no Apple build/Simulator/Files/UI comparison.
+- Active WEB is 18.74.1; target remains archived v18.20. No archived validator execution or visual comparison in this run. Export remains disabled; .fabackup only.
+
+## Next exact action
+
+Implement a focused LedgerStore update method and native month-plan editing surfaces reachable from BudgetView. Add/edit/delete budgets; primary/additional windows with all optional fields and income links; debt-payment IDs/amounts; contribution. Preserve nil-vs-empty additionalWindows, IDs/order and source baseline integrity. Update WebBudgetWindowsView to display native projected values after edits, add persistence/failure/UI tests, then run archived v18.20 modules 205 and 210 against a populated edited fixture. Keep export disabled.

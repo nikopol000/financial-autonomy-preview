@@ -5010,3 +5010,22 @@ FIRST NEXT
 3. Update WEB v4 importer, month-plan mapper and mappedFingerprint to use the typed native fields. Keep original month/row order, UUID spelling, opaque extensions and nil/empty semantics; reject unsupported field combinations. Add populated round-trip and fail-closed XCTest cases.
 4. Re-run exact archived WEB v18.20 module 205 and module 210 checks, then compare every month-plan field and derived obligations after reimport. Keep WEB JSON export disabled.
 5. Continue goals/plans, projection, names/audit/checks, appearance/dashboard and remaining metadata. At the first actual macOS runner, run XcodeGen, simulator build, all unit/UI tests and inspect the exact .xcresult. Current Native iOS CI failed before any step (run 44965741340); do not retry the same pre-runner failure. Then complete Files restore and Light/Dark screen/flow/calculation comparison.
+
+
+## Native iOS — typed month-plan configuration projection (CORE MAPPING COMPLETED; native editor pending)
+
+- App feature HEAD: 18ebd2eac6cf3ca01095bd683e28ecf6ae774c03 (https://github.com/nikopol000/financial-autonomy-app/commit/18ebd2eac6cf3ca01095bd683e28ecf6ae774c03), 518 ahead / 0 behind stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366. App main remains untouched.
+- Implementation/importer/mapper commit: f216ff420e9214226fdfe48ed819290c318a25f8 (https://github.com/nikopol000/financial-autonomy-app/commit/f216ff420e9214226fdfe48ed819290c318a25f8); follow-up validation/test commit: 18ebd2eac6cf3ca01095bd683e28ecf6ae774c03 (https://github.com/nikopol000/financial-autonomy-app/commit/18ebd2eac6cf3ca01095bd683e28ecf6ae774c03).
+- Typed optional fields now live on FixedExpenseMonthPlan for budgets, debtPayments and contributionMinor. Importer fills them; fixed-expense edits preserve existing month-plan configuration. Older native backups decode absent fields as nil; explicit empty arrays and zero remain distinct.
+- Mapper now serializes budget identity/name/amount, primary/additional windows and all optional fields, income links, date ranges, dashboard/daily-pace flags, debt-payment IDs/amounts and contribution. It retains UUID spelling and order, reattaches opaque extensions by identity and validates WEB v18.20 bounds/references. No formula or global BudgetSettings behavior changed.
+- Tests added/updated for populated configuration edits, income links, nil-vs-empty additional windows, debt payment/contribution and legacy native decode/recording. Isolated Swift 6.2.1 warnings-as-errors harness PASS with API-compatible stubs; app-target XCTest not run.
+- Exact CI run 44970734253 for 18ebd2eac6cf3ca01095bd683e28ecf6ae774c03: FAILURE before runner, zero steps, job logs 404 BlobNotFound, zero artifacts/status contexts. No retry. xcodebuild/xcodegen unavailable. No Apple build/XCTest/Simulator/Files/visual verification.
+- Active WEB is 18.74.1; target is archived v18.20. No archived JS validator or visual comparison this run. WEB JSON export stays disabled; .fabackup only.
+
+### FIRST NEXT — native month-plan editors and persistence
+
+1. Add a focused LedgerStore method to update a FixedExpenseMonthPlan's budgets/debtPayments/contributionMinor atomically, preserving its expense items and other snapshot state. Validate references against WebImportMetadata.incomeTemplates/debts and fail closed on invalid/duplicate IDs, invalid windows/ranges or persistence failure.
+2. Add a native month-plan editor reachable from BudgetView. Support budget add/edit/delete; primary window, anchor, income link and date range; additional windows (kind, limitMode, amount, anchor, income, range, showOnDashboard); includeInDailyPace; debt-payment selection/amount; and contribution. Preserve nil versus [] for additionalWindows. Keep month-plan budgets separate from global BudgetSettings.
+3. Update WebBudgetWindowsView (or its data adapter) to render the derived native plan values after edits, without mutating the import-time source baseline used by source hash/fingerprint verification.
+4. Add store persistence/failure and editor interaction XCTest coverage. Keep WEB JSON export disabled.
+5. Execute archived WEB v18.20 module 205 validateState and module 210 obligationsFor using a populated edited month-plan fixture, compare exact reimported values and derived obligations, then continue goals/plans. At the first actual macOS runner, run XcodeGen, simulator build, all unit/UI tests and inspect the exact xcresult. Do not retry the known pre-runner infrastructure failure.
