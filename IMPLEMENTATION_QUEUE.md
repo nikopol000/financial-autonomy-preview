@@ -5421,3 +5421,24 @@ Final app feature HEAD: \`e4e2861e57634f103aaa7aafa590055586b4d8e8\`; \`feat/syn
 1. At the first functioning macOS runner, execute XcodeGen, full Simulator build, both legacy restore tests, all unit/UI tests and inspect .xcresult.
 2. If pre-runner failure persists, do not retry; continue the independent WebOpaqueExtensions audit for nested month-plan, goal/plan-step, recurring-history, projection/payoff and dashboard-layout identities, including duplicate/ambiguous identity and pruning tests.
 3. Keep year-zero and WEB JSON export disabled until the complete restore/re-export graph and Apple validation pass.
+
+
+## Native iOS queue checkpoint — nested WEB v4 opaque identities and parent-scoped pruning (2026-11-22T19:22Z)
+
+App feature HEAD: ce6b9e8ec035a430898a1ffaba2470a1e5a2330a; stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366 remains untouched; feature compare is 622 ahead / 0 behind.
+
+Completed in this stage:
+- Inspected WebOpaqueExtensions v2 stable identity construction and reattachment. Every supported array ancestor is resolved by stable identity, never by its saved numeric index; exactly one target is required.
+- Added nested-array round-trip test coverage for monthPlans → budgets → additionalWindows, expenses, debtPayments; recurring → history; goals/plans → steps; projection → payoffs; and dashboardLayout object extensions.
+- Added fail-closed cases for duplicate fallback history identities, duplicate explicit IDs and a removed array target (no stale-index attachment).
+- Added parent-plan-scoped step-pruning coverage when two plans intentionally reuse the same step ID. Existing tests already cover template deletion pruning, single-plan step deletion pruning, no-ID transaction-detail ambiguity, v1 array-path rejection and payoff-deletion rejection.
+- Swift 6.2.1 parser passed on an isolated mirror of the new test methods. This does not establish app-target typechecking or XCTest execution.
+- Exact app HEAD CI run 45060097734 / job 137323869138 failed before runner steps: zero steps, zero artifacts, log 404 BlobNotFound, combined status empty. No compiler diagnostics and no retry. Linux Swift 6.2.1 is available; XcodeGen/xcodebuild/macOS runner are unavailable.
+- No production code, formulas, Models.swift or LedgerStore.swift were changed. Stable app main was not changed. Year-zero and WEB JSON export remain disabled.
+
+### FIRST NEXT — complete remaining opaque paths and archive validation
+
+1. Add identity/reorder tests for debt.schedule, names/nameChanges, balanceChecks, checkAudit/audit before-images, appearance and template opaque fields.
+2. Test malformed and oversized v1/v2 archives, segment/path consistency and fail-closed behavior for collisions or missing parents. Keep v1 array-index paths unsupported.
+3. When a macOS runner is available, execute XcodeGen, Simulator build, all unit/UI tests, .xcresult and visual comparisons. Do not rerun the pre-runner BlobNotFound failure.
+4. Preserve local-only operation, native .fabackup as the only writable backup, and the invariant that available credit is not owned money.

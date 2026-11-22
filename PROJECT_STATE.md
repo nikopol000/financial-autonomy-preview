@@ -1871,3 +1871,24 @@ Perform the consumer-by-consumer adapter design before integrating this prototyp
 1. On the first functioning macOS runner, run XcodeGen, the full Simulator build, both legacy restore tests, the complete unit/UI suite and inspect \`.xcresult\`.
 2. If CI again fails before any runner step, do not rerun it. Continue the independent \`WebOpaqueExtensions\` audit for nested month-plan, goal/plan-step, recurring-history, projection/payoff and dashboard-layout array identities; add focused tests for ambiguous/duplicate identities and safe pruning.
 3. Keep year-zero import and WEB JSON export disabled until encrypted restore/re-export and Apple validation pass.
+
+
+## Native iOS checkpoint — WEB v4 opaque extension identity and pruning audit (2026-11-22T19:22Z)
+
+- Live app feature HEAD: ce6b9e8ec035a430898a1ffaba2470a1e5a2330a on feat/sync-preview-v18-20-ios; compare against stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366: 622 ahead / 0 behind. Stable app main remains untouched. Preview main before this checkpoint: 6c747011fb9539a55d1392c3bd20c5a332ee420c.
+- Audited NativeiOS/WebOpaqueExtensions.swift and WebV18_20StateMapper.swift. WEB v2 opaque archives record an identity anchor for each array ancestor; reattachment builds current-array identity indexes and requires exactly one match. Numeric indices are hints only. Missing targets, duplicate identities, ambiguous no-ID projections and known-field collisions fail closed.
+- App commit ce6b9e8ec035a430898a1ffaba2470a1e5a2330a (test: cover opaque extension identities and safe pruning) adds three XCTest sources in NativeiOS/Tests/WebV18_20StateMapperTests.swift:
+  1. Nested reorder round-trip for month plans, budgets/additional windows, expenses, debt payments, recurring history, goals/plans/steps, projection payoffs and dashboardLayout; unknown fields must remain attached to their original identities.
+  2. Duplicate fallback history identity, duplicate explicit account IDs and a removed target row; each must fail closed rather than use a stale array index.
+  3. Plan-step pruning scoped by parent plan identity; removing a step from one plan must not remove or cross-attach the same step ID in another plan.
+- Existing source tests also cover no-ID transaction-detail ambiguity, legacy v1 object-only archive restore (array-index paths rejected), template-extension pruning by identity, step deletion pruning and projection-payoff deletion rejection. No production code or financial formula change was needed in this audit.
+- Executed Swift 6.2.1 swiftc -frontend -parse on an isolated source mirror of the three added methods: PASS. This is a syntax check of the mirror only; the complete repository test file was not parsed/typechecked and no XCTest was executed.
+- Native iOS CI exact HEAD ce6b9e8ec035a430898a1ffaba2470a1e5a2330a: run 45060097734, job 137323869138, FAILURE before runner steps; job step list empty, artifacts empty, log retrieval 404 BlobNotFound, combined status contexts empty. No compiler diagnostics; no retry. Local environment has Swift 6.2.1 but no xcodebuild, xcodegen or macOS runner.
+- Full app build, app-target XCTest, Simulator, .xcresult, Files restore and visual comparison remain unverified. Year-zero import remains disabled; WEB JSON export remains disabled. Local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money; native .fabackup remains the only writable backup.
+
+### FIRST NEXT — finish the remaining WEB v4 opaque path matrix
+
+1. Add focused identity/reorder tests for debt.schedule rows, names and nameChanges, balanceChecks, checkAudit/audit before-images, appearance, and income/expense template extension paths. Keep no-ID duplicate cases fail-closed.
+2. Audit malformed/oversized v1/v2 archives and path/segment consistency. Preserve v1 identity-independent object paths; continue rejecting v1 array-index paths and known-field collisions.
+3. At the first functioning macOS runner, run XcodeGen, Simulator build, all unit/UI tests and inspect the exact .xcresult. Do not retry a pre-runner BlobNotFound failure.
+4. Only after full restore/re-export and Apple validation, reconsider year-zero import and WEB JSON export.

@@ -1,22 +1,23 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: ChatGPT
-Updated UTC: 2026-11-22T19:17:00Z
-Lease expires UTC: 2026-11-22T19:40:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T19:22:47Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: e4e2861e57634f103aaa7aafa590055586b4d8e8
-Latest implementation commit: e4e2861e57634f103aaa7aafa590055586b4d8e8
-Latest app branch commit: e4e2861e57634f103aaa7aafa590055586b4d8e8
-App feature ahead/behind stable main: 621/0
+Verified app feature HEAD: ce6b9e8ec035a430898a1ffaba2470a1e5a2330a
+Latest implementation commit: ce6b9e8ec035a430898a1ffaba2470a1e5a2330a
+Latest app branch commit: ce6b9e8ec035a430898a1ffaba2470a1e5a2330a
+App feature ahead/behind stable main: 622/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: 0b99cf16a1b343b04cb02a542436476dd1c9db7a
-
-## Active work
-
-- Auditing `WebOpaqueExtensions` nested month-plan, goal/plan-step, recurring-history, projection/payoff and dashboard-layout identities, with explicit duplicate/ambiguous-identity and safe-pruning tests. Source writes remain limited to the current feature branch.
+Verified preview main before this checkpoint commit: 6c747011fb9539a55d1392c3bd20c5a332ee420c
 
 ## Completed this run
+
+- App commit ce6b9e8ec035a430898a1ffaba2470a1e5a2330a adds three focused opaque-extension tests: nested stable-identity reorder coverage; duplicate/ambiguous/missing identity fail-closed coverage; and parent-plan-scoped step pruning when IDs repeat across plans.
+- Audited existing tests for template pruning, step pruning, no-ID transaction-detail ambiguity, legacy v1 array-path rejection and payoff-deletion rejection. No production change was needed in this stage.
+- Swift 6.2.1 parser passed on an isolated mirror of the new methods only. No app-target typecheck or XCTest execution.
+- Exact CI run 45060097734 / job 137323869138 failed before runner steps: zero steps, no artifacts, log 404 BlobNotFound and empty combined status. No retry. XcodeGen/xcodebuild/macOS runner unavailable.
 
 - App commit e4e2861e57634f103aaa7aafa590055586b4d8e8 corrects the end-to-end restore fixture to use a valid voided original plus a new native replacement/check ID. The current validator does not permit a correction audit to change an observation timestamp.
 - Two new XCTest methods in NativeiOS/Tests/PortableBackupTests.swift cover old WEB v4 payloads with missing source-day markers, encrypted .fabackup restore through LedgerStore.restoreBackup, Codable persistence reload, source-only operation/check audit history, opaque extension retention, fingerprint/raw source bytes, mapper projection/reattachment/re-import and UTC+14 before/current days.
@@ -26,9 +27,10 @@ Verified preview main before this checkpoint commit: 0b99cf16a1b343b04cb02a54243
 
 ## FIRST NEXT
 
-1. At the first functioning macOS runner, run XcodeGen, full Simulator build, both restore tests, all unit/UI tests and inspect .xcresult.
-2. If CI fails before runner steps, do not rerun. Continue the independent WebOpaqueExtensions audit for nested month-plan, goal/plan-step, recurring-history, projection/payoff and dashboard-layout identities, including duplicate/ambiguous identity and pruning tests.
-3. Keep year-zero import and WEB JSON export disabled until encrypted restore/re-export and Apple validation pass.
+1. Add identity/reorder tests for debt.schedule, names/nameChanges, balanceChecks, checkAudit/audit before-images, appearance and template opaque fields.
+2. Audit malformed/oversized v1/v2 archives and path/segment consistency; keep v1 array-index paths unsupported.
+3. At the first functioning macOS runner, run XcodeGen, Simulator build, all unit/UI tests and inspect .xcresult. Do not retry a pre-runner BlobNotFound failure.
+4. Keep year-zero import and WEB JSON export disabled until encrypted restore/re-export and Apple validation pass.
 
 ## Invariants
 
