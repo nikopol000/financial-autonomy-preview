@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-22T16:54:16.695Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: ChatGPT native iOS automation
+Updated UTC: 2026-11-22T17:39:30Z
+Lease expires UTC: 2026-11-22T18:09:30Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 4338785513e1582c7119cc0c123cd76af82afe9e
 Latest implementation commit: 82762b4215cb2755e6d2b08ec85def7fa727a2e2
@@ -59,3 +59,8 @@ Verified preview main HEAD before this handoff release: 26f6af9a5ebe279d3ded3d4c
 - No wholesale Models.swift/LedgerStore.swift rewrite, no global RecurrenceCalendar change and no financial formula changes.
 - Local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
 - Native .fabackup remains the only writable export; WEB JSON export remains disabled.
+
+
+## Current lease — provenance-safe legacy backfill
+
+This run reconciled live app feature HEAD `ca26e8dbaa2e0cec8f21aae1375878922461f3ab` and found two commits after the previous 43387855 handoff. Commit `d998727` adds date presentation, legacy WEB v4 provenance backfill and round-trip test sources; `ca26e8d` avoids unnecessary scans and fails closed on invalid dates. The first unfinished safety check is to ensure legacy backfill only restores a source-day marker when the persisted Date still equals the verified WEB source-day instant, and to distinguish balance-check audit before/after source days. Do not alter financial formulas, enable year-zero import, or modify stable app main. CI run `45050187171` for exact HEAD failed before runner allocation (runner_id 0, zero steps, log 404 BlobNotFound); do not retry the same failure.
