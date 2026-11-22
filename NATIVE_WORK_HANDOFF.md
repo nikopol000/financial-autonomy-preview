@@ -1,19 +1,20 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native parity automation
-Updated UTC: 2026-11-22T14:08:16Z
-Lease expires UTC: 2026-11-22T14:55:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T14:17:30Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: f83cd0ab4e0db5c84626ee1f1c8e88f96843a63d
-Latest implementation commit: 93e7f56a3eab91712ee9026a9c7d7366143a1534
-Latest app branch commit: f83cd0ab4e0db5c84626ee1f1c8e88f96843a63d
+Verified app feature HEAD: 473b729c4b638fb52252309184d9083ca157126c
+Latest implementation commit: 473b729c4b638fb52252309184d9083ca157126c
+Latest app branch commit: 473b729c4b638fb52252309184d9083ca157126c
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: fc6f8117590fab0b2ae20e97947cb0f9941e0b48
+Verified preview main HEAD before this handoff commit: e230df6842d30016ce3d2a8abee82d8d806cb2cf
 
-## Active work claimed — explicit WEB v18.20 date contract
+## Completed this run — LedgerDateContract adapter
 
-- Current app feature HEAD verified at lease claim: f83cd0ab4e0db5c84626ee1f1c8e88f96843a63d. Stable app main: a9b30be147abecea45a63bf7dd8d0a3eb3370366 (unchanged). Preview main at lease claim: fc6f8117590fab0b2ae20e97947cb0f9941e0b48.
-- First unfinished action from PROJECT_STATE/IMPLEMENTATION_QUEUE: add `LedgerDateContract` (native default; WEB v18.20 only when `WebImportMetadata.sourceVersion == 4`) with strict day/month validation, era-aware UTC conversion, reverse formatting, ordinal/month arithmetic and WEB recurrence APIs.
-- Keep year-zero acceptance disabled in importer until SnapshotValidator and every downstream consumer are wired. Do not change global `RecurrenceCalendar`, Models or LedgerStore wholesale. Do not change financial formulas or enable WEB JSON export.
-- Next: commit the adapter and focused tests on the iOS feature branch; execute exact harness and XCTest source parser; then update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with verified results and release this handoff.
+- App commits: 754a914a8033fc71b194ef2b08ac8de2accea715 (adapter), 7e910ef593fb9f04430ac99c0f02da2146a4b310 (XCTest source), 473b729c4b638fb52252309184d9083ca157126c (executable harness and exact app feature HEAD).
+- Swift 6.2.1 warnings-as-errors harness PASS against the exact committed adapter/harness and exact fetched WebV18_20DateOnly/RecurrenceCalendar sources plus a minimal recurring-model stub. Exact XCTest source parser PASS. No app-target XCTest/Xcode build.
+- No importer, SnapshotValidator, PortableBackup, model, ledger, recurrence engine, UI, financial formula or user data changed. Year-zero import remains disabled.
+- Native iOS CI for exact HEAD has no run/status/check yet. Parent HEAD f83cd0ab run 45026720649 failed before runner allocation with zero steps and no artifacts; not retried.
+- **FIRST NEXT:** wire the version-derived date context into WebBackupV18_20 and SnapshotValidator while retaining a separate fail-closed year-zero import gate. Then propagate context to all schedule/loan/calendar/report/WEB engines, mapper and UI before enabling year zero.
