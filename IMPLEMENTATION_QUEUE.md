@@ -5442,3 +5442,26 @@ Completed in this stage:
 2. Test malformed and oversized v1/v2 archives, segment/path consistency and fail-closed behavior for collisions or missing parents. Keep v1 array-index paths unsupported.
 3. When a macOS runner is available, execute XcodeGen, Simulator build, all unit/UI tests, .xcresult and visual comparisons. Do not rerun the pre-runner BlobNotFound failure.
 4. Preserve local-only operation, native .fabackup as the only writable backup, and the invariant that available credit is not owned money.
+
+## Native iOS queue checkpoint — remaining WEB v4 opaque paths and archive validation (2026-11-22T20:17Z)
+
+App feature HEAD: `edcd38076bbc9c0f44cd648733022caf92b5f1b8`; stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains untouched; feature compare 623 ahead / 0 behind. Preview main before this checkpoint: `8bc37f595ea694af89c41626249d7a03d6f97724`.
+
+Completed in this stage:
+- Added a direct strip/reattach reorder test for debt schedule rows, names/nameChanges, balance checks, checkAudit/audit before-images, appearance and income/expense template opaque fields.
+- Hardened v2 archive validation to enforce typed path/segment consistency and nonnegative integral non-boolean indices; rejected boolean/fractional format versions and empty identity strings.
+- Hardened v1 validation to permit only valid root/object-only paths; malformed dotted paths and array-index paths are rejected before reattachment.
+- Added tests for path/segment mismatch, fractional index/version, boolean version, v1 compatibility/rejection, missing parent, known-field collision and oversized v1/v2 archives.
+- No formulas, Models.swift, LedgerStore.swift, global recurrence calendar or app stable main changes.
+
+Executed checks:
+- Swift 6.2.1 isolated validation harness compiled with `-warnings-as-errors` and executed: 10 PASS. This exercises a minimal schema and the copied validation guard logic, not the complete app target.
+- `swiftc -frontend -parse` on an isolated mirror of the two new XCTest methods: PASS. No app-target XCTest was executed.
+- Exact HEAD Native iOS CI run [45065385993](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45065385993), job `137340254653`: FAILURE before runner steps; empty step list, no artifacts, log 404 `BlobNotFound`, empty combined status. No compiler diagnostic and no retry. Linux has Swift 6.2.1; XcodeGen/xcodebuild/macOS runner unavailable.
+- Full iOS build, XCTest, Simulator, .xcresult, encrypted Files restore/re-export and visual parity remain unverified.
+
+### FIRST NEXT
+
+1. At the first functioning macOS runner, execute XcodeGen, full Simulator build, all unit/UI tests and inspect the exact .xcresult/screenshots.
+2. If the same pre-runner infrastructure failure persists, do not retry it; continue independent v1/v2 encrypted backup fixture and end-to-end import → .fabackup → restore/reload → mapper/opaque reattachment → re-export review.
+3. Keep year-zero import and WEB JSON export disabled until complete restore/re-export and Apple validation pass. Preserve local-only behavior and the rule that available credit is not owned money.
