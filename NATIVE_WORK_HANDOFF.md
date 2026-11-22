@@ -312,3 +312,16 @@ Design the full consumer-by-consumer date adapter graph before implementation. S
 - Previous date-only prototype checkpoint is READY_FOR_NEXT_RUN and its lease has expired.
 - Current exact work item: complete the consumer-by-consumer adapter graph for WEB v18.20 year-zero dates before production integration. No parser-only acceptance; keep global non-WEB RecurrenceCalendar semantics unchanged.
 - This finite lease protects the design/integration batch. Do not modify app/main.
+
+
+## Completed run — WEB v18.20 year-zero adapter graph design (2026-11-22T13:24:00Z)
+
+- Status: READY_FOR_NEXT_RUN.
+- Owner: none.
+- Lease expires UTC: none.
+- App feature HEAD: f83cd0ab4e0db5c84626ee1f1c8e88f96843a63d. App stable main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366 (untouched).
+- Preview checkpoint commit for PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md: 115a0c74d1a3dd06e8751bc6cba7daf8c2034e17. This handoff release is committed immediately after that checkpoint.
+- Completed the consumer-by-consumer date adapter graph and Foundation Date Codable/era-boundary contract test. Exact Swift 6.2.1 warnings-as-errors harness PASS; exact XCTest source parser PASS. App-target XCTest and Apple build remain unverified.
+- Native CI for exact app commit f83cd0ab4e0db5c84626ee1f1c8e88f96843a63d: run 45026720649, job 137221250328, failed before runner allocation (zero steps, null job logs, zero artifacts). No retry.
+- FIRST NEXT: implement explicit LedgerDateContract (native default; WEB v18.20 only for sourceVersion 4), then wire importer and restore consumers as a coherent sequence. Do not enable year-zero import until SnapshotValidator, schedule/loan/report/mapper/UI paths and encrypted backup round-trip are all covered. Keep global RecurrenceCalendar semantics unchanged.
+- WEB JSON export remains disabled; native .fabackup remains the only writable export. Local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money.
