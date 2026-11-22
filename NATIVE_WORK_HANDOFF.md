@@ -280,3 +280,11 @@ Enumerate WEB v18.20 date-only fields and execute archived module 205 on control
 - Native CI for exact code/test commit `93e7f56a3eab91712ee9026a9c7d7366143a1534`: run `45016767957`, job `137190649627`, no steps, log 404 `BlobNotFound`, artifacts 0; not retried. Docs-only HEAD `cc4c761` has zero combined status contexts. No Apple build/XCTest/Simulator/Files/UI evidence.
 - **Next exact action:** design and execute an isolated contract harness for a backup-scoped proleptic-Gregorian date-only representation, covering exact year-zero preservation, era-aware Date conversion, ordering, recurrence boundaries, every import/restore consumer and encrypted-backup round-trip. Do not widen global `RecurrenceCalendar` or integrate a parser-only fix. At the first runner-backed Native iOS CI, execute XcodeGen, Simulator build, full unit/UI suite and exact `.xcresult`, then Files restore and populated Light/Dark comparison.
 - WEB JSON export remains disabled; native `.fabackup` remains the only writable export. Local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money. No 100% parity claim.
+
+
+## Active lease — 2026-11-22T12:10:00Z
+
+- Owner: native parity automation.
+- Lease expires UTC: 2026-11-22T12:55:00Z.
+- Preview main verified at `fb2b09c4a339ae5fc2153ffc14952d65c49d68e4`; app feature verified at `cc4c761edf459f6caba913be9bac8b74c77e14be`; app stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Previous lease expired at 2026-11-22T12:20:00Z. First unfinished item remains the isolated contract harness for a backup-scoped proleptic-Gregorian date-only representation. This lease is finite; do not modify app/main.
