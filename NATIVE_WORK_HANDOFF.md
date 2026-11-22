@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-22T10:28:58Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native parity automation
+Updated UTC: 2026-11-22T11:08:26Z
+Lease expires UTC: 2026-11-22T11:45:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 090c357805aa321c8f62f312c51ae66acf7d0079
 Latest implementation commit: 5707c40eac1fd2130dc5e997de2881a0a22ea7af
@@ -243,3 +243,10 @@ Build one combined populated WEB v4 round-trip fixture covering all already-supp
 ### Next exact action
 
 Build one combined populated WEB v4 round-trip acceptance fixture for all supported mutable projections and source-only history/opaque extensions. Re-import mapper output, compare it with archived v18.20 validator module 205 and obligations module 210, and add a regression test. Then scope year-zero date-only compatibility field-by-field without broadening `RecurrenceCalendar`. At a usable macOS runner, run XcodeGen, simulator build, all unit/UI tests, inspect `.xcresult`, verify Files restore and compare Light/Dark screens with archived v18.20. Keep WEB JSON export disabled.
+
+## Active work — combined WEB v4 round-trip acceptance (2026-11-22T11:08:26Z)
+
+- Re-read all required preview continuity documents and reconciled the live app/preview refs. Preview main `7ef4d4fdc5e84fa499381b47764d4f937c7c9e7d`; app feature `090c357805aa321c8f62f312c51ae66acf7d0079`; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Owner: native parity automation. Lease expires UTC `2026-11-22T11:45:00Z`.
+- First unfinished item: one populated combined WEB v4 mapper → archived importer round-trip covering all mutable slices already implemented, with source-only `nameChanges`/audit/check rows and opaque extensions retained.
+- Do not enable WEB JSON export. Keep year-zero compatibility as a separate follow-up; do not alter `RecurrenceCalendar` or coerce year-zero dates.
