@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native parity automation
-Updated UTC: 2026-11-22T03:20:00Z
-Lease expires UTC: 2026-11-22T04:10:37Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T03:26:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 233ac8c9467a54566b232aed077532f31c071792
-Latest implementation commit: 44ad4ed0c4f50bae3f7cdcc2dccca80248fd199b
-Latest app branch commit: 233ac8c9467a54566b232aed077532f31c071792
+Verified app feature HEAD: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
+Latest implementation commit: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
+Latest app branch commit: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: 84109a708b0b681b62dd26ec8436b028373ee42b
+Verified preview main HEAD before this handoff commit: 1300b974e7d114089dcca7d0f59aa0bcdac433c6
 
 ## Completed this run
 
@@ -56,7 +56,7 @@ Implement mutable WEB v4 monthPlans projection: reconcile WebImportedMonthPlan w
 
 ## Active lease — 2026-11-22T00:05:10Z
 
-- Owner: native parity automation.
+- Owner: none.
 - Lease expires UTC: 2026-11-22T01:05:10Z.
 - Startup revalidated preview main continuity documents and confirmed app feature branch is still exactly df9aaede64cb8bc489f50bc03f6a74a25b3d1e25 (compare against the live branch ref: identical; 508 ahead / 0 behind stable app main).
 - Current work item: mutable WEB v4 monthPlans projection. Do not duplicate this task while the lease is active.
@@ -104,10 +104,10 @@ Implement a focused LedgerStore update method and native month-plan editing surf
 Status is READY_FOR_NEXT_RUN; no active lease. The next execution must re-read all continuity files and live HEADs, then start WEB v4 goals/plans projection. Inspect native goal/plan books and WebV18_20StateMapper; implement goal ID/name/metric/target/notes/deadline/done and plan goalId/start/ideas/questions/decision/ordered steps (ID/name/notes/status/due). Preserve UUID spelling/order/extensions, reject duplicate/orphan references, and add populated round-trip/fail-closed tests. Keep WEB JSON export disabled. At the first actual macOS runner, run XcodeGen, simulator build, all unit/UI tests and inspect the exact .xcresult; do not retry the pre-runner failure.
 
 
-## Active lease — 2026-11-22T03:10:37Z
+## Lease released — 2026-11-22T03:26Z
 
 - Owner: native parity automation.
-- Lease expires UTC: 2026-11-22T04:10:37Z.
+- Lease expires UTC: none.
 - Startup verified live preview main HEAD `465ade26a02b6e59e73097ab0e10f3673a220169`, app feature HEAD `935f84440878bad5d6739a9398c55ce69b7893da`, and app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
 - Current work item: mutable WEB v4 goals/plans projection in `WebV18_20StateMapper`; do not duplicate while lease is active.
 
@@ -125,3 +125,21 @@ Status is READY_FOR_NEXT_RUN; no active lease. The next execution must re-read a
 ### Next exact action — WEB v4 projection metadata mapping
 
 Map WebImportedProjection from WebImportMetadata.projection back to the optional WEB projection object, preserving annualInflation, exposed ID spelling/order, payoff ID spelling/order/amount and opaque extensions. Preserve absent versus present projection, validate references/duplicates through the archived importer, and add populated edit/append/remove/fail-closed tests. Then continue audit/checks and appearance/dashboard mapping. Keep WEB JSON export disabled.
+
+
+## Native iOS checkpoint — WEB v4 goals/plans and projection metadata (2026-11-22T03:26Z)
+
+- App feature HEAD: 29ee143fb41747c0cbc8572f8e232c17e7066ab8; feature is 540 ahead / 0 behind app stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366. Stable app main remains untouched.
+- Goals/plans implementation: 44ad4ed0c4f50bae3f7cdcc2dccca80248fd199b. Test fixture safety follow-up: 233ac8c9467a54566b232aed077532f31c071792. Step-deletion opaque-extension fix: 29ee143fb41747c0cbc8572f8e232c17e7066ab8.
+- Projection metadata implementation: fbaeff042476c6dc0ed20661bf443a6426a02e14.
+- Mutable WEB v4 goals/plans now cover goal ID/name/metric/target/notes/deadline/done and plan ID/goalId/start/ideas/questions/decision/steps. Existing goal/plan order and identities are fixed; additions append. Existing steps retain IDs and may reorder, append or be explicitly deleted from the native editor. Opaque extensions for surviving steps reattach by stable identity; entries belonging only to deleted steps are pruned using parent plan + step identity. Goal/plan deletion or reordering remains fail-closed.
+- Mutable projection metadata now covers annualInflation, exposed catalog ID order, payoff IDs/order/amounts, append-only payoff membership, and optional absent versus present-empty projection. Existing payoff UUID spelling and opaque extensions are retained; deleting existing payoff rows remains fail-closed. The archived importer validates exposed IDs, debt references and numeric bounds.
+- Empty optional deadline/due strings are preserved when native values remain nil. The source-import SHA/fingerprint algorithm and original source bytes remain unchanged. Opaque v2 path/index hints are normalized only for mutable fingerprint comparison; stable identity remains authoritative.
+- Eight populated XCTest sources were added/updated across these slices: goal/plan edit + reordered steps + opaque extensions, append goal/plan, fail-closed goal/plan reorder/orphan/duplicate, empty optional dates, step deletion with extension pruning, mutable projection with reordered/appended payoffs and opaque extensions, absent/present-empty projection, and duplicate/orphan/deleted payoff rejection. These XCTest sources have not run in the iOS target.
+- Local Swift 6.2.1 harnesses compiled with -warnings-as-errors and executed copied projection logic with API-compatible stubs: GOAL_PLAN_HARNESS_PASS, PROJECTION_HARNESS_PASS, OPAQUE_STEP_DELETE_HARNESS_PASS. These are isolated harnesses, not a full app build or actual WebBackupV18_20 XCTest execution.
+- Exact Native iOS CI for final code/test HEAD 29ee143fb41747c0cbc8572f8e232c17e7066ab8: [run 44980579668](https://github.com/nikopol000/financial-autonomy-app/actions/runs/44980579668), job 137079982201, FAILURE before runner/steps; steps=null, logs URL=null, artifacts=0, combined status contexts=0. No retry. xcodebuild/xcodegen unavailable. No Apple build, app XCTest, Simulator, Files restore or visual screenshot comparison.
+- Export remains disabled; native .fabackup remains the only writable export. Local-only, no backend/mandatory account/bank sync/telemetry; available credit is not owned cash.
+
+### Next exact action — operation audit and balance-check projection
+
+Inspect and reconcile native operation-audit, balance-check and balance-check-audit representations against WEB v4 audit/checkAudit/balanceChecks. Implement only when before-snapshots, action/date, account identity, observed balance, order and voided semantics can round-trip exactly. Preserve ordering and opaque extensions; reject unsupported history or replay mismatches. Then map appearance/dashboardLayout and finish remaining metadata. Keep WEB JSON export disabled.
