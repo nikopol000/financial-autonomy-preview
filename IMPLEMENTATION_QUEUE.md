@@ -5281,3 +5281,24 @@ Perform the consumer-by-consumer adapter design before integrating this prototyp
 2. Prove positive-year parity against existing outputs for all recurrence frequencies, paid-month windows, debt schedule rows, loan principal observations and same-day event ordering. Do not alter principal/interest formulas or balance ownership semantics.
 3. Add restore/replay tests for native snapshots with no WEB metadata and WEB v4 positive-year snapshots. Then propagate to financial calendar, reports, WEB budget/daily-pace/autonomy/space engines, mapper/fingerprint and UI.
 4. Only enable year zero after the entire graph, encrypted import→.fabackup→restore→re-export fixture, archived WEB module 205/210 comparisons and macOS build/tests pass. Keep WEB JSON export disabled until all gates pass.
+
+
+## Native iOS checkpoint — schedule/debt context and encrypted restore/replay coverage (2026-11-22T15:26Z)
+
+Status: checkpointed; macOS build/XCTest remains blocked by runner availability.
+
+- Live app feature HEAD: a3532f9718324966b57e08a1a270848b2e5936d4 (597 ahead / 0 behind app stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366). Preview main before this queue update: 63d0becc3fe1f6aa8844325b7aab99379bb69623. Stable app main was not modified.
+- Reconciled five app commits after the prior 4b15b628 checkpoint. They add explicit native-default/WEB date-contract parameters to ScheduledDueEngine, FixedExpenseMonthPlans, DebtScheduleEngine, LoanEventOrder, LoanLedgerEngine and LoanPrincipalReconciliation, plus WEB date and positive-year parity XCTest sources.
+- New app commits in this batch: 94340684832b8b0076cf206894a6853cac6e3f00 (initial SnapshotValidator context propagation attempt); 43a0148be08cb4bddac23a3994d2d94f06668290 and eaccf50ca587720dbf9179b5f8767a2b7e359bf3 (native/WEB v4 encrypted restore/replay tests and key-path correction); 8006c2e9ece77fb83bf5fe8ae7080f7dada54288 (safe revert of snapshot-wide UTC Date reinterpretation); a3532f9718324966b57e08a1a270848b2e5936d4 (year-zero schedule/loan gate regression test).
+- SnapshotValidator intentionally keeps projected schedule/loan validation on native staging semantics until Date-backed source provenance is explicit per operation/observation. A snapshot-wide WEB UTC contract would reinterpret native-created local-noon operations in a mixed WEB/native snapshot. Do not enable year zero or pass WEB context globally through the restore graph until this is resolved.
+- Added LedgerDateContextRestoreReplayTests: native snapshot with no WEB metadata and WEB v4 positive-year snapshot both cover PortableBackup.seal/open, LedgerStore restore/reload, recurring due, debt schedule and principal replay. Added explicit rejection tests for year-zero schedule/loan projections. Expected synthetic outputs encoded: recurring 2026-02-28, debt due 2026-02-15 / 1,000 minor, remaining loan principal 9,400.
+- Executed swiftc -frontend -parse on the added XCTest source block and gate test: RESTORE_REPLAY_XCTEST_SOURCE_PARSE_PASS. Syntax only; no typecheck or XCTest execution. Swift 6.2.1 is installed; xcodebuild/xcodegen are unavailable.
+- Native iOS CI for exact final HEAD a3532f9718324966b57e08a1a270848b2e5936d4: no run surfaced through commit-workflow-runs and combined status has zero contexts. The push workflow is configured for NativeiOS Swift changes, but no push-run result is exposed; this is not a pass. Prior runs 45033071755 and 45033271427 failed before runner (zero steps, 404 BlobNotFound logs, zero artifacts); no retry.
+
+### FIRST NEXT — per-record WEB/native date provenance
+
+1. Add a backward-compatible source-day marker or resolver for imported WEB operations and balance observations; legacy/native records must continue using local-calendar semantics. Handle date edits and audit before-images without changing existing persisted data.
+2. Route LoanEventOrder, LoanLedgerEngine and LoanPrincipalReconciliation through the per-record resolver. Then add mixed WEB-imported + native-created operations/observations tests through encrypted backup and LedgerStore restore/reload.
+3. Only after that, wire metadata-derived WEB context safely through SnapshotValidator/PortableBackup and add explicit staging checks for all projected schedule/loan/observation/audit dates. Keep year-zero import disabled.
+4. Continue FinancialCalendarEngine, ReportsEngine/MonthlyReviewEngine, WEB budget/daily-pace/autonomy/space engines, mapper/fingerprint and UI with positive-year comparisons to archived WEB v18.20.
+5. At the first real macOS runner, run XcodeGen, full Simulator build, all unit/UI tests, .xcresult and Files restore. Keep WEB JSON export disabled until all parity gates pass.
