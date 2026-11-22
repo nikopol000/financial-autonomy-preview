@@ -5381,3 +5381,26 @@ Completed on `feat/sync-preview-v18-20-ios`:
 1. Audit remaining date-only presentation and Date-backed consumers outside Operation/BalanceObservation, especially schedule/loan/goal/plan screens and imported month-plan dates. Keep timestamps as instants; use per-record source-day resolution only for imported date-only records.
 2. Extend the old WEB v4 backup fixture through the actual `LedgerStore.restoreBackup`/reload path and mapper/fingerprint comparison, including source-only operation/balance-check audit history and opaque JSON extensions. Verify that date edits stay native and before/after images retain their distinct days.
 3. Keep year-zero import disabled. At the first functioning macOS runner, run XcodeGen, Simulator build, all unit/UI tests, inspect `.xcresult`, exercise Files restore, and compare all v18.20 screens in Light/Dark and VoiceOver. Do not retry the same pre-runner BlobNotFound failure.
+
+
+## Native iOS checkpoint — legacy WEB v4 encrypted restore/reload test coverage (2026-11-22T18:25Z)
+
+App feature commit: \`18245da0d3307e826d17a6720dd20dd7c82b1e57\`; feature branch \`feat/sync-preview-v18-20-ios\`; stable app main \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\` remains untouched (620 ahead / 0 behind).
+
+Completed:
+- Added two XCTest sources in \`NativeiOS/Tests/PortableBackupTests.swift\` for old WEB v4 native-backup payloads with absent \`webSourceDay\` keys.
+- The first test restores/reloads via \`LedgerStore.restoreBackup\` and Codable persistence, checks active operation/observation markers, source-only operation and balance-check audit, \`unchangedSourceState\` fingerprint/raw bytes, opaque archive, mutable mapper output, opaque field reattachment and WEB re-import.
+- The second test verifies an edited active operation remains unmarked/native, the source-only operation audit before-image keeps its original day, and observation audit before/after images resolve to their separate historical/current days under UTC+14.
+- Targeted schedule/loan/goal/plan/month-plan date-only UI audit found no further direct Date-to-day conversion defect; those fields are day/month strings or deliberate local DatePicker inputs. Timestamp labels remain instants.
+- Swift 6.2.1 parser check on the new XCTest class snippet passed. No app-target XCTest or full build was executed.
+
+Verification/blockers:
+- Exact HEAD \`18245da0d3307e826d17a6720dd20dd7c82b1e57\`: [Native iOS CI run 45054830804](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45054830804), job \`137307628548\`, failure with no job steps, no artifacts and no combined status contexts. No compiler diagnostics; no retry.
+- Linux Swift 6.2.1 is present; XcodeGen, xcodebuild and macOS runner are unavailable. Full build/XCTest/Simulator/.xcresult/Files restore/visual parity remain unverified.
+- Year-zero import stays disabled; no financial formulas, global RecurrenceCalendar, Models/LedgerStore wholesale rewrite, or app stable main change. Local-only; no backend/account/bank sync/telemetry; credit is not owned money; .fabackup only writable export; WEB JSON export disabled.
+
+### FIRST NEXT — Apple execution, then independent mapper audit
+
+1. At the first functioning macOS runner, run XcodeGen, full Simulator build, the two new restore tests, all unit/UI tests and inspect .xcresult.
+2. If the runner blocker persists before steps, do not rerun the same failure. Continue auditing WEB v4 opaque extension preservation for nested month-plan, goal/plan-step, recurring-history, projection/payoff and dashboard-layout identities; add tests for ambiguous/duplicate identities and safe pruning.
+3. Keep year-zero and WEB JSON export disabled until encrypted restore/re-export and Apple validation pass.

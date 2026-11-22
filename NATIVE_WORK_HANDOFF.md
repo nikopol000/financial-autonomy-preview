@@ -1,29 +1,34 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: ChatGPT automation — native iOS parity
-Updated UTC: 2026-11-22T18:14:30Z
-Lease expires UTC: 2026-11-22T18:44:30Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T18:25:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: e1462b866d710f3586698bb709aa8efb59df7feb
-Latest implementation commit: e1462b866d710f3586698bb709aa8efb59df7feb
-Latest app branch commit: e1462b866d710f3586698bb709aa8efb59df7feb
-App feature ahead/behind stable main: 619/0
+Verified app feature HEAD: 18245da0d3307e826d17a6720dd20dd7c82b1e57
+Latest implementation commit: 18245da0d3307e826d17a6720dd20dd7c82b1e57
+Latest app branch commit: 18245da0d3307e826d17a6720dd20dd7c82b1e57
+App feature ahead/behind stable main: 620/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD: 38680d4f055514d1c7f21ab2a8ad8b76adb52ad9
+Verified preview main before this checkpoint commit: 2865e6876586ac0b30ea334a0e3d5dc4f95b5a5f
 
-## Current work
+## Completed this run — legacy WEB v4 encrypted restore/reload test sources
 
-Continuing the first unfinished item from the previous checkpoint: prove old WEB v4 .fabackup compatibility through the real encrypted restore/reload path, mapper/fingerprint, source-only operation/balance-check audit history, and opaque JSON extensions. Before changing code, audit the remaining date-only schedule/loan/goal/plan/month-plan presentation and Date-backed consumers. Preserve native local-day semantics for records without webSourceDay; preserve exact WEB source days for marked records. Do not enable year-zero import.
+- App commit: 18245da0d3307e826d17a6720dd20dd7c82b1e57.
+- Added two XCTest methods to NativeiOS/Tests/PortableBackupTests.swift. They cover old Codable payloads with absent webSourceDay markers, encrypted .fabackup seal/open, LedgerStore.restoreBackup, JSON persistence reload, source-only operation/balance-check audit, opaque JSON extension retention, unchanged-source fingerprint, mapper mutation/reattachment/re-import, and mixed edited/native versus historical WEB before/after days under UTC+14.
+- Swift 6.2.1 swiftc -frontend -parse passed on the new XCTest class source snippet. This is syntax only; app-target XCTest and full build were not run.
+- Exact CI run 45054830804 for the app HEAD failed with an empty job-step list, no artifacts and no combined status contexts. No compiler diagnostics and no retry. Linux has Swift 6.2.1 but no Xcode/XcodeGen/macOS runner.
+- Targeted audit of ScheduledItemsView, LoansView, LoanPrincipalReconciliationView, GoalsPlans and MonthPlanEditorView found no additional direct Date-to-day presentation defect. Day-only values remain strings; DatePicker conversions are local; event timestamps remain instants.
 
-## Verified CI blocker
+## FIRST NEXT
 
-Exact app HEAD e1462b866d710f3586698bb709aa8efb59df7feb: Native iOS CI run 45051377856, job 137297022008, completed failure before runner allocation (runner ID 0, no steps, no job logs, no artifacts; combined status has no contexts). Do not retry the same pre-runner BlobNotFound failure. Environment has Swift 6.2.1 on Linux but no Xcode/XcodeGen/macOS runner.
+1. At the first functioning macOS runner, run XcodeGen, full Simulator build, both new restore tests, all unit/UI tests and inspect .xcresult.
+2. If CI remains blocked before runner steps, do not retry the same failure. Continue the independent WebOpaqueExtensions mapper audit for nested month-plan, goal/plan-step, recurring-history, projection/payoff and dashboard-layout identities, including ambiguous/duplicate identity and pruning tests.
+3. Keep year-zero import and WEB JSON export disabled until encrypted restore/re-export and Apple validation pass.
 
 ## Invariants
 
-- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; never modify or merge source main.
-- Recheck feature HEAD immediately before each source write; use expected-SHA ref updates and never force.
+- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; stable app main remains untouched.
 - No wholesale Models.swift/LedgerStore.swift rewrite, no global RecurrenceCalendar change, no financial formula changes.
 - Local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
 - Native .fabackup remains the only writable backup; WEB JSON export remains disabled.
