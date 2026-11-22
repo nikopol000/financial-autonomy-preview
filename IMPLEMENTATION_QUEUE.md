@@ -5085,3 +5085,21 @@ Map WebImportedProjection from WebImportMetadata.projection back to the optional
 ### Next exact action — operation audit and balance-check projection
 
 Inspect and reconcile native operation-audit, balance-check and balance-check-audit representations against WEB v4 audit/checkAudit/balanceChecks. Implement only when before-snapshots, action/date, account identity, observed balance, order and voided semantics can round-trip exactly. Preserve ordering and opaque extensions; reject unsupported history or replay mismatches. Then map appearance/dashboardLayout and finish remaining metadata. Keep WEB JSON export disabled.
+
+
+## Completed this run — WEB v4 audit/check safety gate + appearance/dashboardLayout (2026-11-22T04:41:39Z)
+
+- App commits: mapper `9fabc77f1c59b3e4cc99ba0e6e7309f716fe595a`; tests `4698dc9dfed00f3de99ae98b8a07d8f9d46cbbf8`; XCTest syntax correction and exact app feature HEAD `d4459b5d2141a9e8f0062bab0bc86396655e3e2a`.
+- Appearance maps exact mode/accent values; dashboard layout maps the mirrored native/metadata order, preserving hidden modules and explicit empty order. Invalid values and mismatched mirrors fail closed. Mutable fingerprint normalizes only the proven dashboard mirror.
+- WEB operation audit/check history is deliberately source-only: v4 lacks native audit IDs, replacement IDs and after snapshots. Existing `audit`, `balanceChecks`, and `checkAudit` are preserved unchanged through unrelated edits; native operation/observation/loan audit, observation, and metadata audit/check mutations fail closed. No lossy mapping or inferred history.
+- Five XCTest source cases added but not run in app target. Swift 6.2.1 warnings-as-errors isolated helper harness PASS; syntax-only parser for new XCTest snippet PASS. No full app build/XCTest.
+- Exact HEAD `d4459b5d2141a9e8f0062bab0bc86396655e3e2a` has no combined status contexts and no PR-triggered workflow run returned. Previous exact commit run `44980579668` failed before runner, zero steps, zero artifacts; no retry. No xcodebuild/xcodegen, Apple build, Simulator, Files restore or visual comparison.
+- App `main` `a9b30be147abecea45a63bf7dd8d0a3eb3370366` untouched. Export remains disabled; `.fabackup` only. Local-only, no backend/mandatory account/bank sync/telemetry; credit is not owned money.
+
+### FIRST NEXT — monthly reviews projection
+
+1. Reconcile `monthlyReviewProgress` and `WebImportMetadata.reviews` with WEB v4 `reviews`.
+2. Preserve absent-vs-empty map, month keys, stage bounds, and exact import/round-trip semantics.
+3. Add populated tests for edits, appends, removal and invalid months/stages; keep the archived importer as acceptance oracle.
+4. Inspect income/expense templates, names and remaining metadata for exact native representations; preserve source-only history and opaque extensions.
+5. At a real macOS runner, execute XcodeGen, simulator build, all unit/UI tests and inspect the exact `.xcresult`; then Files restore and visual Light/Dark comparison against v18.20. Keep WEB JSON export disabled.
