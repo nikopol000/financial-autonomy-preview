@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native parity automation
-Updated UTC: 2026-11-22T08:08:47Z
-Lease expires UTC: 2026-11-22T09:08:47Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T10:06:55Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 055d40828fc78e26e8b47eea35b866999ea7ba49
-Latest implementation commit: 7d29aabbe3f7696c0377e735a7297fc90f58f9d8
-Latest app branch commit: 055d40828fc78e26e8b47eea35b866999ea7ba49
+Verified app feature HEAD: 01b6e8171b1ccf5ef68d3921db2b9be8b2679960
+Latest implementation commit: 2e3d2d4de8efe92e43c66ccf4aa223c81703eac4
+Latest app branch commit: 01b6e8171b1ccf5ef68d3921db2b9be8b2679960
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: a613ce1bddccee051e2cbd5eb516dfc03869ad2b
+Verified preview main HEAD before this handoff commit: 70ccc7df9fd149a289ff3052d56fd669be21b1ae
 
 ## Completed this run
 
@@ -212,3 +212,19 @@ Inspect WEB v4 `incomeTemplates` and `expenseTemplates` against native `Schedule
 - Reconciled the prior template checkpoint: the app feature branch already contains the income/expense template mapper, five populated XCTest source cases and fail-closed recurrence/category handling. The queue's template item is stale relative to the app branch and is not being repeated.
 - Current work item: inspect WEB v4 `names` / `nameChanges`; implement only exact, append-only transaction-name catalog behavior and preserve rename/merge history as source-only unless its audit semantics can be represented without loss. Do not infer or rewrite name-change history.
 - Native iOS CI for code/test commit `7d29aab...`: run `44993810972` failed before runner allocation (runner_id 0, steps null/empty, logs URL null, zero artifacts). No retry. Current docs-only app HEAD `055d408...` has no status contexts; this is not a CI pass.
+
+
+## Completed this run — WEB v4 transaction-name suggestion UI regression (2026-11-22T10:06:55Z)
+
+- The previous name-catalog lease expired at 2026-11-22T09:08:47Z. Re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff before writing. Re-verified both repository refs; no active lease remained.
+- App feature HEAD at start was verified as `ee5221c50fe1986fa2461376103f6c51face7bd9`; the branch now points exactly to `01b6e8171b1ccf5ef68d3921db2b9be8b2679960`. App stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, untouched. Preview main before checkpoint writes was `70ccc7df9fd149a289ff3052d56fd669be21b1ae`.
+- Reconciled existing template/name work: income/expense presets are already mapped as presets, not recurring schedules; `names` is append-only and canonical; `nameChanges` remains source-only/immutable because WEB rename/merge rewrites transaction and audit before-images without a lossless native mutation path. No duplicate implementation was added.
+- Added a process-local WEB v4 name-catalog UI fixture, a Light/Dark XCUITest for substring filtering and canonical selection, and two focused unit tests proving canonical reuse/collision-free append do not infer or alter expense role, budgeted state or budget ID.
+- App commits: UI test `2e3d2d4de8efe92e43c66ccf4aa223c81703eac4`; unit tests `4ea47b0d1f58961481cb282924e8067fe096effb`; parity evidence `01b6e8171b1ccf5ef68d3921db2b9be8b2679960`.
+- Local Swift 6.2.1 isolated name-catalog harness passed canonical reuse, collision-free append, role/budget preservation, normalized substring matching and twelve-item cap. `swiftc -frontend -parse` passed the new UI/unit test source snippets. These are not app-target XCTest or a full app build.
+- Exact current HEAD `01b6e8171b1ccf5ef68d3921db2b9be8b2679960`: combined status contexts empty and connected PR-workflow lookup returned no runs. The last concrete Native iOS CI run for parent HEAD `ee5221c50fe1986fa2461376103f6c51face7bd9` was run `45003113113`: failure before runner allocation (runner ID 0, no steps, logs 404 BlobNotFound, zero artifacts). No retry. Linux environment has Swift 6.2.1 but no `xcodebuild` or `xcodegen`.
+- No Apple build, app-target XCTest, Simulator, Files-provider restore, archived bundle execution or Light/Dark visual comparison is claimed. WEB JSON export remains disabled; native `.fabackup` remains the only writable export. Local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money.
+
+### Next exact action
+
+Build one combined populated WEB v4 round-trip fixture covering all already-supported mutable slices (accounts/debts, recurring/templates, monthPlans, paidMonths, reviews, names, transactions, goals/plans, projection, appearance and dashboard order) while retaining source-only `nameChanges`, audit/check rows and opaque extensions. Re-import the mapped state through the archived v18.20 validator contract (module 205) and compare obligation behavior through module 210. Add regression tests for the combined path; do not enable WEB JSON export. Then design the separate year-zero date-only compatibility contract field-by-field; do not broaden `RecurrenceCalendar` or coerce year-zero values into ordinary Foundation dates. At the first usable macOS runner, run XcodeGen, simulator build, all unit/UI tests, inspect the exact `.xcresult`, verify Files restore and capture Light/Dark screens against the archived v18.20 reference.
