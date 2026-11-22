@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-22T03:26:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native parity automation
+Updated UTC: 2026-11-22T04:31:00Z
+Lease expires UTC: 2026-11-22T05:31:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
 Latest implementation commit: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
 Latest app branch commit: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: ada48278863654e74778332aaa7ff78e736e8461
+Verified preview main HEAD before this handoff commit: 319e66b99f5d5cb27c0d36f9c9391f52f59f3cf1
 
 ## Completed this run
 
@@ -146,3 +146,10 @@ Inspect and reconcile native operation-audit, balance-check and balance-check-au
 
 
 - Recovery note: IMPLEMENTATION_QUEUE.md was restored from its full prior blob before appending this checkpoint; verified content length 1,051,252 characters, original 2026-11-07 history retained, latest operation-audit/balance-check next action present.
+
+
+## Active work — 2026-11-22T04:31Z
+
+- Inspect operation-audit, balance-check and balance-check-audit mapping against the exact WEB v18.20 importer and native audit models. Do not serialize any native audit state unless IDs, actions, timestamps, before/after snapshots, account identity, observed amounts, ordering and voided state survive re-import without loss.
+- If the WEB contract cannot represent a native audit field, retain the source-only archive and add explicit fail-closed coverage; continue to the next independently representable item (appearance/dashboardLayout) rather than inventing mappings.
+- App branch verified at `29ee143fb41747c0cbc8572f8e232c17e7066ab8`; app `main` untouched. Lease expires 2026-11-22T05:31:00Z.
