@@ -1781,3 +1781,23 @@ Perform the consumer-by-consumer adapter design before integrating this prototyp
 3. Continue mapper/fingerprint and backup round-trip checks, including old snapshots without provenance markers and source-only audit history.
 4. Keep year-zero import disabled until all Date-backed consumers, projections, audit paths and Apple build/tests are validated.
 5. At the first real macOS runner, execute XcodeGen, full Simulator build, all unit/UI tests, inspect `.xcresult`, exercise Files restore and compare Light/Dark screens with the active preview.
+
+
+## 2026-11-22 — Financial calendar and report date grouping
+
+- App feature HEAD at checkpoint: `38d19bb38c7a0fa6002fc2d663bfac537f003199` (604 ahead / 0 behind stable main). Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366` and was not modified.
+- App commits: `4c9e43e8af6b0cd3e3b00583209203699f451fc4`, `38d19bb38c7a0fa6002fc2d663bfac537f003199`.
+- ScheduledDueEngine now resolves linked operation days through the per-record source-day resolver. FinancialCalendarEngine inherits this through its scheduled-due projection; WEB-imported payments use their exact source day while unmarked native operations remain local-calendar dates.
+- ReportsEngine now resolves operation days for monthly transaction filtering and inferred ledger start, and resolves BalanceObservation days for balance-check rows. MonthlyReviewEngine inherits the corrected start-day inference through ReportsEngine. Current/as-of dates still use the native local calendar.
+- Added positive-year mixed-origin XCTest sources: a WEB-marked payment suppresses the due on its source day while a native payment with the same Date remains on the next local day; monthly report totals and balance-check rows use source days; pending review months infer the earliest imported source day.
+- Executed `swiftc -frontend -parse` on the new calendar/report/monthly-review test source snippets. This is syntax parsing only; app-target typecheck and XCTest were not executed.
+- Native iOS CI for exact HEAD `38d19bb38c7a0fa6002fc2d663bfac537f003199`: run [45043899650](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45043899650), job `137274138430`, FAILURE before runner allocation; zero steps, log 404 `BlobNotFound`, zero artifacts, combined status contexts zero. No retry.
+- Full iOS build, app-target XCTest, Simulator, `.xcresult`, Files restore and visual comparison remain unverified. Swift 6.2.1 is available; `xcodebuild`/`xcodegen` and a macOS runner are unavailable.
+- Invariants preserved: no formula changes, no global RecurrenceCalendar changes, local-only/no backend/account/bank sync/telemetry, available credit is not owned money, native `.fabackup` only, WEB JSON export disabled, stable main untouched.
+
+### FIRST NEXT — WEB budget, daily-pace, autonomy and space consumers
+
+1. Audit `WebBudgetWindowEngine`, `WebDailyPaceEngine`, `WebAutonomyEngine` and `WebDashboardSpaceEngine` for direct Date-to-day/month conversion of operations and balance observations. Route each record through the per-record resolver; keep as-of/current dates native-local.
+2. Add mixed-origin positive-year tests for budget window totals, daily pace, autonomy days and dashboard space. Compare results to archived WEB v18.20 modules 204–210, including timezone-boundary cases.
+3. Continue auditing any remaining Date-backed reports/calendar/UI consumers and the old-backup no-marker path. Keep year-zero import disabled.
+4. At the first macOS runner, run XcodeGen, full Simulator build, all unit/UI tests, inspect `.xcresult`, exercise Files restore and compare Light/Dark screens.
