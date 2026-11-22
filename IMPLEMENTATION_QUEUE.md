@@ -5140,3 +5140,23 @@ Inspect and reconcile native operation-audit, balance-check and balance-check-au
 3. Validate the mapped state against archived WEB v18.20 module 205 and compare obligation output against module 210; add a regression test for the combined path. Keep WEB JSON export disabled.
 4. Then scope year-zero date-only compatibility field-by-field. Do not broaden `RecurrenceCalendar` or coerce unsupported year-zero values into Foundation dates.
 5. At a usable macOS runner: XcodeGen, simulator build, all unit/UI tests, inspect exact `.xcresult`, Files-provider restore and Light/Dark screenshot comparison against archived WEB v18.20.
+
+
+## Native iOS checkpoint — ECMAScript Name normalization and UTF-16 parity (2026-11-22T10:28:58Z)
+
+- App feature verified at `090c357805aa321c8f62f312c51ae66acf7d0079`, last code/test commit `5707c40eac1fd2130dc5e997de2881a0a22ea7af`; stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` untouched. Preview main base `e1f37c781a6b91c05634fb016a26d6c2fde69981`.
+- Archived v18.20 module 206 and active WEB 18.74.1 module 206 both normalize using `trim().normalize("NFKC").replace(/\\s+/g, " ").toLocaleLowerCase("ro-RO")` and attach/reuse canonical `name-N` records.
+- Fixed U+FEFF/U+0085 whitespace mismatch with an explicit ECMAScript trim/whitespace set. Shared `WebTransactionNameCatalog` now owns normalization; WEB importer delegates to it. Legacy Name upgrade, `nameChanges.before/after` and WEB v4 transaction entry use matching trim and UTF-16 code-unit length. Native non-v4 behavior unchanged.
+- Added regression tests for FEFF/NEL, NFKC full-width text, internal spaces, canonical reuse, expense-role/budget preservation, 61 emoji (122 UTF-16 units) and importer Name-change preservation/rejection. Added Light/Dark name suggestion UI test.
+- App commits: `9ab824c3` normalization; `31fc02a6` importer; `addb72dc` entry; `97115362`, `3a1ec0a1`, `63d0c62a`, `5707c40e` tests; `090c357805aa321c8f62f312c51ae66acf7d0079` documentation. UI fixture/tests: `f56de59e`, `cba7dfa1`, `2e3d2d4d`, `4ea47b0d`, `01b6e817`.
+- Verification: Swift 6.2.1 isolated harness PASS; Node 22.16.0 WEB reference expression PASS 4/4; `swiftc -frontend -parse` on regression snippets PASS. Not app-target XCTest/build.
+- Native iOS CI exact code/test HEAD `5707c40eac1fd2130dc5e997de2881a0a22ea7af`: run `45012568903`, failure before runner, job `137177894692`, runner ID 0, zero steps, logs 404 BlobNotFound, zero artifacts. No retries. Current docs-only HEAD has no combined status contexts and is excluded by workflow paths. No `xcodebuild`/`xcodegen`, Apple build, Simulator, Files restore or visual comparison.
+- No formulas/models changed; credit is not owned money; local-only; no backend/account/bank sync/telemetry; WEB JSON export disabled; native `.fabackup` only.
+
+### FIRST NEXT — combined WEB v4 round-trip acceptance fixture
+
+1. Construct a populated source v4 fixture containing all supported mutable slices: accounts/debts, recurring, income/expense templates, monthPlans, paidMonths, reviews, names, transactions, goals/plans, projection, appearance and dashboard layout.
+2. Mutate all supported slices in one candidate snapshot; run mapper → decode/import and assert source-only `nameChanges`, audit/check rows and opaque extensions remain byte/identity stable.
+3. Compare mapped state with archived WEB v18.20 module 205 and obligation output with module 210; add a combined regression test. Keep WEB JSON export disabled.
+4. Then scope year-zero date-only compatibility field-by-field; do not broaden `RecurrenceCalendar` or coerce year-zero values into Foundation dates.
+5. At a usable macOS runner, run XcodeGen, Simulator build, all unit/UI tests, inspect exact `.xcresult`, verify Files restore and compare Light/Dark screens against archived v18.20.

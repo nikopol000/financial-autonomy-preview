@@ -2,14 +2,14 @@
 
 Status: READY_FOR_NEXT_RUN
 Owner: none
-Updated UTC: 2026-11-22T10:06:55Z
+Updated UTC: 2026-11-22T10:28:58Z
 Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 01b6e8171b1ccf5ef68d3921db2b9be8b2679960
-Latest implementation commit: 2e3d2d4de8efe92e43c66ccf4aa223c81703eac4
-Latest app branch commit: 01b6e8171b1ccf5ef68d3921db2b9be8b2679960
+Verified app feature HEAD: 090c357805aa321c8f62f312c51ae66acf7d0079
+Latest implementation commit: 5707c40eac1fd2130dc5e997de2881a0a22ea7af
+Latest app branch commit: 090c357805aa321c8f62f312c51ae66acf7d0079
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: 70ccc7df9fd149a289ff3052d56fd669be21b1ae
+Verified preview main HEAD before this handoff commit: e1f37c781a6b91c05634fb016a26d6c2fde69981
 
 ## Completed this run
 
@@ -228,3 +228,18 @@ Inspect WEB v4 `incomeTemplates` and `expenseTemplates` against native `Schedule
 ### Next exact action
 
 Build one combined populated WEB v4 round-trip fixture covering all already-supported mutable slices (accounts/debts, recurring/templates, monthPlans, paidMonths, reviews, names, transactions, goals/plans, projection, appearance and dashboard order) while retaining source-only `nameChanges`, audit/check rows and opaque extensions. Re-import the mapped state through the archived v18.20 validator contract (module 205) and compare obligation behavior through module 210. Add regression tests for the combined path; do not enable WEB JSON export. Then design the separate year-zero date-only compatibility contract field-by-field; do not broaden `RecurrenceCalendar` or coerce year-zero values into ordinary Foundation dates. At the first usable macOS runner, run XcodeGen, simulator build, all unit/UI tests, inspect the exact `.xcresult`, verify Files restore and capture Light/Dark screens against the archived v18.20 reference.
+
+## Completed this run — WEB v18.20 ECMAScript Name normalization parity (2026-11-22T10:28:58Z)
+
+- App feature HEAD verified exactly at `090c357805aa321c8f62f312c51ae66acf7d0079`; last code/test commit `5707c40eac1fd2130dc5e997de2881a0a22ea7af`. App stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains untouched. Preview main base before this checkpoint `e1f37c781a6b91c05634fb016a26d6c2fde69981`.
+- Compared archived v18.20 module 206 and active WEB 18.74.1 module 206. Both use `trim().normalize("NFKC").replace(/\\s+/g, " ").toLocaleLowerCase("ro-RO")`; both reuse the canonical normalized key or append the next collision-free `name-N`.
+- Fixed the Swift/ECMAScript mismatch for U+FEFF and U+0085 with an explicit ECMAScript whitespace set, shared `trimmedDisplayName` and NFKC normalization. Importer normalization now delegates to the catalog; legacy Name upgrade, `nameChanges.before/after` and WEB v4 transaction entry use WEB trim and UTF-16 length semantics. Non-v4 native entry remains unchanged.
+- App commits: `9ab824c3` normalization; `31fc02a6` importer; `addb72dc` UI trim; `97115362`, `3a1ec0a1`, `63d0c62a`, `5707c40e` tests; `090c357805aa321c8f62f312c51ae66acf7d0079` parity documentation. Name UI fixture/tests: `f56de59e`, `cba7dfa1`, `2e3d2d4d`, `4ea47b0d`, `01b6e817`.
+- Executed: Swift 6.2.1 isolated harness PASS for FEFF/NEL/NFKC, canonical reuse, role/budget preservation and UTF-16 rejection; Node 22.16.0 WEB reference expression PASS 4/4; `swiftc -frontend -parse` for added regression snippets PASS. These are not app-target XCTest or a full app build.
+- Native iOS CI exact last code/test HEAD `5707c40eac1fd2130dc5e997de2881a0a22ea7af`: run `45012568903`, FAILURE before runner allocation; job `137177894692`, runner ID 0, zero steps, completed in ~2 seconds, logs 404 BlobNotFound, zero artifacts. No retries. The later docs-only HEAD `090c357805aa321c8f62f312c51ae66acf7d0079` is excluded by the workflow path filter; combined status contexts are empty.
+- Linux has Swift 6.2.1 but no `xcodebuild`/`xcodegen`. No Apple build, app XCTest, Simulator, Files restore, archived validator execution or visual comparison is claimed.
+- No financial formulas/models changed. `nameChanges` remains source-only/immutable. WEB JSON export disabled; native `.fabackup` only. Local-only/no backend/mandatory account/bank sync/telemetry; available credit is not owned money.
+
+### Next exact action
+
+Build one combined populated WEB v4 round-trip acceptance fixture for all supported mutable projections and source-only history/opaque extensions. Re-import mapper output, compare it with archived v18.20 validator module 205 and obligations module 210, and add a regression test. Then scope year-zero date-only compatibility field-by-field without broadening `RecurrenceCalendar`. At a usable macOS runner, run XcodeGen, simulator build, all unit/UI tests, inspect `.xcresult`, verify Files restore and compare Light/Dark screens with archived v18.20. Keep WEB JSON export disabled.
