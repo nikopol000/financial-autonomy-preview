@@ -5342,3 +5342,24 @@ Native iOS CI exact HEAD `38d19bb38c7a0fa6002fc2d663bfac537f003199`: [run 450438
 4. At the first macOS runner: XcodeGen, Simulator build, all unit/UI tests, `.xcresult`, Files restore and Light/Dark comparison.
 
 Invariants: feature branch only; stable main untouched; no global RecurrenceCalendar or formula changes; local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money; native `.fabackup` only; WEB JSON export disabled.
+
+
+## Native iOS queue checkpoint — WEB budget/date provenance consumers (2026-11-22)
+
+App feature code HEAD: \`82762b4215cb2755e6d2b08ec85def7fa727a2e2\`; final app feature HEAD including parity documentation: \`4f4464d5b01c9c07885e2e0aa88c75bfacef6c91\`; stable app main \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\` remains untouched (615 ahead / 0 behind).
+
+Completed on \`feat/sync-preview-v18-20-ios\`:
+- Per-record source-day resolution now covers WebBudgetWindowEngine, WebDailyPaceEngine, WebAutonomyEngine and WebDashboardSpaceEngine. WEB markers preserve exact source day; nil markers preserve local-calendar semantics for native/legacy records. Current/as-of dates remain native local.
+- Malformed source days fail closed in budget windows, daily pace/coverage, autonomy and space. Budget UI shows unavailable reasons rather than a valid-looking zero. No financial formulas, principal/interest math or global RecurrenceCalendar changes.
+- Added 9 XCTest source cases for UTC+14 mixed-origin budget/daily pace/contribution/coverage/autonomy/space and invalid source-day handling.
+- Archived WEB v18.20 modules 204–210 were executed from blob \`be453db2699273a194543de4532db6ea4b2e1cf2\`: period 10/15 = budget 31,000, spent 1,000, remaining 30,000; period 10/16 = spent 3,000, remaining 28,000; summary daily 1,764, cash 49,000, space 19,000; fixed obligation 500 on 10/15 and 0 on 10/16; rent coverage reference 9,500 cash − 500 obligation = 9,000.
+- Swift 6.2.1 isolated warnings-as-errors date/arithmetic harness PASS; XCTest source fragments passed \`swiftc -frontend -parse\`. No app-target typecheck/XCTest.
+- Exact final app HEAD \`4f4464d5b01c9c07885e2e0aa88c75bfacef6c91\`: no Native iOS workflow run surfaced; combined status empty. Parent code run 45043899650 failed before runner allocation (zero steps, no logs/artifacts); not retried. No xcodebuild/xcodegen or macOS runner, so Apple build, Simulator, .xcresult, Files restore and visual comparison are unverified.
+- Year-zero import remains disabled. Local-only; no backend/account/bank sync/telemetry; available credit is not owned money; native .fabackup only; WEB JSON export disabled.
+
+### FIRST NEXT — remaining date presentation, mapper and legacy backup compatibility
+
+1. Audit remaining SwiftUI/history/calendar date presentation and mapper/fingerprint consumers for direct Date-to-day conversions. WEB source days must remain exact; unmarked native dates remain local.
+2. Verify old .fabackup snapshots without webSourceDay decode/replay unchanged. Add mixed WEB/native restore/reload tests for operation and balance-observation provenance and audit before-images.
+3. Verify mapper/fingerprint and encrypted backup round trips preserve source markers, source-only history and unknown JSON extensions without loss.
+4. Keep year-zero import disabled until every Date-backed consumer, round trip, app-target XCTest and Apple build is validated. On a real macOS runner run XcodeGen, Simulator build, all unit/UI tests, inspect .xcresult, Files restore and Light/Dark comparison.
