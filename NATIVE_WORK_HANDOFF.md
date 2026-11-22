@@ -2,14 +2,14 @@
 
 Status: IN_PROGRESS
 Owner: native parity automation
-Updated UTC: 2026-11-22T06:09:00Z
-Lease expires UTC: 2026-11-22T07:09:00Z
+Updated UTC: 2026-11-22T08:08:47Z
+Lease expires UTC: 2026-11-22T09:08:47Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
-Latest implementation commit: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
-Latest app branch commit: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
+Verified app feature HEAD: 055d40828fc78e26e8b47eea35b866999ea7ba49
+Latest implementation commit: 7d29aabbe3f7696c0377e735a7297fc90f58f9d8
+Latest app branch commit: 055d40828fc78e26e8b47eea35b866999ea7ba49
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: 449b842dd5a189068bd90c88c84de2eda83f1b48
+Verified preview main HEAD before this handoff commit: a613ce1bddccee051e2cbd5eb516dfc03869ad2b
 
 ## Completed this run
 
@@ -201,3 +201,14 @@ Inspect WEB v4 `incomeTemplates` and `expenseTemplates` against native `Schedule
 - Owner: native parity automation. Lease expires UTC: 2026-11-22T07:09:00Z.
 - Current exact app feature HEAD: `f65e3ff93c69b22ffa34bbbb573884e5f36d84ee`; app stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
 - Current work item: mutable WEB v4 `incomes`/`expenses` template projection. Treat templates as transaction presets, not recurring schedules. Reconcile their IDs against `ScheduleBook.items` and fixed month-plan catalog without inventing recurrence or category semantics. Preserve template arrays, order, UUID spelling, optional `dayKnown`, and opaque extensions; only allow safe append/edit/removal and reject referenced deletions or invalid collisions.
+
+
+## Lease renewal — 2026-11-22T08:08:47Z
+
+- Previous lease expired at 2026-11-22T07:09:00Z. Re-read all live preview continuity documents and verified both repository refs before continuing.
+- Owner: native parity automation. Lease expires UTC: 2026-11-22T09:08:47Z.
+- App feature HEAD: `055d40828fc78e26e8b47eea35b866999ea7ba49`; latest Swift code/test commit: `7d29aabbe3f7696c0377e735a7297fc90f58f9d8`. App stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366` and is untouched.
+- Preview main before this handoff commit: `a613ce1bddccee051e2cbd5eb516dfc03869ad2b`.
+- Reconciled the prior template checkpoint: the app feature branch already contains the income/expense template mapper, five populated XCTest source cases and fail-closed recurrence/category handling. The queue's template item is stale relative to the app branch and is not being repeated.
+- Current work item: inspect WEB v4 `names` / `nameChanges`; implement only exact, append-only transaction-name catalog behavior and preserve rename/merge history as source-only unless its audit semantics can be represented without loss. Do not infer or rewrite name-change history.
+- Native iOS CI for code/test commit `7d29aab...`: run `44993810972` failed before runner allocation (runner_id 0, steps null/empty, logs URL null, zero artifacts). No retry. Current docs-only app HEAD `055d408...` has no status contexts; this is not a CI pass.
