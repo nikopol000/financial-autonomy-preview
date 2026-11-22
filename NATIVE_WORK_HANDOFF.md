@@ -1,33 +1,36 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: ChatGPT native iOS parity
-Updated UTC: 2026-11-22T22:13:59.377Z
-Lease expires UTC: 2026-11-22T22:58:59.377Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T22:18:22.473Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: f2a94daae572e5aede5e86ca8923d5bab8beabbb
-Latest implementation commit: f2a94daae572e5aede5e86ca8923d5bab8beabbb
-Latest app branch commit: f2a94daae572e5aede5e86ca8923d5bab8beabbb
-App feature ahead/behind stable main: 624/0
+Verified app feature HEAD: 9f5b3f2e35af4b43862375dc43133c62b1811ed5
+Latest implementation commit: 9f5b3f2e35af4b43862375dc43133c62b1811ed5
+Latest app branch commit: 9f5b3f2e35af4b43862375dc43133c62b1811ed5
+App feature ahead/behind stable main: 626/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: d4a7bedb0f289a7c94eedce1c2ffcc63f90cc31e
+Verified preview main before this checkpoint commit: ea2c4913b759ca153500bfbc9e5f161f0844aa46
 
-## Work in progress
+## Completed this run
 
-- Reconciled live HEADs and exact-HEAD Native iOS CI for `f2a94daae572e5aede5e86ca8923d5bab8beabbb`. Run 45070711046 / job 137356794746 is FAILURE with runner_id 0 and an empty step list; do not retry this pre-runner infrastructure failure.
-- Implement the queued deterministic WEB v18.20 NFKC password-equivalence fixtures and v2/v3 encrypted migration coverage through BackupRestorePreparation, explicit restore confirmation and Codable reload.
-- Preserve the existing WEB v18.20 PBKDF2/AES-GCM/AAD contract and native .fabackup contract. No financial formula changes.
+- App commits de15d37b64a4e048bd514c0c3d529208a8242340 and 9f5b3f2e35af4b43862375dc43133c62b1811ed5 add deterministic NFKC-equivalent encrypted WEB v2/v3 fixtures and preparation → explicit confirmation → Codable reload tests, including wrong-password/tamper fail-closed paths.
+- Existing WEB v18.20 KDF/AAD contract was rechecked against archived bundle blob be453db2699273a194543de4532db6ea4b2e1cf2: NFKC, PBKDF2-SHA256/600,000, AES-GCM and FinancialAutonomy/backup/1. No crypto behavior changed.
+- Python cryptography fixture verification, Swift 6.2.1 NFKC normalization, isolated test-source parse, and minimal signature/tamper typechecks passed. Full app build and XCTest were not executed.
+- Exact CI run 45076780207 / job 137375666086 for app HEAD 9f5b3f2e35af4b43862375dc43133c62b1811ed5 failed before runner allocation: runner_id 0, empty steps, zero artifacts and zero combined status contexts. No retry.
+- Legacy v2/v3 migration retains no original v4 sourceStateJSON; mapper/re-export remains fail-closed. WEB JSON export stays disabled.
+- Linux Swift 6.2.1 is available; XcodeGen/xcodebuild and a macOS runner are unavailable. Full build/tests, Simulator, .xcresult, Files-provider device test and visual parity remain unverified.
 
 ## FIRST NEXT
 
-1. Reconcile live refs and exact-HEAD Native iOS CI. Run XcodeGen/build/full unit+UI suite only if a macOS runner actually starts; do not retry a pre-runner empty-step/BlobNotFound failure.
-2. If still blocked, add a deterministic synthetic WEB v18.20 NFKC password-equivalence fixture and exercise v2/v3 legacy encrypted migration through preparation, explicit confirmation and Codable reload.
-3. On macOS, run the new integration test and existing legacy audit/opaque restore tests, inspect `.xcresult`, then test Files import/export on device.
-4. Complete archived v18.20 Light/Dark/VoiceOver screen-by-screen and financial parity matrix. Keep year-zero import and WEB JSON export disabled until all gates pass.
+1. Reconcile live refs and exact-HEAD Native iOS CI. If a macOS runner actually starts, run XcodeGen, Simulator build, full unit/UI suite and inspect .xcresult plus screenshots. Do not retry a pre-runner zero-step failure.
+2. On macOS, execute the new NFKC/v2/v3 restore test, prepared v4 WEB-to-native .fabackup integration test and existing audit/opaque-extension tests, then test Files import/export on device.
+3. If CI remains pre-runner blocked, continue the source-level legacy mapper/re-export audit without enabling WEB JSON export or synthesizing source bytes.
+4. Finish archived v18.20 Light/Dark/VoiceOver screen-by-screen and financial calculation parity.
 
 ## Invariants
 
 - Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; app stable main remains untouched.
 - No wholesale Models.swift/LedgerStore.swift rewrite, no global RecurrenceCalendar change, no financial formula changes without explicit approval.
 - Local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
-- Native `.fabackup` remains the only writable backup; WEB JSON export and year-zero import remain disabled.
+- Native .fabackup remains the only writable backup; WEB JSON export and year-zero import remain disabled.
