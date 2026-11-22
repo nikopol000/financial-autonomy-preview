@@ -1,32 +1,37 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native iOS parity automation
-Updated UTC: 2026-11-22T15:10:00Z
-Lease expires UTC: 2026-11-22T16:10:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T15:26:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 913de60ab32385d84b7fc07c69d6d6830aceee91
-Latest implementation commit: 913de60ab32385d84b7fc07c69d6d6830aceee91
-Latest app branch commit: 913de60ab32385d84b7fc07c69d6d6830aceee91
+Verified app feature HEAD: a3532f9718324966b57e08a1a270848b2e5936d4
+Latest implementation commit: a3532f9718324966b57e08a1a270848b2e5936d4
+Latest app branch commit: a3532f9718324966b57e08a1a270848b2e5936d4
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before lease claim: 4025e0f0a8d173dcbeba97aa2d6c3c3550f84c7e
+Verified preview main HEAD before this handoff release: 13ad4b68201da7c71454eb50205dcc0c14b021e8
 
-## Reconciled work found after the previous READY checkpoint
+## Completed this run — schedule/debt context and restore/replay test sources
 
-- The prior handoff stopped at app HEAD 4b15b628452252ef26c4d76e4bf51d8900df2aa7 and requested date-context propagation through schedules and debt/loan engines.
-- The live feature branch is now five commits ahead at 913de60ab32385d84b7fc07c69d6d6830aceee91 (592 ahead / 0 behind stable app main). The five commits modify ScheduledItems, FixedExpenseMonthPlans, DebtScheduleEngine, LoanEventOrder, LoanLedger, LoanPrincipalReconciliation and add LedgerDateContextPropagationTests. They implement explicit LedgerDateContract parameters with native defaults and WEB v18.20 tests for recurring/fixed dues, debt due dates, loan balance/event ordering and positive-year parity.
-- Stable app main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366 and is not modified.
-- Startup read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md (full Git blob), DEVELOPMENT_WORKFLOW.md and this handoff from preview main. IMPLEMENTATION_QUEUE.md is 1,089,712 characters; its complete blob was fetched and its latest tail reviewed.
+- Reconciled the five commits after the previous handoff. They add explicit LedgerDateContract parameters with native defaults across ScheduledDueEngine, FixedExpenseMonthPlans, DebtScheduleEngine, LoanEventOrder, LoanLedgerEngine and LoanPrincipalReconciliation, with WEB behavior and positive-year parity XCTest source.
+- App commits in this run: 94340684832b8b0076cf206894a6853cac6e3f00 (initial SnapshotValidator context propagation); 43a0148be08cb4bddac23a3994d2d94f06668290 and eaccf50ca587720dbf9179b5f8767a2b7e359bf3 (native/WEB restore-replay tests and key-path correction); 8006c2e9ece77fb83bf5fe8ae7080f7dada54288 (safe correction retaining native Date semantics at snapshot boundary); a3532f9718324966b57e08a1a270848b2e5936d4 (year-zero schedule/loan gate regression).
+- SnapshotValidator continues using native staging semantics for its projected schedule/loan graph. Applying WEB UTC conversion to every Date-backed event would reinterpret native-created local-noon operations in a mixed WEB/native snapshot. Operation and BalanceObservation have no per-record source-day provenance yet. Year-zero import remains disabled.
+- Added XCTest sources for native snapshots without WEB metadata and WEB v4 positive-year snapshots: encrypted PortableBackup seal/open, LedgerStore restore/reload, scheduled due, debt due and loan principal replay. Added explicit rejection of year-zero schedule/loan projections.
+- Executed swiftc -frontend -parse on the new XCTest source block and gate test. Syntax only; XCTest target was not typechecked or executed.
+- Native iOS CI for exact HEAD a3532f9718324966b57e08a1a270848b2e5936d4: no workflow run surfaced through the commit-workflow-runs endpoint; combined status has zero contexts. Earlier runs 45033071755 and 45033271427 failed before runner allocation (zero steps, 404 BlobNotFound, zero artifacts); no retry. Linux has Swift 6.2.1 but no xcodebuild/xcodegen.
+- PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md updated and committed on preview main. The queue remains append-only.
 
-## Current implementation — snapshot validation propagation and restore/replay coverage
+## FIRST NEXT — per-record date provenance
 
-- Code inspection found SnapshotValidator derives the correct LedgerDateContract but does not pass it into ScheduledDueEngine.validate, LoanLedgerEngine.validate or LoanEventOrder.validate. These calls still use native defaults, so the newly propagated WEB context is not yet carried through backup validation/replay.
-- First code action: pass the metadata-derived dateContract into all three validation calls, retaining .native when no WEB v4 metadata exists and keeping the year-zero import gate closed.
-- Add XCTest coverage for encrypted PortableBackup seal/open and LedgerStore restore/reload for (a) a native snapshot with no WEB metadata and (b) a WEB v4 positive-year snapshot containing scheduled items, loan schedule and a linked principal-payment operation. Verify schedule rows and loan principal outputs remain equal to native positive-year behavior. Do not enable year-zero import.
-- Run only feasible Linux isolated/parser checks; no xcodebuild/xcodegen is installed. Native CI for exact 913de60 has no surfaced PR-triggered workflow run and no combined statuses. Do not retry prior pre-runner failures.
+1. Add a backward-compatible source-day marker/resolver for imported WEB operations and balance observations; legacy/native records must keep local-calendar semantics. Handle date edits and audit before-images without changing existing persisted data.
+2. Route LoanEventOrder, LoanLedgerEngine and LoanPrincipalReconciliation through that per-record resolver, then add mixed WEB-imported + native-created operation/observation tests through encrypted .fabackup restore/reload.
+3. Only then pass metadata-derived WEB context through SnapshotValidator/PortableBackup, with explicit staging checks for projected schedule, loan, observation and audit fields. Keep year-zero import disabled until all consumers and Apple validation pass.
+4. Continue FinancialCalendarEngine, ReportsEngine/MonthlyReviewEngine, WEB budget/daily-pace/autonomy/space engines, mapper/fingerprint and UI; compare positive-year behavior with archived WEB v18.20.
+5. At the first real macOS runner, execute XcodeGen, full Simulator build, all unit/UI tests, .xcresult and Files restore. Keep WEB JSON export disabled until all parity gates pass.
 
-## Safety and next gate
+## Invariants
 
-- No Models/LedgerStore wholesale rewrite, no financial formula or principal/interest changes, no global RecurrenceCalendar changes, no user data mutation, and no WEB JSON export enablement.
-- Preserve local-only operation, no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
-- After this batch, update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with exact commits, checks and remaining gaps; then set this file to READY_FOR_NEXT_RUN with the exact next task and no lease.
+- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. Stable app main remains untouched.
+- No wholesale Models.swift/LedgerStore.swift rewrite, no financial formula change, no global RecurrenceCalendar change and no user-data mutation.
+- Local-only: no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
+- Native .fabackup remains the only writable backup; WEB JSON export stays disabled.
