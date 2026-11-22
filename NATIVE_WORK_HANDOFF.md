@@ -2,15 +2,15 @@
 
 Status: READY_FOR_NEXT_RUN
 Owner: none
-Updated UTC: 2026-11-22T16:53:31.073Z
+Updated UTC: 2026-11-22T16:54:16.695Z
 Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 4f4464d5b01c9c07885e2e0aa88c75bfacef6c91
+Verified app feature HEAD: 4338785513e1582c7119cc0c123cd76af82afe9e
 Latest implementation commit: 82762b4215cb2755e6d2b08ec85def7fa727a2e2
-Latest app branch commit: 4f4464d5b01c9c07885e2e0aa88c75bfacef6c91
-App feature ahead/behind stable main: 615/0
+Latest app branch commit: 4338785513e1582c7119cc0c123cd76af82afe9e
+App feature ahead/behind stable main: 616/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff release: c9cbb79fe12c885a9528c371ddd4ea3a7b9c92fe
+Verified preview main HEAD before this handoff release: 26f6af9a5ebe279d3ded3d4cd810e86f972bfdc3
 
 ## Completed this run — Financial calendar and report date grouping
 
@@ -38,13 +38,13 @@ Verified preview main HEAD before this handoff release: c9cbb79fe12c885a9528c371
 
 ## Completed this run — WEB budget, daily-pace, autonomy and space date provenance
 
-- App code checkpoint: \`82762b4215cb2755e6d2b08ec85def7fa727a2e2\`; final feature HEAD including parity documentation: \`4f4464d5b01c9c07885e2e0aa88c75bfacef6c91\`.
+- App code checkpoint: `82762b4215cb2755e6d2b08ec85def7fa727a2e2`; final feature HEAD including parity documentation: `4338785513e1582c7119cc0c123cd76af82afe9e`.
 - WebBudgetWindowEngine, WebDailyPaceEngine, WebAutonomyEngine and WebDashboardSpaceEngine now use per-record source-day resolution. WEB-marked operations keep the exact source day; unmarked native/legacy operations use local calendar. Current/as-of dates remain native local.
 - Added 9 mixed-origin/timezone-boundary and malformed-source-day XCTest cases. The new XCTest source fragments passed parser validation only; no app-target XCTest ran.
 - Archived WEB v18.20 modules 204–210 and an isolated Swift 6.2.1 date/arithmetic harness were executed. Budget period 10/15: 31,000 / 1,000 / 30,000; 10/16 spent 3,000. WEB summary: daily 1,764, cash 49,000, space 19,000. Fixed obligation 500 on 10/15 and 0 on 10/16; coverage after obligations 9,000. Swift harness: source day 10/15 vs native local day 10/16 under UTC+14; autonomy 19 covered days, stop 2026-11-03, deficit 52; coverage 9,000; space 19,000.
-- Exact final app HEAD \`4f4464d5b01c9c07885e2e0aa88c75bfacef6c91\`: no workflow run surfaced; combined status empty. Parent code run 45043899650 failed before runner allocation (zero steps, no logs/artifacts); no retry. Linux Swift 6.2.1 is available; xcodebuild/xcodegen and a macOS runner are not.
+- Exact final app HEAD `4338785513e1582c7119cc0c123cd76af82afe9e`: no workflow run surfaced; combined status empty. Parent code run 45043899650 failed before runner allocation (zero steps, no logs/artifacts); no retry. Linux Swift 6.2.1 is available; xcodebuild/xcodegen and a macOS runner are not.
 - Full iOS build, app-target XCTest, Simulator, .xcresult, Files restore and Light/Dark comparison remain unverified. Year-zero import remains disabled.
-- Stable app main remains \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\`, untouched. Local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money; .fabackup only writable export; WEB JSON export disabled.
+- Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, untouched. Local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money; .fabackup only writable export; WEB JSON export disabled.
 
 ## FIRST NEXT — remaining date presentation, mapper and legacy backup compatibility
 
@@ -55,7 +55,7 @@ Verified preview main HEAD before this handoff release: c9cbb79fe12c885a9528c371
 
 ## Invariants
 
-- Work only on \`financial-autonomy-app:feat/sync-preview-v18-20-ios\`; stable app main is untouched.
+- Work only on `financial-autonomy-app:feat/sync-preview-v18-20-ios`; stable app main is untouched.
 - No wholesale Models.swift/LedgerStore.swift rewrite, no global RecurrenceCalendar change and no financial formula changes.
 - Local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
 - Native .fabackup remains the only writable export; WEB JSON export remains disabled.
