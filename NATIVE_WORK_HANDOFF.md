@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-22T02:24:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native parity automation
+Updated UTC: 2026-11-22T03:10:37Z
+Lease expires UTC: 2026-11-22T04:10:37Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 935f84440878bad5d6739a9398c55ce69b7893da
 Latest implementation commit: 6d7de323a2b142b57d421c511c543d1bc8d86dda
@@ -102,3 +102,11 @@ Implement a focused LedgerStore update method and native month-plan editing surf
 ## Lease release and next exact action
 
 Status is READY_FOR_NEXT_RUN; no active lease. The next execution must re-read all continuity files and live HEADs, then start WEB v4 goals/plans projection. Inspect native goal/plan books and WebV18_20StateMapper; implement goal ID/name/metric/target/notes/deadline/done and plan goalId/start/ideas/questions/decision/ordered steps (ID/name/notes/status/due). Preserve UUID spelling/order/extensions, reject duplicate/orphan references, and add populated round-trip/fail-closed tests. Keep WEB JSON export disabled. At the first actual macOS runner, run XcodeGen, simulator build, all unit/UI tests and inspect the exact .xcresult; do not retry the pre-runner failure.
+
+
+## Active lease — 2026-11-22T03:10:37Z
+
+- Owner: native parity automation.
+- Lease expires UTC: 2026-11-22T04:10:37Z.
+- Startup verified live preview main HEAD `465ade26a02b6e59e73097ab0e10f3673a220169`, app feature HEAD `935f84440878bad5d6739a9398c55ce69b7893da`, and app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Current work item: mutable WEB v4 goals/plans projection in `WebV18_20StateMapper`; do not duplicate while lease is active.
