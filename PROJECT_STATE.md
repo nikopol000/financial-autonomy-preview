@@ -1757,3 +1757,27 @@ Perform the consumer-by-consumer adapter design before integrating this prototyp
 3. Add mixed-origin snapshot tests (WEB-imported + native-created operations/observations) through encrypted .fabackup seal/open and LedgerStore restore/reload, including date edits and audit before-images. Only then pass the safe context through SnapshotValidator/PortableBackup.
 4. Continue the independent WEB date-only consumers: FinancialCalendarEngine, ReportsEngine/MonthlyReviewEngine, WEB budget/daily-pace/autonomy/space engines, mapper/fingerprint and UI. Compare positive-year outputs to the active archived v18.20 bundle before enabling year zero.
 5. At the first real macOS runner, execute XcodeGen, Simulator build, all unit/UI tests, .xcresult and Files restore; keep WEB JSON export disabled until all parity gates pass.
+
+
+## 2026-11-22 — per-record WEB/native date provenance
+
+- App feature HEAD at checkpoint: `fb0f37ddc132152ca7220d9d4e03121fbf995210` (602 ahead / 0 behind stable main). Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366` and was not modified.
+- App commits in this stage: `56811ceeca0f9477b5f8d3ee7d809c829499637a`, `58f252cc10b1fa49974571e80f0e1db84e707b09`, `1d527a1a27a7a3ea2bbc06d95630f17b39fbed4e`, `b0dbec89a2090a2ace4afe1a3d7898afc68fa281`, `fb0f37ddc132152ca7220d9d4e03121fbf995210`.
+- Added optional Codable `Operation.webSourceDay` and `BalanceObservation.webSourceDay`. WEB v18.20 import stamps exact source date strings; legacy backups decode missing fields as nil and retain existing native/local-calendar semantics.
+- Added per-record `LedgerDateContract.dayString(for: Operation/BalanceObservation)`. LoanEventOrder and LoanLedgerEngine use it; LoanPrincipalReconciliation inherits it through event ordering. Principal/interest formulas and global RecurrenceCalendar were not changed.
+- LedgerStore clears source-day provenance for new native operations. Same-Date corrections retain the original marker; Date edits clear it. Audit before-images keep their original source-day marker.
+- Snapshot validation checks markers in active records and operation/balance audit before-images using the existing staged date-import gate. Legacy WEB balance-check observations without a marker retain their previous UTC contract when matched to imported checks. Year-zero import remains disabled.
+- WEB importer stamps operations and non-voided account/debt observations. WEB state mapping and fingerprint canonicalization use the per-record resolver; native operations appended to a WEB snapshot continue using local day semantics.
+- Added XCTest sources for mixed WEB/native UTC+14 ordering and loan principal replay, encrypted `.fabackup` seal/open + LedgerStore restore/reload, observation and operation audit before-images, same-date and changed-date corrections, legacy Codable payloads, importer markers and mapper round-trip dates.
+- Executed Swift 6.2.1 isolated provenance harness with warnings-as-errors: `LEDGER_PER_RECORD_DATE_PROVENANCE_PASS`. Executed `swiftc -frontend -parse` on the new mixed-origin restore/date-edit XCTest source block. These are isolated harness/source-parse checks only; the app target was not typechecked and XCTest was not executed.
+- Native iOS CI for exact HEAD `fb0f37ddc132152ca7220d9d4e03121fbf995210`: run [45043439711](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45043439711), job `137272714070`, FAILURE before runner allocation; zero steps, log retrieval 404 `BlobNotFound`, zero artifacts, combined status contexts zero. No retry. Swift 6.2.1 is available locally; `xcodebuild`/`xcodegen` and a macOS runner are unavailable.
+- Full iOS build, app-target XCTest, Simulator, `.xcresult`, Files restore and Light/Dark visual comparison remain unverified. No UI parity claim.
+- Invariants preserved: local-only data, no backend/account/bank sync/telemetry, available credit is not owned money, `.fabackup` only writable export, WEB JSON export disabled, no main-branch modification.
+
+### FIRST NEXT — date-only consumers beyond loan replay
+
+1. Audit `FinancialCalendarEngine`, `ReportsEngine` and `MonthlyReviewEngine` for Date-backed operation/observation grouping. Route imported records through per-record source-day resolution while keeping unmarked native records on local-calendar semantics; add positive-year mixed-origin tests.
+2. Apply the same audit to `WebBudgetWindowEngine`, `WebDailyPaceEngine`, `WebAutonomyEngine` and `WebDashboardSpaceEngine`; compare their positive-year outputs to the active archived WEB v18.20 modules before enabling year zero.
+3. Continue mapper/fingerprint and backup round-trip checks, including old snapshots without provenance markers and source-only audit history.
+4. Keep year-zero import disabled until all Date-backed consumers, projections, audit paths and Apple build/tests are validated.
+5. At the first real macOS runner, execute XcodeGen, full Simulator build, all unit/UI tests, inspect `.xcresult`, exercise Files restore and compare Light/Dark screens with the active preview.

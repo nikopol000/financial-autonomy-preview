@@ -5302,3 +5302,23 @@ Status: checkpointed; macOS build/XCTest remains blocked by runner availability.
 3. Only after that, wire metadata-derived WEB context safely through SnapshotValidator/PortableBackup and add explicit staging checks for all projected schedule/loan/observation/audit dates. Keep year-zero import disabled.
 4. Continue FinancialCalendarEngine, ReportsEngine/MonthlyReviewEngine, WEB budget/daily-pace/autonomy/space engines, mapper/fingerprint and UI with positive-year comparisons to archived WEB v18.20.
 5. At the first real macOS runner, run XcodeGen, full Simulator build, all unit/UI tests, .xcresult and Files restore. Keep WEB JSON export disabled until all parity gates pass.
+
+
+### Completed checkpoint — per-record WEB/native date provenance (2026-11-22)
+
+App feature HEAD: `fb0f37ddc132152ca7220d9d4e03121fbf995210`; stable app main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366` (untouched). App commits: `56811ceeca0f9477b5f8d3ee7d809c829499637a`, `58f252cc10b1fa49974571e80f0e1db84e707b09`, `1d527a1a27a7a3ea2bbc06d95630f17b39fbed4e`, `b0dbec89a2090a2ace4afe1a3d7898afc68fa281`, `fb0f37ddc132152ca7220d9d4e03121fbf995210`.
+
+Implemented optional Codable source-day markers on operations and balance observations. WEB importer stamps exact dates; nil markers preserve native/legacy local-calendar semantics. LoanEventOrder and LoanLedgerEngine now resolve dates per record; LoanPrincipalReconciliation uses that ordering. LedgerStore clears markers for new native operations, preserves them for same-Date corrections, clears them when Date changes, and keeps the audit before-image intact. Snapshot validation checks active and audit markers; legacy imported balance-check rows without markers retain the previous WEB UTC fallback. Mapper and fingerprint canonicalization use the same resolver. No principal/interest formula or global calendar was changed.
+
+Tests added (source only): mixed-origin UTC+14 event ordering and loan principal replay; encrypted `.fabackup` seal/open plus LedgerStore restore/reload; operation and balance-observation audit before-images; same-Date versus changed-Date correction; old Codable payloads without the optional marker; importer marker assertions; mapper date round-trip assertions. Local verification: Swift 6.2.1 isolated provenance harness passed with warnings-as-errors (`LEDGER_PER_RECORD_DATE_PROVENANCE_PASS`); `swiftc -frontend -parse` passed on the added restore/date-edit XCTest block. No app-target typecheck or XCTest execution.
+
+Native iOS CI for exact HEAD `fb0f37ddc132152ca7220d9d4e03121fbf995210`: [run 45043439711](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45043439711), job `137272714070`, failure before runner allocation; zero steps, log 404 `BlobNotFound`, zero artifacts, combined status contexts zero. No retry. Full iOS build, XCTest, Simulator, `.xcresult`, Files restore and visual comparison remain unverified. Year-zero import remains disabled.
+
+### FIRST NEXT — FinancialCalendarEngine and report date grouping
+
+1. Audit `FinancialCalendarEngine`, `ReportsEngine` and `MonthlyReviewEngine` for Date-backed operation/observation grouping. Use the per-record resolver for imported source days and local-calendar semantics for unmarked native records; add mixed-origin positive-year tests.
+2. Then audit `WebBudgetWindowEngine`, `WebDailyPaceEngine`, `WebAutonomyEngine` and `WebDashboardSpaceEngine`; compare positive-year results with archived WEB v18.20 modules.
+3. Continue backup/mapper/fingerprint tests for old snapshots without markers and source-only audit history. Keep the year-zero import gate closed until all consumers and Apple validation pass.
+4. At the first macOS runner: XcodeGen, Simulator build, all unit/UI tests, `.xcresult`, Files restore and Light/Dark comparison.
+
+Invariants: feature branch only; stable main untouched; no wholesale Models/LedgerStore rewrite; no financial formula change; local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money; native `.fabackup` only; WEB JSON export disabled.
