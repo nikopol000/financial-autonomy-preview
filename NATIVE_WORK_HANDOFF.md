@@ -302,3 +302,13 @@ Enumerate WEB v18.20 date-only fields and execute archived module 205 on control
 ### FIRST NEXT
 
 Design the full consumer-by-consumer date adapter graph before implementation. Start with WebBackupV18_20.validDay and parseOperation/parseBalanceChecks, then SnapshotValidator, operation/check Date conversion, LoanLedgerEngine/LoanEventOrder, ScheduleBook/DebtScheduleEngine, FinancialCalendarEngine, mapper/fingerprint and backup restore. Keep the global non-WEB RecurrenceCalendar contract unchanged. Do not claim year-zero support until encrypted .fabackup import/restore/re-export preserves every affected date and the Apple build/tests pass.
+
+
+## Active lease — 2026-11-22T13:03:47Z
+
+- Owner: native parity automation.
+- Lease expires UTC: 2026-11-22T13:45:00Z.
+- Preview main verified at 676b7929498c63e7f3fd49b09ba9d864deacccd1; app feature verified at 0e8ab8a79e27890ea1bc335ee56797ad843bb374; app stable main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- Previous date-only prototype checkpoint is READY_FOR_NEXT_RUN and its lease has expired.
+- Current exact work item: complete the consumer-by-consumer adapter graph for WEB v18.20 year-zero dates before production integration. No parser-only acceptance; keep global non-WEB RecurrenceCalendar semantics unchanged.
+- This finite lease protects the design/integration batch. Do not modify app/main.
