@@ -5120,3 +5120,23 @@ Inspect and reconcile native operation-audit, balance-check and balance-check-au
 3. Add populated append/edit/removal/fail-closed tests and use the archived importer as acceptance oracle.
 4. Inspect `names`, `nameChanges` and remaining metadata after templates; preserve audit/source-only history.
 5. At a real macOS runner, run XcodeGen, simulator build, all unit/UI tests and inspect the exact `.xcresult`; then Files restore and visual Light/Dark comparison with v18.20. Keep WEB JSON export disabled.
+
+
+## Native iOS checkpoint — WEB v4 names and transaction-name UI regression (2026-11-22T10:06:55Z)
+
+- App feature branch verified exactly at `01b6e8171b1ccf5ef68d3921db2b9be8b2679960`; app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` is untouched. Preview main before these documentation commits: `70ccc7df9fd149a289ff3052d56fd669be21b1ae`.
+- The prior handoff lease expired at 09:08:47Z. Re-read all required continuity documents and reconciled the app feature branch before work. Existing income/expense template and `names` mapping was already committed; no duplicate mapper implementation was made.
+- `names` behavior: NFKC + whitespace collapse + Romanian `ro_RO` lowercase; source-order substring suggestions capped at 12; canonical ID/display-name reuse; collision-free append; exact source order preserved. `nameChanges` remains source-only/immutable because rename/merge rewrites transaction and audit before-images.
+- Added process-local WEB v4 UI fixture, Light/Dark transaction-entry XCUITest, and two unit tests for canonical reuse and collision-free append preserving expense role/budget fields.
+- App commits: UI test `2e3d2d4de8efe92e43c66ccf4aa223c81703eac4`; unit tests `4ea47b0d1f58961481cb282924e8067fe096effb`; parity doc/current HEAD `01b6e8171b1ccf5ef68d3921db2b9be8b2679960`.
+- Verification: Swift 6.2.1 isolated name-catalog harness PASS; `swiftc -frontend -parse` on added UI and unit test snippets PASS. App target XCTest/build were not run.
+- Native iOS CI: exact current HEAD has no combined status contexts and no PR-triggered workflow run returned. Parent HEAD `ee5221c50fe1986fa2461376103f6c51face7bd9` run `45003113113` failed before runner (runner ID 0, zero steps, 404 BlobNotFound logs, zero artifacts). No retry. No `xcodebuild`/`xcodegen`, Apple build, Simulator, Files restore or visual comparison.
+- Export remains disabled; native `.fabackup` remains the only writable export. Local-only; no backend, mandatory account, bank sync or telemetry; available credit is not owned money.
+
+### FIRST NEXT — combined WEB v4 round-trip acceptance fixture
+
+1. Construct one populated source v4 fixture containing all supported mutable projections: accounts/debts, recurring, income/expense templates, monthPlans, paidMonths, reviews, names, transactions, goals/plans, projection, appearance and dashboard layout.
+2. Mutate each supported projection in one candidate snapshot, then run `WebV18_20StateMapper.mappedSourceState` and `WebBackupV18_20.decodeState`; verify source-only `nameChanges`, audit/check rows and opaque extensions remain byte/identity stable.
+3. Validate the mapped state against archived WEB v18.20 module 205 and compare obligation output against module 210; add a regression test for the combined path. Keep WEB JSON export disabled.
+4. Then scope year-zero date-only compatibility field-by-field. Do not broaden `RecurrenceCalendar` or coerce unsupported year-zero values into Foundation dates.
+5. At a usable macOS runner: XcodeGen, simulator build, all unit/UI tests, inspect exact `.xcresult`, Files-provider restore and Light/Dark screenshot comparison against archived WEB v18.20.
