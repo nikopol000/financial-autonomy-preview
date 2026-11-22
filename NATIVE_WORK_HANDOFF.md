@@ -1,44 +1,35 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: ChatGPT automation
-Updated UTC: 2026-11-22T21:07:00Z
-Lease expires UTC: 2026-11-22T21:37:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T21:14:01.445Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: edcd38076bbc9c0f44cd648733022caf92b5f1b8
-Latest implementation commit: edcd38076bbc9c0f44cd648733022caf92b5f1b8
-Latest app branch commit: edcd38076bbc9c0f44cd648733022caf92b5f1b8
-App feature ahead/behind stable main: 623/0
+Verified app feature HEAD: f2a94daae572e5aede5e86ca8923d5bab8beabbb
+Latest implementation commit: f2a94daae572e5aede5e86ca8923d5bab8beabbb
+Latest app branch commit: f2a94daae572e5aede5e86ca8923d5bab8beabbb
+App feature ahead/behind stable main: 624/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: 8bc37f595ea694af89c41626249d7a03d6f97724
+Verified preview main before this checkpoint commit: d4a7bedb0f289a7c94eedce1c2ffcc63f90cc31e
 
 ## Completed this run
 
-- App commit edcd38076bbc9c0f44cd648733022caf92b5f1b8 adds identity/reorder coverage for debt.schedule rows, names/nameChanges, balanceChecks, checkAudit/audit before-images, appearance and income/expense template extensions.
-- Hardened WebOpaqueExtensions archive validation: v2 typed path/segment/schema consistency; integral non-boolean indices and format versions; nonempty identity strings; v1 root/object-only paths, rejecting array-index and malformed dotted paths.
-- Added tests for mismatched v2 paths/segments, fractional index/version, boolean version, v1 object compatibility and v1 array rejection, missing parent, known-field collision and oversized v1/v2 archives.
-- Isolated Swift 6.2.1 validation harness compiled with -warnings-as-errors and executed: 10 PASS. This is not a full app build.
-- swiftc -frontend -parse passed on an isolated mirror of the two new XCTest methods. No app-target XCTest was run.
-- Exact Native iOS CI run 45065385993 / job 137340254653 failed before runner steps: empty step list, no artifacts, log retrieval 404 BlobNotFound and no combined status contexts. No retry; no compiler diagnostic.
-- Full iOS build, XCTest, Simulator, .xcresult, encrypted Files restore/re-export and visual comparison remain unverified.
-
-## CURRENT RUN — legacy encrypted restore compatibility review
-
-- Current app feature HEAD at lease claim: edcd38076bbc9c0f44cd648733022caf92b5f1b8; app stable main: a9b30be147abecea45a63bf7dd8d0a3eb3370366; preview main: 84c205ad8bba00e5d6192a8b5034ca9c3f2cd398.
-- Exact Native iOS CI for app HEAD: run 45065385993 / job 137340254653, completed FAILURE with job steps null, no artifacts, and combined status contexts empty. This is the same pre-runner infrastructure failure class; do not retry it.
-- Current work: independently review WEB v1/v2 legacy encrypted fixtures and the complete WEB import → native .fabackup → restore/reload → mapper/opaque reattachment path. No app source changes have been made yet.
-- Lease expires at 2026-11-22T21:37:00Z.
+- App commit f2a94daae572e5aede5e86ca8923d5bab8beabbb adds a prepared WEB import → explicit confirmation → native `.fabackup` export/prepare/confirm → Codable reload → mapper/re-import integration XCTest.
+- Audited existing legacy v1 summary, v2/v3 migration, encrypted native backup, security-scope read, wrong-password/tamper, source-only audit and opaque extension restore coverage. Compared WEB v18.20 KDF/NFKC/AAD parameters with the archived bundle; no crypto change was needed.
+- Swift 6.2.1 isolated parse and typecheck of the new test method with minimal stubs passed. This is not an app build or XCTest execution.
+- Exact Native iOS CI run 45070711046 / job 137356794746 for the verified app HEAD failed before runner steps: empty steps, zero artifacts, log retrieval 404 BlobNotFound, combined status contexts empty. No retry.
+- XcodeGen/xcodebuild and macOS runner are unavailable in the current Linux environment. Full app build/tests, Simulator, `.xcresult`, Files-provider device test and visual parity remain unverified.
 
 ## FIRST NEXT
 
-1. Finish the source-level and focused-test review of legacy v1/v2 envelopes and restore/reload invariants; make only a narrow evidence-backed feature-branch change if a concrete gap is found.
-2. Run only available local Swift parsing/isolated harness checks; do not claim app build or XCTest without Xcode/macOS.
-3. Update PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md with exact findings and app commit(s), then release this handoff to READY_FOR_NEXT_RUN.
-4. Keep year-zero import and WEB JSON export disabled until full restore/re-export and Apple validation pass.
+1. Reconcile live refs and exact-HEAD Native iOS CI. Run XcodeGen/build/full unit+UI suite only if a macOS runner actually starts; do not retry a pre-runner empty-step/BlobNotFound failure.
+2. If still blocked, add a deterministic synthetic WEB v18.20 NFKC password-equivalence fixture and exercise v2/v3 legacy encrypted migration through preparation, explicit confirmation and Codable reload.
+3. On macOS, run the new integration test and existing legacy audit/opaque restore tests, inspect `.xcresult`, then test Files import/export on device.
+4. Complete archived v18.20 Light/Dark/VoiceOver screen-by-screen and financial parity matrix. Keep year-zero import and WEB JSON export disabled until all gates pass.
 
 ## Invariants
 
-- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; stable app main remains untouched.
-- No wholesale Models.swift/LedgerStore.swift rewrite, no global RecurrenceCalendar change, no financial formula changes.
+- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; app stable main remains untouched.
+- No wholesale Models.swift/LedgerStore.swift rewrite, no global RecurrenceCalendar change, no financial formula changes without explicit approval.
 - Local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
-- Native .fabackup remains the only writable backup; WEB JSON export remains disabled.
+- Native `.fabackup` remains the only writable backup; WEB JSON export and year-zero import remain disabled.
