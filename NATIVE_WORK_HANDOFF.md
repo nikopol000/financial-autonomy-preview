@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-22T14:21:30Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native parity automation
+Updated UTC: 2026-11-22T14:22:00Z
+Lease expires UTC: 2026-11-22T15:00:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 473b729c4b638fb52252309184d9083ca157126c
 Latest implementation commit: 473b729c4b638fb52252309184d9083ca157126c
 Latest app branch commit: 473b729c4b638fb52252309184d9083ca157126c
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: d9dba658cfb1a147c3c2fa7c6445b6e00f43307f
+Verified preview main HEAD before this handoff commit: fa5f3a6b52746adee72bb14335fbf11219de0002
 
 ## Completed this run — LedgerDateContract adapter
 
