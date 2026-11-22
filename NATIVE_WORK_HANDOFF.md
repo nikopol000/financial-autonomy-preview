@@ -9,7 +9,7 @@ Verified app feature HEAD: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
 Latest implementation commit: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
 Latest app branch commit: 29ee143fb41747c0cbc8572f8e232c17e7066ab8
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: 1300b974e7d114089dcca7d0f59aa0bcdac433c6
+Verified preview main HEAD before this handoff commit: ada48278863654e74778332aaa7ff78e736e8461
 
 ## Completed this run
 
@@ -143,3 +143,6 @@ Map WebImportedProjection from WebImportMetadata.projection back to the optional
 ### Next exact action — operation audit and balance-check projection
 
 Inspect and reconcile native operation-audit, balance-check and balance-check-audit representations against WEB v4 audit/checkAudit/balanceChecks. Implement only when before-snapshots, action/date, account identity, observed balance, order and voided semantics can round-trip exactly. Preserve ordering and opaque extensions; reject unsupported history or replay mismatches. Then map appearance/dashboardLayout and finish remaining metadata. Keep WEB JSON export disabled.
+
+
+- Recovery note: IMPLEMENTATION_QUEUE.md was restored from its full prior blob before appending this checkpoint; verified content length 1,051,252 characters, original 2026-11-07 history retained, latest operation-audit/balance-check next action present.
