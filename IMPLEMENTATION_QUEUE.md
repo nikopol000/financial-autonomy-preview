@@ -5214,3 +5214,20 @@ Inspect and reconcile native operation-audit, balance-check and balance-check-au
 ### Exact next action
 
 Perform the consumer-by-consumer adapter design before integrating this prototype. Preserve exact WEB strings in import metadata; handle year-zero operation/check instants through explicit era-aware conversion; update only the proven date validators, operation/check mapping, SnapshotValidator, schedule/loan/calendar consumers, mapper/fingerprint and UI formatting. Keep global non-WEB RecurrenceCalendar semantics unchanged. Add an end-to-end archived WEB v18.20 import → encrypted .fabackup → restore → re-export round trip for year-zero transactions, balance checks, debt schedules, month plans and paid-month keys. Keep nameChanges and weakly validated checkAudit[].date as raw opaque history unless their archived contract can be preserved. Do not enable WEB JSON export until the entire consumer graph and Apple tests pass.
+
+
+## Native iOS checkpoint — WEB v18.20 year-zero adapter graph design (2026-11-22)
+
+- App feature commit f83cd0ab4e0db5c84626ee1f1c8e88f96843a63d adds the complete consumer-by-consumer design in NativeiOS/WEB_V18_20_DATE_ADAPTER_GRAPH.md, extends parity documentation and adds a Foundation Date Codable/era-boundary XCTest plus executable harness assertions.
+- Exact committed harness executed under Swift 6.2.1 with warnings-as-errors: WEB_V18_20_DATE_ONLY_CONTRACT_PASS; 21 true date-only fields, 3 month keys, 2 weak history fields, 1 reminder timestamp and 13 inventoried consumers. Foundation Date JSON encode/decode and Calendar addition across year 0000→0001 also PASS. Exact XCTest source parser PASS; app-target XCTest not run.
+- Design covers WebBackup importer/replay, SnapshotValidator/PortableBackup, Date-backed operations/check observations, ScheduleBook/FixedExpenseMonthPlans, debt and loan replay/order, financial calendar, WEB budget/daily-pace/autonomy/dashboard-space engines, reports/reviews, mapper/fingerprint and UI date editing. It requires an explicit version-4-only date context; global RecurrenceCalendar remains unchanged. Reminder timestamps and legacy CSV remain separate. nameChanges/checkAudit weakly validated history remains raw.
+- Native iOS CI for exact commit f83cd0ab4e0db5c84626ee1f1c8e88f96843a63d: run 45026720649 / job 137221250328 failed before runner allocation with zero steps, null job logs and zero artifacts. Combined contexts zero; no retry. Linux Swift 6.2.1 available; XcodeGen/xcodebuild absent. No Apple build/XCTest/Simulator/Files/UI verification.
+- No production importer/model/ledger/backup/formula/UI changes. Year-zero support remains NOT integrated. Local-only, no backend/account/bank sync/telemetry; credit is not owned cash; WEB JSON export remains disabled and .fabackup is the only writable backup.
+
+### FIRST NEXT — explicit date context and importer/restore wiring
+
+1. Implement LedgerDateContract with native as default and WEB v18.20 only for sourceVersion 4; add era-aware day/month validation/conversion and ordinal/month/recurrence operations.
+2. Wire importer date validation and Operation/BalanceObservation conversion plus civilDay replay. Keep year-zero acceptance gated until SnapshotValidator and all downstream schedule/loan/report/mapper/UI consumers are updated.
+3. Propagate context through SnapshotValidator/PortableBackup, ScheduledDueEngine, FixedExpenseMonthPlans, DebtScheduleEngine, LoanLedgerEngine/LoanEventOrder, FinancialCalendarEngine, ReportsEngine/MonthlyReviewEngine and WEB-only calculation engines. Preserve all positive-year results and financial formulas.
+4. Add full archived WEB v18.20 import → encrypted .fabackup → restore → mapper/re-export tests for year-zero transaction/check/debt/month-plan/paid-month data and compare module 205/210 outputs.
+5. Run Apple build, XCTest/UI, .xcresult, Files restore and Light/Dark screenshot gates on a runner that actually starts. Do not retry pre-runner CI failures; do not enable WEB JSON export.
