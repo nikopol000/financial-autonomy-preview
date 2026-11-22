@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native parity automation
-Updated UTC: 2026-11-22T04:43:40Z
-Lease expires UTC: 2026-11-22T05:43:40Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T04:46:19Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: d4459b5d2141a9e8f0062bab0bc86396655e3e2a
-Latest implementation commit: d4459b5d2141a9e8f0062bab0bc86396655e3e2a
-Latest app branch commit: d4459b5d2141a9e8f0062bab0bc86396655e3e2a
+Verified app feature HEAD: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
+Latest implementation commit: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
+Latest app branch commit: f65e3ff93c69b22ffa34bbbb573884e5f36d84ee
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: d518e3de273d78a76a1c9a7b68241b790be15ad3
+Verified preview main HEAD before this handoff commit: 9e033d223f0f463741f9caa4317a49b6c2a13092
 
 ## Completed this run
 
@@ -172,3 +172,15 @@ Implement the mutable `reviews` map from `monthlyReviewProgress` and `WebImportM
 
 - First unfinished queue item: reconcile native `monthlyReviewProgress` and `WebImportMetadata.reviews` to the required WEB v4 `reviews` map. Preserve month/stage validation, mirror consistency and empty-map semantics.
 - App feature HEAD verified before work: `d4459b5d2141a9e8f0062bab0bc86396655e3e2a`; app `main` remains untouched. Lease expires 2026-11-22T05:43:40Z.
+
+
+## Completed this run — monthly reviews projection (2026-11-22T04:46:19Z)
+
+- App feature HEAD: `f65e3ff93c69b22ffa34bbbb573884e5f36d84ee`; mapper `0209c9d6e3e1e784c3031b4a4be2455b587c1fca`; tests `c4cc23f43c34b9d3addfa0af5d44e42375d9ec08`; exact month-regex fix `f65e3ff93c69b22ffa34bbbb573884e5f36d84ee`. App stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Monthly review progress now maps with exact WEB month/stage validation, mirrored root/metadata consistency, explicit empty preservation and fail-closed removal.
+- Swift 6.2.1 helper harness and XCTest syntax parser passed; full app build and target XCTest remain unverified.
+- Exact CI status contexts empty; no PR-triggered workflow run returned. Previous exact run `44980579668` failed before runner with zero steps/artifacts; no retry. No XcodeGen/xcodebuild, Simulator, Files restore or visual comparison.
+
+### Next exact action — income/expense templates
+
+Inspect WEB v4 `incomeTemplates` and `expenseTemplates` against native `ScheduleBook.items` and fixed month-plan catalog. Map only fields with exact native semantics; preserve ID/order/extensions and fail closed for unsupported recurrence/category fields. Then inspect names/nameChanges. At the first macOS runner, build/test, inspect `.xcresult`, verify Files restore and compare Light/Dark screens with archived WEB v18.20. Keep export disabled.
