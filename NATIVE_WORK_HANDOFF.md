@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-22T11:21:30Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native parity automation
+Updated UTC: 2026-11-22T11:39:00Z
+Lease expires UTC: 2026-11-22T12:20:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 665c9c007e772a94f28e8511fb9a83e27d06cbe4
-Latest implementation commit: 5707c40eac1fd2130dc5e997de2881a0a22ea7af
-Latest app branch commit: 090c357805aa321c8f62f312c51ae66acf7d0079
+Latest implementation commit: 93e7f56a3eab91712ee9026a9c7d7366143a1534
+Latest app branch commit: 665c9c007e772a94f28e8511fb9a83e27d06cbe4
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: e1f37c781a6b91c05634fb016a26d6c2fde69981
+Verified preview main HEAD before this handoff commit: cb8062c186645ad3e34d52122e8ee2c6ed282a55
 
 ## Completed this run
 
@@ -262,3 +262,11 @@ Build one combined populated WEB v4 round-trip acceptance fixture for all suppor
 ### FIRST NEXT — year-zero date-only compatibility audit
 
 Enumerate WEB v18.20 date-only fields and execute archived module 205 on controlled `0000-MM-DD` cases per field. Separate date-only values from timestamps/reminders. Inspect `RecurrenceCalendar` and Foundation conversion paths; do not broaden global calendar semantics or coerce unsupported year-zero values into `Date`. Add a narrowly scoped date-only representation only for fields proven to require it, with exact string round-trip tests. Then proceed to the macOS build/XCTest/Simulator/Files restore/Light-Dark screenshot gates. Keep WEB JSON export disabled.
+
+
+## Active lease — 2026-11-22T11:39:00Z
+
+- Owner: native parity automation.
+- Lease expires UTC: 2026-11-22T12:20:00Z.
+- Re-read all required preview continuity documents. Preview main verified at `cb8062c186645ad3e34d52122e8ee2c6ed282a55`; app feature checkpoint verified at `665c9c007e772a94f28e8511fb9a83e27d06cbe4`; app stable main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`.
+- Current exact work item: field-by-field archived WEB v18.20 module-205 year-zero date-only acceptance audit. Do not change `RecurrenceCalendar`, coerce unsupported dates into Foundation `Date`, or implement parser-only acceptance.
