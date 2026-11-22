@@ -5103,3 +5103,20 @@ Inspect and reconcile native operation-audit, balance-check and balance-check-au
 3. Add populated tests for edits, appends, removal and invalid months/stages; keep the archived importer as acceptance oracle.
 4. Inspect income/expense templates, names and remaining metadata for exact native representations; preserve source-only history and opaque extensions.
 5. At a real macOS runner, execute XcodeGen, simulator build, all unit/UI tests and inspect the exact `.xcresult`; then Files restore and visual Light/Dark comparison against v18.20. Keep WEB JSON export disabled.
+
+
+## Completed this run — WEB v4 monthly reviews projection (2026-11-22T04:46:19Z)
+
+- App commits: mapper `0209c9d6e3e1e784c3031b4a4be2455b587c1fca`; tests `c4cc23f43c34b9d3addfa0af5d44e42375d9ec08`; regex correction and exact app feature HEAD `f65e3ff93c69b22ffa34bbbb573884e5f36d84ee`.
+- `monthlyReviewProgress` and `WebImportMetadata.reviews` now project to WEB v4 `reviews`; root/metadata mismatch, invalid `YYYY-MM`, stage outside 0...4, and removal of the required map fail closed. Explicit empty map round-trips.
+- Three populated XCTest source cases added but not run in the app target. Swift 6.2.1 warnings-as-errors helper harness PASS; XCTest syntax-only parser PASS. No full app build/XCTest.
+- Exact HEAD `f65e3ff93c69b22ffa34bbbb573884e5f36d84ee` has no combined status contexts and no PR-triggered run returned. Previous exact run `44980579668` failed before runner, zero steps/artifacts; no retry. No xcodebuild/xcodegen, Apple build, Simulator, Files restore or visual comparison.
+- App stable `main` `a9b30be147abecea45a63bf7dd8d0a3eb3370366` untouched. Export disabled; `.fabackup` only. Local-only, no backend/mandatory account/bank sync/telemetry; credit is not owned cash.
+
+### FIRST NEXT — income/expense template projection analysis
+
+1. Reconcile WEB v4 `incomeTemplates`/`expenseTemplates` with native `ScheduleBook.items` and fixed month-plan catalog.
+2. Map only exact identity, name, amount, day and due-day-known semantics; preserve source order/opaque extensions and reject unsupported recurrence/category fields.
+3. Add populated append/edit/removal/fail-closed tests and use the archived importer as acceptance oracle.
+4. Inspect `names`, `nameChanges` and remaining metadata after templates; preserve audit/source-only history.
+5. At a real macOS runner, run XcodeGen, simulator build, all unit/UI tests and inspect the exact `.xcresult`; then Files restore and visual Light/Dark comparison with v18.20. Keep WEB JSON export disabled.
