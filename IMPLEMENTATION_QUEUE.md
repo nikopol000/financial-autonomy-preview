@@ -4451,21 +4451,21 @@ Privacy: local-only; no backend, mandatory account, bank sync or telemetry. Avai
 
 ## Completed run — audit graph and read-only WEB v18.20 obligation reconciliation (2026-11-20 15:22 UTC)
 
-**App feature final HEAD:** \`d382e2e59e68651427e4d1feed5ec4be09866bdc\` — **419 ahead / 0 behind** app stable main \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\`. App/main untouched.
+**App feature final HEAD:** `d382e2e59e68651427e4d1feed5ec4be09866bdc` — **419 ahead / 0 behind** app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`. App/main untouched.
 
-- App commit \`4781cbb28657d95129f3f04d9401e9043c1e2a4e\`: populated encrypted-backup regression source covering operation/account/loan audit containers and goal/plan/step.
-- App commit \`d382e2e59e68651427e4d1feed5ec4be09866bdc\`: legacy snapshot test now actually serializes all three audit arrays as present-empty before removing their keys; asserts absent \`operationAudit\`, \`observationAudit\`, \`explanationAudit\` decode as nil.
+- App commit `4781cbb28657d95129f3f04d9401e9043c1e2a4e`: populated encrypted-backup regression source covering operation/account/loan audit containers and goal/plan/step.
+- App commit `d382e2e59e68651427e4d1feed5ec4be09866bdc`: legacy snapshot test now actually serializes all three audit arrays as present-empty before removing their keys; asserts absent `operationAudit`, `observationAudit`, `explanationAudit` decode as nil.
 - Historical audit found no further renamed JSON keys or later-required Codable fields in OperationAuditEntry, BalanceObservation, ReconciliationExplanation, their audit entries, LedgerSnapshot, LoanBook, debt schedules or goal/plan/step records. Later fields are optional or explicitly decoded. Existing Operation key alias remains the only proven rename. No speculative decoder was added.
-- Executed: Swift 6.2.1 \`swiftc -parse\` PASS for both new/changed test methods; isolated type-check harness with matching model/API stubs PASS for the populated audit-graph test. Not app XCTest, PortableBackup runtime, Xcode build, Simulator or UI.
-- Exact Native iOS CI run \`44762409132\` for final HEAD \`d382e2e\`: FAILURE before runner allocation; job \`136378075935\`, \`runner_id=0\`, label \`macos-15\`, \`steps=[]\`, log download 404 \`BlobNotFound\`, no artifacts and no combined status contexts. Do not retry this pre-runner failure.
-- Read-only formula comparison against archived bundle blob \`be453db2699273a194543de4532db6ea4b2e1cf2\` confirms paidMonths suppression is absent from both native obligation engines; finite installment suppression is absent from DailyPace/Coverage/Space and partial in Autonomie; WEB also has explicit closedAt and refinance-settlement predicates not yet equivalently represented/imported. Core Space/daily-budget/Coverage/Autonomie expressions are structurally aligned.
-- Formula changes remain blocked pending explicit approval of the Build19 obligation contract in \`NativeiOS/PARITY_CHECKLIST.md\`. No formula, production model, balance or transaction changes.
+- Executed: Swift 6.2.1 `swiftc -parse` PASS for both new/changed test methods; isolated type-check harness with matching model/API stubs PASS for the populated audit-graph test. Not app XCTest, PortableBackup runtime, Xcode build, Simulator or UI.
+- Exact Native iOS CI run `44762409132` for final HEAD `d382e2e`: FAILURE before runner allocation; job `136378075935`, `runner_id=0`, label `macos-15`, `steps=[]`, log download 404 `BlobNotFound`, no artifacts and no combined status contexts. Do not retry this pre-runner failure.
+- Read-only formula comparison against archived bundle blob `be453db2699273a194543de4532db6ea4b2e1cf2` confirms paidMonths suppression is absent from both native obligation engines; finite installment suppression is absent from DailyPace/Coverage/Space and partial in Autonomie; WEB also has explicit closedAt and refinance-settlement predicates not yet equivalently represented/imported. Core Space/daily-budget/Coverage/Autonomie expressions are structurally aligned.
+- Formula changes remain blocked pending explicit approval of the Build19 obligation contract in `NativeiOS/PARITY_CHECKLIST.md`. No formula, production model, balance or transaction changes.
 
 ### Next exact action
 
 1. Continue non-financial WEB v18.20 import/backup audit with populated fixtures, focusing on nested metadata and complete legacy snapshot round-trips. Add only evidence-backed lossless-restore tests; keep unknown/unsupported fields fail-closed.
-2. Recheck live refs and exact-HEAD CI next run; do not retry \`44762409132\` while it has no runner, steps, logs or artifacts.
-3. At the first macOS runner that executes steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact \`.xcresult\`; then exercise Files/document-picker flows and compare populated Light/Dark screens against archived WEB v18.20.
+2. Recheck live refs and exact-HEAD CI next run; do not retry `44762409132` while it has no runner, steps, logs or artifacts.
+3. At the first macOS runner that executes steps, run XcodeGen, Simulator build, full unit/UI suite and inspect exact `.xcresult`; then exercise Files/document-picker flows and compare populated Light/Dark screens against archived WEB v18.20.
 4. Implement paid-month, finite-installment, closed-debt and refinance obligation semantics only after explicit user approval and with shared WEB/native reference fixtures.
 
 No 100% parity claim.
@@ -4872,7 +4872,7 @@ FIRST NEXT
 
 ## 2026-11-21T09:20:02Z — ScheduleBook / recurring / fixed-expense projection audit (COMPLETED; exporter disabled)
 
-- App feature HEAD: [808cdc65a2a13febcf0bc2a7e20f18e30f4fb646](https://github.com/nikopol000/financial-autonomy-app/commit/808cdc65a2a13febcf0bc2a7e20f18e30f4fb646); previous implementation/test commit [249516ac](https://github.com/nikopol000/financial-autonomy-app/commit/249516ac2e3609d756a9668f87cc6f5ebf9a3e8f); stable app main \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\` unchanged; **466 ahead / 0 behind**.
+- App feature HEAD: [808cdc65a2a13febcf0bc2a7e20f18e30f4fb646](https://github.com/nikopol000/financial-autonomy-app/commit/808cdc65a2a13febcf0bc2a7e20f18e30f4fb646); previous implementation/test commit [249516ac](https://github.com/nikopol000/financial-autonomy-app/commit/249516ac2e3609d756a9668f87cc6f5ebf9a3e8f); stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` unchanged; **466 ahead / 0 behind**.
 - Preflight now checks canonical recurring precedence and every retained field (IDs/order/name/amount/frequency/kind/status/coveredByBudget/nextPayment/history/endDay/reminder), validates the recurring-to-ScheduledItem projection, and compares ScheduleBook items by ID against recurring + fixed catalog. Missing, extra, duplicate, native-only and mismatched items fail closed.
 - Fixed-expense projection mirrors importer semantics: every WEB monthPlan boundary and ordered expense row is compared; repeated IDs across months are allowed; latest row per ID forms the native catalog; empty month boundaries are retained and checked. dayKnown is not represented by ScheduledItem and remains in metadata.
 - Added 3 preflight regression tests for recurring history/reminder/cancellation, fixed-plan history/latest catalog/dayKnown retention, and missing/native-only scheduled items. Added 100,000 limits for recurring/monthPlans/native schedule/fixed-plan collections.
@@ -4906,13 +4906,13 @@ FIRST NEXT
 
 ## Native iOS — WEB v4 opaque extension reattachment (COMPLETED; full serializer still pending)
 
-- App commits: \`c32ee9007f7cfd8a608fa63076f2202033a097e4\` (format-v2 stable-identity reattachment), \`7d47207dbb15d9f81b2172036275e7bdd4478ad5\` (four XCTest source regressions), \`2f1bd3e0d8df57ca4c15a4d91c753d913797011d\` (one identity index per target array), \`ba22f4e47cc4645ca8ce14cec005b7d42403f299\` (parity documentation).
+- App commits: `c32ee9007f7cfd8a608fa63076f2202033a097e4` (format-v2 stable-identity reattachment), `7d47207dbb15d9f81b2172036275e7bdd4478ad5` (four XCTest source regressions), `2f1bd3e0d8df57ca4c15a4d91c753d913797011d` (one identity index per target array), `ba22f4e47cc4645ca8ce14cec005b7d42403f299` (parity documentation).
 - Reattachment uses explicit IDs/month keys where available and a canonical known-field fingerprint for ID-less records. It resolves every array ancestor by identity, fails on missing/ambiguous identities and schema-key collisions, and refuses unsafe nested-array paths from legacy v1 archives. New imports use archive format v2; v1 root/singleton-object compatibility is retained.
 - Verification: isolated Swift 6.2.1 helper/test-source type-check PASS; runtime reorder/ambiguity/v1-root harness PASS; 10,000-record harness PASS (2,226,701-byte archive, 3.48 seconds). These are not app-target XCTest.
 - Exact Native iOS combined statuses for code/test commits: zero contexts; PR-only workflow lookup exposes no runs. Push-run details are not available through the connected wrapper. No Apple build or app XCTest claim.
-- No formulas, ledger/model rewrite, backup envelope, app/main or user data changed. WEB JSON remains import-only; \`.fabackup\` remains the only writable export.
+- No formulas, ledger/model rewrite, backup envelope, app/main or user data changed. WEB JSON remains import-only; `.fabackup` remains the only writable export.
 
-**FIRST NEXT:** implement the pure \`LedgerSnapshot → WEB v4 state\` serializer, including exact mapping of metadata/native canonical fields, then call opaque reattachment, run the archived module-205 validator, re-import and compare every representable field and derived financial value. Keep native-only fields and unresolved projections fail-closed. Do not enable JSON export until full round-trip and Apple build/test gates pass.
+**FIRST NEXT:** implement the pure `LedgerSnapshot → WEB v4 state` serializer, including exact mapping of metadata/native canonical fields, then call opaque reattachment, run the archived module-205 validator, re-import and compare every representable field and derived financial value. Keep native-only fields and unresolved projections fail-closed. Do not enable JSON export until full round-trip and Apple build/test gates pass.
 
 
 ## 2026-11-21T17:17Z — exact WEB v4 source baseline added; mutable serializer remains gated
@@ -5346,15 +5346,15 @@ Invariants: feature branch only; stable main untouched; no global RecurrenceCale
 
 ## Native iOS queue checkpoint — WEB budget/date provenance consumers (2026-11-22)
 
-App feature code HEAD: \`82762b4215cb2755e6d2b08ec85def7fa727a2e2\`; final app feature HEAD including parity documentation: \`4f4464d5b01c9c07885e2e0aa88c75bfacef6c91\`; stable app main \`a9b30be147abecea45a63bf7dd8d0a3eb3370366\` remains untouched (615 ahead / 0 behind).
+App feature code HEAD: `82762b4215cb2755e6d2b08ec85def7fa727a2e2`; final app feature HEAD including parity documentation: `4338785513e1582c7119cc0c123cd76af82afe9e`; stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` remains untouched (616 ahead / 0 behind).
 
-Completed on \`feat/sync-preview-v18-20-ios\`:
+Completed on `feat/sync-preview-v18-20-ios`:
 - Per-record source-day resolution now covers WebBudgetWindowEngine, WebDailyPaceEngine, WebAutonomyEngine and WebDashboardSpaceEngine. WEB markers preserve exact source day; nil markers preserve local-calendar semantics for native/legacy records. Current/as-of dates remain native local.
 - Malformed source days fail closed in budget windows, daily pace/coverage, autonomy and space. Budget UI shows unavailable reasons rather than a valid-looking zero. No financial formulas, principal/interest math or global RecurrenceCalendar changes.
 - Added 9 XCTest source cases for UTC+14 mixed-origin budget/daily pace/contribution/coverage/autonomy/space and invalid source-day handling.
-- Archived WEB v18.20 modules 204–210 were executed from blob \`be453db2699273a194543de4532db6ea4b2e1cf2\`: period 10/15 = budget 31,000, spent 1,000, remaining 30,000; period 10/16 = spent 3,000, remaining 28,000; summary daily 1,764, cash 49,000, space 19,000; fixed obligation 500 on 10/15 and 0 on 10/16; rent coverage reference 9,500 cash − 500 obligation = 9,000.
-- Swift 6.2.1 isolated warnings-as-errors date/arithmetic harness PASS; XCTest source fragments passed \`swiftc -frontend -parse\`. No app-target typecheck/XCTest.
-- Exact final app HEAD \`4f4464d5b01c9c07885e2e0aa88c75bfacef6c91\`: no Native iOS workflow run surfaced; combined status empty. Parent code run 45043899650 failed before runner allocation (zero steps, no logs/artifacts); not retried. No xcodebuild/xcodegen or macOS runner, so Apple build, Simulator, .xcresult, Files restore and visual comparison are unverified.
+- Archived WEB v18.20 modules 204–210 were executed from blob `be453db2699273a194543de4532db6ea4b2e1cf2`: period 10/15 = budget 31,000, spent 1,000, remaining 30,000; period 10/16 = spent 3,000, remaining 28,000; summary daily 1,764, cash 49,000, space 19,000; fixed obligation 500 on 10/15 and 0 on 10/16; rent coverage reference 9,500 cash − 500 obligation = 9,000.
+- Swift 6.2.1 isolated warnings-as-errors date/arithmetic harness PASS; XCTest source fragments passed `swiftc -frontend -parse`. No app-target typecheck/XCTest.
+- Exact final app HEAD `4338785513e1582c7119cc0c123cd76af82afe9e`: no Native iOS workflow run surfaced; combined status empty. Parent code run 45043899650 failed before runner allocation (zero steps, no logs/artifacts); not retried. No xcodebuild/xcodegen or macOS runner, so Apple build, Simulator, .xcresult, Files restore and visual comparison are unverified.
 - Year-zero import remains disabled. Local-only; no backend/account/bank sync/telemetry; available credit is not owned money; native .fabackup only; WEB JSON export disabled.
 
 ### FIRST NEXT — remaining date presentation, mapper and legacy backup compatibility
