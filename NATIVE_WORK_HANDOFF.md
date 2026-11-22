@@ -1,15 +1,15 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-22T04:41:39Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native parity automation
+Updated UTC: 2026-11-22T04:43:40Z
+Lease expires UTC: 2026-11-22T05:43:40Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: d4459b5d2141a9e8f0062bab0bc86396655e3e2a
 Latest implementation commit: d4459b5d2141a9e8f0062bab0bc86396655e3e2a
 Latest app branch commit: d4459b5d2141a9e8f0062bab0bc86396655e3e2a
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff commit: 6ae6ae17dd7d40ac00a25dd8c806af9be2e61073
+Verified preview main HEAD before this handoff commit: d518e3de273d78a76a1c9a7b68241b790be15ad3
 
 ## Completed this run
 
@@ -166,3 +166,9 @@ Inspect and reconcile native operation-audit, balance-check and balance-check-au
 ### Next exact action — monthly reviews projection
 
 Implement the mutable `reviews` map from `monthlyReviewProgress` and `WebImportMetadata.reviews`, preserving absent/empty semantics and archived month/stage validation; add populated round-trip/fail-closed tests. Then inspect income/expense templates, names and remaining metadata. At the first macOS runner, build/test, inspect `.xcresult`, verify Files restore and perform screen-by-screen Light/Dark comparison with archived WEB v18.20. Keep export disabled.
+
+
+## Active work — monthly reviews projection (2026-11-22T04:43:40Z)
+
+- First unfinished queue item: reconcile native `monthlyReviewProgress` and `WebImportMetadata.reviews` to the required WEB v4 `reviews` map. Preserve month/stage validation, mirror consistency and empty-map semantics.
+- App feature HEAD verified before work: `d4459b5d2141a9e8f0062bab0bc86396655e3e2a`; app `main` remains untouched. Lease expires 2026-11-22T05:43:40Z.
