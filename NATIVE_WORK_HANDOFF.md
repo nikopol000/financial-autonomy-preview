@@ -1,16 +1,16 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: ChatGPT native iOS automation
-Updated UTC: 2026-11-22T17:39:30Z
-Lease expires UTC: 2026-11-22T18:09:30Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-22T17:50:44.586Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 4338785513e1582c7119cc0c123cd76af82afe9e
-Latest implementation commit: 82762b4215cb2755e6d2b08ec85def7fa727a2e2
-Latest app branch commit: 4338785513e1582c7119cc0c123cd76af82afe9e
-App feature ahead/behind stable main: 616/0
+Verified app feature HEAD: e1462b866d710f3586698bb709aa8efb59df7feb
+Latest implementation commit: e1462b866d710f3586698bb709aa8efb59df7feb
+Latest app branch commit: e1462b866d710f3586698bb709aa8efb59df7feb
+App feature ahead/behind stable main: 619/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main HEAD before this handoff release: 26f6af9a5ebe279d3ded3d4cd810e86f972bfdc3
+Verified preview main HEAD before this handoff release: f8911af9f1cb2640df0fc5e65aeb378b6c1cad27
 
 ## Completed this run — Financial calendar and report date grouping
 
@@ -64,3 +64,21 @@ Verified preview main HEAD before this handoff release: 26f6af9a5ebe279d3ded3d4c
 ## Current lease — provenance-safe legacy backfill
 
 This run reconciled live app feature HEAD `ca26e8dbaa2e0cec8f21aae1375878922461f3ab` and found two commits after the previous 43387855 handoff. Commit `d998727` adds date presentation, legacy WEB v4 provenance backfill and round-trip test sources; `ca26e8d` avoids unnecessary scans and fails closed on invalid dates. The first unfinished safety check is to ensure legacy backfill only restores a source-day marker when the persisted Date still equals the verified WEB source-day instant, and to distinguish balance-check audit before/after source days. Do not alter financial formulas, enable year-zero import, or modify stable app main. CI run `45050187171` for exact HEAD failed before runner allocation (runner_id 0, zero steps, log 404 BlobNotFound); do not retry the same failure.
+
+
+## Completed this run — legacy provenance backfill guard
+
+- App HEAD: `e1462b866d710f3586698bb709aa8efb59df7feb`; feature branch only. Stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` untouched.
+- Commit `e1462b866d710f3586698bb709aa8efb59df7feb` hardens `WebV18_20StateMapper.backfillLegacyDateProvenance`: active/audit records regain a legacy WEB source-day marker only when their Date matches the exact importer-created UTC-Gregorian noon instant. Observation audit before-images prefer historical check days; after-images use the current check row day.
+- Added mixed-origin legacy restore regression source covering a changed active operation date, a changed observation day, operation/balance audit before and after images, and metadata audit history.
+- Swift 6.2.1 isolated warnings-as-errors Foundation harness passed; exact XCTest method source parsed. No app-target build or XCTest execution.
+- Exact CI run [45051377856](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45051377856) failed before runner allocation: job `137297022008`, runner_id 0, zero steps, log 404 BlobNotFound, artifacts 0, combined status empty. No retry.
+- Targeted audit of 30 Swift files found no remaining direct Operation/BalanceObservation date labels; remaining timestamp/current-date/month-label formatters retain instant semantics. Broader non-operation date audit remains.
+
+## FIRST NEXT — end-to-end legacy restore and remaining date-only screens
+
+1. Audit schedule, loan, goal/plan and month-plan date presentation separately from event timestamps.
+2. Run the old WEB v4 backup fixture through LedgerStore restore/reload and mapper/fingerprint with source-only audit and opaque extensions; preserve mixed WEB/native date edits.
+3. Keep year-zero disabled; at the first macOS runner run XcodeGen, Simulator build, all tests, .xcresult, Files restore and v18.20 Light/Dark/VoiceOver screen comparisons.
+
+Invariants: feature branch only; no stable-main changes; local-only; no backend/account/bank sync/telemetry; credit is not owned money; .fabackup only writable export; WEB JSON export disabled.
