@@ -2,36 +2,39 @@
 
 Status: READY_FOR_NEXT_RUN
 Owner: none
-Updated UTC: 2026-11-23T00:12:41Z
+Updated UTC: 2026-11-23T01:24:55Z
 Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 1889a9f2f0c36366a38e9730b79a078110f4b725
-Latest implementation commit: 21aaf63c60c7a4ff1b59eec566fd2f24eb38f8ec
-Latest app branch commit: 1889a9f2f0c36366a38e9730b79a078110f4b725
-App feature ahead/behind stable main: 632/0
+Verified app feature HEAD: b0142b3969709be500ee74f2733e7b9618b30ffb
+Latest implementation commit: b0142b3969709be500ee74f2733e7b9618b30ffb
+Latest app branch commit: b0142b3969709be500ee74f2733e7b9618b30ffb
+App feature ahead/behind stable main: 639/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: 2e73f05e2f8c5edc25024c45ba28f9103ed6c25b
+Verified preview main before this checkpoint commit: 45500c65fd170a3bed27678ea9c7ad3c887648ff
 
 ## Completed this run
 
-- Re-read all five required preview continuity files. Handoff was READY with no active lease.
-- Reconciled live repository refs and latest commits. App feature HEAD is 1889a9f2f0c36366a38e9730b79a078110f4b725; last code HEAD is 21aaf63c60c7a4ff1b59eec566fd2f24eb38f8ec; app stable main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366. Preview main before this documentation checkpoint is e39e09bb627c4e434a88d5db82cd1b641176781b.
-- Inspected exact Native iOS CI for code HEAD 21aaf63c60c7a4ff1b59eec566fd2f24eb38f8ec: run 45082267897 / job 137392845295 failed before runner allocation (runner_id=0, steps=null/empty, no artifacts, log 404 BlobNotFound, no combined status contexts). No retry. No workflow run or combined status contexts were reported for the later documentation-only app HEAD.
-- Added app-branch design document NativeiOS/WEB_V2_V3_CANONICAL_TEMPLATE_DESIGN.md in commits 50c798a93fe376c4d71bd65b47a75cbbc6cb7824, cd90be3340ef85ce3d83f9096949a0aa908e7150 and formatting-only follow-up 1889a9f2f0c36366a38e9730b79a078110f4b725. It records the exact archived WEB v18.20 migration sequence, defaults/null semantics, per-day order, name catalog/role/audit transformations, parser projections and a separate canonical-v4 template proposal. Commit cd90be33 corrects the legacy JavaScript-truthiness edge case; 1889a9f2 only formats Markdown code spans.
-- The source-level audit is complete, but canonical v4 import/re-import fingerprint equivalence is NOT proven. No production code, persisted metadata, mapper behavior or exporter changed.
-- No Swift build, app-target XCTest, Simulator, .xcresult, Files-provider or visual comparison was executed. No financial formulas, Models.swift, LedgerStore.swift, app stable main or preview product bundle changed.
-- Local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money. Native .fabackup remains the only writable backup; WEB JSON export and year-zero import remain disabled.
+- Re-read AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and NATIVE_WORK_HANDOFF.md from preview main. Handoff was READY_FOR_NEXT_RUN with no active lease.
+- Reconciled live refs and latest commits. App feature HEAD is b0142b3969709be500ee74f2733e7b9618b30ffb; app stable main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366; preview main before this documentation checkpoint is 45500c65fd170a3bed27678ea9c7ad3c887648ff. Feature branch is 639 ahead / 0 behind.
+- App commit 14e6d9178ab4321c885ec7849062f71ccf716a1f adds a DEBUG-only canonicalization/decryption seam and two XCTest cases for v2/v3→v4 deterministic bytes, complete mappedFingerprint round-trip, names/IDs, transaction order, audit before-images, falsey/missing legacy values, null/default behavior, migration-day sensitivity and tampering. The seam is not used by production import/export.
+- App commits ac8db32f48ecd33d6f6d9223c0264c9766100f29, 1b92d2863eb4b536cc740db2c7c50fb0acd8b77b, e6cd4276d38817ec122c8da929da6b8992da40ed, 37369ee336a57b8601161d9cc5b3fe884eb7fbd0, 9cdb954f86ad58a28b8c7531dbc88f13e3af6b5b and b0142b3969709be500ee74f2733e7b9618b30ffb restore the WEB v18.20 Coverage diagnostics and dashboard module: first-uncovered date, deficit, stable same-day ordering (including debt schedules), horizon end, the visible "coverage" dashboard slot/card, arrangement label and regression fixtures.
+- Source comparison used archived bundle blob be453db2699273a194543de4532db6ea4b2e1cf2. WEB v18.20 exposes firstUncoveredDate and deficit, uses stable date sorting, and includes "coverage" in the dashboard order. Native now exposes those fields, uses stable ordering, and renders DashboardCoverageView. The cash source remains checking/savings/cash owned balances only; available credit is not included.
+- Exact Native iOS CI for current HEAD b0142b3969709be500ee74f2733e7b9618b30ffb: run 45094392665 / job 137430857103 failed before runner allocation (runner_id=0, empty steps, no logs, log fetch 404 BlobNotFound, zero artifacts, no combined status contexts). This repeats the same pre-runner infrastructure signature seen on earlier code commits. No manual rerun was issued.
+- Local isolated checks: Swift 6.2.1; canonical seam stub typecheck PASS; canonical test methods parser PASS; coverage stable-sort snippet typecheck PASS and regression harness PASS; coverage UI/test parser PASS; dashboard order harness PASS; DashboardCoverageView parser PASS; debt schedule stable-sort typecheck PASS and debt-schedule test parser PASS. An initial chained sort expression exceeded Swift's type-checker complexity; it was replaced with explicit loops and the simplified form passed. These are isolated checks, not app-target build/tests.
+- XcodeGen/xcodebuild/macOS runner are unavailable in this environment. No app-target XCTest, full iOS build, Simulator, .xcresult, Files-provider test, screenshot or visual comparison was executed. No Models.swift/LedgerStore.swift rewrite, no production canonical metadata, no WEB JSON export or year-zero import.
+- App stable main and preview product bundle were not changed. Local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money. Native .fabackup remains the only writable backup.
 
 ## FIRST NEXT
 
-1. Add a test-only canonicalizer seam using the existing v18.20 v2/v3 normalizer and a fixed migration day. Decode both original legacy JSON and generated canonical v4 JSON through the production importer; compare the complete mapper mappedFingerprint. Keep sourceStateJSON nil on the original legacy snapshot. Cover names/IDs, transaction order, operation-audit before-images, optional/null/falsey legacy, deterministic bytes and tamper rejection. Do not add production metadata or enable mapping/export until the proof passes on the actual iOS test target.
-2. At the first functioning macOS runner, run XcodeGen, full Simulator build, all unit/UI tests and inspect exact .xcresult/screenshots. Do not retry run 45082267897: it failed before runner allocation with empty steps/BlobNotFound.
-3. After proof, implement provenance-aware mapper integration and native .fabackup persistence/reload tests; then verify Files-provider restore/export on device.
-4. Complete archived v18.20 financial calculation and Light/Dark/VoiceOver screen-by-screen parity. Keep year-zero import disabled until all date consumers and Apple validation gates pass.
+1. On the first functioning macOS runner, run XcodeGen and the full iOS Simulator build; execute the two canonicalizer tests (testLegacyV2V3CanonicalV4TemplateReimportPreservesCompleteMappedFingerprint and testCanonicalTemplatePreservesFalseyLegacyDefaultsAndRejectsTampering), the new Coverage tests, DashboardOrderTests and the complete unit/UI suites. Inspect the exact .xcresult and screenshots.
+2. Do not manually retry run 45094392665 or the earlier identical pre-runner failures. If runner allocation remains blocked, preserve the evidence and continue independent source-level parity work without claiming XCTest/build/UI validation.
+3. Only after canonicalizer tests pass on the actual iOS target, design provenance-aware canonical-template persistence and .fabackup restore/reload; keep WEB JSON export disabled until full lossless round-trip proof and Files-provider device tests pass.
+4. Continue archived v18.20 calculation and Light/Dark/VoiceOver screen-by-screen parity. Keep year-zero import disabled until all date consumers and Apple validation gates pass.
 
 ## Invariants
 
-- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; do not merge or push to stable app main without explicit user approval.
-- No wholesale Models.swift/LedgerStore.swift rewrite, no global recurrence/date behavior change, no unapproved financial formula changes.
+- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; no merge or push to stable app main without explicit approval.
+- No wholesale Models.swift/LedgerStore.swift rewrite and no unapproved financial formula changes.
 - Local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
-- Native .fabackup remains the only writable backup; WEB JSON export and year-zero import remain disabled.
+- Native .fabackup remains the only writable backup. WEB JSON export and year-zero import remain disabled.
+- Never report 100% parity without data-preservation, financial, build/test, Files-provider and visual/accessibility evidence.

@@ -1993,3 +1993,31 @@ Perform the consumer-by-consumer adapter design before integrating this prototyp
 2. On the first functioning macOS runner, execute XcodeGen, the complete Simulator build, all unit/UI tests and inspect the exact .xcresult and screenshots. If CI again fails before runner allocation with empty steps/BlobNotFound, do not retry that same failure.
 3. After the proof passes, design the provenance-aware mapper integration and native .fabackup persistence/reload tests; then validate Files-provider restore/export on device. Keep WEB JSON export disabled until all gates pass.
 4. Complete archived v18.20 financial calculation and Light/Dark/VoiceOver screen-by-screen parity. Keep year-zero import disabled until all Date-backed consumers and Apple validation gates pass.
+
+### Native iOS checkpoint — canonicalizer proof authored; Coverage dashboard parity advanced (2026-11-23)
+
+- Preview main before this checkpoint: 45500c65fd170a3bed27678ea9c7ad3c887648ff. Archived parity target remains WEB v18.20 bundle blob be453db2699273a194543de4532db6ea4b2e1cf2; the currently active preview version is not substituted for this target.
+- App feature HEAD: b0142b3969709be500ee74f2733e7b9618b30ffb; 639 ahead / 0 behind app stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366. App main was not modified.
+- App commits in this stage:
+  - 14e6d9178ab4321c885ec7849062f71ccf716a1f — DEBUG-only test seam around the existing v2/v3 normalizer, plus deterministic canonical-v4/mappedFingerprint and falsey/null/tamper XCTest coverage. No production import/export path calls the seam.
+  - ac8db32f48ecd33d6f6d9223c0264c9766100f29 — Coverage exposes firstUncoveredDate and deficitMinor, displays both in WebBudgetWindowsView, and preserves WEB's stable ordering for same-day obligations.
+  - 1b92d2863eb4b536cc740db2c7c50fb0acd8b77b — simplified the stable-sort implementation after an isolated Swift type-checker complexity diagnostic.
+  - e6cd4276d38817ec122c8da929da6b8992da40ed — restored the visible "coverage" dashboard module, added horizonEndDay, DashboardCoverageView and order/coverage regression assertions.
+  - 37369ee336a57b8601161d9cc5b3fe884eb7fbd0 — added the "Ritm sigur" arrangement label.
+  - 9cdb954f86ad58a28b8c7531dbc88f13e3af6b5b — made same-day debt-schedule ordering stable to match WEB v18.20.
+  - b0142b3969709be500ee74f2733e7b9618b30ffb — corrected the debt schedule test fixture to decode through WebImportedDebt's Codable contract.
+- Archived WEB v18.20 comparison: the Coverage engine returns firstUncoveredDate and deficit for the first failing obligation; its date sort is stable. CoverageHome displays a negative deficit and first-uncovered date. Dashboard default order includes "coverage" between budget and money. Native previously lacked the two diagnostic fields and filtered the coverage module out of visible dashboard modules; the new runtime fields, stable same-day ordering, visible module, card, arrangement label and regression tests address those source-level gaps.
+- Coverage formulas were not changed: owned cash remains checking/savings/cash accounts marked available for spending; credit is not counted as owned cash. The safe daily amount remains non-negative remaining owned cash divided by inclusive days to the day before the next income. Stable ordering only makes the first failing same-day obligation/diagnostic match WEB's stable sort; total obligations and available cash are unchanged.
+- Canonicalizer proof remains UNVERIFIED until its two new XCTest cases execute in the actual iOS test target. The tests assert stable bytes, v2/v3→v4 import/re-import mappedFingerprint equality, sourceStateJSON nil on original legacy snapshots, name IDs/reuse, transaction order, operation-audit before-images, falsey/missing legacy values, null/default semantics, changed migration day and tamper rejection.
+- Exact CI for current app HEAD: [run 45094392665](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45094392665), job 137430857103, FAILURE before runner allocation (runner_id=0, empty steps, logs unavailable/404 BlobNotFound, zero artifacts, no combined status contexts). Earlier runs for the new code commits show the same pre-runner failure. No manual retries were issued.
+- Local checks only: Swift 6.2.1; isolated canonical seam typecheck PASS; canonical test method parser PASS; coverage stable-sort typecheck and deterministic same-day regression harness PASS; coverage UI/test parser PASS; dashboard order harness PASS; DashboardCoverageView parser PASS; debt-schedule stable-sort typecheck and test parser PASS. Initial chained sort typecheck hit compiler complexity and was rewritten as explicit loops. These checks do not validate the app target.
+- XcodeGen/xcodebuild/macOS runner unavailable. Full build, XCTest, Simulator, .xcresult, Files-provider, screenshot and Light/Dark/VoiceOver visual checks were NOT executed. No production canonical metadata, no export enablement, no Models.swift/LedgerStore.swift rewrite, no preview product bundle or app main change.
+- Local-only/no backend/no mandatory account/no bank sync/no telemetry. Available credit is not owned money. Native .fabackup remains the only writable backup; WEB JSON export and year-zero import remain disabled.
+
+### FIRST NEXT — Apple-target execution gate
+
+1. On the first functioning macOS runner, run XcodeGen and full iOS Simulator build. Execute the two canonicalizer tests, new Coverage tests, DashboardOrderTests and the full unit/UI suites; inspect exact .xcresult and screenshots.
+2. Do not manually retry run 45094392665 or earlier identical pre-runner failures. If runner allocation remains blocked, document evidence and continue independent source-level parity work without claiming app tests/build/UI validation.
+3. Only after the canonical proof passes on the actual iOS target, implement provenance-aware canonical template persistence and .fabackup restore/reload tests; keep WEB JSON export disabled until lossless round-trip and Files-provider device tests pass.
+4. Continue archived v18.20 financial and Light/Dark/VoiceOver screen-by-screen parity. Keep year-zero import disabled until all date consumers and Apple validation gates pass.
+
