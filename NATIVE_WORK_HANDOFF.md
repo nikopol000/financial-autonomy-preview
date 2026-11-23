@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-23T04:20:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-23T05:10:00Z
+Lease expires UTC: 2026-11-23T05:55:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: ec031681436e7024af19b428bb034ac27b5c6fb3
 Latest implementation commit: ec031681436e7024af19b428bb034ac27b5c6fb3
@@ -91,3 +91,11 @@ Verified preview main before this checkpoint commit: b44528c525cdb181659ffd0093e
 1. On the first functioning macOS runner, run the canonicalizer proof tests, Coverage and Dashboard regressions, dailyBudget legacy/rounding/no-plan tests, Dashboard detail tests and the full unit/UI suites. Inspect exact .xcresult and screenshots.
 2. Do not retry run 45110649708 or the repeated pre-runner failure pattern. If runner allocation remains blocked, continue the next independent audit of DashboardSnapshotEngine spending classification and empty Budget-card behavior against archived v18.20.
 3. After the canonicalizer proof passes on the actual iOS target, implement provenance-aware canonical-template persistence and .fabackup restore/reload, then validate Files-provider operations on device.
+
+
+## Active work 2026-11-23T05:10Z
+
+- Re-read preview-main AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff. Handoff was READY_FOR_NEXT_RUN with no lease. Reconciled app feature HEAD ec031681436e7024af19b428bb034ac27b5c6fb3, app stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366, preview main ddd0d8a412e4af66f3bbd11f14f9adb580c51bdf. Exact app CI run 45110649708 failed before runner allocation: runner_id 0, empty steps, no artifacts; no retry.
+- First queued independent audit: DashboardSnapshotEngine spending classification and empty Budget card. Archived WEB v18.20 module 303 classifies roleOf fallback as budgeted only when categoryId exists, fixed when templateId exists, otherwise unbudgeted. Native DashboardSnapshotEngine currently sends every expense through BudgetOperationAdapter; category-linked legacy operations with nil financialRole are rejected by the adapter and shown as unclassified. The adapter's ambiguous legacy budgeted=true without a budgetID is intentionally retained as unclassified; do not silently reclassify it.
+- Empty Budget state source comparison is functionally aligned: both show “Buget” and “Configurează primul buget →” with 22pt radius, 18pt padding, top 5pt / side 2.5pt / bottom 1.5pt border geometry and matching surface/border palette. A UI smoke assertion/accessibility identifier is planned to lock this state.
+- Lease expires 2026-11-23T05:55:00Z. Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; do not touch app main. Before source writes, re-read the feature branch ref and use current content blob SHAs for every changed file.
