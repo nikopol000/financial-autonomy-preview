@@ -2193,3 +2193,42 @@ Invariants remain: local-only, no backend, no mandatory account, no bank sync, n
 1. On the first functioning macOS runner, run XcodeGen and the full iOS Simulator build; execute canonicalizer proof, Coverage, Dashboard order/snapshot, dailyBudget, Dashboard header/Quick Actions, selected-accent, Space palette and Space disclosure regressions, then the complete unit/UI suites. Inspect the exact .xcresult and Light/Dark screenshots.
 2. Do not retry run 45136534601 or the repeated pre-runner failure pattern. If macOS runner allocation remains blocked, continue an independent source audit of DashboardAutonomyView disclosure geometry/interaction and native moneyModule/Budget content versus archived WEB v18.20 module 303. Keep semantic colors and do not change financial formulas speculatively.
 3. After canonicalizer proof passes on the actual iOS test target, design provenance-aware canonical-template persistence and .fabackup restore/reload, then validate Files Provider on device. Keep WEB JSON export and year-zero import disabled until lossless Apple-target gates pass.
+
+
+## Native iOS checkpoint — 2026-11-23T09:25Z — Autonomy disclosure and Budget visual parity
+
+- Startup re-read preview-main `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and `NATIVE_WORK_HANDOFF.md`. Handoff was `READY_FOR_NEXT_RUN` with no lease. Reconciled preview main `8ab2532ca4d6ca7029be958cdbff46ae3e8ccce8`, app feature `de75d308577cf55b6f9235d41ab3506564ee0b44`, and stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366` before this checkpoint.
+- Archived WEB v18.20 reference remains `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. Module 303 `AutonomyHome` and module 218 `BudgetDashboard` were inspected directly; no active preview bundle or financial engine was changed.
+
+### AutonomyHome — source-confirmed disclosure parity
+
+- WEB module 303 renders the Autonomy card as a non-interactive hero container. Only a trailing 44×36 disclosure button toggles the calculation; its accessibility labels are `Vezi calculul` / `Ascunde calculul`. Expanded content sits in a separate `budgetSurface` panel with radius 18, padding 18 and gap 12.
+- Native previously made the entire hero card a button and placed the calculation rows directly on the hero surface. App commit [`1dfbb55e`](https://github.com/nikopol000/financial-autonomy-app/commit/1dfbb55eee15ddc281a602d6f45c9b40b4c5a72c) separates the card from its disclosure, adds the WEB panel and matches the heading/number/unit/summary geometry and row typography. App commit [`15bc1616`](https://github.com/nikopol000/financial-autonomy-app/commit/15bc1616a9e5efc64de513e6772522be35c8797b) locks the 25pt detail-row line box.
+- App commits [`5a213a1f`](https://github.com/nikopol000/financial-autonomy-app/commit/5a213a1f8a2972e607d88a2f0b74dda1e3b31bfc), [`bff4aa72`](https://github.com/nikopol000/financial-autonomy-app/commit/bff4aa722979e398b047168c1735ddade656c194), and [`de75d308`](https://github.com/nikopol000/financial-autonomy-app/commit/de75d308577cf55b6f9235d41ab3506564ee0b44) add Light/Dark UI assertions and exact token regressions, including the non-button card root, arrow target size, panel content, colors and line-height.
+
+### BudgetDashboard — source-confirmed visual parity
+
+- WEB module 218 uses a 14pt/20 label and 17pt/25 value for daily rows, an accent-colored 7pt/radius-5 daily bar, 13pt/21 window names, 14pt/20 window values, and window progress colors mapped to semantic danger/warning/selected-accent tokens.
+- Native compact Dashboard rows previously used caption/system red-orange colors and the system accent. App commit [`a70931eb`](https://github.com/nikopol000/financial-autonomy-app/commit/a70931eb7e1476923162ed9eaeae4e15006e277f) exposes exact WEB semantic palette tokens; [`98392373`](https://github.com/nikopol000/financial-autonomy-app/commit/98392373201478d940ac6a2df9811ad902ac391d) aligns compact row typography and progress colors; [`8b63b516`](https://github.com/nikopol000/financial-autonomy-app/commit/8b63b516f1d0bd99b3c6b635e7b6a28771b113d6) applies semantic danger/warning to unavailable and uncovered states; [`0dd0967f`](https://github.com/nikopol000/financial-autonomy-app/commit/0dd0967f3bd3ce7c7750500085de38db870b9c06) preserves the non-compact Budget view's existing primary-text behavior. App commit [`bd8c94e9`](https://github.com/nikopol000/financial-autonomy-app/commit/bd8c94e97ed6894cdc08c2230a1f9eec2818bf1b) adds Light/Dark palette assertions for Cyan/Ocean/Iris and WEB danger/warning/text tokens.
+- The existing `WebBudgetWindowsView` and `WebBudgetWindowEngine` daily allowance, coverage, budget windows and pinned-window behavior were left unchanged. This stage changes presentation only; no budget formula was altered.
+
+### MoneyHome audit — financial work intentionally not changed
+
+- WEB module 303 `MoneyHome` displays five expandable groups (Disponibil, Economii, Datorez, Credit and the unexplained-balance reconciliation card). Native `DashboardView.moneyModule` currently displays only Disponibil propriu and Credit disponibil; the remaining content is a confirmed functional/visual parity gap.
+- WEB filters the Disponibil accounts with `available !== false`. Native `LedgerSafeTotals.ownedMoneyMinor` currently sums checking/savings/cash accounts without filtering `availableForSpending != false`; `WebDailyPaceEngine.coverage` already applies that filter. This is a source-confirmed financial semantic discrepancy. Per `AGENTS.md` and `DEVELOPMENT_WORKFLOW.md`, no formula/meaning change was made without explicit approval and a reviewed testable proposal. Credit remains excluded from owned money.
+
+### Verification and CI evidence
+
+- Executed on Linux Swift 6.2.1: `swiftc -warnings-as-errors` isolated Autonomy token harness PASS (`DASHBOARD_AUTONOMY_WEB_TOKEN_HARNESS_PASS`); Budget semantic palette harness PASS (`DASHBOARD_BUDGET_WEB_PALETTE_HARNESS_PASS`); `swiftc -frontend -parse` on the complete committed `DashboardAutonomyView.swift` source and the changed Budget SwiftUI fragment PASS; representative XCTest and UI-test fragments parse PASS.
+- These checks are not an Xcode build, app-target XCTest, UI test, Simulator run or visual screenshot comparison. Environment probe confirmed Swift 6.2.1 is available but `xcodebuild` and `xcodegen` are absent.
+- Exact final app HEAD `de75d308577cf55b6f9235d41ab3506564ee0b44`: commit-specific workflow lookup returned no PR-triggered workflow runs and combined status returned no contexts. Parent code HEAD `4966139a3643d219ec1f8d378f7aa4291d97b6c1` has known run [45136534601](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45136534601), job `137564044520`, FAILURE before runner allocation (`runner_id=0`, empty runner name, zero steps, no artifacts/logs). No retry was issued.
+- App feature is `682 ahead / 0 behind` stable app main. Stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, untouched. No Models.swift/LedgerStore.swift rewrite, backup-format change, data migration or formula change occurred.
+
+### FIRST NEXT — Apple-target execution gate, then non-financial Dashboard audit
+
+1. On the first functioning macOS runner, run XcodeGen, the full iOS Simulator build, canonicalizer proof, Coverage, Dashboard/dailyBudget/Snapshot, Autonomy disclosure and Budget palette tests, then the complete unit/UI suites. Inspect the exact `.xcresult` and Light/Dark screenshots.
+2. Do not retry run `45136534601` or the repeated pre-runner failure pattern. If runner allocation remains blocked, continue a source-only audit of `DashboardCoverageView` and its WEB module 303 presentation/interaction without changing formulas.
+3. MoneyHome expansion and the `availableForSpending` treatment remain pending a testable financial proposal and explicit user approval before any calculation/meaning change.
+4. After canonicalizer proof passes on the actual iOS test target, continue provenance-aware canonical-template persistence, `.fabackup` restore/reload and Files Provider device validation. WEB JSON export and year-zero import remain disabled until lossless Apple-target gates pass.
+
+Invariants remain: local-only, no backend, no mandatory account, no bank sync, no telemetry; available credit is not owned money. Native `.fabackup` remains the only writable backup. Never claim 100% parity without data-preservation, financial, build/test, Files Provider, visual and accessibility evidence.
