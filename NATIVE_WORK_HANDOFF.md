@@ -1,16 +1,16 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-23T09:27:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: ChatGPT native parity session
+Updated UTC: 2026-11-23T09:28:00Z
+Lease expires UTC: 2026-11-23T10:10:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: de75d308577cf55b6f9235d41ab3506564ee0b44
 Latest implementation commit: de75d308577cf55b6f9235d41ab3506564ee0b44
 Latest app branch commit: de75d308577cf55b6f9235d41ab3506564ee0b44
 App feature ahead/behind stable main: 682/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: 222d79ead708cc2a4af4cfb764836e68330db1bb
+Verified preview main before this checkpoint commit: 3258b78ab07237d615bce5ddb1e4c74ceca51669
 
 ## Completed 2026-11-23T02:14Z
 
@@ -216,3 +216,11 @@ Verified preview main before this checkpoint commit: 222d79ead708cc2a4af4cfb7648
 - Next exact action: first functioning macOS runner executes XcodeGen/build/canonicalizer/Coverage/Dashboard and full unit/UI suite. If runner allocation is still blocked, audit DashboardCoverageView presentation only; do not alter financial formulas. MoneyHome formula semantics require explicit user approval. After canonicalizer proof on Apple target, continue canonical-template and `.fabackup`/Files Provider lossless work.
 - Invariants: feature branch only; stable app main untouched; no wholesale Models/LedgerStore rewrite; local-only/no backend/no mandatory account/no bank sync/no telemetry; credit is not owned money; `.fabackup` remains only writable backup; WEB JSON export and year-zero import remain disabled. Parity is not 100% demonstrated.
 
+
+
+## Active work 2026-11-23T09:28Z — Dashboard Coverage disclosure parity
+
+- Re-read preview-main AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and NATIVE_WORK_HANDOFF.md. Prior handoff was READY_FOR_NEXT_RUN; no lease was active.
+- Reconciled current app feature HEAD de75d308577cf55b6f9235d41ab3506564ee0b44, stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366, and preview main 3258b78ab07237d615bce5ddb1e4c74ceca51669 before source changes.
+- First queued independent task after Autonomy/Budget: compare DashboardCoverageView with archived WEB v18.20 module 303 CoverageHome. Source indicates WEB keeps detail rows/note behind the shared 44x36 disclosure and budgetSurface panel; native currently renders them always visible. Align only presentation/interaction, preserve WebDailyPaceEngine calculations and the credit-exclusion note.
+- Lease expires 2026-11-23T10:10:00Z. Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. Recheck the app feature ref and current file blob SHA before every app write.
