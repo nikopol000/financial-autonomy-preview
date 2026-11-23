@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-23T11:12:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: ChatGPT native iOS automation
+Updated UTC: 2026-11-23T12:05:00Z
+Lease expires UTC: 2026-11-23T12:50:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 23916326147de8837da8d30babaa299639754362
 Latest implementation commit: 23916326147de8837da8d30babaa299639754362
@@ -242,3 +242,12 @@ Verified preview main before this checkpoint commit: 3258b78ab07237d615bce5ddb1e
 - Exact CI run 45162748132 failed before runner allocation: job 137651987572, runner_id 0, empty runner name, zero steps, no artifacts and no combined status contexts. Do not retry.
 - First next: Apple-target validation on the first functioning macOS runner. If runner allocation remains blocked, audit remaining trackedBudgets/obligations/attention presentation only. MoneyHome financial semantics remain gated on an explicit approved calculation contract.
 - Stable app main untouched. Local-only/no backend/no mandatory account/no bank sync/no telemetry; credit is not owned money; .fabackup remains the only writable backup.
+
+
+## Active work 2026-11-23T12:05Z — remaining Dashboard trackedBudgets/obligations/attention presentation audit
+
+- Re-read preview-main AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and this handoff. Startup preview main was ccc1645f13875307622d06834e7d224309c61475; app feature HEAD was 23916326147de8837da8d30babaa299639754362; app stable main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- The previous Apple-target gate remains blocked: exact current app HEAD 23916326147de8837da8d30babaa299639754362 has Native iOS CI run 45162748132, job 137651987572, failure before runner allocation (steps null, no artifacts, no combined status contexts). Do not retry this failure.
+- First independent queued task: compare native Dashboard trackedBudgets, obligations and attention presentation with archived WEB v18.20 module 303. This is presentation-only; do not alter financial formulas, account inclusion, MoneyHome semantics, backup behavior or credit exclusion.
+- Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. Re-read the feature branch and current file blob SHAs immediately before each source write. Stable app main must remain untouched.
+- Lease expires 2026-11-23T12:50:00Z. If interrupted, next run must wait until expiry and reconcile actual HEADs before continuing.
