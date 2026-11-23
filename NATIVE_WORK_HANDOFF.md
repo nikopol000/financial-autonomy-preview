@@ -1,16 +1,16 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: ChatGPT automation
-Updated UTC: 2026-11-23T03:09:00Z
-Lease expires UTC: 2026-11-23T03:55:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-23T03:16:51.273Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: cb553dc236d53b6974908bde34329adfc88e223e
-Latest implementation commit: cb553dc236d53b6974908bde34329adfc88e223e
-Latest app branch commit: cb553dc236d53b6974908bde34329adfc88e223e
-App feature ahead/behind stable main: 641/0
+Verified app feature HEAD: f171f4b4492f6a077a5b000f7536c3e8592c253c
+Latest implementation commit: f171f4b4492f6a077a5b000f7536c3e8592c253c
+Latest app branch commit: f171f4b4492f6a077a5b000f7536c3e8592c253c
+App feature ahead/behind stable main: 645/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: e0a8fc3478fdce1a14461d89466f022faeffbfb3
+Verified preview main before this checkpoint commit: 07600a461e27a97faf670e5b9810a53bc6b6ff52
 
 ## Completed 2026-11-23T02:14Z
 
@@ -62,3 +62,18 @@ Verified preview main before this checkpoint commit: e0a8fc3478fdce1a14461d89466
 - Apple-target CI remains blocked before runner allocation on exact app HEAD cb553dc236d53b6974908bde34329adfc88e223e: run 45099721014 / job 137447514072, empty steps, zero artifacts, log 404 BlobNotFound, no combined status contexts. No retry.
 - First independent task: audit archived WEB v18.20 dailyBudget module 220 against native WebDailyPaceEngine and WebBudgetWindowEngine. Source comparison found that WEB roleOf falls back to budgeted when categoryId exists, while native Operation.financialRole is optional and Codable preserves nil for older records; native daily pace and budget-window spend currently require explicit .budgetedExpense. Implement a narrow compatibility helper and regression test only if this mismatch is confirmed against the existing mapping contract.
 - Lease expires 2026-11-23T03:55:00Z. Do not duplicate this active stage.
+
+
+## Completed 2026-11-23T03:17Z — dailyBudget legacy-role and rounding parity
+
+- App feature HEAD is `f171f4b4492f6a077a5b000f7536c3e8592c253c`; stable app main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366. Preview main before this documentation checkpoint is `07600a461e27a97faf670e5b9810a53bc6b6ff52`.
+- Archived WEB v18.20 modules 206/219/220 were compared with native role mapping, budget-window spend and dailyBudget. Found and fixed the missing-role categoryId fallback for older native operations: explicit financialRole still wins; if absent, expense + budgetID is budgeted. The helper is now used in WebBudgetWindowEngine historical spend and WebDailyPaceEngine today's included spend/outside-pace/outside-budget classification.
+- App commits: b2a9b8b441ad3be54f6c799301a2c9d11482b1a1, d8dd9763a580217e9750bd4bf648bac358bb622e, d5875d195b763019bd2e9bff3a7ae0dac67ed0b5, f171f4b4492f6a077a5b000f7536c3e8592c253c. Added legacy-role and positive-half-up rounding regression tests.
+- Local Swift 6.2.1 isolated warnings-as-errors harness and test-fragment parser passed. No XcodeGen/xcodebuild, app-target XCTest, Simulator, .xcresult or screenshot validation. Current HEAD commit-specific CI endpoints returned no workflow runs/status contexts. Parent cb553dc CI run 45099721014 failed before runner allocation; no retry.
+- No Models.swift/LedgerStore.swift rewrite, no app/main change, no backup/export enablement. WEB JSON export and year-zero import remain disabled; .fabackup is the only writable backup. Local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money.
+
+## FIRST NEXT
+
+1. On the first functioning macOS runner, execute XcodeGen, the full iOS Simulator build, canonicalizer tests, Coverage and Dashboard tests, the new dailyBudget legacy-role/rounding regressions, and all unit/UI suites. Inspect the exact .xcresult and screenshots.
+2. Do not retry the known pre-runner failure pattern. If runner allocation is still blocked, continue the independent source audit of DashboardBudgetDetailEngine today/window filtering and the empty/no-month-plan dailyBudget state against archived WEB modules 205/206/219/220.
+3. After the canonicalizer proof passes on the actual iOS target, design provenance-aware canonical-template persistence and .fabackup restore/reload; keep WEB JSON export disabled until lossless round-trip and Files-provider device validation pass.
