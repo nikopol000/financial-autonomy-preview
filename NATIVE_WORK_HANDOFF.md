@@ -1,16 +1,16 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: ChatGPT native parity session
-Updated UTC: 2026-11-23T09:08:00Z
-Lease expires UTC: 2026-11-23T09:55:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-23T09:27:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 4966139a3643d219ec1f8d378f7aa4291d97b6c1
-Latest implementation commit: 4966139a3643d219ec1f8d378f7aa4291d97b6c1
-Latest app branch commit: 4966139a3643d219ec1f8d378f7aa4291d97b6c1
-App feature ahead/behind stable main: 672/0
+Verified app feature HEAD: de75d308577cf55b6f9235d41ab3506564ee0b44
+Latest implementation commit: de75d308577cf55b6f9235d41ab3506564ee0b44
+Latest app branch commit: de75d308577cf55b6f9235d41ab3506564ee0b44
+App feature ahead/behind stable main: 682/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: 57c05f5826553d04665812d104cdb4492f93f94b
+Verified preview main before this checkpoint commit: 222d79ead708cc2a4af4cfb764836e68330db1bb
 
 ## Completed 2026-11-23T02:14Z
 
@@ -205,3 +205,14 @@ Verified preview main before this checkpoint commit: 57c05f5826553d04665812d104c
 - Reconciled live app feature HEAD 4966139a3643d219ec1f8d378f7aa4291d97b6c1 and preview main 57c05f5826553d04665812d104cdb4492f93f94b before source writes; app stable main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366.
 - First queued independent task: compare DashboardAutonomyView disclosure geometry/interaction and native Money/Budget dashboard content with archived WEB v18.20 module 303. Patch only source-confirmed presentation or behavior differences; preserve financial formulas and credit exclusion.
 - Lease expires 2026-11-23T09:55:00Z. Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. Recheck the app feature ref and current blob SHAs immediately before every app write.
+
+
+## Completed work 2026-11-23T09:27Z — Dashboard Autonomy and Budget parity
+
+- Reconciled and closed the 09:08Z lease. App feature HEAD is `de75d308577cf55b6f9235d41ab3506564ee0b44`; stable app main is `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature is 682 ahead / 0 behind. Preview main before this handoff commit is `222d79ead708cc2a4af4cfb764836e68330db1bb`.
+- App commits this stage: `1dfbb55eee15ddc281a602d6f45c9b40b4c5a72c`, `5a213a1f8a2972e607d88a2f0b74dda1e3b31bfc`, `bff4aa722979e398b047168c1735ddade656c194`, `a70931eb7e1476923162ed9eaeae4e15006e277f`, `98392373201478d940ac6a2df9811ad902ac391d`, `8b63b516f1d0bd99b3c6b635e7b6a28771b113d6`, `bd8c94e97ed6894cdc08c2230a1f9eec2818bf1b`, `0dd0967f3bd3ce7c7750500085de38db870b9c06`, `15bc1616a9e5efc64de513e6772522be35c8797b`, `de75d308577cf55b6f9235d41ab3506564ee0b44`.
+- Source-level Autonomy and Budget parity work is complete for this batch. MoneyHome remains incomplete: WEB has five expandable money groups and unexplained reconciliation; native currently has two metrics. The available-for-spending filter discrepancy is documented and no formula change was made pending explicit approval.
+- Local Swift 6.2.1 isolated harnesses and parser checks passed. Full Xcode build, app-target XCTest/UI, Simulator, `.xcresult`, real screenshots, Files Provider and VoiceOver remain NOT EXECUTED. Exact HEAD workflow/status lookup has no surfaced PR run/status; parent pre-runner failure is documented in PROJECT_STATE/IMPLEMENTATION_QUEUE. Do not retry it.
+- Next exact action: first functioning macOS runner executes XcodeGen/build/canonicalizer/Coverage/Dashboard and full unit/UI suite. If runner allocation is still blocked, audit DashboardCoverageView presentation only; do not alter financial formulas. MoneyHome formula semantics require explicit user approval. After canonicalizer proof on Apple target, continue canonical-template and `.fabackup`/Files Provider lossless work.
+- Invariants: feature branch only; stable app main untouched; no wholesale Models/LedgerStore rewrite; local-only/no backend/no mandatory account/no bank sync/no telemetry; credit is not owned money; `.fabackup` remains only writable backup; WEB JSON export and year-zero import remain disabled. Parity is not 100% demonstrated.
+
