@@ -2251,3 +2251,38 @@ Invariants remain: local-only, no backend, no mandatory account, no bank sync, n
 2. Do not retry run 45162748132 or the repeated pre-runner failure pattern. If runner allocation remains blocked, audit remaining trackedBudgets, obligations and attention Dashboard presentation against archived WEB v18.20, without financial formula changes.
 3. MoneyHome's missing expandable groups and availableForSpending filter discrepancy remain a functional/financial gap. Prepare a testable calculation proposal; do not change owned-money semantics until the user explicitly approves the contract. Credit remains excluded from owned money.
 4. Only after canonicalizer proof passes on the actual iOS target, continue provenance-aware canonical-template persistence, .fabackup restore/reload and Files Provider device validation. Keep WEB JSON export and year-zero import disabled until lossless Apple-target gates pass.
+
+## Native iOS checkpoint — Dashboard attention/calendar reconciliation (2026-11-23T13:08Z)
+
+- Re-read preview-main `AGENTS.md`, `PROJECT_STATE.md`, `IMPLEMENTATION_QUEUE.md`, `DEVELOPMENT_WORKFLOW.md` and `NATIVE_WORK_HANDOFF.md`. The previous 12:05Z lease expired at 12:50Z; no active lease remained when this run resumed.
+- Live refs: preview main at reconciliation start `5ff0ab49259aaf8a95a178174e6d99fbb9e04381`; app feature `feat/sync-preview-v18-20-ios` HEAD `1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c`; stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`. Compare reports feature `695 ahead / 0 behind`. Latest app branch commits are `1c42a0c`, `251b952`, `36649b9`; stable main is unchanged.
+- Reconciled the eight app commits after the Coverage checkpoint:
+  - `a82fd463b2916caaadc86cc6fca27e33503bec10` — model conditional Dashboard Attention visibility.
+  - `d0eeca8f19b7d29046d30ba53462d0064c4dd426` — render WEB conditional Attention module.
+  - `dd4c76361f101fc008e58d7c4ad8c5198d7f9a79` — Financial Calendar and Attention card visuals.
+  - `66abd2cd1c88f400ce95fc393b8560175405e772` — conditional module ordering/visibility tests.
+  - `f1b7d40cc716aee200f36d6bc234ceb46757c495` — WEB calendar/attention visual token tests.
+  - `36649b9fa9758d7867f54c70f21854b004a39ed9` — Dashboard Attention preview fixture.
+  - `251b952f581a1919b49d18a07e41f484f315a937` — expose Attention UI fixture.
+  - `1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c` — Light/Dark Attention and Financial Calendar UI checks.
+- Archived comparison used `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`. WEB dashboard declares `trackedBudgets` but maps it to `null`; native correctly keeps the ID in persisted normalization while excluding it from currently available/rendered modules. WEB Attention is conditional on pending monthly reviews or legacy data; native uses `MonthlyReviewEngine.pendingMonths` plus `legacySummaryJSON`. WEB Financial Calendar shows the first three events and expands the remainder; native now has the same three-item/expand structure and matching source-level typography, card geometry, date tile, row and button tokens.
+- Verification executed in this run: `swiftc -frontend -parse` on a temporary copy of the exact fetched `DashboardLayout.swift` source PASS; isolated Swift 6.2.1 harness compiled with `-warnings-as-errors` and ran order normalization, hidden-slot retention, Quick Actions ordering, bounded moves and Attention visibility cases PASS (`DASHBOARD_LAYOUT_AND_ATTENTION_HARNESS_PASS`). The harness uses stubs for app-owned model dependencies; it is not an app-target build or XCTest.
+- Environment is Linux Swift 6.2.1; `xcodebuild` and `xcodegen` are absent. Full iOS build, app-target XCTest, UI tests, Simulator, `.xcresult`, actual screenshot comparison, Files Provider and VoiceOver remain NOT EXECUTED.
+- Exact Native iOS CI for current app HEAD: [run 45172582256](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45172582256), event `push`, FAILURE after about 4 seconds; job `137685586856`, `steps=[]`, no artifacts, job-log download returns 404 `BlobNotFound`, combined status has no contexts. This is a pre-runner failure; do not repeat the same failed run.
+- No app source change was made in this reconciliation run. App stable main remains untouched. No wholesale `Models.swift`/`LedgerStore.swift` rewrite or financial formula change occurred.
+
+### FIRST NEXT — MoneyHome parity, approval-gated
+
+- Current native `moneyModule` shows only `Disponibil propriu` and `Credit disponibil`. Archived WEB v18.20 MoneyHome (module 305) has five expandable groups: Disponibil, Economii, Datorez, Credit and Neexplicat.
+- Exact WEB semantics observed in the archived bundle:
+  1. Disponibil = sum of account balances where `available !== false`.
+  2. Economii = sum of all savings-account balances; it is a separate view and may overlap Disponibil, not an additional additive bucket.
+  3. Datorez = sum of all debt balances.
+  4. Credit = for card/overdraft debts, sum `max(0, limit - max(0, debtBalance))`; never add this to owned money.
+  5. Neexplicat = sum of absolute latest non-zero balance-check differences across accounts and debts, with per-item explanation actions.
+- Native mapping proposal: `MoneyAccount.availableForSpending == false` excludes an account from Disponibil; `nil` remains available for legacy/native compatibility, matching WEB's `available !== false`. Savings details include every `.savings` account. Debt/credit mapping must ensure credit-card/overdraft balances are counted exactly once when both account and imported-debt representations exist. Neexplicat must use the latest valid non-voided check per entity and preserve existing reconciliation actions. All totals use checked Int64 arithmetic and fail closed on overflow.
+- Test fixture proposed: checking 10,000 RON and savings 5,000 RON marked available; cash 1,000 RON marked unavailable; loan 20,000 RON, card debt 3,000/limit 10,000 and overdraft 1,000/limit 5,000. Expected WEB values: Disponibil 15,000 RON; Economii 5,000 RON (overlapping subset); Datorez 24,000 RON; Credit 11,000 RON (separate, not owned money). Add two reconciliation differences (e.g. +1,000 and -500) for Neexplicat 1,500 RON.
+- Because filtering unavailable accounts and mapping debt/credit changes the displayed meaning of owned money and debt totals, `AGENTS.md` requires explicit user approval of this exact calculation contract before implementation. Do not change `LedgerSafeTotals`, account inclusion or debt formulas until approval. UI-only expansion can then be implemented against the approved contract.
+- After MoneyHome is resolved, return to the Apple-target gate: XcodeGen, full Simulator build, canonicalizer proof, all accumulated unit/UI tests, exact `.xcresult` and populated Light/Dark screenshots. Keep WEB JSON export/year-zero import disabled until lossless Apple-target validation; `.fabackup` remains the only writable backup.
+
+Invariants remain: feature branch only; stable app main untouched; local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money; no destructive migration or wholesale Models/LedgerStore rewrite. Parity is not 100% demonstrated.
