@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-23T02:22:35Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: ChatGPT automation
+Updated UTC: 2026-11-23T03:09:00Z
+Lease expires UTC: 2026-11-23T03:55:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: cb553dc236d53b6974908bde34329adfc88e223e
 Latest implementation commit: cb553dc236d53b6974908bde34329adfc88e223e
@@ -54,3 +54,11 @@ Verified preview main before this checkpoint commit: e0a8fc3478fdce1a14461d89466
 - Local parser checks for the changed guard and both test methods passed. No XCTest/full build was run.
 - Exact CI run `45099721014` for this commit failed before runner allocation (runner_id=0, empty steps, no artifacts, log 404 BlobNotFound, no combined status contexts); no retry.
 - Next independent audit if Apple runner remains blocked: WEB dailyBudget module 220 versus native dailyBudget period boundaries, included budgets, outside-budget spending and rounding.
+
+
+## Active work 2026-11-23T03:09Z
+
+- Reconciled current preview main 3a1af4c05f793be3fcbbb16896060941d9a27776 and app feature HEAD cb553dc236d53b6974908bde34329adfc88e223e; app stable main remains a9b30be147abecea45a63bf7dd8d0a3eb3370366. Handoff was READY_FOR_NEXT_RUN with no lease.
+- Apple-target CI remains blocked before runner allocation on exact app HEAD cb553dc236d53b6974908bde34329adfc88e223e: run 45099721014 / job 137447514072, empty steps, zero artifacts, log 404 BlobNotFound, no combined status contexts. No retry.
+- First independent task: audit archived WEB v18.20 dailyBudget module 220 against native WebDailyPaceEngine and WebBudgetWindowEngine. Source comparison found that WEB roleOf falls back to budgeted when categoryId exists, while native Operation.financialRole is optional and Codable preserves nil for older records; native daily pace and budget-window spend currently require explicit .budgetedExpense. Implement a narrow compatibility helper and regression test only if this mismatch is confirmed against the existing mapping contract.
+- Lease expires 2026-11-23T03:55:00Z. Do not duplicate this active stage.
