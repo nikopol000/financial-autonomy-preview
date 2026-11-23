@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-23T07:16:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: native-ios-parity
+Updated UTC: 2026-11-23T08:03:00Z
+Lease expires UTC: 2026-11-23T08:50:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: aac5f791286ad35b24fef9a90ff670e33aaaa48b
 Latest implementation commit: 2f3f2ff64881abd719d4cd3e60cfb2b01c1e21f8
@@ -176,3 +176,13 @@ Verified preview main before this checkpoint commit: f2270c24a54481a1007fb05d89b
 - Local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
 - Native `.fabackup` remains the only writable backup. WEB JSON export and year-zero import remain disabled.
 - Never claim 100% parity without data-preservation, financial, build/test, Files-provider and visual/accessibility evidence.
+
+
+## Active work 2026-11-23T08:03Z — Dashboard semantic palette and Space card parity
+
+- Re-read preview-main AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and NATIVE_WORK_HANDOFF.md. Handoff was READY_FOR_NEXT_RUN with no lease.
+- Reconciled live refs before writing: preview main 6256583225f5fd991a208e58d6af924f1e2c6bcf; app feature HEAD aac5f791286ad35b24fef9a90ff670e33aaaa48b; app stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366; app feature 670 ahead / 0 behind.
+- Exact Native iOS CI run 45129440304 targets app HEAD aac5f791286ad35b24fef9a90ff670e33aaaa48b and failed with job steps null (no runner steps); no retry. Preserve this pre-runner infrastructure evidence.
+- First queued task: audit selected-accent propagation across remaining Dashboard modules/theme surfaces. WEB v18.20 uses selected accent only for HomeHeader and Spending/NextIncome card accent/detail link; other Dashboard surfaces use semantic tokens (hero, free, secondaryAccent, budget, success/warning/danger, obligations), and Quick Actions use fixed theme-specific fills. Native RootView applies selected accent to global tint; HomeHeader and snapshot cards receive the persisted appearance accent. Do not recolor semantic surfaces to selected accent.
+- Source audit also found a concrete WEB v18.20 SpaceHome mismatch: positive space value must use text color, negative value must use danger token (not system red); top row includes the free-status dot; details toggle is a trailing 44x36 arrow button, not a whole-card button; expanded formula panel uses budgetSurface, radius 18, padding 18 and the “Vezi calculul” / “Ascunde calculul” accessibility labels.
+- Planned scoped change: align DashboardSpaceView presentation and toggle hit target with archived WEB v18.20 module 303, with a focused populated Light/Dark UI assertion. No financial formula, ledger, backup, Models.swift or LedgerStore.swift changes.
