@@ -1,16 +1,16 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: ChatGPT automation
-Updated UTC: 2026-11-23T04:10:00Z
-Lease expires UTC: 2026-11-23T04:58:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-23T04:20:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: f171f4b4492f6a077a5b000f7536c3e8592c253c
-Latest implementation commit: f171f4b4492f6a077a5b000f7536c3e8592c253c
-Latest app branch commit: f171f4b4492f6a077a5b000f7536c3e8592c253c
-App feature ahead/behind stable main: 645/0
+Verified app feature HEAD: ec031681436e7024af19b428bb034ac27b5c6fb3
+Latest implementation commit: ec031681436e7024af19b428bb034ac27b5c6fb3
+Latest app branch commit: ec031681436e7024af19b428bb034ac27b5c6fb3
+App feature ahead/behind stable main: 649/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: 07600a461e27a97faf670e5b9810a53bc6b6ff52
+Verified preview main before this checkpoint commit: b44528c525cdb181659ffd0093ee38f03362645d
 
 ## Completed 2026-11-23T02:14Z
 
@@ -77,3 +77,17 @@ Verified preview main before this checkpoint commit: 07600a461e27a97faf670e5b981
 1. On the first functioning macOS runner, execute XcodeGen, the full iOS Simulator build, canonicalizer tests, Coverage and Dashboard tests, the new dailyBudget legacy-role/rounding regressions, and all unit/UI suites. Inspect the exact .xcresult and screenshots.
 2. Do not retry the known pre-runner failure pattern. If runner allocation is still blocked, continue the independent source audit of DashboardBudgetDetailEngine today/window filtering and the empty/no-month-plan dailyBudget state against archived WEB modules 205/206/219/220.
 3. After the canonicalizer proof passes on the actual iOS target, design provenance-aware canonical-template persistence and .fabackup restore/reload; keep WEB JSON export disabled until lossless round-trip and Files-provider device validation pass.
+
+## Completed 2026-11-23T04:18Z — dashboard budget-detail parity
+
+- App code commits: c732facd3647a5c79c072a68f76cf31a016e263c (legacy budget-linked rows in Dashboard today/window details) and 4468fcea0a81e81a2f89008b251b9a91c8429e65 (WEB no-month-plan dailyBudget outside breakdown). Regression commits: 9170566d5952c426fee6ea735fd1d5ac77df60cc and ec031681436e7024af19b428bb034ac27b5c6fb3.
+- Source comparison: archived v18.20 bundle blob be453db2699273a194543de4532db6ea4b2e1cf2, modules 205/206/219/220/221. Dashboard detail filters now honor WEB roleOf fallback for legacy records; no-plan dailyBudget keeps WEB outside-pace and outside-budget totals while remaining unavailable.
+- Local Swift 6.2.1 isolated -warnings-as-errors harness passed: NATIVE_BUDGET_DETAIL_PARITY_HARNESS_PASS. New XCTest method fragments parsed successfully. No full app build or XCTest was executed.
+- Exact CI for current HEAD ec031681436e7024af19b428bb034ac27b5c6fb3: run 45110649708 failed before runner work; job 137481997285 steps null, no artifacts, log 404 BlobNotFound, no combined status contexts. No retry.
+- Full iOS build/XCTest/Simulator/.xcresult/Files-provider/visual/accessibility checks remain pending; xcodebuild/xcodegen unavailable. No app/main change; no Models.swift/LedgerStore.swift rewrite; .fabackup remains the only writable backup.
+
+## FIRST NEXT
+
+1. On the first functioning macOS runner, run the canonicalizer proof tests, Coverage and Dashboard regressions, dailyBudget legacy/rounding/no-plan tests, Dashboard detail tests and the full unit/UI suites. Inspect exact .xcresult and screenshots.
+2. Do not retry run 45110649708 or the repeated pre-runner failure pattern. If runner allocation remains blocked, continue the next independent audit of DashboardSnapshotEngine spending classification and empty Budget-card behavior against archived v18.20.
+3. After the canonicalizer proof passes on the actual iOS target, implement provenance-aware canonical-template persistence and .fabackup restore/reload, then validate Files-provider operations on device.
