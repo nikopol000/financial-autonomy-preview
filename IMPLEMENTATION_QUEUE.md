@@ -121,3 +121,16 @@ Reference: archived WEB v18.20 bundle index-v01820-history-back-navigation-20261
 1. On a functioning macOS runner, execute XcodeGen/full iOS Simulator build, canonicalizer/Coverage/Dashboard/dailyBudget regressions, all DashboardSnapshot tests including WEB income-template selection, and the full unit/UI suites; inspect exact .xcresult and screenshots.
 2. Do not retry run 45117719580 or the repeated pre-runner failure pattern. If runner allocation remains blocked, next independent audit is DashboardSnapshotModuleView typography, note line-height, month labels, spacing and border geometry versus archived WEB v18.20 module 303. Patch only proven visual differences and add a UI smoke assertion; do not claim visual runtime verification without screenshots.
 3. After actual iOS canonicalizer proof passes, implement provenance-aware canonical-template persistence and .fabackup restore/reload, then validate Files Provider on device. WEB JSON export/year-zero import remain disabled until lossless Apple-target validation.
+## Completed in latest native iOS stage — Dashboard snapshot visual parity (2026-11-23)
+
+- Archived WEB v18.20 module 303 uses 13pt/21 line-height notes, 10.5pt eyebrow with 17pt line-height, 5pt card gaps, 22pt radius, 14x13 padding, and a full-width 2pt top border with 1pt remaining edges. Native palette values already matched.
+- App commit 44531ea53324b1521f50398a3dbb0ffa67c3b12d aligns DashboardSnapshotModuleView note/detail typography, eyebrow line box and full-width top accent clipped to the card radius.
+- Executed: Swift 6.2.1 parser check on representative SwiftUI styling fragment PASS. Not executed: full SwiftUI typecheck/build, app-target XCTest/UI test, Simulator, .xcresult, actual screenshots/VoiceOver, Files Provider device tests.
+- Exact current app HEAD 44531ea53324b1521f50398a3dbb0ffa67c3b12d: Native iOS CI run 45118198559, job 137505754088, failed before runner allocation (runner_id 0, no steps, no artifacts, no combined status contexts). Do not retry.
+- App feature is 662 ahead / 0 behind stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366; stable main untouched. Local-only and credit exclusion invariants preserved.
+
+## FIRST NEXT
+
+1. On a functioning macOS runner, execute XcodeGen/full iOS Simulator build, canonicalizer/Coverage/Dashboard/dailyBudget/DashboardSnapshot regressions and the full unit/UI suites; inspect exact .xcresult and Light/Dark screenshots.
+2. Do not retry run 45118198559 or the repeated pre-runner failure pattern. If runner allocation remains blocked, next independent audit is DashboardHomeHeader and DashboardQuickActions versus archived WEB v18.20 modules 304/303 (date localization/weekday casing, heading geometry, action labels, colors, hit targets and accessibility names). Patch only source-confirmed differences.
+3. After actual iOS canonicalizer proof passes, implement provenance-aware canonical-template persistence and .fabackup restore/reload, then validate Files Provider on device. WEB JSON export/year-zero import remain disabled until lossless Apple-target validation.
