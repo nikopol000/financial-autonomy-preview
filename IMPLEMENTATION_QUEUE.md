@@ -166,3 +166,21 @@ Reference: archived WEB v18.20 bundle index-v01820-history-back-navigation-20261
 1. On a functioning macOS runner, run XcodeGen/full iOS Simulator build, all existing canonicalizer/Coverage/Dashboard/dailyBudget/header/Quick Actions/accent tests plus Space palette/disclosure tests, and the full unit/UI suites; inspect exact .xcresult and Light/Dark screenshots.
 2. Do not retry run 45136534601 or the repeated pre-runner failure. If runner allocation remains blocked, audit DashboardAutonomyView disclosure parity and native moneyModule/Budget content against WEB v18.20 module 303, without speculative financial formula changes.
 3. After actual iOS canonicalizer proof passes, continue provenance-aware canonical-template persistence, .fabackup restore/reload and Files Provider device validation. WEB JSON export and year-zero import remain disabled.
+
+
+## Completed latest native iOS stage — Dashboard Autonomy and Budget visual parity (2026-11-23T09:26Z)
+
+- App feature HEAD: `de75d308577cf55b6f9235d41ab3506564ee0b44`; stable app main: `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature is `682 ahead / 0 behind`.
+- Autonomy module 303: app commits `1dfbb55e`, `5a213a1f`, `bff4aa72`, `15bc1616`, `de75d308` separate the non-interactive card from the 44×36 disclosure button, add the WEB budgetSurface detail panel, and lock Light/Dark geometry/colors/line-height in tests.
+- Budget module 218: app commits `a70931eb`, `98392373`, `8b63b516`, `0dd0967f`, `bd8c94e9` align compact Dashboard row typography, selected accent, danger/warning semantics and Light/Dark palette regressions. Budget engines and financial formulas are unchanged.
+- MoneyHome audit found a remaining functional/visual gap: WEB has Disponibil, Economii, Datorez, Credit and an unexplained-balance card; native Dashboard currently has only Disponibil propriu and Credit disponibil. A second source-confirmed financial discrepancy is that WEB excludes accounts with `available === false` from Disponibil, while native `LedgerSafeTotals.ownedMoneyMinor` does not filter `availableForSpending != false`. No financial formula change was made; explicit user approval is required after presenting a testable proposal.
+- Executed: Swift 6.2.1 `-warnings-as-errors` isolated Autonomy and Budget palette harnesses PASS; `swiftc -frontend -parse` on complete changed Autonomy source, changed Budget fragment and representative XCTest/UI fragments PASS. These are isolated checks only. Not executed: Xcode build, app-target XCTest/UI tests, Simulator, `.xcresult`, screenshots, Files Provider or VoiceOver.
+- Exact final HEAD CI lookup returned no PR-triggered workflow runs and no combined status contexts. Parent run `45136534601` failed before runner allocation (job `137564044520`, runner_id 0, no steps/artifacts/logs). No retry. `xcodebuild`/`xcodegen` unavailable in the current Linux environment.
+- App stable main remains untouched. No wholesale Models.swift/LedgerStore.swift rewrite, no backup-format change, no migration, no backend/account/bank sync/telemetry. Available credit remains excluded from owned money.
+
+### FIRST NEXT
+
+1. On the first functioning macOS runner, run XcodeGen, the full iOS Simulator build, canonicalizer proof, Coverage, Dashboard/dailyBudget/Snapshot, Autonomy disclosure and Budget palette tests, then the full unit/UI suites; inspect the exact `.xcresult` and Light/Dark screenshots.
+2. Do not retry `45136534601` or the repeated pre-runner failure pattern. If runner allocation remains blocked, audit `DashboardCoverageView` against archived WEB module 303, limited to source-confirmed presentation/interaction and no financial formula changes.
+3. MoneyHome expansion and the `availableForSpending` calculation semantics remain pending a testable proposal and explicit user approval.
+4. After canonicalizer proof passes on the actual iOS test target, continue provenance-aware canonical-template persistence, `.fabackup` restore/reload and Files Provider device validation. WEB JSON export/year-zero import remain disabled.
