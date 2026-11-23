@@ -1,16 +1,16 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-23T07:06:00Z
-Lease expires UTC: 2026-11-23T07:56:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-23T07:16:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: afba371575ea4b5fcbb37ec0bbe06c2dcdae267b
-Latest implementation commit: 9fe63aa37c3c55bfb49bff9c8af064bfbd71e55e
-Latest app branch commit: afba371575ea4b5fcbb37ec0bbe06c2dcdae267b
-App feature ahead/behind stable main: 667/0
+Verified app feature HEAD: aac5f791286ad35b24fef9a90ff670e33aaaa48b
+Latest implementation commit: 2f3f2ff64881abd719d4cd3e60cfb2b01c1e21f8
+Latest app branch commit: aac5f791286ad35b24fef9a90ff670e33aaaa48b
+App feature ahead/behind stable main: 670/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: 3d908d842dbca526bebf7d973680b713f5b20a84
+Verified preview main before this checkpoint commit: f2270c24a54481a1007fb05d89b2366f41cde204
 
 ## Completed 2026-11-23T02:14Z
 
@@ -152,3 +152,27 @@ Verified preview main before this checkpoint commit: 3d908d842dbca526bebf7d97368
 - The prior DashboardHomeHeader/Quick Actions stage has progressed beyond the handoff checkpoint. App commits 9fe63aa37c3c55bfb49bff9c8af064bfbd71e55e (Quick Actions glyphs, dimensions, backgrounds and pressed opacity), 9cd8d84284838c2545db4beb14cb41dbd3066204 (Romanian date capitalization regression) and afba371575ea4b5fcbb37ec0bbe06c2dcdae267b (header/Quick Actions UI assertions) are present on the feature branch. Current source confirms WEB-equivalent 11/17/1.7 eyebrow, 29/35 "Azi." heading, 13/21 capitalized Romanian date, 44pt Quick Actions, exact glyphs, palette fills and 0.75 pressed opacity. These are source-level findings; no Simulator screenshot is available.
 - Exact current HEAD afba371575ea4b5fcbb37ec0bbe06c2dcdae267b has no workflow runs surfaced by fetch_commit_workflow_runs and no combined status contexts. The latest code commit 9fe63aa37c3c55bfb49bff9c8af064bfbd71e55e likewise has no run/status from the available commit-specific endpoints. Prior run 45118198559 for parent code HEAD 44531ea failed before runner allocation (runner_id 0, empty steps, no artifacts); do not retry the same pre-runner failure.
 - Next independent audit confirmed a concrete theme parity gap: archived WEB v18.20 HomeHeader and Spending/NextIncome snapshot detail links read dynamic useUI colors.accent from the selected accent preference (Cyan/Ocean/Iris); native DashboardSnapshotPalette hardcodes Iris violet. Native appearance settings persist the selected accent locally. Correct by passing snapshot appearance accent into DashboardSnapshotPalette for DashboardHomeHeader and DashboardSnapshotModuleView; keep Quick Actions expense/income fills fixed to the WEB-specific tokens. Add focused palette tests. No financial formula or ledger change.
+
+
+## Completed this run — Dashboard selected accent parity (2026-11-23T07:16Z)
+
+- Reconciled the expired 05:32Z header/Quick Actions lease with the actual app branch. Header/Quick Actions implementation and regression commits `9fe63aa37c3c55bfb49bff9c8af064bfbd71e55e`, `9cd8d84284838c2545db4beb14cb41dbd3066204`, `afba371575ea4b5fcbb37ec0bbe06c2dcdae267b` were present and inspected; no Simulator result is claimed.
+- Corrected selected-accent propagation on the feature branch: `eed163c0e3487211a83994aee14580eec41baf02`, `2f3f2ff64881abd719d4cd3e60cfb2b01c1e21f8`, `aac5f791286ad35b24fef9a90ff670e33aaaa48b`.
+- Local isolated Swift 6.2.1 warnings-as-errors palette harness passed; representative SwiftUI and XCTest fragments parsed. Full app build/tests/Simulator remain unexecuted.
+- Exact current HEAD CI lookup: no PR-triggered workflow run and no combined status contexts. Parent run 45118198559 was inspected: failed before runner allocation, zero steps, no artifacts, log 404 BlobNotFound. No retry.
+- Preview continuity commits: lease claim `a530301a7bd830b37890273e7d4141a29955d6f2`; PROJECT_STATE `a8fb18e3dac9f77f5865a1a9d4a239c35a70da01`; IMPLEMENTATION_QUEUE `f2270c24a54481a1007fb05d89b2366f41cde204`.
+- App feature HEAD `aac5f791286ad35b24fef9a90ff670e33aaaa48b`, 670 ahead / 0 behind stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`. Stable app main untouched.
+
+### FIRST NEXT
+
+1. On the first functioning macOS runner, run XcodeGen, full iOS Simulator build, canonicalizer proof, Coverage, Dashboard, dailyBudget, header/Quick Actions and selected-accent tests, then the full unit/UI suite; inspect exact `.xcresult` and Light/Dark screenshots.
+2. Do not retry the known pre-runner CI failure. If runner allocation remains blocked, audit selected-accent propagation across remaining Dashboard modules and theme surfaces without speculative financial changes.
+3. After canonicalizer proof passes in the actual iOS target, continue provenance-aware canonical-template persistence, `.fabackup` restore/reload and Files Provider device validation. WEB JSON export and year-zero import remain disabled until lossless validation.
+
+## Invariants
+
+- Work only on `financial-autonomy-app:feat/sync-preview-v18-20-ios`; no merge or push to app stable main without explicit approval.
+- No wholesale Models.swift/LedgerStore.swift rewrite and no unapproved financial formula changes.
+- Local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
+- Native `.fabackup` remains the only writable backup. WEB JSON export and year-zero import remain disabled.
+- Never claim 100% parity without data-preservation, financial, build/test, Files-provider and visual/accessibility evidence.
