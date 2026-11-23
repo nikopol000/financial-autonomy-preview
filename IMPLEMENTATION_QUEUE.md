@@ -184,3 +184,19 @@ Reference: archived WEB v18.20 bundle index-v01820-history-back-navigation-20261
 2. Do not retry `45136534601` or the repeated pre-runner failure pattern. If runner allocation remains blocked, audit `DashboardCoverageView` against archived WEB module 303, limited to source-confirmed presentation/interaction and no financial formula changes.
 3. MoneyHome expansion and the `availableForSpending` calculation semantics remain pending a testable proposal and explicit user approval.
 4. After canonicalizer proof passes on the actual iOS test target, continue provenance-aware canonical-template persistence, `.fabackup` restore/reload and Files Provider device validation. WEB JSON export/year-zero import remain disabled.
+
+
+## Completed latest native iOS stage — Dashboard Coverage presentation parity (2026-11-23)
+
+- App commit 23916326147de8837da8d30babaa299639754362 aligns DashboardCoverageView with archived WEB v18.20 module 303: 11pt bold eyebrow, 1.7 tracking, centered header/detail rows and 16pt row gap. Regression expectations updated in AppearanceSettingsTests.testDashboardCoverageTokensMatchWEBv1820.
+- The audit confirmed the existing 22pt card radius, 17pt padding, 5pt card gap, 44x36 disclosure, 8pt disclosure gap, 18pt/18pt/12pt expanded panel, copy, conditional rows and semantic colors already match the archived source at code level.
+- Executed Swift 6.2.1 swiftc -frontend -parse on representative changed SwiftUI and XCTest fragments: PASS (COVERAGE_PARITY_SWIFT_PARSER_PASS). No full app-source parse, SwiftUI typecheck, Xcode build, XCTest/UI, Simulator, .xcresult, screenshot comparison, Files Provider or VoiceOver run.
+- Exact HEAD CI run 45162748132, job 137651987572, failed before runner allocation: runner_id=0, empty runner name, steps=[], no artifacts, no combined status contexts. Do not retry the repeated pre-runner failure.
+- Feature HEAD 23916326147de8837da8d30babaa299639754362, 687/0 vs stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366. Stable main untouched. Local-only and credit-exclusion invariants preserved.
+
+### FIRST NEXT
+
+1. First functioning macOS runner: XcodeGen, full iOS Simulator build, canonicalizer proof, accumulated financial/Dashboard regressions, full unit/UI suites and .xcresult plus populated Light/Dark screenshot review.
+2. Do not retry run 45162748132. If runner allocation remains blocked, audit trackedBudgets, obligations and attention Dashboard presentation against archived WEB v18.20 without changing financial formulas.
+3. MoneyHome group expansion and the availableForSpending owned-money filter require a testable proposal and explicit user approval before changing financial semantics. Credit remains excluded from owned money.
+4. After Apple-target canonicalizer proof, continue canonical-template persistence, .fabackup restore/reload and Files Provider device validation; WEB JSON export and year-zero import remain disabled.

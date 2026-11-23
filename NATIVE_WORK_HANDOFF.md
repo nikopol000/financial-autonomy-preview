@@ -1,14 +1,14 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: ChatGPT native parity session
-Updated UTC: 2026-11-23T11:07:00Z
-Lease expires UTC: 2026-11-23T11:50:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-23T11:12:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: de75d308577cf55b6f9235d41ab3506564ee0b44
-Latest implementation commit: de75d308577cf55b6f9235d41ab3506564ee0b44
-Latest app branch commit: de75d308577cf55b6f9235d41ab3506564ee0b44
-App feature ahead/behind stable main: 682/0
+Verified app feature HEAD: 23916326147de8837da8d30babaa299639754362
+Latest implementation commit: 23916326147de8837da8d30babaa299639754362
+Latest app branch commit: 23916326147de8837da8d30babaa299639754362
+App feature ahead/behind stable main: 687/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 Verified preview main before this checkpoint commit: 3258b78ab07237d615bce5ddb1e4c74ceca51669
 
@@ -232,3 +232,13 @@ Verified preview main before this checkpoint commit: 3258b78ab07237d615bce5ddb1e
 - Exact current-head Native iOS CI run `45147689980` failed in 4 seconds before runner allocation: job `137600935750`, `runner_id=0`, empty runner name, `steps=[]`, no artifacts, no combined status contexts. Do not retry this repeated pre-runner failure.
 - First queued fallback: audit `NativeiOS/DashboardCoverageView.swift` against archived WEB v18.20 module 303 `CoverageHome`; only source-confirmed presentation/interaction changes are in scope. Preserve `WebDailyPaceEngine`, credit-exclusion note, financial formulas and backup behavior.
 - Lease expires `2026-11-23T11:50:00Z`. Work only on `financial-autonomy-app:feat/sync-preview-v18-20-ios`; recheck app branch HEAD and file blob SHAs immediately before writes. Stable app main must remain untouched.
+
+
+## Completed 2026-11-23T11:12Z — Dashboard Coverage presentation parity
+
+- App feature HEAD: 23916326147de8837da8d30babaa299639754362; stable app main: a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature ahead/behind: 687/0.
+- App commit: 23916326147de8837da8d30babaa299639754362 aligns Coverage eyebrow typography and row geometry with archived WEB v18.20 module 303; focused token assertions updated.
+- Local representative Swift parser check passed. Full Xcode build, app-target tests, Simulator, .xcresult, actual screenshots, Files Provider and VoiceOver remain NOT EXECUTED.
+- Exact CI run 45162748132 failed before runner allocation: job 137651987572, runner_id 0, empty runner name, zero steps, no artifacts and no combined status contexts. Do not retry.
+- First next: Apple-target validation on the first functioning macOS runner. If runner allocation remains blocked, audit remaining trackedBudgets/obligations/attention presentation only. MoneyHome financial semantics remain gated on an explicit approved calculation contract.
+- Stable app main untouched. Local-only/no backend/no mandatory account/no bank sync/no telemetry; credit is not owned money; .fabackup remains the only writable backup.
