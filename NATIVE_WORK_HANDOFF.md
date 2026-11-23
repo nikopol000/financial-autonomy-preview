@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: native-ios-parity
-Updated UTC: 2026-11-23T08:03:00Z
-Lease expires UTC: 2026-11-23T08:50:00Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-23T08:13:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: aac5f791286ad35b24fef9a90ff670e33aaaa48b
 Latest implementation commit: 2f3f2ff64881abd719d4cd3e60cfb2b01c1e21f8
@@ -186,3 +186,14 @@ Verified preview main before this checkpoint commit: f2270c24a54481a1007fb05d89b
 - First queued task: audit selected-accent propagation across remaining Dashboard modules/theme surfaces. WEB v18.20 uses selected accent only for HomeHeader and Spending/NextIncome card accent/detail link; other Dashboard surfaces use semantic tokens (hero, free, secondaryAccent, budget, success/warning/danger, obligations), and Quick Actions use fixed theme-specific fills. Native RootView applies selected accent to global tint; HomeHeader and snapshot cards receive the persisted appearance accent. Do not recolor semantic surfaces to selected accent.
 - Source audit also found a concrete WEB v18.20 SpaceHome mismatch: positive space value must use text color, negative value must use danger token (not system red); top row includes the free-status dot; details toggle is a trailing 44x36 arrow button, not a whole-card button; expanded formula panel uses budgetSurface, radius 18, padding 18 and the “Vezi calculul” / “Ascunde calculul” accessibility labels.
 - Planned scoped change: align DashboardSpaceView presentation and toggle hit target with archived WEB v18.20 module 303, with a focused populated Light/Dark UI assertion. No financial formula, ledger, backup, Models.swift or LedgerStore.swift changes.
+
+
+## Completed 2026-11-23T08:13Z — Dashboard semantic accent audit and Space card parity
+
+- App feature HEAD: 4966139a3643d219ec1f8d378f7aa4291d97b6c1; app stable main: a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature ahead/behind: 672/0.
+- App commits: 8d219f08b7e832a53b00a74ff92a03632efc3faf (Space card WEB semantic colors, dot, disclosure/panel) and 4966139a3643d219ec1f8d378f7aa4291d97b6c1 (value Color conversion).
+- Source audit confirms selected accent belongs on HomeHeader, Spending/NextIncome accents and global tint; other Dashboard cards retain semantic WEB tokens. Space positive/negative colors, status dot, disclosure control and expanded panel now match archived WEB v18.20 module 303 at source level.
+- Local isolated Swift 6.2.1 palette harness and exact DashboardSpaceView parser passed. Representative test fragments parsed. No full iOS build, XCTest/UI test, Simulator, .xcresult, actual screenshot, Files Provider or VoiceOver validation was run.
+- Exact CI run 45136534601 for current HEAD failed before runner allocation: job 137564044520, runner_id 0, empty runner name, steps empty, no logs/artifacts and zero combined status contexts. Do not retry the repeated pre-runner failure pattern.
+- FIRST NEXT: on the first functioning macOS runner, run XcodeGen, full iOS Simulator build and complete unit/UI suites including all current financial, Dashboard and new Space tests; inspect .xcresult and Light/Dark screenshots. If runner allocation remains blocked, audit DashboardAutonomyView disclosure parity and native moneyModule/Budget content versus archived WEB v18.20 module 303. Then continue canonical-template persistence and .fabackup/Files Provider lossless validation after canonicalizer passes on the Apple target.
+- Stable app main remains untouched. Local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money. .fabackup remains the only writable backup; WEB JSON export and year-zero import remain disabled.

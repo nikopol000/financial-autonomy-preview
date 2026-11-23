@@ -150,3 +150,19 @@ Reference: archived WEB v18.20 bundle index-v01820-history-back-navigation-20261
 1. On the first functioning macOS runner, run XcodeGen/full iOS Simulator build, canonicalizer proof, Coverage, Dashboard order/snapshot, dailyBudget, header/Quick Actions and selected-accent regressions, then all unit/UI tests. Inspect the exact `.xcresult` and Light/Dark screenshots.
 2. Do not retry run 45118198559 or the identical pre-runner failure. If macOS runner allocation remains blocked, audit selected-accent propagation across the remaining Dashboard modules/theme surfaces without speculative financial formula changes.
 3. After canonicalizer proof passes in the actual iOS test target, implement provenance-aware canonical-template persistence and `.fabackup` restore/reload, then validate Files Provider on device. Keep WEB JSON export and year-zero import disabled until all lossless Apple-target gates pass.
+
+
+## Completed 2026-11-23T08:13Z — Dashboard semantic accent audit and Space card parity
+
+- App commits: 8d219f08b7e832a53b00a74ff92a03632efc3faf and 4966139a3643d219ec1f8d378f7aa4291d97b6c1.
+- Compared archived WEB v18.20 theme module 208 and Dashboard module 303. Selected accent is appropriate only for HomeHeader and Spending/NextIncome snapshot accents/detail links; global native tint follows the saved accent. Autonomy, Space, Budget, Quick Actions, Coverage and Money use semantic/fixed WEB color tokens, so no broad selected-accent recoloring was made.
+- Fixed SpaceHome's confirmed native mismatch: positive value uses text, negative uses danger, status dot uses free/danger, disclosure is a trailing 44x36 arrow button with WEB accessibility labels, and expanded details use WEB formula copy and budgetSurface panel geometry. Added Light/Dark palette unit assertions and populated UI disclosure/screenshot assertions.
+- Local Swift 6.2.1 isolated palette harness PASS (DASHBOARD_SPACE_WEB_SEMANTIC_PALETTE_PASS); complete changed DashboardSpaceView source parser PASS; representative XCTest/UI fragments parser PASS. No app-target XCTest, full build, UI test, Simulator or screenshot comparison was executed.
+- Exact CI run 45136534601 for HEAD 4966139a3643d219ec1f8d378f7aa4291d97b6c1: FAILURE before runner allocation, job 137564044520, runner_id 0, empty runner name, steps empty, no logs/artifacts, combined status zero contexts. No retry.
+- App feature HEAD 4966139a3643d219ec1f8d378f7aa4291d97b6c1, 672 ahead / 0 behind stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366. Stable main untouched; no Models/LedgerStore rewrite, formula change, backup/export enablement or data migration.
+
+### FIRST NEXT — Apple-target validation, then remaining Dashboard audit
+
+1. On a functioning macOS runner, run XcodeGen/full iOS Simulator build, all existing canonicalizer/Coverage/Dashboard/dailyBudget/header/Quick Actions/accent tests plus Space palette/disclosure tests, and the full unit/UI suites; inspect exact .xcresult and Light/Dark screenshots.
+2. Do not retry run 45136534601 or the repeated pre-runner failure. If runner allocation remains blocked, audit DashboardAutonomyView disclosure parity and native moneyModule/Budget content against WEB v18.20 module 303, without speculative financial formula changes.
+3. After actual iOS canonicalizer proof passes, continue provenance-aware canonical-template persistence, .fabackup restore/reload and Files Provider device validation. WEB JSON export and year-zero import remain disabled.
