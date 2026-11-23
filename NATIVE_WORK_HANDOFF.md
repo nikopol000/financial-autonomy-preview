@@ -2,13 +2,13 @@
 
 Status: IN_PROGRESS
 Owner: ChatGPT native iOS automation
-Updated UTC: 2026-11-23T12:05:00Z
-Lease expires UTC: 2026-11-23T12:50:00Z
+Updated UTC: 2026-11-23T13:08:00Z
+Lease expires UTC: 2026-11-23T13:50:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 23916326147de8837da8d30babaa299639754362
-Latest implementation commit: 23916326147de8837da8d30babaa299639754362
-Latest app branch commit: 23916326147de8837da8d30babaa299639754362
-App feature ahead/behind stable main: 687/0
+Verified app feature HEAD: 1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c
+Latest implementation commit: 1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c
+Latest app branch commit: 1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c
+App feature ahead/behind stable main: 695/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 Verified preview main before this checkpoint commit: 3258b78ab07237d615bce5ddb1e4c74ceca51669
 
@@ -251,3 +251,15 @@ Verified preview main before this checkpoint commit: 3258b78ab07237d615bce5ddb1e
 - First independent queued task: compare native Dashboard trackedBudgets, obligations and attention presentation with archived WEB v18.20 module 303. This is presentation-only; do not alter financial formulas, account inclusion, MoneyHome semantics, backup behavior or credit exclusion.
 - Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. Re-read the feature branch and current file blob SHAs immediately before each source write. Stable app main must remain untouched.
 - Lease expires 2026-11-23T12:50:00Z. If interrupted, next run must wait until expiry and reconcile actual HEADs before continuing.
+
+
+## Active work 2026-11-23T13:08Z — reconcile Dashboard attention/calendar and prepare MoneyHome contract
+
+- The previous 12:05Z lease expired at 12:50Z. Re-read all five continuity files and reconciled live refs before proceeding.
+- Current app feature HEAD is `1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c`; stable app main remains `a9b30be147abecea45a63bf7dd8d0a3eb3370366`; feature is 695 ahead / 0 behind. Preview main at claim is `5ff0ab49259aaf8a95a178174e6d99fbb9e04381`.
+- Reconciled the eight app commits after the prior Coverage checkpoint: conditional Attention visibility, Attention rendering, Financial Calendar visuals, ordering/visibility tests, Light/Dark UI fixture and screenshot assertions. The stage is already committed; do not duplicate it.
+- Archived WEB v18.20 bundle `_expo/static/js/web/index-v01820-history-back-navigation-20261014.js`, blob `be453db2699273a194543de4532db6ea4b2e1cf2`: `trackedBudgets` is declared but maps to `null`, so it remains hidden; WEB Attention is conditional on pending reviews or legacy data; Financial Calendar uses the 3-item preview plus expand control. Native source-level behavior matches these contracts.
+- Exact Native iOS CI run `45172582256` for app HEAD `1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c` completed FAILURE after ~4 seconds. Job `137685586856` has `steps=[]`; no artifacts; job-log download returns 404 BlobNotFound; combined status has no contexts. Do not retry the same pre-runner failure.
+- This run will finish by reconciling PROJECT_STATE/IMPLEMENTATION_QUEUE and returning this handoff to READY_FOR_NEXT_RUN. Next product gap is MoneyHome; its WEB calculation contract must be explicitly approved before any owned-money/debt semantics change.
+
+Work only on `financial-autonomy-app:feat/sync-preview-v18-20-ios`; re-read app HEAD and file blob SHAs before any source write. Stable app main remains untouched.
