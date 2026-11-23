@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-23T05:20:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-23T05:25:00Z
+Lease expires UTC: 2026-11-23T06:05:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: b9a0afbd26960e0dfdb14f431dbafdb0e899eecf
 Latest implementation commit: b9a0afbd26960e0dfdb14f431dbafdb0e899eecf
@@ -108,3 +108,9 @@ Verified preview main before this checkpoint commit: af6c4b1e7ed38ccfeb4ddc1f48a
 - Local Linux Swift 6.2.1 isolated warnings-as-errors harness passed with DASHBOARD_SNAPSHOT_WEB_ROLE_FALLBACK_PASS; standalone parser checks passed. Not app-target verification.
 - First next: on the first functioning macOS runner execute the full iOS build, canonicalizer/Coverage/Dashboard/dailyBudget/DashboardSnapshot tests and testEmptyLedgerScreensInLightAndDark, inspect .xcresult and screenshots. If runner allocation remains blocked, do not retry the same failure; audit DashboardSnapshotEngine.nextIncome against archived WEB v18.20 module 303 (dayKnown, month-end clamping, first-due/cancellation and same-day ordering). After actual canonicalizer proof passes, continue provenance-aware canonical template and .fabackup/Files Provider validation.
 - Invariants: work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; stable app main untouched; no wholesale Models.swift/LedgerStore.swift rewrite; local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money; .fabackup remains the only writable backup; WEB JSON export and year-zero import remain disabled. Parity is NOT 100% demonstrated.
+
+## Active work 2026-11-23T05:25Z — Dashboard next-income source parity
+
+- Prior stage closed READY_FOR_NEXT_RUN at preview HEAD 3eda3a5add57a1414bff6655e6c4a3867e3d2a37; current app feature HEAD b9a0afbd26960e0dfdb14f431dbafdb0e899eecf, app stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- First next after the Dashboard snapshot/empty Budget audit: compare DashboardSnapshotEngine.nextIncome with archived WEB v18.20 module 303. Source evidence already shows WEB reads state.incomes / metadata.incomeTemplates, while WebV18_20StateMapper explicitly documents v4 incomes as transaction presets and rejects income entries in ScheduleBook. Native DashboardSnapshotModuleView currently reads only ScheduleBook, so imported WEB income templates can be absent from the Dashboard forecast.
+- Lease expires 2026-11-23T06:05:00Z. Before any app write, recheck the feature branch HEAD and current file blob SHAs; work only on feat/sync-preview-v18-20-ios and never touch app main.
