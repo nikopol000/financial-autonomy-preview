@@ -2,15 +2,15 @@
 
 Status: READY_FOR_NEXT_RUN
 Owner: none
-Updated UTC: 2026-11-23T02:14:12Z
+Updated UTC: 2026-11-23T02:22:35Z
 Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 7064ca7d263045a9e7d94b0cb5fed9bae08e1e0e
-Latest implementation commit: 7064ca7d263045a9e7d94b0cb5fed9bae08e1e0e
-Latest app branch commit: 7064ca7d263045a9e7d94b0cb5fed9bae08e1e0e
-App feature ahead/behind stable main: 640/0
+Verified app feature HEAD: cb553dc236d53b6974908bde34329adfc88e223e
+Latest implementation commit: cb553dc236d53b6974908bde34329adfc88e223e
+Latest app branch commit: cb553dc236d53b6974908bde34329adfc88e223e
+App feature ahead/behind stable main: 641/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: 2f254497bd33754ab666e28914a80b3056107973
+Verified preview main before this checkpoint commit: e0a8fc3478fdce1a14461d89466f022faeffbfb3
 
 ## Completed 2026-11-23T02:14Z
 
@@ -46,3 +46,11 @@ Verified preview main before this checkpoint commit: 2f254497bd33754ab666e28914a
 - Local-only; no backend, mandatory account, bank sync or telemetry. Available credit is not owned money.
 - Native .fabackup remains the only writable backup. WEB JSON export and year-zero import remain disabled.
 - Never report 100% parity without data-preservation, financial, build/test, Files-provider and visual/accessibility evidence.
+
+## Completed 2026-11-23T02:22Z
+
+- App commit `cb553dc236d53b6974908bde34329adfc88e223e` aligns the Coverage unknown-expense-day guard with archived WEB v18.20: all top-level expenseTemplates are checked globally, rather than only month-plan rows in the active horizon. Two regression tests cover both directions.
+- Audited WEB checkedBalance/availableMoney against native current balance maintenance. No current-day mismatch was established and no formula change was made.
+- Local parser checks for the changed guard and both test methods passed. No XCTest/full build was run.
+- Exact CI run `45099721014` for this commit failed before runner allocation (runner_id=0, empty steps, no artifacts, log 404 BlobNotFound, no combined status contexts); no retry.
+- Next independent audit if Apple runner remains blocked: WEB dailyBudget module 220 versus native dailyBudget period boundaries, included budgets, outside-budget spending and rounding.
