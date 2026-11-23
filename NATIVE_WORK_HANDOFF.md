@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-23T05:31:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-23T05:32:00Z
+Lease expires UTC: 2026-11-23T06:15:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 44531ea53324b1521f50398a3dbb0ffa67c3b12d
 Latest implementation commit: 44531ea53324b1521f50398a3dbb0ffa67c3b12d
@@ -138,3 +138,9 @@ Verified preview main before this checkpoint commit: 7b47763f30567964b40768c17c5
 - Local Swift 6.2.1 parser check on representative SwiftUI styling passed; not app-target verification.
 - First next: on a functioning macOS runner execute the complete iOS build and unit/UI suite, inspect .xcresult and Light/Dark screenshots. If runner allocation remains blocked, do not retry the same failure; audit DashboardHomeHeader and DashboardQuickActions against archived WEB v18.20 modules 304/303. After actual canonicalizer proof passes, continue provenance-aware canonical template and .fabackup/Files Provider validation.
 - Invariants: work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; stable app main untouched; no wholesale Models.swift/LedgerStore.swift rewrite; local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money; .fabackup remains the only writable backup; WEB JSON export and year-zero import remain disabled. Parity is NOT 100% demonstrated.
+
+## Active work 2026-11-23T05:32Z — Home header and Quick Actions parity
+
+- Prior Dashboard snapshot visual stage closed READY_FOR_NEXT_RUN at preview HEAD 04ad136364b2451e2c35984ca69b1a2e8adfe9d2; app feature HEAD 44531ea53324b1521f50398a3dbb0ffa67c3b12d; app stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- Next queued audit: compare DashboardHomeHeader and DashboardQuickActions with archived WEB v18.20 modules 304/303. Source inspection found header accent/muted colors differ, date formatter lowercases despite WEB textTransform capitalize, and Quick Actions use SF Symbols/system Label metrics rather than WEB glyph/font/min-height/pressed opacity.
+- Lease expires 2026-11-23T06:15:00Z. Before source writes, re-read feature branch HEAD and current blob SHAs; work only on feat/sync-preview-v18-20-ios.
