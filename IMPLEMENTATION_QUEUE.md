@@ -6,10 +6,10 @@ Reference: archived WEB v18.20 bundle index-v01820-history-back-navigation-20261
 
 ## First unfinished action
 
-1. Execute the canonicalizer proof on the actual iOS test target: `testLegacyV2V3CanonicalV4TemplateReimportPreservesCompleteMappedFingerprint` and `testCanonicalTemplatePreservesFalseyLegacyDefaultsAndRejectsTampering`. Also run the new Coverage stable-order/first-deficit tests, DashboardOrderTests and the full unit/UI suites on a functioning macOS runner. Inspect the exact .xcresult and screenshots.
-2. Current exact app HEAD `b0142b3969709be500ee74f2733e7b9618b30ffb` CI run [45094392665](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45094392665), job 137430857103, failed before runner allocation (runner_id=0, empty steps, no logs/404 BlobNotFound, zero artifacts, no combined status contexts). This repeats the same infrastructure failure. Do not manually retry it or prior identical pre-runner runs.
-3. If macOS runner allocation remains blocked, continue independent source-level parity audits and keep the canonicalizer proof explicitly unverified. Do not add production canonical metadata or enable WEB JSON export.
-4. After the proof passes, implement provenance-aware canonical-template persistence and native .fabackup restore/reload tests, then verify Files-provider restore/export on device.
+1. Execute the canonicalizer proof on the actual iOS test target: `testLegacyV2V3CanonicalV4TemplateReimportPreservesCompleteMappedFingerprint` and `testCanonicalTemplatePreservesFalseyLegacyDefaultsAndRejectsTampering`. Also run Coverage stable-order/first-deficit tests, DashboardOrderTests, the new Coverage default-visibility UI test and the complete unit/UI suites on a functioning macOS runner. Inspect the exact .xcresult and screenshots.
+2. Current exact app HEAD `7064ca7d263045a9e7d94b0cb5fed9bae08e1e0e` CI run [45098891593](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45098891593), job 137444875610, failed before runner allocation (runner_id=0, empty steps, no artifacts, log 404 BlobNotFound, no combined status contexts). Do not manually retry this or earlier identical pre-runner failures.
+3. If macOS runner allocation remains blocked, continue the independent source-level Coverage cash-source audit: compare archived WEB v18.20 `availableMoney/accountBalance` and native Coverage's snapshot account balances, including balance-check/replay semantics and availability flags. Do not change financial formulas without a proven mismatch and regression tests; credit remains excluded.
+4. After the canonical proof passes, implement provenance-aware canonical-template persistence and native .fabackup restore/reload tests, then verify Files-provider restore/export on device. Keep WEB JSON export disabled until all gates pass.
 5. Complete archived v18.20 financial calculations and Light/Dark/VoiceOver screen-by-screen comparison. Keep year-zero import disabled until every date consumer and Apple validation gate passes.
 
 ## Completed in previous app stage
@@ -57,3 +57,12 @@ Reference: archived WEB v18.20 bundle index-v01820-history-back-navigation-20261
 - App feature HEAD `b0142b3969709be500ee74f2733e7b9618b30ffb`, 639 ahead / 0 behind stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`. Stable app main untouched. No Models.swift/LedgerStore.swift rewrite, no production canonical metadata, no financial formula change, no preview product bundle change. Credit remains excluded from owned cash. WEB JSON export and year-zero import remain disabled; native .fabackup remains the only writable backup.
 
 
+
+## Completed in latest app stage — WEB Coverage default-detail and palette parity (2026-11-23T02:14Z)
+
+- App commit [7064ca7d](https://github.com/nikopol000/financial-autonomy-app/commit/7064ca7d263045a9e7d94b0cb5fed9bae08e1e0e) changes NativeiOS/DashboardCoverageView.swift, NativeiOS/DashboardView.swift and NativeiOS/UITests/NativeScreenSmokeTests.swift.
+- Archived WEB v18.20 CoverageHome always displays the cash/obligations/detail rows and explanatory note and is not a pressable disclosure. Native now matches: all applicable rows are visible by default, no button/expand state, no extra border, exact raised card geometry and archived secondaryAccent/danger/text/muted colors for Light/Dark. Credit remains explicitly excluded from owned cash.
+- The UI regression uses -uiTestPopulatedAutonomy in both Light and Dark and asserts the cash, obligations and explanatory note are hittable without tapping, with screenshot attachments. Authored only; not run in XCTest.
+- Executed: Swift 6.2.1 parser for the rewritten Coverage view PASS; parser for the new UI test interaction fragment PASS; isolated palette helper -warnings-as-errors -typecheck PASS. No full app build or test run.
+- Exact Native iOS CI run [45098891593](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45098891593), job 137444875610, failed before runner allocation: runner_id 0, empty steps, zero artifacts, log 404 BlobNotFound, empty combined statuses. No retry.
+- App feature HEAD 7064ca7d263045a9e7d94b0cb5fed9bae08e1e0e, 640 ahead / 0 behind stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366. No app/main, financial formula, Models.swift or LedgerStore.swift change. Full iOS build/XCTest/Simulator/Files-provider/visual validation remain pending.

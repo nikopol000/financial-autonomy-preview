@@ -1,22 +1,24 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
-Owner: ChatGPT iOS automation
-Updated UTC: 2026-11-23T02:07:46Z
-Lease expires UTC: 2026-11-23T02:57:46Z
+Status: READY_FOR_NEXT_RUN
+Owner: none
+Updated UTC: 2026-11-23T02:14:12Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: b0142b3969709be500ee74f2733e7b9618b30ffb
-Latest implementation commit: b0142b3969709be500ee74f2733e7b9618b30ffb
-Latest app branch commit: b0142b3969709be500ee74f2733e7b9618b30ffb
-App feature ahead/behind stable main: 639/0
+Verified app feature HEAD: 7064ca7d263045a9e7d94b0cb5fed9bae08e1e0e
+Latest implementation commit: 7064ca7d263045a9e7d94b0cb5fed9bae08e1e0e
+Latest app branch commit: 7064ca7d263045a9e7d94b0cb5fed9bae08e1e0e
+App feature ahead/behind stable main: 640/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: 45500c65fd170a3bed27678ea9c7ad3c887648ff
+Verified preview main before this checkpoint commit: 2f254497bd33754ab666e28914a80b3056107973
 
-## Current run in progress
+## Completed 2026-11-23T02:14Z
 
 - Claimed a finite 50-minute lease after re-reading the current preview continuity files and reconciling app feature HEAD `b0142b3969709be500ee74f2733e7b9618b30ffb`, app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, and preview main `c8e619e6e2454b229c3da877f716c98a62743f0d`.
 - First unfinished Apple-target execution remains blocked: exact CI run `45094392665` for `b0142b3969709be500ee74f2733e7b9618b30ffb` has a failed job with `steps: null`; no runner work can be inferred. Do not retry the same pre-runner failure.
-- Independent source-level task selected: align the native Coverage card's default visibility and interaction semantics with the archived WEB v18.20 `CoverageHome` component.
+- Completed app commit `7064ca7d263045a9e7d94b0cb5fed9bae08e1e0e`: aligned Coverage default details, non-interactive semantics, raised card geometry and archived light/dark palette; added a Light/Dark UI regression that asserts details are visible without tapping.
+- Executed isolated Swift parser/typecheck checks only. Exact CI run `45098891593` for this commit failed before runner allocation (runner_id=0, empty steps, no artifacts, log 404 BlobNotFound, no combined status contexts); no retry.
+- Next independent source task while Apple CI is blocked: audit WEB `availableMoney/accountBalance` against native Coverage cash balance/replay semantics. Full build/XCTest/Simulator/visual validation remain unverified.
 
 ## Completed this run
 
