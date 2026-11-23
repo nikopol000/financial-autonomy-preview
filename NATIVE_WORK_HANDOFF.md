@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: IN_PROGRESS
+Status: READY_FOR_NEXT_RUN
 Owner: ChatGPT native iOS automation
-Updated UTC: 2026-11-23T13:08:00Z
-Lease expires UTC: 2026-11-23T13:50:00Z
+Updated UTC: 2026-11-23T13:12:00Z
+Lease expires UTC: none
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c
 Latest implementation commit: 1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c
@@ -263,3 +263,18 @@ Verified preview main before this checkpoint commit: 3258b78ab07237d615bce5ddb1e
 - This run will finish by reconciling PROJECT_STATE/IMPLEMENTATION_QUEUE and returning this handoff to READY_FOR_NEXT_RUN. Next product gap is MoneyHome; its WEB calculation contract must be explicitly approved before any owned-money/debt semantics change.
 
 Work only on `financial-autonomy-app:feat/sync-preview-v18-20-ios`; re-read app HEAD and file blob SHAs before any source write. Stable app main remains untouched.
+
+
+## Completed this run 2026-11-23T13:12Z — Dashboard reconciliation and MoneyHome approval gate
+
+- Reconciled the expired 12:05Z lease against actual GitHub refs. App feature HEAD is 1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c; stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature 695/0. Preview main before this final handoff commit: 09224ee8309cc0b9683a601df03ab168c8685bb7.
+- Confirmed eight already-committed app changes complete the trackedBudgets/obligations/attention audit. trackedBudgets remains hidden because WEB v18.20 maps it to null; Financial Calendar and conditional Attention source-level behavior now match the archived bundle.
+- Exact Native iOS CI run 45172582256 targets this HEAD and failed before runner steps: job 137685586856, steps=[], no artifacts, job logs 404 BlobNotFound, combined status empty. No retry.
+- Executed Swift 6.2.1 parse of exact fetched DashboardLayout.swift and an isolated -warnings-as-errors contract harness; both passed. Full app build, XCTest/UI, Simulator, xcresult and screenshot review remain NOT EXECUTED; xcodebuild/xcodegen are absent on this Linux environment.
+- PROJECT_STATE.md and IMPLEMENTATION_QUEUE.md were updated with the eight app commits, actual checks, exact CI evidence and next action. The next product gap is MoneyHome's five WEB groups versus two native metrics.
+- MoneyHome calculation proposal is documented. Explicit user approval is required before changing account availability inclusion, debt aggregation or credit calculations. Do not infer approval from the broad parity goal; credit remains excluded from owned money.
+- No iOS source change in this reconciliation run. Stable app main remains untouched.
+
+### Exact next action
+
+Await explicit approval of the documented MoneyHome calculation contract. After approval, re-read current HEADs and file blob SHAs, implement the five expandable groups in small commits on the iOS feature branch, and add synthetic tests for available/nil/unavailable accounts, savings overlap, one-time debt/credit mapping, reconciliation differences and overflow. Without approval, do not change financial semantics; proceed only with a separately approved non-financial task. Apple-target validation remains pending a functioning macOS runner.
