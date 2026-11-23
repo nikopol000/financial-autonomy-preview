@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-23T01:24:55Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: ChatGPT iOS automation
+Updated UTC: 2026-11-23T02:07:46Z
+Lease expires UTC: 2026-11-23T02:57:46Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: b0142b3969709be500ee74f2733e7b9618b30ffb
 Latest implementation commit: b0142b3969709be500ee74f2733e7b9618b30ffb
@@ -11,6 +11,12 @@ Latest app branch commit: b0142b3969709be500ee74f2733e7b9618b30ffb
 App feature ahead/behind stable main: 639/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
 Verified preview main before this checkpoint commit: 45500c65fd170a3bed27678ea9c7ad3c887648ff
+
+## Current run in progress
+
+- Claimed a finite 50-minute lease after re-reading the current preview continuity files and reconciling app feature HEAD `b0142b3969709be500ee74f2733e7b9618b30ffb`, app stable main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`, and preview main `c8e619e6e2454b229c3da877f716c98a62743f0d`.
+- First unfinished Apple-target execution remains blocked: exact CI run `45094392665` for `b0142b3969709be500ee74f2733e7b9618b30ffb` has a failed job with `steps: null`; no runner work can be inferred. Do not retry the same pre-runner failure.
+- Independent source-level task selected: align the native Coverage card's default visibility and interaction semantics with the archived WEB v18.20 `CoverageHome` component.
 
 ## Completed this run
 
