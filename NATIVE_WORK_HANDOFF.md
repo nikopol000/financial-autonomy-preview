@@ -2,8 +2,8 @@
 
 Status: IN_PROGRESS
 Owner: ChatGPT native parity session
-Updated UTC: 2026-11-23T09:28:00Z
-Lease expires UTC: 2026-11-23T10:10:00Z
+Updated UTC: 2026-11-23T11:07:00Z
+Lease expires UTC: 2026-11-23T11:50:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: de75d308577cf55b6f9235d41ab3506564ee0b44
 Latest implementation commit: de75d308577cf55b6f9235d41ab3506564ee0b44
@@ -224,3 +224,11 @@ Verified preview main before this checkpoint commit: 3258b78ab07237d615bce5ddb1e
 - Reconciled current app feature HEAD de75d308577cf55b6f9235d41ab3506564ee0b44, stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366, and preview main 3258b78ab07237d615bce5ddb1e4c74ceca51669 before source changes.
 - First queued independent task after Autonomy/Budget: compare DashboardCoverageView with archived WEB v18.20 module 303 CoverageHome. Source indicates WEB keeps detail rows/note behind the shared 44x36 disclosure and budgetSurface panel; native currently renders them always visible. Align only presentation/interaction, preserve WebDailyPaceEngine calculations and the credit-exclusion note.
 - Lease expires 2026-11-23T10:10:00Z. Work only on financial-autonomy-app:feat/sync-preview-v18-20-ios. Recheck the app feature ref and current file blob SHA before every app write.
+
+
+## Active work 2026-11-23T11:07Z — Dashboard Coverage presentation audit
+
+- Reconciled expired 09:28Z Coverage lease. Current app feature HEAD at claim: `5d7ba3604f6ea6191ea0323db6d359cec628794f`; stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`. Preview main at claim: `065694b9d07ca64d2e6c35228060c250ccdfc3bb`.
+- Exact current-head Native iOS CI run `45147689980` failed in 4 seconds before runner allocation: job `137600935750`, `runner_id=0`, empty runner name, `steps=[]`, no artifacts, no combined status contexts. Do not retry this repeated pre-runner failure.
+- First queued fallback: audit `NativeiOS/DashboardCoverageView.swift` against archived WEB v18.20 module 303 `CoverageHome`; only source-confirmed presentation/interaction changes are in scope. Preserve `WebDailyPaceEngine`, credit-exclusion note, financial formulas and backup behavior.
+- Lease expires `2026-11-23T11:50:00Z`. Work only on `financial-autonomy-app:feat/sync-preview-v18-20-ios`; recheck app branch HEAD and file blob SHAs immediately before writes. Stable app main must remain untouched.
