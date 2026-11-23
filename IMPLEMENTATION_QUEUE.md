@@ -6,10 +6,10 @@ Reference: archived WEB v18.20 bundle index-v01820-history-back-navigation-20261
 
 ## First unfinished action
 
-1. Reconcile live refs and inspect Native iOS CI for exact app feature HEAD `21aaf63c60c7a4ff1b59eec566fd2f24eb38f8ec`. The commit workflow lookup returned no run and combined status returned no contexts; do not infer a CI pass. Parent HEAD `9f5b3f2e35af4b43862375dc43133c62b1811ed5` run [45076780207](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45076780207) failed before runner allocation (`steps: null`, no artifacts, log 404 `BlobNotFound`); do not retry that failure. If a macOS runner starts for the current HEAD, run XcodeGen, full Simulator build, all unit/UI tests and inspect exact `.xcresult`/screenshots.
-2. Continue the source-level v2/v3 mapper design: enumerate every field/default/order/name-upgrade/audit transformation in `normalizeLegacyState`; specify a separate canonical-v4 template representation (not original `sourceStateJSON`) and prove archived WEB v18.20 import/re-import fingerprint equivalence before implementation. Do not fabricate original v4 bytes or enable WEB JSON export.
-3. On the first functioning macOS runner, execute the NFKC/v2/v3 prepared restore test, prepared v4 WEB → native `.fabackup` → restore/reload test, legacy audit/opaque-extension tests and the complete unit/UI suite; then verify Files-provider import/export on device.
-4. Complete the archived v18.20 financial calculation matrix and Light/Dark/VoiceOver screen-by-screen comparison. Keep year-zero import disabled until every Date-backed consumer, backup/restore path and Apple validation gate passes.
+1. Add a test-only canonicalizer seam using the existing v18.20 v2/v3 normalizer with a fixed migration day. Decode original v2/v3 and canonical v4 bytes through the production importer; assert complete mappedFingerprint equality and that the original legacy snapshot still has no sourceStateJSON. Cover names/IDs, per-day order, operation-audit before images, optional/null/falsey legacy semantics, deterministic bytes and tamper rejection. Do not add persisted canonical metadata or enable production mapping/export until this proof passes on the actual iOS test target.
+2. Reconcile CI on exact app feature HEAD cd90be3340ef85ce3d83f9096949a0aa908e7150 (documentation-only after code HEAD 21aaf63c60c7a4ff1b59eec566fd2f24eb38f8ec). No workflow run or combined status contexts were reported for the docs-only HEAD. The last code HEAD run [45082267897](https://github.com/nikopol000/financial-autonomy-app/actions/runs/45082267897), job 137392845295, failed before runner allocation (runner_id=0, steps=null/empty, zero artifacts, log 404 BlobNotFound). Do not retry this failure.
+3. On the first functioning macOS runner, run XcodeGen, full Simulator build, all unit/UI tests, inspect the exact .xcresult/screenshots, then execute Files-provider restore/export on device.
+4. Complete archived v18.20 financial calculation and Light/Dark/VoiceOver screen-by-screen comparison. Keep year-zero import and WEB JSON export disabled until the canonical proof, full restore/re-export, Apple tests and visual gates pass.
 
 ## Completed in previous app stage
 
@@ -34,3 +34,13 @@ Reference: archived WEB v18.20 bundle index-v01820-history-back-navigation-20261
 - Executed Swift 6.2.1 isolated source parser and `-warnings-as-errors` preflight logic harness: PASS. Full application typecheck/XCTest/build were not run.
 - Exact current HEAD `21aaf63c60c7a4ff1b59eec566fd2f24eb38f8ec`: no workflow run surfaced and no combined status contexts. Parent run 45076780207 is a pre-runner failure with null steps/no artifacts/404 logs; no retry.
 - App feature is 629 ahead / 0 behind stable app main `a9b30be147abecea45a63bf7dd8d0a3eb3370366`. Stable main untouched. WEB JSON export/year-zero import remain disabled; native `.fabackup` is the only writable backup.
+
+
+## Completed in latest app stage — canonical-template source audit (2026-11-23)
+
+- App commit [50c798a9](https://github.com/nikopol000/financial-autonomy-app/commit/50c798a93fe376c4d71bd65b47a75cbbc6cb7824) adds NativeiOS/WEB_V2_V3_CANONICAL_TEMPLATE_DESIGN.md, enumerating the archived WEB migration sequence, accepted top-level schema, defaults/null semantics, transaction ordering, name/catalog/financialRole upgrades, audit-before behavior, native parser projections, and a separate canonical-v4 template proposal.
+- App commit [cd90be33](https://github.com/nikopol000/financial-autonomy-app/commit/cd90be3340ef85ce3d83f9096949a0aa908e7150) corrects the exact legacy semantics: JavaScript-falsey values are retained as JSON; only truthy summaries enter v1 validation.
+- Source-level comparison used archived bundle blob be453db2699273a194543de4532db6ea4b2e1cf2 and current WebBackupV18_20.swift / WebV18_20StateMapper.swift. No production source or test code changed. No canonical import/re-import fingerprint proof is claimed.
+- Exact code HEAD 21aaf63c60c7a4ff1b59eec566fd2f24eb38f8ec CI run 45082267897 failed before runner allocation (job 137392845295; runner ID 0; empty steps; no artifacts; log 404 BlobNotFound). Current branch HEAD is documentation-only cd90be3340ef85ce3d83f9096949a0aa908e7150; no workflow run or combined status contexts surfaced for it.
+- Current app feature branch is 631 ahead / 0 behind stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366. Stable app main remains untouched.
+- No app build, XCTest, Simulator, Files-provider or visual test was run. WEB JSON export and year-zero import remain disabled; native .fabackup remains the only writable backup.
