@@ -200,3 +200,28 @@ Reference: archived WEB v18.20 bundle index-v01820-history-back-navigation-20261
 2. Do not retry run 45162748132. If runner allocation remains blocked, audit trackedBudgets, obligations and attention Dashboard presentation against archived WEB v18.20 without changing financial formulas.
 3. MoneyHome group expansion and the availableForSpending owned-money filter require a testable proposal and explicit user approval before changing financial semantics. Credit remains excluded from owned money.
 4. After Apple-target canonicalizer proof, continue canonical-template persistence, .fabackup restore/reload and Files Provider device validation; WEB JSON export and year-zero import remain disabled.
+
+## Native iOS — completed Dashboard Attention / Financial Calendar audit (2026-11-23T13:08Z)
+
+- Reconciled app feature HEAD 1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c (695 ahead / 0 behind stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366). Preview main at reconciliation start: 5ff0ab49259aaf8a95a178174e6d99fbb9e04381.
+- Existing app commits complete this stage: a82fd463b2916caaadc86cc6fca27e33503bec10, d0eeca8f19b7d29046d30ba53462d0064c4dd426, dd4c76361f101fc008e58d7c4ad8c5198d7f9a79, 66abd2cd1c88f400ce95fc393b8560175405e772, f1b7d40cc716aee200f36d6bc234ceb46757c495, 36649b9fa9758d7867f54c70f21854b004a39ed9, 251b952f581a1919b49d18a07e41f484f315a937, 1c42a0c4676ae3be9fa4167fbebdd1e14ebef52c.
+- Archived WEB v18.20 bundle blob be453db2699273a194543de4532db6ea4b2e1cf2 confirms trackedBudgets is declared but maps to null; native correctly preserves it in the stored order while keeping it unavailable/hidden. obligations now uses the 3-item Financial Calendar plus expand behavior. attention appears only for pending monthly reviews or legacy data. Source-level colors, typography, spacing, card geometry and control behavior align with the archive.
+- Executed: exact fetched DashboardLayout.swift copy parsed with Swift 6.2.1; isolated -warnings-as-errors harness with app-model stubs passed order/hidden-slot/reorder/Attention visibility assertions (DASHBOARD_LAYOUT_AND_ATTENTION_HARNESS_PASS). Not executed: full Xcode build, app-target XCTest/UI, Simulator, xcresult, actual screenshot review, Files Provider or VoiceOver.
+- Exact CI for app HEAD: run 45172582256, Native iOS CI push run FAILURE after ~4 seconds; job 137685586856, zero steps, no artifacts, log download 404 BlobNotFound, no combined status contexts. Do not retry the same pre-runner failure.
+- No app source change in this reconciliation. Stable app main untouched. Local-only and credit-exclusion invariants preserved.
+
+### FIRST NEXT — MoneyHome 1:1 proposal (requires explicit financial-contract approval)
+
+WEB v18.20 MoneyHome has five expandable groups; native currently has only two metrics. Proposed contract to approve before implementation:
+
+1. Disponibil: sum of account balances where availableForSpending != false; legacy nil is treated as available, matching WEB available !== false.
+2. Economii: sum of every savings account, regardless of the availability flag. This is a separate view that can overlap Disponibil; do not add it again.
+3. Datorez: sum all debt balances, with a verified one-time mapping so credit card/overdraft are not double-counted across account and debt representations.
+4. Credit: card/overdraft only, max(0, limit - max(0, debtBalance)); never part of owned money.
+5. Neexplicat: sum absolute latest non-zero valid balance-check differences for accounts and debts, retaining per-item “Explică diferența” actions.
+
+Test fixture: checking 10,000 + savings 5,000 (both available), cash 1,000 (unavailable), loan 20,000, card debt 3,000/limit 10,000, overdraft 1,000/limit 5,000, unexplained differences +1,000 and -500. Expected: Disponibil 15,000; Economii 5,000 (overlapping subset); Datorez 24,000; Credit 11,000 (separate from owned money); Neexplicat 1,500 RON. All sums use checked Int64 arithmetic and fail closed on overflow.
+
+Gate: this changes displayed owned-money inclusion and debt semantics. Per AGENTS.md, do not alter LedgerSafeTotals, account filters or debt/credit formulas until the user explicitly approves this calculation contract. Once approved, implement the five groups and add the synthetic regression matrix. If approval is not yet given, do not substitute guessed values.
+
+After MoneyHome, resume Apple-target validation on a functioning macOS runner (XcodeGen, Simulator build, canonicalizer, accumulated unit/UI suite, xcresult, Light/Dark screenshots). Keep WEB JSON export/year-zero import disabled until lossless Apple-target proof; .fabackup remains the only writable backup.
