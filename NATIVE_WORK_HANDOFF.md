@@ -1,9 +1,9 @@
 # Native Work Handoff
 
-Status: READY_FOR_NEXT_RUN
-Owner: none
-Updated UTC: 2026-11-23T05:28:00Z
-Lease expires UTC: none
+Status: IN_PROGRESS
+Owner: Financial Autonomy iOS automation
+Updated UTC: 2026-11-23T05:29:00Z
+Lease expires UTC: 2026-11-23T06:15:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
 Verified app feature HEAD: 311582fa59cd32d7b5ac8ea9a6bbf750910302f8
 Latest implementation commit: 311582fa59cd32d7b5ac8ea9a6bbf750910302f8
@@ -123,3 +123,9 @@ Verified preview main before this checkpoint commit: 2ef191fbcf3e2e7b9f7c7ed29e9
 - Local Linux Swift 6.2.1 isolated warnings-as-errors harness passed with DASHBOARD_WEB_INCOME_TEMPLATE_PARITY_PASS; standalone parser checks passed. Not app-target verification.
 - First next: on the first functioning macOS runner execute full iOS build and complete unit/UI suite including all DashboardSnapshot tests; inspect .xcresult and screenshots. If runner allocation remains blocked, do not retry the same failure; audit DashboardSnapshotModuleView typography, note line-height, month labels, spacing and border geometry against archived WEB v18.20 module 303. After actual canonicalizer proof passes, continue provenance-aware canonical template and .fabackup/Files Provider validation.
 - Invariants: work only on financial-autonomy-app:feat/sync-preview-v18-20-ios; stable app main untouched; no wholesale Models.swift/LedgerStore.swift rewrite; local-only/no backend/no mandatory account/no bank sync/no telemetry; available credit is not owned money; .fabackup remains the only writable backup; WEB JSON export and year-zero import remain disabled. Parity is NOT 100% demonstrated.
+
+## Active work 2026-11-23T05:29Z — Dashboard snapshot visual parity
+
+- Prior stage closed READY_FOR_NEXT_RUN at preview HEAD 31009e4f3d4907d07200806618eb95f889528e26; current app feature HEAD 311582fa59cd32d7b5ac8ea9a6bbf750910302f8, stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366.
+- First next after WEB income-template forecast: compare DashboardSnapshotModuleView against archived WEB v18.20 module 303. Source comparison identifies note text at 12pt caption instead of WEB 13pt/21 line-height, missing eyebrow 17pt line box, and top border inset by 22pt rather than spanning the full card edge. Palette and base padding/radius/gap already match.
+- Lease expires 2026-11-23T06:15:00Z. Before app writes, re-read feature branch HEAD and current file blob SHA; work only on feat/sync-preview-v18-20-ios.
