@@ -2,15 +2,15 @@
 
 Status: IN_PROGRESS
 Owner: Financial Autonomy iOS automation
-Updated UTC: 2026-11-23T05:32:00Z
-Lease expires UTC: 2026-11-23T06:15:00Z
+Updated UTC: 2026-11-23T07:06:00Z
+Lease expires UTC: 2026-11-23T07:56:00Z
 Working branch: financial-autonomy-app:feat/sync-preview-v18-20-ios
-Verified app feature HEAD: 44531ea53324b1521f50398a3dbb0ffa67c3b12d
-Latest implementation commit: 44531ea53324b1521f50398a3dbb0ffa67c3b12d
-Latest app branch commit: 44531ea53324b1521f50398a3dbb0ffa67c3b12d
-App feature ahead/behind stable main: 662/0
+Verified app feature HEAD: afba371575ea4b5fcbb37ec0bbe06c2dcdae267b
+Latest implementation commit: 9fe63aa37c3c55bfb49bff9c8af064bfbd71e55e
+Latest app branch commit: afba371575ea4b5fcbb37ec0bbe06c2dcdae267b
+App feature ahead/behind stable main: 667/0
 Verified app stable main HEAD: a9b30be147abecea45a63bf7dd8d0a3eb3370366
-Verified preview main before this checkpoint commit: 7b47763f30567964b40768c17c5ab7f7cf6f6743
+Verified preview main before this checkpoint commit: 3d908d842dbca526bebf7d973680b713f5b20a84
 
 ## Completed 2026-11-23T02:14Z
 
@@ -144,3 +144,11 @@ Verified preview main before this checkpoint commit: 7b47763f30567964b40768c17c5
 - Prior Dashboard snapshot visual stage closed READY_FOR_NEXT_RUN at preview HEAD 04ad136364b2451e2c35984ca69b1a2e8adfe9d2; app feature HEAD 44531ea53324b1521f50398a3dbb0ffa67c3b12d; app stable main a9b30be147abecea45a63bf7dd8d0a3eb3370366.
 - Next queued audit: compare DashboardHomeHeader and DashboardQuickActions with archived WEB v18.20 modules 304/303. Source inspection found header accent/muted colors differ, date formatter lowercases despite WEB textTransform capitalize, and Quick Actions use SF Symbols/system Label metrics rather than WEB glyph/font/min-height/pressed opacity.
 - Lease expires 2026-11-23T06:15:00Z. Before source writes, re-read feature branch HEAD and current blob SHAs; work only on feat/sync-preview-v18-20-ios.
+
+
+## Active work 2026-11-23T07:06Z — reconcile Dashboard header/Quick Actions; accent preference audit
+
+- Re-read preview-main AGENTS.md, PROJECT_STATE.md, IMPLEMENTATION_QUEUE.md, DEVELOPMENT_WORKFLOW.md and NATIVE_WORK_HANDOFF.md. The previous lease expired at 2026-11-23T06:15Z; no active lease remained. Reconciled current refs: preview main 3d908d842dbca526bebf7d973680b713f5b20a84; app feature HEAD afba371575ea4b5fcbb37ec0bbe06c2dcdae267b; stable app main a9b30be147abecea45a63bf7dd8d0a3eb3370366; feature 667 ahead / 0 behind.
+- The prior DashboardHomeHeader/Quick Actions stage has progressed beyond the handoff checkpoint. App commits 9fe63aa37c3c55bfb49bff9c8af064bfbd71e55e (Quick Actions glyphs, dimensions, backgrounds and pressed opacity), 9cd8d84284838c2545db4beb14cb41dbd3066204 (Romanian date capitalization regression) and afba371575ea4b5fcbb37ec0bbe06c2dcdae267b (header/Quick Actions UI assertions) are present on the feature branch. Current source confirms WEB-equivalent 11/17/1.7 eyebrow, 29/35 "Azi." heading, 13/21 capitalized Romanian date, 44pt Quick Actions, exact glyphs, palette fills and 0.75 pressed opacity. These are source-level findings; no Simulator screenshot is available.
+- Exact current HEAD afba371575ea4b5fcbb37ec0bbe06c2dcdae267b has no workflow runs surfaced by fetch_commit_workflow_runs and no combined status contexts. The latest code commit 9fe63aa37c3c55bfb49bff9c8af064bfbd71e55e likewise has no run/status from the available commit-specific endpoints. Prior run 45118198559 for parent code HEAD 44531ea failed before runner allocation (runner_id 0, empty steps, no artifacts); do not retry the same pre-runner failure.
+- Next independent audit confirmed a concrete theme parity gap: archived WEB v18.20 HomeHeader and Spending/NextIncome snapshot detail links read dynamic useUI colors.accent from the selected accent preference (Cyan/Ocean/Iris); native DashboardSnapshotPalette hardcodes Iris violet. Native appearance settings persist the selected accent locally. Correct by passing snapshot appearance accent into DashboardSnapshotPalette for DashboardHomeHeader and DashboardSnapshotModuleView; keep Quick Actions expense/income fills fixed to the WEB-specific tokens. Add focused palette tests. No financial formula or ledger change.
