@@ -23,6 +23,11 @@ assert.equal(next,expected,'WEB 18.74 must change ONLY arrangement entry target/
 assert.match(next,/accessibilityLabel:t\?"Încheie aranjarea cardurilor":"Aranjează cardurile de pe Acasă"/);
 assert.match(next,/minHeight:44,justifyContent:"center",paddingVertical:10,paddingHorizontal:12/);
 const html=read('index.html');
-assert.match(html,/<meta name="financial-autonomy-version" content="18\.74"/);
-assert.match(html,/index-v01874-dashboard-arrange-target-20261103\.js\?build=18\.74\.1/);
+// The archived 18.74 bundle stays immutable; newer releases are allowed.
+const activeVersion=html.match(/<meta name="financial-autonomy-version" content="(18\.\d+)"/)?.[1];
+assert.ok(activeVersion&&Number(activeVersion)>=18.74,'Active version must not regress below 18.74');
+const activeBundle=html.match(/<script src="\/financial-autonomy-preview\/([^"?]+\.js)\?build=(18\.\d+)\.\d+"/);
+assert.ok(activeBundle,'Active preview must reference an immutable versioned bundle');
+assert.equal(activeBundle[2],activeVersion,'Active bundle cache key must match HTML metadata');
+assert.ok(fs.existsSync(path.join(root,activeBundle[1])),'Active bundle must exist');
 console.log('PASS WEB 18.74 Dashboard arrangement entry >=44px and named states; exact immutable diff, financial/vault engine unchanged');
